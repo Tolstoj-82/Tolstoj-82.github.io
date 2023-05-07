@@ -94,27 +94,32 @@ function handleInput() {
     //setTimeout(function() { // <-- this makes sure that the scrolling is done before the rest
         // only change the value if the old value was the one from the GG code
         if(oldVal == "-" || oldVal == valueInRomAddress){
-            //exchange the value in the cell
-            document.getElementById(address).textContent = newVal;
-            document.getElementById(address).classList.add("edited");
-            if(log != ""){
+          
+          //exchange the value in the cell
+          document.getElementById(address).textContent = newVal;
+          document.getElementById(address).classList.add("edited");
+          
+          // only enable to save if at least one modification has been made
+          if(log != ""){
 
-            }
-            alert("the value has been altered successfully!");
-            const date = new Date();
-            const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            const formattedTime = date.toLocaleTimeString(undefined, options);
+          }
 
-            addToLog("* GG code added: Address $" + address + " | " + oldVal + " > " + newVal + " (" + formattedTime + ")");
+          alert("the value has been altered successfully!");
+          const date = new Date();
+          const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+          const formattedTime = date.toLocaleTimeString(undefined, options);
+
+          addToLog("* GG code added: Address $" + address + " | " + oldVal + " > " + newVal + " (" + formattedTime + ")");
+          
+          // clear the fields
+          document.getElementById("romAddr").value = "";
+          document.getElementById("oldVal").value = "";
+          document.getElementById("newVal").value = "";
+          document.getElementById("hexInput").value = "";
         }else{
-            alert("According to the Game Genie code you provided, the ROM Address $" + address + " should contain the value 0x" + oldVal + ". This was not the case and nothing has been changed!\l Make sure the Game Genie code is correct and belongs to this game.");
+            alert("According to the Game Genie code you provided, the ROM Address $" + address + " should contain the value 0x" + oldVal + ". This was not the case and nothing has been changed!\n Make sure the Game Genie code is correct and belongs to this game.");
         }
 
-        // clear the fields
-        document.getElementById("romAddr").value = "";
-        document.getElementById("oldVal").value = "";
-        document.getElementById("newVal").value = "";
-        document.getElementById("hexInput").value = "";
         
 
     //}, 800);
