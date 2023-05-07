@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tolstojs Game Genie code converter</title>
+  <style>
+
+    input{
+      font-family: monospace;
+    }
+
+    input[readonly] {
+      background-color: #eee;
+    }
+
+    input.four {
+      width: 3em;
+    }
+    
+    input.two {
+      width: 2em;
+    }
+
+  </style>
+  <script>
+    function handleInput() {
+      
+      // This whole function could be optimized by a lot! 
+
+      var input = document.getElementById("hexInput").value.replace(/[-x\s]/gi, "").toUpperCase();
+      
+      // Only allow 6 or 9 digit hexadecimal values
+      if (/^[0-9A-F]{6}$/.test(input) || /^[0-9A-F]{9}$/.test(input)) {
+        var A = parseInt(input.charAt(0), 16).toString(16);
+        var B = parseInt(input.charAt(1), 16).toString(16);
+        var C = parseInt(input.charAt(2), 16).toString(16);
+        var D = parseInt(input.charAt(3), 16).toString(16);
+        var E = parseInt(input.charAt(4), 16).toString(16);
+        var F = (0xF - parseInt(input.charAt(5), 16)).toString(16);
+        var G = parseInt(input.charAt(6), 16).toString(2).padStart(4, '0');
+        var G2 = "";
+        var H = "";
+        var HInv = "";
+        var GInv = "";
+
+        if (input.length === 9) {
+          G2 = parseInt(input.charAt(7), 16).toString(2).padStart(4, '0');
+          H = parseInt(input.charAt(8), 16).toString(2).padStart(4, '0');
+        }
+
+        var Gl = G.length;
+        var G2l = G2.length;
+        var Hl = H.length;
+
+        for (i = 0; i < Gl; i++) {
+          var add = 1;
+          if (G.charAt(i) === "1") add = 0;
+          GInv += add;
+        }
+
+        for (i = 0; i < Hl; i++) {
+          var add = 1;
+          if (H.charAt(i) === "1") add = 0;
+          HInv += add;
+        }
+
+        var isSame = true;
+        var i = 0;
+        if (Gl === G2l) {
+          while (isSame && i < Gl) {
+            if (i === 0) {
+              if (G.charAt(i) === G2.charAt(i)) {
+                isSame = false;
+              }
+            } else {
+              if (G.charAt(i) !== G2.charAt(i)) {
+                isSame = false;
+              }
+            }
+            i++;
+          }
+        }
+
+        if (G2 === "" && H === "") {
+          isSame = true;
+        }
+
+        if (isSame) {
+          var hexAddress = (F + C + D + E).toUpperCase();
+          var oldValue = HInv.charAt(2) + H.charAt(3) + GInv.charAt(0) + GInv.charAt(1) + GInv.charAt(2) + G.charAt(3) + HInv.charAt(0) + H.charAt(1);
+          oldValue = parseInt(oldValue, 2).toString(16).padStart(2, '0').toUpperCase();
+          var newValue = (A + B).toUpperCase();
+
+          if (G2 === "" && H === "") {
+            oldValue = "-";
+          }
+
+          document.getElementById("romAddr").value = hexAddress;
+          document.getElementById("oldVal").value = oldValue;
+          document.getElementById("newVal").value = newValue;
+
+        } else {
+          alert("The Game Genie code failed a checksum test! Check your spelling and try again.");
+        }
+      } else {
+        alert("This is not a valid Game Genie code!");
+      }
+    }
+  </script>
+</head>
+<body>
+  <b>Game Genie Code</b><br>
+  <input type="text" id="hexInput" placeholder="e.g. 145-F2E-C4E">
+  <button onclick="handleInput()">Convert &gt;&gt;</button> 
+
+  ROM Address: <input type="text" id="romAddr" class="four" maxlength="4" readonly>
+  Value: <input type="text" id="oldVal" class="two" maxlength="2" readonly> &rarr;
+  <input type="text" id="newVal" class="two" maxlength="2" readonly>
+  <button onclick="applyCode()">Apply &gt;&gt;</button>  
+  
+  <div id="output"></div>
+  
+  
+</body>
+</html>
