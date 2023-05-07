@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tolstojs Hex Editor</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="hexeditor.js"></script>
+    <script src="gamegenie.js"></script>
+  </head>
+  <body>
+    <p>
+      <b>Chose a GB ROM (allowed filetype = *.gb)</b><br>
+    </p>
+    <p>
+      <input type="file" id="fileInput" >
+    </p>
+    
+    <div id="wrapper" style="display: none;">
+      <b>Game Genie Code</b><br>
+      <input type="text" id="hexInput" placeholder="e.g. 145-F2E-C4E">
+      <button onclick="handleInput()">Convert &gt;&gt;</button> 
+      
+      ROM Address: <input type="text" id="romAddr" class="four" maxlength="4" readonly>
+      Value: <input type="text" id="oldVal" class="two" maxlength="2" readonly> &rarr;
+      <input type="text" id="newVal" class="two" maxlength="2" readonly>
+      <button onclick="applyCode()">Apply &gt;&gt;</button>
+      <p>
+      <div class="table-wrapper">
+        <table id="hexViewer"></table>
+      </div>
+      </p>
+      <p>
+        <input type="text" id="searchInput">
+        <button onclick="searchAndSelectCell()">Navigate to ROM Address</button>
+      </p>
+      <p>
+        <button onclick="createFileFromHexData()" id="createFileBtn">Download the modified ROM</button>
+        <input type="text" id="patchRomName"> .gb
+      </p>
+      <p>
+        <b>Log:</b><br>
+        <div id="log"></div>
+      </p>
+    </div>
+    
+    
+  </body>
+</html>
