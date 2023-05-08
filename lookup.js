@@ -1,5 +1,5 @@
 // HEADER INFO
-// this was directly taken from here: https://gbdev.io/pandocs/The_Cartridge_Header.html
+// this was more or less directly derived from here: https://gbdev.io/pandocs/The_Cartridge_Header.html
 
 const cgbFlag = {
     "00":"The game was made for the DMG",
@@ -120,10 +120,10 @@ const newLicenseeCode = {
   const ramSize = {
     "00": "No RAM",
     "01": "Unused",
-    "02": "8 KiB",
-    "03": "32 KiB",
-    "04": "128 KiB",
-    "05": "64 KiB",
+    "02": "8 KB",
+    "03": "32 KB",
+    "04": "128 KB",
+    "05": "64 KB",
   };
 
   const destinationCode = {
@@ -330,4 +330,3 @@ const newLicenseeCode = {
     document.getElementById("thisDestinationCode").textContent = thisDestinationCode;
     document.getElementById("licenseeCode").textContent = licenseeCode;
 }
-

@@ -57,8 +57,8 @@ function validateFile(event) {
     
     // Check the file size
     var fileSize = file.size / 1024; // in KB
-    if (fileSize > 32) {
-      alert('File size should be less than or equal to 32 KB.');
+    if (fileSize > 3000) {
+      alert('File size should be less than or equal to 3 MB.');
       return false;
     }
     
