@@ -39,7 +39,7 @@
     background-color: #eee; /* Light grey */
   }
 
-  #headerData th:first-child {
+  #headerData td:first-child {
     font-weight: bold;
   }
 

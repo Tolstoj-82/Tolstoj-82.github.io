@@ -7,8 +7,9 @@
 // Todo:
 // -----
 // * Toast messages instead of the alerts
-// * Only allow adresses from 0x0000-0x7FFF
-// * GG 2 Address and Address 2 GG! (make it reversible)
+// * Only allow adresses from 0x0000-0x7FFF (well...)
+// * Allow to load a ROM after one has been loaded before
+// * functions gg2Addr() and addr2Gg(). Also improve it
 // * Only show Address, Old and New, if a GG code has been entered (and is correct --> event listener)
 // * Correct the global checksum (https://gbdev.io/pandocs/The_Cartridge_Header.html)
 // * make sure the classes editing and edited are assigned correctly

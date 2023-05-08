@@ -103,18 +103,18 @@ const newLicenseeCode = {
   };
 
   const romSize = {
-    "00": "32 KB",
-    "01": "64 KB",
-    "02": "128 KB",
-    "03": "256 KB",
-    "04": "512 KB",
-    "05": "1 MB",
-    "06": "2 MB",
-    "07": "4 MB",
-    "08": "8 MB",
-    "52": "1.1 MB",
-    "53": "1.2 MB",
-    "54": "1.5 MB",
+    "00": "32 KB (2 ROM banks, no banking needed)",
+    "01": "64 KB (4 ROM banks",
+    "02": "128 KB (8 ROM banks)",
+    "03": "256 KB (16 ROM banks)",
+    "04": "512 KB (32 ROM banks)",
+    "05": "1 MB (64 ROM banks)",
+    "06": "2 MB (128 ROM banks)",
+    "07": "4 MB (256 ROM banks)",
+    "08": "8 MB (512 ROM banks)",
+    "52": "1.1 MB (72 ROM banks)",
+    "53": "1.2 MB (80 ROM banks)",
+    "54": "1.5 MB (96 ROM banks)",
   };
 
   const ramSize = {
@@ -310,20 +310,30 @@ const newLicenseeCode = {
     const thisRomSize = romSize[document.getElementById("0148").textContent] || "Unknown";
     const thisRamSize = ramSize[document.getElementById("0149").textContent] || "Unknown";
     const thisDestinationCode = destinationCode[document.getElementById("014A").textContent] || "Unknown";
-    
+    var thisSgbFlag = "No Super Game Boy enhancements for this game";
+    if(document.getElementById("0146").textContent == "03"){
+        thisSgbFlag = "This game contains Super Game Boy enhancements";
+    }
+
     let licenseeCode = "";
     const licensee = document.getElementById("014B").textContent;
     if (licensee !== "33") {
         licenseeCode = oldLicenseeCode[licensee] || "Unknown";
     } else {
-        const licenseeCode1 = newLicenseeCode[document.getElementById("0144").textContent] || "Unknown";
-        const licenseeCode2 = newLicenseeCode[document.getElementById("0145").textContent] || "Unknown";
-        licenseeCode = licenseeCode1.replace("Unknown", "") + licenseeCode2.replace("Unknown", "");
+        const licenseeCode1 = newLicenseeCode[document.getElementById("0144").textContent] || "";
+        const licenseeCode2 = newLicenseeCode[document.getElementById("0145").textContent] || "";
+
+        licenseeCode = licenseeCode1; 
+        if(licenseeCode2 != "" && licenseeCode1 != ""){
+            licenseeCode += " / ";
+        }
+        licenseeCode += licenseeCode2;
     }
 
     // Populate the second column of the existing table with header data
     document.getElementById("gameTitle").textContent = gameTitle;
     document.getElementById("thisCgbFlag").textContent = thisCgbFlag;
+    document.getElementById("thisSgbFlag").textContent = thisSgbFlag;
     document.getElementById("thisCartridgeType").textContent = thisCartridgeType;
     document.getElementById("thisRomSize").textContent = thisRomSize;
     document.getElementById("thisRamSize").textContent = thisRamSize;
