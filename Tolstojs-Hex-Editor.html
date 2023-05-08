@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="hexeditor.js"></script>
     <script src="gamegenie.js"></script>
+    <script src="lookup.js"></script>
   </head>
   <body>
     <p>
@@ -24,24 +25,56 @@
       <input type="text" id="newVal" class="two" maxlength="2" readonly>
       <button onclick="applyCode()">Apply &gt;&gt;</button>
       <p>
+        <input type="text" id="searchInput">
+        <button onclick="searchAndSelectCell()">Navigate to ROM Address</button>
+      </p>
+      <p>
       <div class="table-wrapper">
         <table id="hexViewer"></table>
       </div>
-      </p>
-      <p>
-        <input type="text" id="searchInput">
-        <button onclick="searchAndSelectCell()">Navigate to ROM Address</button>
+      <table id="headerData">
+        <tr>
+          <th colspan="2">Game header data</th>
+        </tr>
+        <tr>
+          <td>Game Title</td>
+          <td id="gameTitle">&nbsp;</td>
+      </tr>
+      <tr>
+          <td>CGB Flag</td>
+          <td id="thisCgbFlag">&nbsp;</td>
+      </tr>
+      <tr>
+          <td>Cartridge type</td>
+          <td id="thisCartridgeType">&nbsp;</td>
+      </tr>
+      <tr>
+          <td>ROM size</td>
+          <td id="thisRomSize">&nbsp;</td>
+      </tr>
+      <tr>
+          <td>RAM size</td>
+          <td id="thisRamSize">&nbsp;</td>
+      </tr>
+      <tr>
+          <td>Destination code</td>
+          <td id="thisDestinationCode">&nbsp;</td>
+      </tr>
+      <tr>
+          <td>Licensee</td>
+          <td id="licenseeCode">$&nbsp;</td>
+      </tr>
+      </table>
+
       </p>
       <p>
         <button onclick="createFileFromHexData()" id="createFileBtn">Download the modified ROM</button>
         <input type="text" id="patchRomName"> .gb
       </p>
       <p>
-        <b>Log:</b><br>
+        <b>Log</b><br>
         <div id="log"></div>
       </p>
     </div>
-    
-    
   </body>
 </html>

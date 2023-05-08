@@ -116,6 +116,7 @@ function handleInput() {
           document.getElementById("oldVal").value = "";
           document.getElementById("newVal").value = "";
           document.getElementById("hexInput").value = "";
+
         }else{
             alert("According to the Game Genie code you provided, the ROM Address $" + address + " should contain the value 0x" + oldVal + ". This was not the case and nothing has been changed!\n Make sure the Game Genie code is correct and belongs to this game.");
         }

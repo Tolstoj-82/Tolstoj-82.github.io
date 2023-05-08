@@ -1,13 +1,18 @@
-#log{
-    height: 200px; /* Set the desired height */
+#log, 
+#headerData{
     width: 600px;
-    overflow: auto; /* Add scrollbar when content exceeds the height */
     border: 1px solid #ccc;
-    font-family: monospace;
+}
+
+#log{
+  font-family: monospace;
+  height: 100px; /* Set the desired height */
+  overflow: auto; /* Add scrollbar when content exceeds the height */
 }
 
 .table-wrapper {
-    height: 400px; /* Set the desired height */
+    border: 1px solid #ccc;
+    height: 300px; /* Set the desired height */
     width: 600px;
     overflow: auto; /* Add scrollbar when content exceeds the height */
   }
@@ -20,25 +25,38 @@
 
   .table-wrapper th,
   .table-wrapper td {
-    border: 1px solid black;
+    border: 1px solid #ccc;
     padding: 5px;
   }
 
-  .table-wrapper tr:nth-child(even) {
+  .table-wrapper tr:nth-child(even),
+  #headerData tr:nth-child(even) {
     background-color: #fff; /* White */
   }
 
-  .table-wrapper tr:nth-child(odd) {
+  .table-wrapper tr:nth-child(odd), 
+  #headerData tr:nth-child(odd) {
     background-color: #eee; /* Light grey */
   }
 
-  .table-wrapper #headerRow {
-    background-color: #28155b; /* Light grey */
+  #headerData th:first-child {
+    font-weight: bold;
+  }
+
+  th{
+    background-color: #28155b;
     font-weight: bold;
     font-family: Arial, sans-serif;
     color: #ffffff;
+  }
+
+  .table-wrapper #headerRow {
     position: sticky;
     top: 0;
+  }
+
+  td.baseAddress {
+    text-align: right;
   }
 
   .hexValueCell {

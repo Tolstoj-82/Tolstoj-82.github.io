@@ -7,7 +7,9 @@
 // Todo:
 // -----
 // * Toast messages instead of the alerts
-// * Only show Address, Old and New, if a GG code has been entered and is correct
+// * Only allow adresses from 0x0000-0x7FFF
+// * GG 2 Address and Address 2 GG! (make it reversible)
+// * Only show Address, Old and New, if a GG code has been entered (and is correct --> event listener)
 // * Correct the global checksum (https://gbdev.io/pandocs/The_Cartridge_Header.html)
 // * make sure the classes editing and edited are assigned correctly
 // * only show the save option, when at least one modification has been made
@@ -15,15 +17,14 @@
 // 
 // Tasks for the future:
 // --------------------
-// * get the header information
 // * maybe make some tweaks easier
 // * add a ROM map (https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):ROM_map)
 // * add a RAM map (https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):RAM_map)
 // * check out how difficult it is to work with ROMs that require ROM bank switching
-//    * maybe the banks are fix - then it shouldn't be a problem
+//    * maybe the banks are at fixed positions - then it shouldn't be a problem
 // * identify the tiles and make them editable
 // * find the OP-codes and also show these in assembly style
-// * identify tables
+// * identify tables (also tile maps)
 // 
 // Tolstoj & ChatGPT 2023
 //
@@ -67,17 +68,33 @@ function validateFile(event) {
       var fileData = event.target.result;
       var hexData = convertToHex(fileData);
       
+      // Create a MutationObserver to detect changes in the table
+      var observer = new MutationObserver(function(mutationsList) {
+        for (var mutation of mutationsList) {
+          if (mutation.type === 'childList' && mutation.target.id === 'hexViewer' && mutation.target.childNodes.length > 0) {
+            // Table has been populated, get the title
+            obtainHeaderData();
+            
+            // Disconnect the observer after obtaining the title
+            observer.disconnect();
+          }
+        }
+      });
+
+      // Start observing changes in the table
+      observer.observe(document.getElementById('hexViewer'), { childList: true });
+
       // Display or process the hex data
       displayHexData(hexData);
-      
+
       // show the hidden elements
       document.getElementById('wrapper').style.display = 'block';
-
     };
 
     reader.readAsArrayBuffer(file);
 
     return true;
+
   }
   
   document.addEventListener('DOMContentLoaded', function() {
@@ -137,7 +154,7 @@ function validateFile(event) {
     const headerRow = table.insertRow();
     headerRow.id = 'headerRow';
     const addressHeader = document.createElement('th');
-    addressHeader.textContent = 'Address';
+    addressHeader.textContent = '$';
     headerRow.appendChild(addressHeader);
 
     for (let i = 0; i < 16; i++) {
@@ -155,6 +172,7 @@ function validateFile(event) {
       const address = i.toString(16).toUpperCase().padStart(4, '0').slice(0,3) + "_";
       const addressID = i.toString(16).toUpperCase().padStart(4, '0');//address.slice(0, 3) + (parseInt(address.slice(-1), 16) - 1).toString(16).toUpperCase();
       addressCell.innerHTML = `<a href="#${addressID}"></a>${address}`;
+      addressCell.className = "baseAddress";
       addressCell.id = address;
 
       for (let j = 0; j < 16; j++) {
