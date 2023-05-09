@@ -4,12 +4,17 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 // 
+// Known issues:
+// -------------
+// * Bigger files mess up the performance (continuous loading?)
+// * Flakey behavior with the loading animation
+//
 // Todo:
 // -----
-// * Clean up the messy code and insert useful comments
+// * Clean up the mess!!!
+// * Why is the file name no longer stored?
 // * Toast messages instead of the alerts
 // * Only allow adresses from 0x0000-0x7FFF (well...)
-// * Allow to load a ROM after one has been loaded before
 // * functions gg2Addr() and addr2Gg(). Also improve it
 // * Only show Address, Old and New, if a GG code has been entered (and is correct --> event listener)
 // * Correct the global checksum (https://gbdev.io/pandocs/The_Cartridge_Header.html)
@@ -18,14 +23,18 @@
 // 
 // Tasks for the future:
 // --------------------
+// * make the header data editable
 // * maybe make some tweaks easier
 // * add a ROM map (https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):ROM_map)
 // * add a RAM map (https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):RAM_map)
 // * check out how difficult it is to work with ROMs that require ROM bank switching
 //    * maybe the banks are at fixed positions - then it shouldn't be a problem
 // * identify the tiles and make them editable
+// 
+// Tasks for the distant future (mabe?):
+// -------------------------------------
 // * find the OP-codes and also show these in assembly style
-// * identify tables (also tile maps)
+// * identify tables and tile maps
 // 
 // Tolstoj & ChatGPT 2023
 //
@@ -90,6 +99,11 @@ function validateFile(event) {
     hideLoadingAnimation();
     return false;
   }
+
+    // add the file name to the field patchRomName
+    var patchRomNameInput = document.getElementById("patchRomName");
+    var fileNameWithoutExtension = file.name.replace(".gb", "");
+    patchRomNameInput.value = fileNameWithoutExtension + "-modified";
 
     // Show loading animation
     showLoadingAnimation();

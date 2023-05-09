@@ -273,3 +273,8 @@ button:active {
 .accordion, .panel, #headerData {
   max-width: 600px;
 }
+
+button.accordion {
+  border-radius: 0;
+  border: 1px solid #CCC;
+}

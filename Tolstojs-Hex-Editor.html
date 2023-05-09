@@ -9,16 +9,14 @@
   </head>
   <body>
     <div class="container">
+
       <div id="wrapper2" style="text-align: center;">
-        <p>
-          <b>Chose a GB ROM (allowed filetype = *.gb)</b><br>
-        </p>
-      <!-- Customized file input element -->
-      <label class="custom-file-input">
-        <input type="file" onchange="validateFile(event)">
-      </label>
+        <h2>Henlo friends!</h2>
+        <label class="custom-file-input">
+          <input type="file" onchange="validateFile(event)">
+        </label>
       </div>
-      <!-- Loading animation element -->
+
       <div id="loadingAnimation" style="display: none; text-align: center;">
         <div class="loader"></div>
         <h2>File is loading...</h2>
@@ -40,10 +38,12 @@
         <div class="table-wrapper">
           <table id="hexViewer"></table>
         </div>
+        
         <button class="accordion">
           Game header data<span class="accordion-symbol">+</span>
         </button>
         <div class="panel">
+          
           <table id="headerData" style="background-color: azure;">
               <tr>
                 <td>Game Title</td>
