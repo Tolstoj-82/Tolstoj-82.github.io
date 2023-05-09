@@ -278,3 +278,8 @@ button.accordion {
   border-radius: 0;
   border: 1px solid #CCC;
 }
+
+#applyCode:disabled {
+  background-color: gray;
+  cursor: not-allowed;
+}

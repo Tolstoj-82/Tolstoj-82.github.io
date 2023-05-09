@@ -2,7 +2,26 @@ function handleInput() {
       
     // This whole function could be optimized... a lot! It feels (and is) so inefficient 
 
+    const disabledButtonText = "nothing to apply - add a code first";
+
     var input = document.getElementById("hexInput").value.replace(/[-x\s]/gi, "").toUpperCase();
+
+    // color the hex input field
+    const hexInput = document.getElementById('hexInput');
+    if(input.length < 6 || !/^[0-9A-Fa-f]+$/.test(input)) {
+      hexInput.style.backgroundColor = 'white';
+      document.getElementById("romAddr").value = "";
+      document.getElementById("oldVal").value = "";
+      document.getElementById("newVal").value = "";
+      document.getElementById("applyCode").disabled = true;
+      // this is an ugly solution!
+      document.getElementById("applyCode").setAttribute("title", disabledButtonText);
+    }else if(input.length > 6 && input.length < 9){
+      hexInput.style.backgroundColor = '#ffe6b7';
+      document.getElementById("oldVal").value = "-";
+    } else if (input.length > 9) {
+      hexInput.style.backgroundColor = '#f3baba';
+    }
     
     // Only allow 6 or 9 digit hexadecimal values
     if (/^[0-9A-F]{6}$/.test(input) || /^[0-9A-F]{9}$/.test(input)) {
@@ -73,6 +92,10 @@ function handleInput() {
         document.getElementById("romAddr").value = hexAddress;
         document.getElementById("oldVal").value = oldValue;
         document.getElementById("newVal").value = newValue;
+
+        hexInput.style.backgroundColor = '#baf3ba';
+        document.getElementById("applyCode").removeAttribute("disabled");
+        document.getElementById("applyCode").removeAttribute("title");
 
       } else {
         alert("The Game Genie code failed its checksum test! Check the spelling of your code and try again.");

@@ -40,10 +40,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
+const disabledButtonText = "nothing to apply - add a code first";
 
 // everything that needs the site to be loaded goes in here
 document.addEventListener('DOMContentLoaded', function() {
   
+  document.getElementById("applyCode").setAttribute("title", disabledButtonText);
+
   // Get the input element
   const hexInput = document.getElementById("hexInput");
   
