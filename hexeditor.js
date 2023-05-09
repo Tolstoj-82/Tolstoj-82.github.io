@@ -6,6 +6,7 @@
 // 
 // Todo:
 // -----
+// * Clean up the messy code and insert useful comments
 // * Toast messages instead of the alerts
 // * Only allow adresses from 0x0000-0x7FFF (well...)
 // * Allow to load a ROM after one has been loaded before
@@ -14,7 +15,6 @@
 // * Correct the global checksum (https://gbdev.io/pandocs/The_Cartridge_Header.html)
 // * make sure the classes editing and edited are assigned correctly
 // * only show the save option, when at least one modification has been made
-// * make the appearance nicer - CSS styles
 // 
 // Tasks for the future:
 // --------------------
@@ -31,43 +31,77 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
+
+// everything that needs the site to be loaded goes in here
+document.addEventListener('DOMContentLoaded', function() {
+  
+  // Get the input element
+  const hexInput = document.getElementById("hexInput");
+  
+  // Add event listener for "input" event
+  hexInput.addEventListener("input", handleInput);
+
+  var accordion = document.querySelector('.accordion');
+  var panel = document.querySelector('.panel');
+
+  accordion.addEventListener('click', function() {
+    this.classList.toggle('active');
+    panel.classList.toggle('active');
+
+    var accordionSymbol = this.querySelector('.accordion-symbol');
+    if (this.classList.contains('active')) {
+      accordionSymbol.textContent = '-';
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+    } else {
+      accordionSymbol.textContent = '+';
+      panel.style.maxHeight = 0;
+    }
+  });
+
+});
+
+function searchAndSelectCell() {
+  const searchInput = document.getElementById('searchInput');
+  const address = searchInput.value.trim();
+  scrollToAddress(address);
+}
+
 function validateFile(event) {
-    var file = event.target.files[0];
-    
-    // Check if a file is selected
-    if (!file) {
-      alert('Please select a file.');
-      return false;
-    }
-    
-    // Check the file extension
-    splitFileName = file.name.split('.');
+  var file = event.target.files[0];
 
-    var fileExtension = splitFileName.pop().toLowerCase();
-    if (fileExtension !== 'gb') {
-      alert('Only .gb files are allowed.');
-      return false;
-    }
+  // Check if a file is selected
+  if (!file) {
+    alert('Please select a file.');
+    return false;
+  }
 
-    newFileName = "";
-    for(i=0; i<splitFileName.length; i++){
-        newFileName += splitFileName[i];
-    }
-    newFileName += "-modified";
-    document.getElementById("patchRomName").value = newFileName;
-    
-    // Check the file size
-    var fileSize = file.size / 1024; // in KB
-    if (fileSize > 3000) {
-      alert('File size should be less than or equal to 3 MB.');
-      return false;
-    }
-    
-    // Read the file data
-    var reader = new FileReader();
-    reader.onload = function(event) {
-      var fileData = event.target.result;
-      var hexData = convertToHex(fileData);
+  // Check the file extension
+  var fileExtension = file.name.split('.').pop().toLowerCase();
+  if (fileExtension !== 'gb') {
+    alert('Only .gb files are allowed.');
+    hideLoadingAnimation();
+    return false;
+  }
+
+  // Check the file size
+  var fileSize = file.size / 1024; // in KB
+  if (fileSize > 3000) {
+    alert('File size should be less than or equal to 3 MB.');
+    hideLoadingAnimation();
+    return false;
+  }
+
+    // Show loading animation
+    showLoadingAnimation();
+
+  // Read the file data
+  var reader = new FileReader();
+  reader.onload = function (event) {
+    // File loading completed
+    hideLoadingAnimation();
+
+    var fileData = event.target.result;
+    var hexData = convertToHex(fileData);
       
       // Create a MutationObserver to detect changes in the table
       var observer = new MutationObserver(function(mutationsList) {
@@ -88,8 +122,9 @@ function validateFile(event) {
       // Display or process the hex data
       displayHexData(hexData);
 
-      // show the hidden elements
+      // change the view wrapper = content / wrapper 2 = chose file
       document.getElementById('wrapper').style.display = 'block';
+      document.getElementById('wrapper2').style.display = 'none';
     };
 
     reader.readAsArrayBuffer(file);
@@ -97,11 +132,6 @@ function validateFile(event) {
     return true;
 
   }
-  
-  document.addEventListener('DOMContentLoaded', function() {
-    var fileInput = document.getElementById('fileInput');
-    fileInput.addEventListener('change', validateFile);
-  });
 
   function createFileFromHexData() {
     const table = document.getElementById('hexViewer');
@@ -225,13 +255,9 @@ function validateFile(event) {
   }
 
   function addToLog(logText){
-    // Get a reference to the div element
+    
     const logDiv = document.getElementById("log");
-
-    // Create a new text node with the desired content
     const newLineText = document.createTextNode(logText);
-
-    // Create a new <br> element for the line break
     const lineBreak = document.createElement("br");
 
     // Append the new text node and line break to the div
@@ -249,9 +275,11 @@ function validateFile(event) {
     anchorElement.scrollIntoView({ behavior: 'smooth' });
   }
   
+  function showLoadingAnimation() {
+    document.getElementById("loadingAnimation").style.display = "block";
+    document.getElementById("wrapper2").style.display = "none";
+  }
 
-  function searchAndSelectCell() {
-    const searchInput = document.getElementById('searchInput');
-    const address = searchInput.value.trim();
-    scrollToAddress(address);
+  function hideLoadingAnimation() {
+    document.getElementById("loadingAnimation").style.display = "none";
   }

@@ -8,77 +8,87 @@
     <script src="lookup.js"></script>
   </head>
   <body>
-    <p>
-      <b>Chose a GB ROM (allowed filetype = *.gb)</b><br>
-    </p>
-    <p>
-      <input type="file" id="fileInput" >
-    </p>
-    
-    <div id="wrapper" style="display: none;">
-      <b>Game Genie Code</b><br>
-      <input type="text" id="hexInput" placeholder="e.g. 145-F2E-C4E">
-      <button onclick="handleInput()">Convert &gt;&gt;</button> 
-      
-      ROM Address: <input type="text" id="romAddr" class="four" maxlength="4" readonly>
-      Value: <input type="text" id="oldVal" class="two" maxlength="2" readonly> &rarr;
-      <input type="text" id="newVal" class="two" maxlength="2" readonly>
-      <button onclick="applyCode()">Apply &gt;&gt;</button>
-      <p>
-        <input type="text" id="searchInput">
-        <button onclick="searchAndSelectCell()">Navigate to ROM Address</button>
-      </p>
-      <p>
-      <div class="table-wrapper">
-        <table id="hexViewer"></table>
+    <div class="container">
+      <div id="wrapper2" style="text-align: center;">
+        <p>
+          <b>Chose a GB ROM (allowed filetype = *.gb)</b><br>
+        </p>
+      <!-- Customized file input element -->
+      <label class="custom-file-input">
+        <input type="file" onchange="validateFile(event)">
+      </label>
       </div>
-      <table id="headerData">
-        <tr>
-          <th colspan="2">Game header data</th>
-        </tr>
-        <tr>
-          <td>Game Title</td>
-          <td id="gameTitle">&nbsp;</td>
-      </tr>
-      <tr>
-          <td>CGB Flag</td>
-          <td id="thisCgbFlag">&nbsp;</td>
-      </tr>
-      <tr>
-        <td>SGB Flag</td>
-        <td id="thisSgbFlag">&nbsp;</td>
-    </tr>
-      <tr>
-          <td>Cartridge type</td>
-          <td id="thisCartridgeType">&nbsp;</td>
-      </tr>
-      <tr>
-          <td>ROM size</td>
-          <td id="thisRomSize">&nbsp;</td>
-      </tr>
-      <tr>
-          <td>RAM size</td>
-          <td id="thisRamSize">&nbsp;</td>
-      </tr>
-      <tr>
-          <td>Destination code</td>
-          <td id="thisDestinationCode">&nbsp;</td>
-      </tr>
-      <tr>
-          <td>Licensee</td>
-          <td id="licenseeCode">$&nbsp;</td>
-      </tr>
-      </table>
-
-      </p>
-      <p>
-        <button onclick="createFileFromHexData()" id="createFileBtn">Download the modified ROM</button>
-        <input type="text" id="patchRomName"> .gb
-      </p>
-      <p>
-        <b>Log</b><br>
-        <div id="log"></div>
-      </p>
+      <!-- Loading animation element -->
+      <div id="loadingAnimation" style="display: none; text-align: center;">
+        <div class="loader"></div>
+        <h2>File is loading...</h2>
+      </div>
+      
+      <div id="wrapper" style="display: none;">
+        <b>Game Genie Code</b><br>
+        <input type="text" id="hexInput" placeholder="e.g. 145-F2E-C4E">
+        
+        Address: <input type="text" id="romAddr" class="four" maxlength="4" readonly>
+        Value: <input type="text" id="oldVal" class="two" maxlength="2" readonly> &rarr;
+        <input type="text" id="newVal" class="two" maxlength="2" readonly>
+        <button onclick="applyCode()">Apply &gt;&gt;</button>
+        <p>
+          <b>ROM File (Hex values)</b><br>
+          <input type="text" id="searchInput">
+          <button onclick="searchAndSelectCell()">Navigate to ROM Address</button>
+          <br>
+        <div class="table-wrapper">
+          <table id="hexViewer"></table>
+        </div>
+        <button class="accordion">
+          Game header data<span class="accordion-symbol">+</span>
+        </button>
+        <div class="panel">
+          <table id="headerData" style="background-color: azure;">
+              <tr>
+                <td>Game Title</td>
+                <td id="gameTitle">&nbsp;</td>
+              </tr>
+              <tr>
+                  <td>CGB Flag</td>
+                  <td id="thisCgbFlag">&nbsp;</td>
+              </tr>
+              <tr>
+                <td>SGB Flag</td>
+                <td id="thisSgbFlag">&nbsp;</td>
+            </tr>
+              <tr>
+                  <td>Cartridge type</td>
+                  <td id="thisCartridgeType">&nbsp;</td>
+              </tr>
+              <tr>
+                  <td>ROM size</td>
+                  <td id="thisRomSize">&nbsp;</td>
+              </tr>
+              <tr>
+                  <td>RAM size</td>
+                  <td id="thisRamSize">&nbsp;</td>
+              </tr>
+              <tr>
+                  <td>Destination code</td>
+                  <td id="thisDestinationCode">&nbsp;</td>
+              </tr>
+              <tr>
+                  <td>Licensee</td>
+                  <td id="licenseeCode">&nbsp;</td>
+              </tr>
+            </table>
+          </div>
+        </p>
+        <p>
+          <button onclick="createFileFromHexData()" id="createFileBtn">Download the modified ROM</button>
+          <input type="text" id="patchRomName"> .gb
+        </p>
+        <p>
+          <b>Log</b><br>
+          <div id="log"></div>
+        </p>
+      </div>
     </div>
   </body>
 </html>

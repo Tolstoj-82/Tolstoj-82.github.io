@@ -78,7 +78,7 @@ function handleInput() {
         alert("The Game Genie code failed its checksum test! Check the spelling of your code and try again.");
       }
     } else {
-      alert("This is not a valid Game Genie code!");
+      //alert("This is not a valid Game Genie code!");
     }
   }
 
