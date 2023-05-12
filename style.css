@@ -29,13 +29,13 @@ table{
 .table-wrapper table {
   width: 100%;
   font-family: monospace;
-  color: #333; /* Add this line to set the font color */
+  color: #333;
 }
 
 th, td {
   border: 1px solid #ccc;
   padding: 5px;
-  color: #333; /* Add this line to set the font color */
+  color: #333;
 }
 
 th {
@@ -266,7 +266,7 @@ button:active {
 }
 
 .panel.active {
-  max-height: 500px; /* Adjust the max height as needed */
+  max-height: 500px;
   transition: max-height 0.1s ease;
 }
 
@@ -282,4 +282,103 @@ button.accordion {
 #applyCode:disabled {
   background-color: gray;
   cursor: not-allowed;
+}
+
+
+/* Modal overlay styles */
+#modalOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  z-index: 9999;
+  transition: width 0.3s ease-out;
+}
+
+#modalContent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: white;
+  padding: 20px;
+  width: 500px;
+  /*max-width: 800px;*/
+  overflow: auto;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+#modalResizeHandle {
+  position: absolute;
+  top: 0;
+  left: -6px;
+  width: 12px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 2;
+}
+
+/* Modal table */
+#t_codeList {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#t_codeList td{
+  vertical-align: top;
+}
+
+#t_codeList td:first-child {
+  font-weight: normal;
+}
+
+#t_desc,
+#t_auth {
+  width: 30%;
+}
+
+#t_code {
+  width: 40%;
+}
+
+.copyLink {
+  background-color: #FFCC99;
+  border-radius: 5px;
+  font-family: "Courier New", monospace;
+  color: black;
+  text-decoration: none;
+}
+
+.copyLink:hover {
+  background-color: orange;
+}
+
+.inactive {
+  background-color: rgb(117, 117, 117);
+  color: #ccc;
+  pointer-events: none;
+}
+
+.link-animation {
+  animation: pulsate 1s infinite;
+}
+
+@keyframes pulsate {
+  0% {
+    color: inherit;
+    text-shadow: none;
+  }
+  50% {
+    color: #FF0000; /* Adjust the desired color */
+    font-weight: bold;
+    text-shadow: 0 0 10px #FF0000; /* Adjust the shadow effect */
+  }
+  100% {
+    color: inherit;
+    font-weight: inherit;
+    text-shadow: none;
+  }
 }

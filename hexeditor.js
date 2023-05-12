@@ -41,17 +41,23 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 const disabledButtonText = "nothing to apply - add a code first";
+let e_ggCode;
 
 // everything that needs the site to be loaded goes in here
 document.addEventListener('DOMContentLoaded', function() {
-  
-  document.getElementById("applyCode").setAttribute("title", disabledButtonText);
 
-  // Get the input element
-  const hexInput = document.getElementById("hexInput");
+  // get the DOM elements
+  e_ggCode = document.getElementById("ggCode");
+  e_romAddr = document.getElementById("romAddr");
+  e_oldVal = document.getElementById("oldVal");
+  e_newVal = document.getElementById("newVal");
+  e_applyCode = document.getElementById("applyCode");
+  e_searchInput = document.getElementById("searchInput");
+
+  e_applyCode.setAttribute("title", disabledButtonText);
   
   // Add event listener for "input" event
-  hexInput.addEventListener("input", handleInput);
+  e_ggCode.addEventListener("input", handleInput);
 
   var accordion = document.querySelector('.accordion');
   var panel = document.querySelector('.panel');
@@ -124,6 +130,7 @@ function validateFile(event) {
       var observer = new MutationObserver(function(mutationsList) {
         for (var mutation of mutationsList) {
           if (mutation.type === 'childList' && mutation.target.id === 'hexViewer' && mutation.target.childNodes.length > 0) {
+            
             // Table has been populated, get the title
             obtainHeaderData();
             

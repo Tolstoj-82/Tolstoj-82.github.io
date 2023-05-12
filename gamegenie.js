@@ -1,146 +1,175 @@
+//-------------------------------------------------------------------------------------------
+// Adds a GG link, when the user clicks a link
+//-------------------------------------------------------------------------------------------
+
+const copyLinks = document.querySelectorAll(".copyLink");
+
+copyLinks.forEach(function(link) {
+  link.addEventListener("click", function(event) {
+    event.preventDefault();
+    this.classList.add("clicked");
+    const textToCopy = link.textContent;
+    e_ggCode.value = textToCopy;
+  });
+});
+
+//-------------------------------------------------------------------------------------------
+// Transforms a game genie code to (1) address (2) old value (3) newvalue
+//-------------------------------------------------------------------------------------------
 function handleInput() {
       
-    // This whole function could be optimized... a lot! It feels (and is) so inefficient 
+  const disabledButtonText = "nothing to apply - add a code first";
+  let input;
 
-    const disabledButtonText = "nothing to apply - add a code first";
-
-    var input = document.getElementById("hexInput").value.replace(/[-x\s]/gi, "").toUpperCase();
-
-    // color the hex input field
-    const hexInput = document.getElementById('hexInput');
-    if(input.length < 6 || !/^[0-9A-Fa-f]+$/.test(input)) {
-      hexInput.style.backgroundColor = 'white';
-      document.getElementById("romAddr").value = "";
-      document.getElementById("oldVal").value = "";
-      document.getElementById("newVal").value = "";
-      document.getElementById("applyCode").disabled = true;
-      // this is an ugly solution!
-      document.getElementById("applyCode").setAttribute("title", disabledButtonText);
-    }else if(input.length > 6 && input.length < 9){
-      hexInput.style.backgroundColor = '#ffe6b7';
-      document.getElementById("oldVal").value = "-";
-    } else if (input.length > 9) {
-      hexInput.style.backgroundColor = '#f3baba';
-    }
+  /*if (!e_ggCode) {
+    input = document.getElementById("ggCode").value.replace(/[-x\s]/gi, "").toUpperCase();
+  } else {*/
+    input = e_ggCode.value.replace(/[-x\s]/gi, "").toUpperCase();
+  //}
     
-    // Only allow 6 or 9 digit hexadecimal values
-    if (/^[0-9A-F]{6}$/.test(input) || /^[0-9A-F]{9}$/.test(input)) {
-      var A = parseInt(input.charAt(0), 16).toString(16);
-      var B = parseInt(input.charAt(1), 16).toString(16);
-      var C = parseInt(input.charAt(2), 16).toString(16);
-      var D = parseInt(input.charAt(3), 16).toString(16);
-      var E = parseInt(input.charAt(4), 16).toString(16);
-      var F = (0xF - parseInt(input.charAt(5), 16)).toString(16);
-      var G = parseInt(input.charAt(6), 16).toString(2).padStart(4, '0');
-      var G2 = "";
-      var H = "";
-      var HInv = "";
-      var GInv = "";
+  // color the input with the game genie code depending on the validity of the code
+  formatInputs(input);
+  
+  // 
+  ggCodeToAddr(input);
+}
 
-      if (input.length === 9) {
-        G2 = parseInt(input.charAt(7), 16).toString(2).padStart(4, '0');
-        H = parseInt(input.charAt(8), 16).toString(2).padStart(4, '0');
-      }
+//-------------------------------------------------------------------------------------------
+// No adding a code if invalid
+//-------------------------------------------------------------------------------------------
+function clearFields(elem, cleanGG = false){
+  elem.style.backgroundColor = 'white';
+  if(cleanGG) elem.value = "";
+  e_romAddr.value = "";
+  e_oldVal.value = "";
+  e_newVal.value = "";
+  e_applyCode.disabled = true;
+  e_applyCode.setAttribute("title", disabledButtonText);
+}
 
-      var Gl = G.length;
-      var G2l = G2.length;
-      var Hl = H.length;
+//-------------------------------------------------------------------------------------------
+// Transforms a game genie code to (1) address (2) old value (3) newvalue
+//-------------------------------------------------------------------------------------------
+function ggCodeToAddr(input){
+  // This whole function could be optimized... a lot! It feels (and is) so inefficient     
+  
+  // Only allow 6 or 9 digit hexadecimal values
+  if (/^[0-9A-F]{6}$/.test(input) || /^[0-9A-F]{9}$/.test(input)) {
+    var A = parseInt(input.charAt(0), 16).toString(16);
+    var B = parseInt(input.charAt(1), 16).toString(16);
+    var C = parseInt(input.charAt(2), 16).toString(16);
+    var D = parseInt(input.charAt(3), 16).toString(16);
+    var E = parseInt(input.charAt(4), 16).toString(16);
+    var F = (0xF - parseInt(input.charAt(5), 16)).toString(16);
+    var G = parseInt(input.charAt(6), 16).toString(2).padStart(4, '0');
+    var G2 = "";
+    var H = "";
+    var HInv = "";
+    var GInv = "";
 
-      for (i = 0; i < Gl; i++) {
-        var add = 1;
-        if (G.charAt(i) === "1") add = 0;
-        GInv += add;
-      }
+    if (input.length === 9) {
+      G2 = parseInt(input.charAt(7), 16).toString(2).padStart(4, '0');
+      H = parseInt(input.charAt(8), 16).toString(2).padStart(4, '0');
+    }
 
-      for (i = 0; i < Hl; i++) {
-        var add = 1;
-        if (H.charAt(i) === "1") add = 0;
-        HInv += add;
-      }
+    var Gl = G.length;
+    var G2l = G2.length;
+    var Hl = H.length;
 
-      var isSame = true;
-      var i = 0;
-      if (Gl === G2l) {
-        while (isSame && i < Gl) {
-          if (i === 0) {
-            if (G.charAt(i) === G2.charAt(i)) {
-              isSame = false;
-            }
-          } else {
-            if (G.charAt(i) !== G2.charAt(i)) {
-              isSame = false;
-            }
-          }
-          i++;
-        }
-      }
+    for (i = 0; i < Gl; i++) {
+      var add = 1;
+      if (G.charAt(i) === "1") add = 0;
+      GInv += add;
+    }
 
-      if (G2 === "" && H === "") {
-        isSame = true;
-      }
+    for (i = 0; i < Hl; i++) {
+      var add = 1;
+      if (H.charAt(i) === "1") add = 0;
+      HInv += add;
+    }
 
-      if (isSame) {
-        var hexAddress = (F + C + D + E).toUpperCase();
-        var oldValue = HInv.charAt(2) + H.charAt(3) + GInv.charAt(0) + GInv.charAt(1) + GInv.charAt(2) + G.charAt(3) + HInv.charAt(0) + H.charAt(1);
-        oldValue = parseInt(oldValue, 2).toString(16).padStart(2, '0').toUpperCase();
-        var newValue = (A + B).toUpperCase();
+    // check if a 9 digit code is valid
+    var isSame = Gl === G2l && G.charAt(0) !== G2.charAt(0);
+    for (var i = 1; isSame && i < Gl; i++) isSame = G.charAt(i) === G2.charAt(i);
+    if (G2 === "" && H === "") isSame = true;
 
-        if (G2 === "" && H === "") {
-          oldValue = "-";
-        }
+    if (isSame) {
+      var hexAddress = (F + C + D + E).toUpperCase();
+      var oldValue = HInv.charAt(2) + H.charAt(3) + GInv.charAt(0) + GInv.charAt(1) + GInv.charAt(2) + G.charAt(3) + HInv.charAt(0) + H.charAt(1);
+      oldValue = parseInt(oldValue, 2).toString(16).padStart(2, '0').toUpperCase();
+      var newValue = (A + B).toUpperCase();
 
-        document.getElementById("romAddr").value = hexAddress;
-        document.getElementById("oldVal").value = oldValue;
-        document.getElementById("newVal").value = newValue;
+      if (G2 === "" && H === "") oldValue = "-";
 
-        hexInput.style.backgroundColor = '#baf3ba';
-        document.getElementById("applyCode").removeAttribute("disabled");
-        document.getElementById("applyCode").removeAttribute("title");
+      e_romAddr.value = hexAddress;
+      e_oldVal.value = oldValue;
+      e_newVal.value = newValue;
 
-      } else {
-        alert("The Game Genie code failed its checksum test! Check the spelling of your code and try again.");
-      }
+      e_ggCode.style.backgroundColor = '#baf3ba';
+      e_applyCode.removeAttribute("disabled");
+      e_applyCode.removeAttribute("title");
+
     } else {
-      //alert("This is not a valid Game Genie code!");
+      alert("The Game Genie code failed its checksum test! Check the spelling of your code and try again.");
     }
   }
+}
 
-  function applyCode(){
-    address = document.getElementById("romAddr").value.trim();
-    oldVal = document.getElementById("oldVal").value.trim();
-    newVal = document.getElementById("newVal").value.trim();
-    valueInRomAddress = document.getElementById(address).textContent;
+//-------------------------------------------------------------------------------------------
+// Overwrites a ROM value
+//-------------------------------------------------------------------------------------------
+function applyCode(){
+  address = e_romAddr.value.trim();
+  oldVal = e_oldVal.value.trim();
+  newVal = e_newVal.value.trim();
+  valueInRomAddress = document.getElementById(address).textContent;
+  
+  // scroll to the address
+  scrollToAddress(address);
+  
+  // only change the value if the old value was the one from the GG code
+  if(oldVal == "-" || oldVal == valueInRomAddress){
     
-    // scroll to the address
-    scrollToAddress(address);
+    //exchange the value in the cell
+    document.getElementById(address).textContent = newVal;
+    document.getElementById(address).classList.add("edited");
     
-    // only change the value if the old value was the one from the GG code
-    if(oldVal == "-" || oldVal == valueInRomAddress){
-      
-      //exchange the value in the cell
-      document.getElementById(address).textContent = newVal;
-      document.getElementById(address).classList.add("edited");
-      
-      // only enable to save if at least one modification has been made
-      if(log != ""){
+    // only enable to save if at least one modification has been made
+    if(log != ""){
 
-      }
-
-      alert("the value has been altered successfully!");
-      const date = new Date();
-      const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-      const formattedTime = date.toLocaleTimeString(undefined, options);
-
-      addToLog("* GG code added: Address $" + address + " | " + oldVal + " > " + newVal + " (" + formattedTime + ")");
-      
-      // clear the fields
-      document.getElementById("romAddr").value = "";
-      document.getElementById("oldVal").value = "";
-      document.getElementById("newVal").value = "";
-      document.getElementById("hexInput").value = "";
-
-    }else{
-        alert("According to the Game Genie code you provided, the ROM Address $" + address + " should contain the value 0x" + oldVal + ". This was not the case and nothing has been changed!\n Make sure the Game Genie code is correct and belongs to this game.");
     }
+
+    alert("the value has been altered successfully!");
+    const date = new Date();
+    const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    const formattedTime = date.toLocaleTimeString(undefined, options);
+
+    addToLog("* GG code added: Address $" + address + " | " + oldVal + " > " + newVal + " (" + formattedTime + ")");
+    
+    // clear the fields
+    clearFields(e_ggCode, true);
+
+  }else{
+      alert("According to the Game Genie code you provided, the ROM Address $" + address + " should contain the value 0x" + oldVal + ". This was not the case and nothing has been changed!\nMake sure that the Game Genie code is correct and belongs to this game.\nIf you still want that code, you can force it by leaving the last 3 digits away (!!!only applicable for games up to 32KB!!!)");
+  }
+
+}
+
+//-------------------------------------------------------------------------------------------
+// Change the color of the code field depending on the validity of the input
+//-------------------------------------------------------------------------------------------
+function formatInputs(input){
+  
+  var c_red = '#f3baba';
+  var c_orange = "'#ffe6b7'";
+  
+  if(input.length < 6 || !/^[0-9A-Fa-f]+$/.test(input)) {
+    clearFields(e_ggCode);
+  }else if(input.length > 6 && input.length < 9){
+    e_ggCode.style.backgroundColor = c_orange;
+    e_oldVal.value = "-";
+  } else if (input.length > 9) {
+    e_ggCode.style.backgroundColor = c_red;
+  }
 
 }
