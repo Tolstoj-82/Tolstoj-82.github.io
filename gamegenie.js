@@ -123,6 +123,7 @@ function applyCode(){
   oldVal = e_oldVal.value.trim();
   newVal = e_newVal.value.trim();
   valueInRomAddress = document.getElementById(address).textContent;
+  returnValue = false;
   
   // scroll to the address
   scrollToAddress(address);
@@ -148,11 +149,12 @@ function applyCode(){
     
     // clear the fields
     clearFields(e_ggCode, true);
+    returnValue = true;
 
   }else{
       alert("According to the Game Genie code you provided, the ROM Address $" + address + " should contain the value 0x" + oldVal + ". This was not the case and nothing has been changed!\nMake sure that the Game Genie code is correct and belongs to this game.\nIf you still want that code, you can force it by leaving the last 3 digits away (!!!only applicable for games up to 32KB!!!)");
   }
-
+  return returnValue;
 }
 
 //-------------------------------------------------------------------------------------------

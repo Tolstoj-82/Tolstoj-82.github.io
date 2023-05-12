@@ -13,7 +13,7 @@ for (let dropdown of dropdowns) {
     const hexValue = i.toString(16).padStart(2, "0").toUpperCase();
     const option = document.createElement("option");
     option.value = hexValue;
-    option.text = i.toString().padStart(3,"0");
+    option.text = i.toString();
     dropdown.appendChild(option);
   }
 }
@@ -62,7 +62,13 @@ function updateLinkText(linkElement, selectedOption) {
   
     // Add click event listener to change background color after link is clicked
     linkElement.addEventListener('click', function () {
-      linkElement.style.backgroundColor = 'lightgreen';
+    
+        // when a link is klicked add the GG code and make the link green if it worked
+        handleInput();
+        if(applyCode()){
+            // Change the background color to light green
+            linkElement.style.backgroundColor = 'lightgreen';
+        }
     });
   }
   
@@ -76,7 +82,6 @@ function updateLinkText(linkElement, selectedOption) {
       updateLinkText(linkElement, selectedOption);
     }
   }
-
 
 
 
@@ -135,6 +140,7 @@ openModalButton.addEventListener("click", function () {
   
       // Update the button text
       openModalButton.textContent = "Hide GG Codes";
+
     }
 });
 
@@ -175,4 +181,36 @@ function stopResize() {
   isResizing = false;
   document.removeEventListener("mousemove", handleResize);
   document.removeEventListener("mouseup", stopResize);
+}
+
+// GENERATE STUFF FOR THE GRAVITY TABLES
+// Get the container element where the selects will be added
+const gravityTablesContainer = document.getElementById('gravityTablesContainer');
+
+// Define the number of levels
+const numLevels = 20;
+
+// Generate the HTML code for the selects in a loop
+for (let i = 1; i <= numLevels; i++) {
+    // Create the "Lel" text
+    const text = document.createTextNode(`Lev ${i} `);
+    
+    // Create a new select element
+    const select = document.createElement('select');
+    select.classList.add('hexSel');
+    select.id = `s_L${i}`;
+
+    // Create the default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = 'XX';
+    defaultOption.textContent = '-';
+    select.appendChild(defaultOption);
+
+    // Create a line break element
+    const br = document.createElement('br');
+
+    // Append the text, select, and line break elements to the container
+    gravityTablesContainer.appendChild(text);
+    gravityTablesContainer.appendChild(select);
+    gravityTablesContainer.appendChild(br);
 }
