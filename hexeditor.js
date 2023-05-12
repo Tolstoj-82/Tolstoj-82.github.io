@@ -279,13 +279,12 @@ function validateFile(event) {
   }
 
   function addToLog(logText){
-    
-    const log = document.getElementById("log");
-    // Append the new text and line break to the textarea
-    log.value += logText + "\n";
 
-    // Scroll to the bottom of the textarea
-    log.scrollTop = log.scrollHeight;
+    const log = document.getElementById("log");
+    
+    // Prepend the new text and line break to the textarea
+    log.value = logText + "\n" + log.value;
+    
   }
 
   function scrollToAddress(address) {
