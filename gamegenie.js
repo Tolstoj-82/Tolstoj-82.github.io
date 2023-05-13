@@ -1,3 +1,4 @@
+/* LEGACY CODE!
 //-------------------------------------------------------------------------------------------
 // Adds a GG link, when the user clicks a link
 //-------------------------------------------------------------------------------------------
@@ -13,6 +14,9 @@ copyLinks.forEach(function(link) {
   });
 });
 
+*/
+
+
 //-------------------------------------------------------------------------------------------
 // Transforms a game genie code to (1) address (2) old value (3) newvalue
 //-------------------------------------------------------------------------------------------
@@ -21,16 +25,12 @@ function handleInput() {
   const disabledButtonText = "nothing to apply - add a code first";
   let input;
 
-  /*if (!e_ggCode) {
-    input = document.getElementById("ggCode").value.replace(/[-x\s]/gi, "").toUpperCase();
-  } else {*/
-    input = e_ggCode.value.replace(/[-x\s]/gi, "").toUpperCase();
-  //}
+  input = e_ggCode.value.replace(/[-x\s]/gi, "").toUpperCase();
     
   // color the input with the game genie code depending on the validity of the code
   formatInputs(input);
   
-  // 
+  // transform game genie code to: address, (old value), new value
   ggCodeToAddr(input);
 }
 
@@ -122,38 +122,45 @@ function applyCode(){
   address = e_romAddr.value.trim();
   oldVal = e_oldVal.value.trim();
   newVal = e_newVal.value.trim();
-  valueInRomAddress = document.getElementById(address).textContent;
   returnValue = false;
-  
-  // scroll to the address
-  scrollToAddress(address);
-  
-  // only change the value if the old value was the one from the GG code
-  if(oldVal == "-" || oldVal == valueInRomAddress){
-    
-    //exchange the value in the cell
-    document.getElementById(address).textContent = newVal;
-    document.getElementById(address).classList.add("edited");
-    
-    // only enable to save if at least one modification has been made
-    if(log != ""){
 
+  var element = document.getElementById(address);
+
+  if (element) {
+    var valueInRomAddress = element.textContent;
+
+    // scroll to the address
+    scrollToAddress(address);
+    
+    // only change the value if the old value was the one from the GG code
+    if(oldVal == "-" || oldVal == valueInRomAddress){
+      
+      //exchange the value in the cell
+      document.getElementById(address).textContent = newVal;
+      document.getElementById(address).classList.add("edited");
+      
+      // only enable to save if at least one modification has been made
+      if(log != ""){
+
+      }
+
+      displayToast("hexValueChanged");
+      const date = new Date();
+      const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      const formattedTime = date.toLocaleTimeString(undefined, options);
+
+      addToLog("Value altered: Address $" + address + " | " + oldVal + " > " + newVal + " (" + formattedTime + ")");
+      
+      // clear the fields
+      clearFields(e_ggCode, true);
+      returnValue = true;
+
+    }else{
+        alert("According to the Game Genie code you provided, the ROM Address $" + address + " should contain the value 0x" + oldVal + ". This was not the case and nothing has been changed!\nMake sure that the Game Genie code is correct and belongs to this game.\nIf you still want that code, you can force it by leaving the last 3 digits away. The code is in the Game Genie Code field.\nnote that forcing this is only reliable applicable for games up to 32KB.");
     }
 
-    alert("the value has been altered successfully!");
-    const date = new Date();
-    const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    const formattedTime = date.toLocaleTimeString(undefined, options);
-
-    addToLog("* GG code added: Address $" + address + " | " + oldVal + " > " + newVal + " (" + formattedTime + ")");
-    
-    // clear the fields
-    clearFields(e_ggCode, true);
-    returnValue = true;
-
-  }else{
-      alert("According to the Game Genie code you provided, the ROM Address $" + address + " should contain the value 0x" + oldVal + ". This was not the case and nothing has been changed!\nMake sure that the Game Genie code is correct and belongs to this game.\nIf you still want that code, you can force it by leaving the last 3 digits away (!!!only applicable for games up to 32KB!!!)");
   }
+
   return returnValue;
 }
 

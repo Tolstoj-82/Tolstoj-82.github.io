@@ -8,17 +8,19 @@
 // -------------
 // * Bigger files mess up the performance (continuous loading?)
 // * Flakey behavior with the loading animation
+// * Flakey behavior with the drag handle on the game genie modal
+// * Flakey behavior with the toast message height
 //
 // Todo:
 // -----
 // * Clean up the mess!!!
-// * Why is the file name no longer stored?
-// * Toast messages instead of the alerts
+//   1) global variables
+//   2) get DOM elements (in DOM elements ready envent listener)
+//   3) event listeners
 // * Only allow adresses from 0x0000-0x7FFF (well...)
 // * functions gg2Addr() and addr2Gg(). Also improve it
-// * Only show Address, Old and New, if a GG code has been entered (and is correct --> event listener)
 // * Correct the global checksum (https://gbdev.io/pandocs/The_Cartridge_Header.html)
-// * make sure the classes editing and edited are assigned correctly
+// * make sure the classes "editing" and "edited" are assigned correctly
 // * only show the save option, when at least one modification has been made
 // 
 // Tasks for the future:
@@ -55,7 +57,34 @@ document.addEventListener('DOMContentLoaded', function() {
   e_searchInput = document.getElementById("searchInput");
 
   e_applyCode.setAttribute("title", disabledButtonText);
+ 
+  // for the game genie code that only spawns 1 piece type, this can change the orientation
+  const e_pieceOri = document.getElementById("pieceOri");
+
+  e_pieceOri.addEventListener("change", function() {
+    const selectedOption = parseInt(e_pieceOri.value, 16);
   
+    const links = document.querySelectorAll(".copyLink.pieceSpawn");
+  
+    links.forEach(link => {
+      const linkText = link.textContent;
+      const originalDigit = parseInt(link.dataset.north, 16);
+      const updatedDigit = ((originalDigit + selectedOption) % 16).toString(16).toUpperCase();
+      const updatedLinkText = linkText.replace(/(\w)(\w)(.*)/, `$1${updatedDigit}$3`);
+      link.textContent = updatedLinkText;
+  
+      // Add animation class to the link element after a small delay
+      setTimeout(() => {
+        link.classList.add('link-animation');
+      }, 10);
+  
+      // Remove the animation class after animation completes
+      setTimeout(() => {
+        link.classList.remove('link-animation');
+      }, 1010);
+    });
+  });
+
   // Add event listener for "input" event
   e_ggCode.addEventListener("input", handleInput);
 
@@ -75,6 +104,26 @@ document.addEventListener('DOMContentLoaded', function() {
       panel.style.maxHeight = 0;
     }
   });
+
+  // Get all the link elements
+  const copyLinks = document.querySelectorAll('.copyLink');
+
+// Add click event listener to each link
+copyLinks.forEach(function(linkElement) {
+  linkElement.addEventListener('click', function(event) {
+    event.preventDefault();
+    const textToCopy = linkElement.textContent;
+    e_ggCode.value = textToCopy;
+
+    // when a link is clicked add the GG code and make the link green if it worked
+    handleInput();
+    if (applyCode()) {
+      this.classList.add('clicked');
+      //this.classList.add('green');
+    }
+  });
+});
+
 
 });
 
@@ -225,7 +274,7 @@ function validateFile(event) {
       const hexValueCells = [];
 
       const address = i.toString(16).toUpperCase().padStart(4, '0').slice(0,3) + "_";
-      const addressID = i.toString(16).toUpperCase().padStart(4, '0');//address.slice(0, 3) + (parseInt(address.slice(-1), 16) - 1).toString(16).toUpperCase();
+      const addressID = i.toString(16).toUpperCase().padStart(4, '0');
       addressCell.innerHTML = `<a href="#${addressID}"></a>${address}`;
       addressCell.className = "baseAddress";
       addressCell.id = address;
@@ -279,23 +328,54 @@ function validateFile(event) {
   }
 
   function addToLog(logText){
-
     const log = document.getElementById("log");
-    
-    // Prepend the new text and line break to the textarea
     log.value = logText + "\n" + log.value;
-    
   }
 
   function scrollToAddress(address) {
-    address = (parseInt("0x" + address, 16) - 16).toString(16).toUpperCase();
-    while(address.length < 4){
-        address = "0" + address;
-    }
+    
+    returnValue = false;
+    oriAddr = address;
+    address = parseInt(address, 16) - 16;
+    oriAddr = parseInt(oriAddr, 16);
+    address = address.toString(16).toUpperCase().padStart(4, '0');
+    oriAddr = oriAddr.toString(16).toUpperCase().padStart(4, '0');
+    
     address = address.slice(0, -1) + "0";
     const anchorElement = document.getElementById(address);
-    anchorElement.scrollIntoView({ behavior: 'smooth' });
+
+    // check it the address exists - if not show red toast
+    if (anchorElement) {
+      
+      anchorElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Apply the pulsate animation after a slight delay
+      setTimeout(function() {
+        const tdElement = document.getElementById(oriAddr);
+        tdElement.style.animation = 'pulsate 2s';
+  
+        // Reset the animation after it completes
+        tdElement.addEventListener('animationend', function () {
+          tdElement.style.animation = '';
+        });
+
+      }, 500); // Adjust the delay as needed
+      
+      returnValue = true;
+
+    } else {
+      
+      // show message and erase the non-sensical input
+      displayToast("wrongAddress");
+      const searchInput = document.getElementById("searchInput");
+      searchInput.value = "";
+      searchInput.focus();
+
+    }
+    
+    return returnValue;
   }
+  
   
   function showLoadingAnimation() {
     document.getElementById("loadingAnimation").style.display = "block";

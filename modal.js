@@ -29,8 +29,6 @@ const l_leftDasArrLink = document.getElementById('l_leftDasArr');
 const l_rightDasDelayLink = document.getElementById('l_rightDasDelay');
 const l_rightDasArrLink = document.getElementById('l_rightDasArr');
 
-
-
 // Function to update link text with animation
 function updateLinkText(linkElement, selectedOption) {
     const linkText = linkElement.textContent;
@@ -39,6 +37,7 @@ function updateLinkText(linkElement, selectedOption) {
     // Check if the link is either a left link or a right link
     const isLeftLink = linkElement.id.startsWith('l_left');
     const isRightLink = linkElement.id.startsWith('l_right');
+    const isGravityLink = linkElement.id.startsWith('s_G');
   
     // Update the link text immediately
     linkElement.textContent = updatedLinkText;
@@ -46,45 +45,20 @@ function updateLinkText(linkElement, selectedOption) {
     // Remove the inactive class from the link element
     linkElement.classList.remove('inactive');
   
-    // Add animation class to the link element after a small delay, for both left and right links
-    if (isLeftLink || isRightLink) {
-      setTimeout(() => {
-        linkElement.classList.add('link-animation');
-      }, 10);
+    // Add animation class to the link element after a small delay, for both left, right, and gravity links
+    if (isLeftLink || isRightLink || isGravityLink) {
+        setTimeout(() => {
+            linkElement.classList.add('link-animation');
+        }, 10);
     }
   
-    // Remove the animation class after animation completes, for both left and right links
-    if (isLeftLink || isRightLink) {
-      setTimeout(() => {
-        linkElement.classList.remove('link-animation');
-      }, 1010);
-    }
-  
-    // Add click event listener to change background color after link is clicked
-    linkElement.addEventListener('click', function () {
-    
-        // when a link is klicked add the GG code and make the link green if it worked
-        handleInput();
-        if(applyCode()){
-            // Change the background color to light green
-            linkElement.style.backgroundColor = 'lightgreen';
-        }
-    });
-  }
-  
-  // Iterate over all the copy links and attach the event listener
-  for (let i = 0; i < copyLinks.length; i++) {
-    const linkElement = copyLinks[i];
-    const selectedOption = linkElement.textContent.substring(0, 2); // Get the initial selected option
-  
-    // Attach the event listener only if it's not an inactive link
-    if (!linkElement.classList.contains('inactive')) {
-      updateLinkText(linkElement, selectedOption);
-    }
-  }
-
-
-
+    // Remove the animation class after animation completes, for both left, right, and gravity links
+    if (isLeftLink || isRightLink || isGravityLink) {
+        setTimeout(() => {
+            linkElement.classList.remove('link-animation');
+        }, 1010);
+    }  
+}
 
 
 // Add event listeners to the select elements
@@ -102,8 +76,6 @@ leftDasArrSelect.addEventListener('change', function () {
   updateLinkText(l_rightDasArrLink, selectedOption); // Trigger animation for right link
 });
 
-
-
 rightDasDelaySelect.addEventListener('change', function () {
   const selectedOption = rightDasDelaySelect.value;
   updateLinkText(l_rightDasDelayLink, selectedOption);
@@ -113,8 +85,6 @@ rightDasArrSelect.addEventListener('change', function () {
   const selectedOption = rightDasArrSelect.value;
   updateLinkText(l_rightDasArrLink, selectedOption);
 });
-
-
 
 openModalButton.addEventListener("click", function () {
     if (modalOverlay.style.display === "block") {
@@ -183,34 +153,204 @@ function stopResize() {
   document.removeEventListener("mouseup", stopResize);
 }
 
+
+
 // GENERATE STUFF FOR THE GRAVITY TABLES
 // Get the container element where the selects will be added
 const gravityTablesContainer = document.getElementById('gravityTablesContainer');
+const ggCodeInput = document.getElementById('ggCode');
 
 // Define the number of levels
 const numLevels = 20;
 
-// Generate the HTML code for the selects in a loop
-for (let i = 1; i <= numLevels; i++) {
-    // Create the "Lel" text
-    const text = document.createTextNode(`Lev ${i} `);
-    
+// Create a table element
+const gravityTableTable = document.createElement('table');
+
+// Define the column names
+const columnNames = ['Level', 'Speed [1/G]', 'Code', 'Original', 'To Bottom'];
+
+// Create the header row
+const headerRow = gravityTableTable.insertRow();
+columnNames.forEach(columnName => {
+  const headerCell = document.createElement('th');
+  headerCell.textContent = columnName;
+  headerRow.appendChild(headerCell);
+});
+
+for (let i = 0; i <= numLevels; i++) {
+    const row = document.createElement('tr');
+    const text = document.createTextNode(i);
+    const textCell = document.createElement('td');
+    textCell.appendChild(text);
+
     // Create a new select element
     const select = document.createElement('select');
     select.classList.add('hexSel');
     select.id = `s_L${i}`;
 
-    // Create the default option
-    const defaultOption = document.createElement('option');
-    defaultOption.value = 'XX';
-    defaultOption.textContent = '-';
-    select.appendChild(defaultOption);
+    // Create options ranging from 0 to 255
+    for (let j = 0; j <= 255; j++) {
+        const option = document.createElement('option');
+        option.value = j.toString(16).padStart(2, "0").toUpperCase();
+        option.textContent = j + 1;
+        select.appendChild(option);
+    }
 
-    // Create a line break element
-    const br = document.createElement('br');
+    // Set the preselected value based on the specified values
+    const preselectedValues = [53, 49, 45, 41, 37, 33, 28, 22, 17, 11, 10, 9, 8, 7, 6, 6, 5, 5, 4, 4, 3];
+    select.value = (preselectedValues[i] - 1).toString(16).padStart(2, "0").toUpperCase();
 
-    // Append the text, select, and line break elements to the container
-    gravityTablesContainer.appendChild(text);
-    gravityTablesContainer.appendChild(select);
-    gravityTablesContainer.appendChild(br);
+    // Create a new cell for the select
+    const selectCell = document.createElement('td');
+    selectCell.appendChild(select);
+
+    // Create a new cell for the original value
+    const originalValueCell = document.createElement('td');
+    const oriValue = preselectedValues[i];
+    const originalValueText = document.createTextNode(`${oriValue}`);
+    originalValueCell.appendChild(originalValueText);
+
+    // Create a new cell for the speed
+    const speedCell = document.createElement('td');
+    const value = parseInt(select.options[select.selectedIndex].textContent);
+    var timeToBottom = Math.round(1000 * 18 * (1 / 59.7) * value);
+    if(timeToBottom >= 1000) timeToBottom = Math.round(timeToBottom/100)/10 + " s";
+    else timeToBottom += " ms";
+    const speedText = document.createTextNode(timeToBottom);
+    speedCell.appendChild(speedText);
+
+    // Create a new cell for the link
+    const linkCell = document.createElement('td');
+
+    // Create the link text content
+    const hexValue = (6 + i).toString(16).padStart(2, "0").toUpperCase();
+    const linkText = `XXB-${hexValue}E`;
+
+    // Create the link
+    const link = document.createElement('a');
+    link.href = '#';
+    link.classList.add('copyLink', 'inactive');
+    link.textContent = linkText;
+    link.id = `s_G${i}`;
+
+    // Add event listener to the select element
+    select.addEventListener('change', function () {
+        // Get the selected option value
+        const selectedOption = select.value;
+
+        // Update the link text with the selected option value
+        updateLinkText(link, selectedOption);
+
+        // Fill in the input text with the link value
+        ggCodeInput.value = link.textContent;
+
+        // Update the speed value
+        const updatedValue = parseInt(select.options[select.selectedIndex].textContent);
+        var updatedTimeToBottom = Math.round(1000 * 17 * (1 / 59.7) * updatedValue);
+        if(updatedTimeToBottom >= 1000) updatedTimeToBottom = Math.round(updatedTimeToBottom/100)/10 + " s";
+        else updatedTimeToBottom += " ms";
+        speedText.textContent = updatedTimeToBottom;
+    });
+
+    // Append the link to the cell
+    linkCell.appendChild(link);
+
+    // Append the text, select, original value, speed, and link cells to the row
+    row.appendChild(textCell);
+    row.appendChild(selectCell);
+    row.appendChild(linkCell);
+    row.appendChild(originalValueCell);
+    row.appendChild(speedCell);
+
+
+    // Append the row to the table
+    gravityTableTable.appendChild(row);
 }
+
+// Append the table to the gravityTablesContainer element
+gravityTablesContainer.appendChild(gravityTableTable);
+
+
+
+
+
+/*
+// GENERATE STUFF FOR THE GRAVITY TABLES
+// Get the container element where the selects will be added
+const gravityTablesContainer = document.getElementById('gravityTablesContainer');
+const ggCodeInput = document.getElementById('ggCode');
+
+// Define the number of levels
+const numLevels = 20;
+
+// Create a table element
+const gravityTableTable = document.createElement('table');
+
+for (let i = 0; i <= numLevels; i++) {
+    const row = document.createElement('tr');
+    const text = document.createTextNode(`Level ${i}`);
+    const textCell = document.createElement('td');
+    textCell.appendChild(text);
+
+    // Create a new select element
+    const select = document.createElement('select');
+    select.classList.add('hexSel');
+    select.id = `s_L${i}`;
+
+    // Create options ranging from 0 to 255
+    for (let j = 0; j <= 255; j++) {
+        const option = document.createElement('option');
+        option.value = j.toString(16).padStart(2, "0").toUpperCase();
+        option.textContent = j + 1;
+        select.appendChild(option);
+    }
+
+    // Set the preselected value based on the specified values
+    const preselectedValues = [53, 49, 45, 41, 37, 33, 28, 22, 17, 11, 10, 9, 8, 7, 6, 6, 5, 5, 4, 4, 3];
+    select.value = (preselectedValues[i] - 1).toString(16).padStart(2, "0").toUpperCase();
+
+    // Create a new cell for the select
+    const selectCell = document.createElement('td');
+    selectCell.appendChild(select);
+
+    // Create a new cell for the link
+    const linkCell = document.createElement('td');
+
+    // Create the link text content
+    const hexValue = (6 + i).toString(16).padStart(2, "0").toUpperCase();
+    const linkText = `XXB-${hexValue}E`;
+
+    // Create the link
+    const link = document.createElement('a');
+    link.href = '#';
+    link.classList.add('copyLink', 'inactive');
+    link.textContent = linkText;
+    link.id = `s_G${i}`;
+
+    // Add event listener to the select element
+    select.addEventListener('change', function () {
+        // Get the selected option value
+        const selectedOption = select.value;
+
+        // Update the link text with the selected option value
+        updateLinkText(link, selectedOption);
+
+        // Fill in the input text with the link value
+        ggCodeInput.value = link.textContent;
+    });
+
+    // Append the link to the cell
+    linkCell.appendChild(link);
+
+    // Append the text, select, and link cells to the row
+    row.appendChild(textCell);
+    row.appendChild(selectCell);
+    row.appendChild(linkCell);
+
+    // Append the row to the table
+    gravityTableTable.appendChild(row);
+}
+
+// Append the table to the gravityTablesContainer element
+gravityTablesContainer.appendChild(gravityTableTable);
+*/

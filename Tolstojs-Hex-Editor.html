@@ -20,6 +20,10 @@
       </div>
       
       <div id="wrapper" style="display: none;">
+        <!-- TOAST -->
+        <div class="toast green" id="hexValueChanged">A value has been altered!</div>
+        <div class="toast red" id="wrongAddress">The address you provided does not exist in this ROM data.</div>
+
         <b>Game Genie Code</b><br>
         <input type="text" id="ggCode" placeholder="e.g. 145-F2E-C4E">
         
@@ -82,9 +86,8 @@
           <input type="text" id="patchRomName"> .gb
         </p>
         <p>
-          <b>Log (Latest on top)</b><br>
+          <b>Log (newest on top)</b><br>
           <textarea id="log" readonly></textarea>
-          <!--<div id="log"></div>-->
         </p>
 
         <button id="openModalButton">Show GG Codes</button>
@@ -141,26 +144,37 @@
                     <td><a href="#" class="copyLink">18F-60E-2AA</a></td>
                 </tr>
                 <tr>
-                    <td>Only one piece type</td>
+                    <td>
+                      Only one piece type<br>
+                      <p>
+                        Orientation<br>
+                        <select id="pieceOri">
+                          <option value="0">North</option>
+                          <option value="1">East</option>
+                          <option value="2">South</option>
+                          <option value="3">West</option>
+                        </select>
+                      </p>
+                    </td>
                     <td>Galoob (Tolstoj)</td>
                     <td>
                       <a href="#" class="copyLink">000-63D-6E9</a> +<br> 
                       <a href="#" class="copyLink">3E0-64D-5D0</a> + …<br>
-                      <p><b>Only choose one</b></p>
+                      <p>choose one</p>
                       L pieces<br>
-                      … <a href="#" class="copyLink">000-65D-087</a><br>
+                      … <a href="#" class="copyLink pieceSpawn" id="p_L" data-north="0">000-65D-087</a><br>
                       J pieces<br>
-                      … <a href="#" class="copyLink">040-65D-087</a><br>
+                      … <a href="#" class="copyLink pieceSpawn" id="p_J" data-north="4">040-65D-087</a><br>
                       I pieces<br>
-                      … <a href="#" class="copyLink">080-65D-087</a><br>
+                      … <a href="#" class="copyLink pieceSpawn" id="p_I" data-north="8">080-65D-087</a><br>
                       O pieces<br>
-                      … <a href="#" class="copyLink">0C0-65D-087</a><br>
+                      … <a href="#" class="copyLink pieceSpawn" id="p_O" data-north="C">0C0-65D-087</a><br>
                       Z pieces<br>
-                      … <a href="#" class="copyLink">100-65D-087</a><br>
+                      … <a href="#" class="copyLink pieceSpawn" id="p_Z" data-north="0">100-65D-087</a><br>
                       S pieces<br>
-                      … <a href="#" class="copyLink">140-65D-087</a><br>
+                      … <a href="#" class="copyLink pieceSpawn" id="p_S" data-north="4">140-65D-087</a><br>
                       T pieces<br>
-                      … <a href="#" class="copyLink">180-65D-087</a><br>
+                      … <a href="#" class="copyLink pieceSpawn" id="p_T" data-north="8">180-65D-087</a><br>
                       <p>
                         Replace the first number block in steps of 10s for alternative spawning orientations<br>
                       </p>
@@ -371,17 +385,17 @@
                   </td>
                 </tr>
                 <tr>
-                  <td>
-                    Alter the gravity table<br>
-                    <!-- The gravity tables are populated here -->
-                    <div id="gravityTablesContainer"></div>
-
-                  </td>
-                  <td>
-                    Tetris Wiki
-                  </td>
-                  <td>
-
+                  <td colspan="3">
+                    <b>Change the speed of the levels (gravity table)</b><br>
+                    Code by Tetris.wiki
+                    <p>
+                      The values are in unit 1/G. This is how many frames it takes for a piece to drop one row.<br>
+                      e.g. 1G = 1 drop per frame, 1/5G = 1 drop every 5 frames.
+                    </p>
+                    <p>
+                      <!-- The gravity tables are populated here -->
+                      <div id="gravityTablesContainer"></div>
+                    </p>
                   </td>
                 </tr>
               </table>
@@ -396,6 +410,7 @@
     <script src="gamegenie.js"></script>
     <script src="lookup.js"></script>
     <script src="modal.js"></script>
+    <script src="toast.js"></script>
 
   </body>
 </html>

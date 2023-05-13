@@ -129,7 +129,8 @@ td.baseAddress {
 
 /* Input Styles */
 input,
-textarea {
+textarea,
+select {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -285,7 +286,6 @@ button.accordion {
   cursor: not-allowed;
 }
 
-
 /* Modal overlay styles */
 #modalOverlay {
   display: none;
@@ -357,11 +357,16 @@ button.accordion {
   background-color: orange;
 }
 
-.inactive {
+.copyLink.inactive {
   background-color: rgb(117, 117, 117);
   color: #ccc;
   pointer-events: none;
 }
+
+.copyLink.clicked {
+  background-color: lightgreen;
+}
+
 
 .link-animation {
   animation: pulsate 1s infinite;
@@ -382,4 +387,68 @@ button.accordion {
     font-weight: inherit;
     text-shadow: none;
   }
+}
+
+
+/* Toast */
+ 
+.toast {
+  visibility: hidden;
+  min-width: 250px;
+  background-color: #FFF;
+  color: #000;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  transform: translate(-50%, 0);
+}
+
+.toast.red {
+  background-color: lightpink;
+}
+
+.toast.green {
+  background-color: lightgreen;
+}
+
+.toast.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 3.0s;
+  animation: fadein 0.5s, fadeout 0.5s 3.0s;
+}
+  
+@-webkit-keyframes fadein {
+  from {bottom: 60px; opacity: 0;} 
+  to {bottom: 30px; opacity: 1;}
+}
+  
+@keyframes fadein {
+  from {bottom: 60px; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+  
+@-webkit-keyframes fadeout {
+  from {top: 60px; opacity: 1;} 
+  to {top: 30px; opacity: 0;}
+}
+  
+@keyframes fadeout {
+  from {top: 60px; opacity: 1;}
+  to {top: 30px; opacity: 0;}
+}
+
+#gravityTablesContainer {
+  display: flex;
+  justify-content: center;
+}
+
+#gravityTablesContainer table td {
+  text-align: center;
+  vertical-align: middle;
 }
