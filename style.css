@@ -110,10 +110,6 @@ input.two {
   background-color: inherit;
 }
 
-.hexValueCell.editing {
-  border: 2px solid orange;
-}
-
 .hexValueCell.edited {
   background-color: #ffcc99;
 }

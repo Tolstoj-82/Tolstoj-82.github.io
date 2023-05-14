@@ -262,6 +262,7 @@ function validateFile(event) {
     link.href = URL.createObjectURL(blob);
     link.download = newFileName;
     link.click();
+    displayToast("GLHF");
   }
 
   function convertToHex(fileData) {
@@ -319,7 +320,6 @@ function validateFile(event) {
       hexValueCells.forEach(cell => {
         cell.addEventListener('focus', function() {
           const cell = event.target;
-          //cell.classList.add('editing');
           if (!cell.hasAttribute('data-previous-value')) {
             cell.setAttribute('data-previous-value', cell.textContent);
           }
@@ -353,7 +353,6 @@ function validateFile(event) {
       
           cell.setAttribute('data-previous-value', value);
           cell.textContent = value;
-          //cell.classList.remove('editing');
         });
       });
       
