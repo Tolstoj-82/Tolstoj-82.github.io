@@ -33,6 +33,7 @@
           <input type="text" id="searchInput">
           <button onclick="searchAndSelectCell()">Navigate to ROM Address</button>
           <br>
+        
         <div class="table-wrapper">
           <table id="hexViewer"></table>
         </div>
@@ -84,7 +85,7 @@
         </p>
         <p>
           <input type="text" id="patchRomName"> .gb
-          <button onclick="createFileFromHexData()" id="createFileBtn" disabled>Download the modified ROM</button>
+          <button onclick="createFileFromHexData()" id="createFileBtn" disabled>Save the ROM file</button>
         </p>
         <p>
           <b>Log (newest on top)</b><br>
@@ -176,15 +177,6 @@
                       … <a href="#" class="copyLink pieceSpawn" id="p_S" data-north="4">140-65D-087</a><br>
                       T pieces<br>
                       … <a href="#" class="copyLink pieceSpawn" id="p_T" data-north="8">180-65D-087</a><br>
-                      <p>
-                        Replace the first number block in steps of 10s for alternative spawning orientations<br>
-                      </p>
-                      <p>
-                        e.g.<br> 
-                        1<b>8</b>0-65D-087 &rarr;<br>
-                        1<b>9</b>0-65D-087<br>
-                        for a rotated T piece
-                      </p> 
                     </td>
                 </tr>
                 <tr>
