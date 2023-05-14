@@ -18,9 +18,6 @@
 //   2) each DOM element in a variable (in DOM elements ready envent listener)
 //   3) event listeners
 // * functions gg2Addr() and addr2Gg(). Also improve it
-// * Correct the global checksum (https://gbdev.io/pandocs/The_Cartridge_Header.html)
-// * make sure the classes "editing" and "edited" are assigned correctly
-// * only show the save option, when at least one modification has been made
 // 
 // Tasks for the future:
 // --------------------
@@ -44,11 +41,107 @@
 const disabledButtonText = "nothing to apply - add a code first";
 let e_ggCode;
 
-  // enables download
-  function enableDownload() {
-    var button = document.getElementById("createFileBtn");
-    button.removeAttribute("disabled");
+
+function updateChecksums(updateInRom) {
+  let headerChecksum = 0;
+  const hexValueCellElements = document.querySelectorAll('.hexValueCell');
+
+  hexValueCellElements.forEach(element => {
+    const hexValue = parseInt(element.textContent.trim(), 16);
+    if (!isNaN(hexValue)) {
+      if (element.id >= '0134' && element.id <= '014C') {
+        headerChecksum -= hexValue + 1;
+      }
+    }
+  });
+
+  headerChecksum &= 0xFF; // Keep only the lower 8 bits
+
+  const headerChecksumField = document.getElementById('headerChecksum');
+  headerChecksumField.value = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
+
+  if (updateInRom) {
+    const checksumDigits = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
+    const td104D = document.getElementById('104D');
+    td104D.textContent = checksumDigits;
   }
+
+  let globalChecksum = 0;
+
+  hexValueCellElements.forEach(element => {
+    const hexValue = parseInt(element.textContent.trim(), 16);
+    if (!isNaN(hexValue)) {
+      if (element.id !== '014E' && element.id !== '014F') {
+        globalChecksum += hexValue;
+      }
+    }
+  });
+
+  globalChecksum &= 0xFFFF; // Keep only the lower 16 bits
+
+  const globalChecksumField = document.getElementById('globalChecksum');
+  globalChecksumField.value = globalChecksum.toString(16).toUpperCase().padStart(4, '0');
+
+  if (updateInRom) {
+    const checksumDigits = globalChecksum.toString(16).toUpperCase().padStart(4, '0');
+    const digits014E = checksumDigits.slice(0, 2);
+    const digits014F = checksumDigits.slice(2, 4);
+
+    const td014E = document.getElementById('014E');
+    const td014F = document.getElementById('014F');
+    td014E.textContent = digits014E;
+    td014F.textContent = digits014F;
+  }
+}
+
+
+/*
+function updateChecksums(updateInRom) {
+  let headerChecksum = 0;
+  const hexValueCellElements = document.querySelectorAll('.hexValueCell');
+
+  hexValueCellElements.forEach(element => {
+    const hexValue = parseInt(element.textContent.trim(), 16);
+    if (!isNaN(hexValue)) {
+      if (element.id >= '0134' && element.id <= '014C') {
+        headerChecksum -= hexValue + 1;
+      }
+    }
+  });
+
+  headerChecksum &= 0xFF; // Keep only the lower 8 bits
+
+  const headerChecksumField = document.getElementById('headerChecksum');
+  headerChecksumField.value = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
+
+  if (updateInRom) {
+    const checksumDigits = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
+    const td104D = document.getElementById('104D');
+    td104D.textContent = checksumDigits;
+  }
+
+  let globalChecksum = 0;
+
+  hexValueCellElements.forEach(element => {
+    const hexValue = parseInt(element.textContent.trim(), 16);
+    if (!isNaN(hexValue)) {
+      if (element.id !== '014E' && element.id !== '014F') {
+        globalChecksum += hexValue;
+      }
+    }
+  });
+
+  globalChecksum &= 0xFFFF; // Keep only the lower 16 bits
+
+  const globalChecksumField = document.getElementById('globalChecksum');
+  globalChecksumField.value = globalChecksum.toString(16).toUpperCase().padStart(4, '0');
+}*/
+
+// enables download
+function enableDownload() {
+  var button = document.getElementById("createFileBtn");
+  button.removeAttribute("disabled");
+}
 
 // everything that needs the site to be loaded goes in here
 document.addEventListener('DOMContentLoaded', function() {
@@ -227,7 +320,7 @@ function validateFile(event) {
     };
 
     reader.readAsArrayBuffer(file);
-
+    
     return true;
 
   }
@@ -357,12 +450,16 @@ function validateFile(event) {
       });
       
     }
+
+    // update the checksums, but no need to write them to the ROM yet
+    updateChecksums(false);
   }
 
   function addToLog(logText){
     const log = document.getElementById("log");
     log.value = logText + "\n" + log.value;
     enableDownload();
+    updateChecksums(true);
   }
 
   function scrollToAddress(address) {
