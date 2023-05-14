@@ -9,15 +9,14 @@
 // * Bigger files mess up the performance (continuous loading?)
 // * Flakey behavior with the loading animation
 // * Flakey behavior with the drag handle on the game genie modal
-// * Flakey behavior with the toast message height
+// * Flakey behavior with the toast message height (ok now, I guess)
 //
 // Todo:
 // -----
 // * Clean up the mess!!!
 //   1) global variables
-//   2) get DOM elements (in DOM elements ready envent listener)
+//   2) each DOM element in a variable (in DOM elements ready envent listener)
 //   3) event listeners
-// * Only allow adresses from 0x0000-0x7FFF (well...)
 // * functions gg2Addr() and addr2Gg(). Also improve it
 // * Correct the global checksum (https://gbdev.io/pandocs/The_Cartridge_Header.html)
 // * make sure the classes "editing" and "edited" are assigned correctly
@@ -45,6 +44,12 @@
 const disabledButtonText = "nothing to apply - add a code first";
 let e_ggCode;
 
+  // enables download
+  function enableDownload() {
+    var button = document.getElementById("createFileBtn");
+    button.removeAttribute("disabled");
+  }
+
 // everything that needs the site to be loaded goes in here
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -58,33 +63,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
   e_applyCode.setAttribute("title", disabledButtonText);
  
-  // for the game genie code that only spawns 1 piece type, this can change the orientation
-  const e_pieceOri = document.getElementById("pieceOri");
-
-  e_pieceOri.addEventListener("change", function() {
-    const selectedOption = parseInt(e_pieceOri.value, 16);
+  // ASSIGN A CODE WHEN A VALUE IS CHOSEN IN THE SELECT ELEMENT
+  const selectElements = {
+    pieceOri: { element: document.getElementById("pieceOri"), links: ".copyLink.pieceSpawn" },
+    nClearedLines: { element: document.getElementById("nClearedLines"), link: document.getElementById("nClearedLinesCode") }
+  };
   
-    const links = document.querySelectorAll(".copyLink.pieceSpawn");
+  function handleSelectChange() {
+    const selectedOptions = Object.values(selectElements).reduce((options, { element }) => {
+      options[element.id] = parseInt(element.value, 16);
+      return options;
+    }, {});
   
-    links.forEach(link => {
-      const linkText = link.textContent;
-      const originalDigit = parseInt(link.dataset.north, 16);
-      const updatedDigit = ((originalDigit + selectedOption) % 16).toString(16).toUpperCase();
-      const updatedLinkText = linkText.replace(/(\w)(\w)(.*)/, `$1${updatedDigit}$3`);
-      link.textContent = updatedLinkText;
+    for (const key in selectElements) {
+      const { element, links, link } = selectElements[key];
   
-      // Add animation class to the link element after a small delay
-      setTimeout(() => {
+      if (key === "pieceOri") {
+        const pieceLinks = document.querySelectorAll(links);
+        pieceLinks.forEach(link => {
+          const { textContent, dataset: { north } } = link;
+          const updatedDigit = ((parseInt(north, 16) + selectedOptions.pieceOri) % 16).toString(16).toUpperCase();
+          link.textContent = textContent.replace(/(\w)(\w)(.*)/, `$1${updatedDigit}$3`);
+          link.classList.add('link-animation');
+          setTimeout(() => link.classList.remove('link-animation'), 1010);
+        });
+      } else if (key === "nClearedLines") {
+        const { textContent } = link;
+        const updatedLinkText = textContent.replace(/^../, selectedOptions.nClearedLines.toString(16).padStart(2, '0')).toUpperCase();
+        link.textContent = updatedLinkText;
+        link.classList.remove('inactive');
         link.classList.add('link-animation');
-      }, 10);
+        setTimeout(() => link.classList.remove('link-animation'), 1010);
+      }
+    }
+  }
   
-      // Remove the animation class after animation completes
-      setTimeout(() => {
-        link.classList.remove('link-animation');
-      }, 1010);
-    });
-  });
-
+  for (const key in selectElements) {
+    selectElements[key].element.addEventListener("change", handleSelectChange);
+  }
+  
   // Add event listener for "input" event
   e_ggCode.addEventListener("input", handleInput);
 
@@ -105,6 +122,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  // When enter is pressed apply the code
+  e_ggCode.addEventListener('keydown', function(event) {
+    if (event.keyCode === 13) applyCode();
+  });
+
+  // When enter is pressed search the address
+  e_searchInput.addEventListener('keydown', function(event) {
+    if (event.keyCode === 13) searchAndSelectCell();
+  });
+
   // Get all the link elements
   const copyLinks = document.querySelectorAll('.copyLink');
 
@@ -119,7 +146,6 @@ copyLinks.forEach(function(linkElement) {
     handleInput();
     if (applyCode()) {
       this.classList.add('clicked');
-      //this.classList.add('green');
     }
   });
 });
@@ -130,7 +156,7 @@ copyLinks.forEach(function(linkElement) {
 function searchAndSelectCell() {
   const searchInput = document.getElementById('searchInput');
   const address = searchInput.value.trim();
-  scrollToAddress(address);
+  if(address != "") scrollToAddress(address);
 }
 
 function validateFile(event) {
@@ -291,88 +317,98 @@ function validateFile(event) {
       }
 
       hexValueCells.forEach(cell => {
-        cell.addEventListener('input', function(event) {
+        cell.addEventListener('focus', function() {
           const cell = event.target;
-          cell.classList.add('editing');
+          //cell.classList.add('editing');
           if (!cell.hasAttribute('data-previous-value')) {
             cell.setAttribute('data-previous-value', cell.textContent);
           }
         });
-
+      
         cell.addEventListener('blur', function(event) {
           const cell = event.target;
-          const value = cell.textContent;
-
+          let value = cell.textContent;
+      
+          // Remove non-hex characters
+          value = value.replace(/[^0-9A-Fa-f]/g, '');
+      
           // Validate input
           if (!/^[0-9A-Fa-f]{0,2}$/.test(value)) {
             cell.textContent = value.slice(0, 2);
             return;
           }
-
-          // Remove any leading zeros
-          cell.textContent = value.toUpperCase().padStart(2, '0').slice(-2);
-
+      
+          // Remove any leading zeros and convert to uppercase
+          value = value.padStart(2, '0').slice(-2).toUpperCase();
+      
           // Check if the value has changed
           const previousValue = cell.getAttribute('data-previous-value');
-          cell.removeAttribute('data-previous-value');
-          cell.classList.remove('editing');
-
-          if (previousValue !== cell.textContent) {
+      
+          if (previousValue && previousValue.toLowerCase() !== value.toLowerCase()) {
             cell.classList.add('edited');
+            addToLog("Address $" + cell.id + " | " + previousValue + " > " + value + " (" + formattedTime() + "), manually altered");
           } else {
             cell.classList.remove('edited');
           }
+      
+          cell.setAttribute('data-previous-value', value);
+          cell.textContent = value;
+          //cell.classList.remove('editing');
         });
       });
+      
     }
   }
 
   function addToLog(logText){
     const log = document.getElementById("log");
     log.value = logText + "\n" + log.value;
+    enableDownload();
   }
 
   function scrollToAddress(address) {
     
     returnValue = false;
-    oriAddr = address;
-    address = parseInt(address, 16) - 16;
-    oriAddr = parseInt(oriAddr, 16);
-    address = address.toString(16).toUpperCase().padStart(4, '0');
-    oriAddr = oriAddr.toString(16).toUpperCase().padStart(4, '0');
+    if (/^[0-9a-fA-F]+$/.test(address)) { // only do, if the address is hex
+      oriAddr = address;
+      address = parseInt(address, 16) - 16;
+      oriAddr = parseInt(oriAddr, 16);
+      address = address.toString(16).toUpperCase().padStart(4, '0');
+      oriAddr = oriAddr.toString(16).toUpperCase().padStart(4, '0');
+      
+      address = address.slice(0, -1) + "0";
+      const anchorElement = document.getElementById(address);
+
+      // check it the address exists - if not show red toast
+      if (anchorElement) {
+        
+        anchorElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Apply the pulsate animation after a slight delay
+        setTimeout(function() {
+          const tdElement = document.getElementById(oriAddr);
+          tdElement.style.animation = 'pulsate 2s';
     
-    address = address.slice(0, -1) + "0";
-    const anchorElement = document.getElementById(address);
+          // Reset the animation after it completes
+          tdElement.addEventListener('animationend', function () {
+            tdElement.style.animation = '';
+          });
 
-    // check it the address exists - if not show red toast
-    if (anchorElement) {
-      
-      anchorElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500); // Adjust the delay as needed
+        
+        returnValue = true;
 
-      // Apply the pulsate animation after a slight delay
-      setTimeout(function() {
-        const tdElement = document.getElementById(oriAddr);
-        tdElement.style.animation = 'pulsate 2s';
-  
-        // Reset the animation after it completes
-        tdElement.addEventListener('animationend', function () {
-          tdElement.style.animation = '';
-        });
+      } else {
+        
+        // show message and erase the non-sensical input
+        displayToast("wrongAddress");
+        const searchInput = document.getElementById("searchInput");
+        searchInput.value = "";
+        searchInput.focus();
 
-      }, 500); // Adjust the delay as needed
-      
-      returnValue = true;
-
-    } else {
-      
-      // show message and erase the non-sensical input
-      displayToast("wrongAddress");
-      const searchInput = document.getElementById("searchInput");
-      searchInput.value = "";
-      searchInput.focus();
-
+      }
     }
-    
+
     return returnValue;
   }
   

@@ -20,9 +20,6 @@
       </div>
       
       <div id="wrapper" style="display: none;">
-        <!-- TOAST -->
-        <div class="toast green" id="hexValueChanged">A value has been altered!</div>
-        <div class="toast red" id="wrongAddress">The address you provided does not exist in this ROM data.</div>
 
         <b>Game Genie Code</b><br>
         <input type="text" id="ggCode" placeholder="e.g. 145-F2E-C4E">
@@ -30,7 +27,7 @@
         Address: <input type="text" id="romAddr" class="four" maxlength="4" readonly>
         Value: <input type="text" id="oldVal" class="two" maxlength="2" readonly> &rarr;
         <input type="text" id="newVal" class="two" maxlength="2" readonly>
-        <button id="applyCode" onclick="applyCode()" disabled>Apply &gt;&gt;</button>
+        <button id="applyCode" onclick="applyCode()" disabled>Apply</button>
         <p>
           <b>ROM File (Hex values)</b><br>
           <input type="text" id="searchInput">
@@ -82,8 +79,8 @@
           </div>
         </p>
         <p>
-          <button onclick="createFileFromHexData()" id="createFileBtn">Download the modified ROM</button>
           <input type="text" id="patchRomName"> .gb
+          <button onclick="createFileFromHexData()" id="createFileBtn" disabled>Download the modified ROM</button>
         </p>
         <p>
           <b>Log (newest on top)</b><br>
@@ -263,7 +260,7 @@
                         <a href="#" class="copyLink inactive" id="l_rightDasArr">XX5-5DD-C4E</a>
                       </p>
                       <p>
-                        *Standard<br>
+                        *Original values<br>
                         Delay = 23<br>
                         ARR = 9<br>
                         [frames]
@@ -316,9 +313,22 @@
                   <td>??A-239-915</td>
                 </tr>
                 <tr>
-                  <td>Need n line(s) to finish game B</td>
-                  <td>Galoob / (Tolstoj)</td>
-                  <td><a href="#" class="copyLink">01A-8BE-7FE</a></td>
+                  <td>
+                    Need n cleared lines to finish game B<br>
+                    <p>
+                      <select id="nClearedLines" class="hexSel">
+                        <option value="19">-</option>
+                      </select>
+                    </p>
+                    <p>Really only reliable up to a value of XY</p>
+                  </td>
+                  <td>Galoob</td>
+                  <td>
+                    <a href="#" class="copyLink inactive" id="nClearedLinesCode">XXA-8BE-7FE</a>
+                    <p>
+                      *Original value = 25
+                    </p>
+                  </td>
                 </tr>
                 <tr>
                   <td>Music B sounds different</td>
@@ -386,7 +396,7 @@
                 </tr>
                 <tr>
                   <td colspan="3">
-                    <b>Change the speed of the levels (gravity table)</b><br>
+                    <b>Change the Level Speeds (Gravity Table)</b><br>
                     Code by Tetris.wiki
                     <p>
                       The values are in unit 1/G. This is how many frames it takes for a piece to drop one row.<br>
@@ -404,6 +414,9 @@
           </div>
         </div>
       </div>
+      <!-- TOAST MESSAGES -->
+      <div class="toast green" id="hexValueChanged">A value has been altered!</div>
+      <div class="toast red" id="wrongAddress">The address you provided does not exist in this ROM data.</div>
     </div>
     
     <script src="hexeditor.js"></script>
