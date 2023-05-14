@@ -94,6 +94,24 @@ function updateChecksums(updateInRom) {
   }
 }
 
+// THIS IS MORE THAN JUST REDUNDANT!!!
+// only allow hex values
+function validateHex(element) {
+  const hexValue = element.textContent.trim();
+  
+  // Restrict length to 2 digits
+  if (hexValue.length > 2) {
+    element.textContent = hexValue.substring(0, 2);
+  }
+  
+  // Allow only hex values
+  const hexRegex = /^[0-9A-Fa-f]{0,2}$/;
+  if (!hexRegex.test(hexValue)) {
+    element.textContent = '';
+  }
+}
+
+
 // enables download
 function enableDownload() {
   var button = document.getElementById("createFileBtn");
@@ -380,36 +398,55 @@ function validateFile(event) {
             cell.setAttribute('data-previous-value', cell.textContent);
           }
         });
-      
-        cell.addEventListener('blur', function(event) {
+
+        // Set data-previous-value attribute on page load if it's a valid 2-digit hex value
+        const originalValue = cell.textContent;
+        if (/^[0-9A-Fa-f]{2}$/.test(originalValue)) {
+          cell.setAttribute('data-previous-value', originalValue);
+        }
+
+        cell.addEventListener('input', function(event) {
           const cell = event.target;
           let value = cell.textContent;
-      
+
           // Remove non-hex characters
           value = value.replace(/[^0-9A-Fa-f]/g, '');
-      
-          // Validate input
-          if (!/^[0-9A-Fa-f]{0,2}$/.test(value)) {
-            cell.textContent = value.slice(0, 2);
+
+          if (value.length > 1) {
+            // Restrict length to 2 digits
+            value = value.slice(0, 2);
+
+            // Remove any leading zeros and convert to uppercase
+            value = value.padStart(2, '0').slice(-2).toUpperCase();
+          }
+
+          cell.textContent = value;
+        });
+
+        cell.addEventListener('blur', function(event) {
+          const cell = event.target;
+          const value = cell.textContent;
+          const previousValue = cell.getAttribute('data-previous-value');
+
+          // Check if the value is not a valid 2-digit hex value
+          if (!/^[0-9A-Fa-f]{2}$/.test(value)) {
+            // Restore original value
+            cell.textContent = previousValue || '';
             return;
           }
-      
-          // Remove any leading zeros and convert to uppercase
-          value = value.padStart(2, '0').slice(-2).toUpperCase();
-      
+
           // Check if the value has changed
-          const previousValue = cell.getAttribute('data-previous-value');
-      
           if (previousValue && previousValue.toLowerCase() !== value.toLowerCase()) {
             cell.classList.add('edited');
             addToLog("Address $" + cell.id + " | " + previousValue + " > " + value + " (" + formattedTime() + "), manually altered");
           } else {
             cell.classList.remove('edited');
           }
-      
+
           cell.setAttribute('data-previous-value', value);
-          cell.textContent = value;
         });
+
+
       });
       
     }
