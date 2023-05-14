@@ -94,49 +94,6 @@ function updateChecksums(updateInRom) {
   }
 }
 
-
-/*
-function updateChecksums(updateInRom) {
-  let headerChecksum = 0;
-  const hexValueCellElements = document.querySelectorAll('.hexValueCell');
-
-  hexValueCellElements.forEach(element => {
-    const hexValue = parseInt(element.textContent.trim(), 16);
-    if (!isNaN(hexValue)) {
-      if (element.id >= '0134' && element.id <= '014C') {
-        headerChecksum -= hexValue + 1;
-      }
-    }
-  });
-
-  headerChecksum &= 0xFF; // Keep only the lower 8 bits
-
-  const headerChecksumField = document.getElementById('headerChecksum');
-  headerChecksumField.value = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
-
-  if (updateInRom) {
-    const checksumDigits = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
-    const td104D = document.getElementById('104D');
-    td104D.textContent = checksumDigits;
-  }
-
-  let globalChecksum = 0;
-
-  hexValueCellElements.forEach(element => {
-    const hexValue = parseInt(element.textContent.trim(), 16);
-    if (!isNaN(hexValue)) {
-      if (element.id !== '014E' && element.id !== '014F') {
-        globalChecksum += hexValue;
-      }
-    }
-  });
-
-  globalChecksum &= 0xFFFF; // Keep only the lower 16 bits
-
-  const globalChecksumField = document.getElementById('globalChecksum');
-  globalChecksumField.value = globalChecksum.toString(16).toUpperCase().padStart(4, '0');
-}*/
-
 // enables download
 function enableDownload() {
   var button = document.getElementById("createFileBtn");
@@ -167,7 +124,13 @@ document.addEventListener('DOMContentLoaded', function() {
       options[element.id] = parseInt(element.value, 16);
       return options;
     }, {});
-  
+
+    // Accessing selected option values
+    const pieceOriValue = selectedOptions.pieceOri;
+    const imageNames = {0: "n.png", 1: "e.png", 2: "s.png", 3: "w.png"};
+    const orientationImage = document.getElementById("orientationImage")
+    orientationImage.src = "images/" + imageNames[pieceOriValue];
+   
     for (const key in selectElements) {
       const { element, links, link } = selectElements[key];
   
