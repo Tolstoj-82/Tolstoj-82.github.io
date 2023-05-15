@@ -41,7 +41,7 @@
 const disabledButtonText = "nothing to apply - add a code first";
 let e_ggCode;
 
-
+// CHECKSUMS
 function updateChecksums(updateInRom) {
   let headerChecksum = 0;
   const hexValueCellElements = document.querySelectorAll('.hexValueCell');
@@ -60,12 +60,6 @@ function updateChecksums(updateInRom) {
   const headerChecksumField = document.getElementById('headerChecksum');
   headerChecksumField.value = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
 
-  if (updateInRom) {
-    const checksumDigits = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
-    const td104D = document.getElementById('104D');
-    td104D.textContent = checksumDigits;
-  }
-
   let globalChecksum = 0;
 
   hexValueCellElements.forEach(element => {
@@ -83,9 +77,12 @@ function updateChecksums(updateInRom) {
   globalChecksumField.value = globalChecksum.toString(16).toUpperCase().padStart(4, '0');
 
   if (updateInRom) {
-    const checksumDigits = globalChecksum.toString(16).toUpperCase().padStart(4, '0');
-    const digits014E = checksumDigits.slice(0, 2);
-    const digits014F = checksumDigits.slice(2, 4);
+    const checksumDigits = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
+    const td014D = document.getElementById('014D');
+    td014D.textContent = checksumDigits;
+
+    const digits014E = globalChecksum.toString(16).toUpperCase().padStart(4, '0').slice(0, 2);
+    const digits014F = globalChecksum.toString(16).toUpperCase().padStart(4, '0').slice(2, 4);
 
     const td014E = document.getElementById('014E');
     const td014F = document.getElementById('014F');
@@ -94,31 +91,65 @@ function updateChecksums(updateInRom) {
   }
 }
 
-// THIS IS MORE THAN JUST REDUNDANT!!!
-// only allow hex values
-function validateHex(element) {
-  const hexValue = element.textContent.trim();
-  
-  // Restrict length to 2 digits
-  if (hexValue.length > 2) {
-    element.textContent = hexValue.substring(0, 2);
-  }
-  
-  // Allow only hex values
-  const hexRegex = /^[0-9A-Fa-f]{0,2}$/;
-  if (!hexRegex.test(hexValue)) {
-    element.textContent = '';
+function handleGameTitleKeydown(event) {
+  if (event.key === 'Enter') {
+    event.target.blur();
   }
 }
 
+function validateGameTitle(event) {
+  const gameTitleCell = document.getElementById('gameTitle');
+  const titleBefore = gameTitleCell.getAttribute('data-titleBefore');
 
-// enables download
+  const input = event.target.textContent.trim().toUpperCase();
+  const validInput = input.replace(/[^A-Z]/g, '').slice(0, 16);
+
+  if (validInput.length === 0 || validInput !== input) {
+    gameTitleCell.textContent = titleBefore;
+    gameTitleCell.setAttribute('data-titleBefore', titleBefore);
+    displayToast('invalidGameTitle');
+    return;
+  }
+
+  gameTitleCell.textContent = validInput;
+  gameTitleCell.setAttribute('data-titleBefore', validInput);
+
+  const gameTitle = validInput;
+  let hexValues = '';
+  let currentIndex = 0;
+
+  for (let i = 0; i < 16; i++) {
+    const cellID = '01' + (0x34 + i).toString(16).padStart(2, '0').toUpperCase();
+    const targetCell = document.getElementById(cellID);
+    if (targetCell) {
+      targetCell.textContent = '';
+      if (currentIndex < gameTitle.length) {
+        const char = gameTitle[currentIndex];
+        const asciiCode = char.charCodeAt(0);
+        const hexValue = asciiCode.toString(16).padStart(2, '0').toUpperCase();
+        targetCell.textContent = hexValue;
+        currentIndex++;
+        hexValues += hexValue;
+      } else {
+        targetCell.textContent = '00';
+      }
+    }
+  }
+
+  displayToast('gameTitleChanged');
+  const logMessage = 'Game title changed to "' + gameTitle + '"';
+  addToLog(logMessage);
+  updateChecksums(true);
+  scrollToAddress("0134");
+}
+
+// enables download button if changes were made
 function enableDownload() {
   var button = document.getElementById("createFileBtn");
   button.removeAttribute("disabled");
 }
 
-// everything that needs the site to be loaded goes in here
+// DOM Content loaded
 document.addEventListener('DOMContentLoaded', function() {
 
   // get the DOM elements
@@ -209,21 +240,20 @@ document.addEventListener('DOMContentLoaded', function() {
   // Get all the link elements
   const copyLinks = document.querySelectorAll('.copyLink');
 
-// Add click event listener to each link
-copyLinks.forEach(function(linkElement) {
-  linkElement.addEventListener('click', function(event) {
-    event.preventDefault();
-    const textToCopy = linkElement.textContent;
-    e_ggCode.value = textToCopy;
+  // Add click event listener to each link
+  copyLinks.forEach(function(linkElement) {
+    linkElement.addEventListener('click', function(event) {
+      event.preventDefault();
+      const textToCopy = linkElement.textContent;
+      e_ggCode.value = textToCopy;
 
-    // when a link is clicked add the GG code and make the link green if it worked
-    handleInput();
-    if (applyCode()) {
-      this.classList.add('clicked');
-    }
+      // when a link is clicked add the GG code and make the link green if it worked
+      handleInput();
+      if (applyCode()) {
+        this.classList.add('clicked');
+      }
+    });
   });
-});
-
 
 });
 
@@ -385,11 +415,24 @@ function validateFile(event) {
         const hexValueCell = row.insertCell();
         hexValueCell.className = 'hexValueCell';
         hexValueCell.textContent = hexValue;
-        hexValueCell.contentEditable = true;
+      
         const cellID = addressID.slice(0, 3) + j.toString(16).toUpperCase();
         hexValueCell.id = cellID;
         hexValueCells.push(hexValueCell);
+        
+        // header data
+        if (cellID >= '0000' && cellID <= '014F'){
+          hexValueCell.classList.add('header');
+          hexValueCell.contentEditable = false;
+        } else {
+          hexValueCell.contentEditable = true;
+        }
+        
+        // checksum data
+        if (cellID === '014D' || cellID === '014E' || cellID === '014F') hexValueCell.classList.add('checksum');
+
       }
+      
 
       hexValueCells.forEach(cell => {
         cell.addEventListener('focus', function() {
@@ -421,6 +464,13 @@ function validateFile(event) {
           }
 
           cell.textContent = value;
+        });
+
+        // pressing Enter leaves the cell
+        cell.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter') {
+            event.target.blur();
+          }
         });
 
         cell.addEventListener('blur', function(event) {
@@ -463,6 +513,58 @@ function validateFile(event) {
   }
 
   function scrollToAddress(address) {
+    let returnValue = false;
+  
+    if (/^[0-9a-fA-F]+$/.test(address)) { // only do, if the address is hex
+      const oriAddr = parseInt(address, 16);
+      address = (oriAddr - 16).toString(16).toUpperCase().padStart(4, '0');
+      const targetAddress = address.slice(0, -1) + "0";
+      const anchorElement = document.getElementById(targetAddress);
+  
+      // check if the address exists - if not, show red toast
+      if (anchorElement) {
+        anchorElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  
+        // Apply the pulsate animation after a slight delay
+        setTimeout(function() {
+          if (oriAddr === 0x0134) {
+            for (let i = 0; i <= 15; i++) {
+              const cellId = 0x0134 + i;
+              const tdElement = document.getElementById(cellId.toString(16).toUpperCase().padStart(4, '0'));
+              tdElement.style.animation = 'pulsate 2s';
+  
+              // Reset the animation after it completes
+              tdElement.addEventListener('animationend', function() {
+                tdElement.style.animation = '';
+              });
+            }
+          } else {
+            const tdElement = document.getElementById(oriAddr.toString(16).toUpperCase().padStart(4, '0'));
+            tdElement.style.animation = 'pulsate 2s';
+  
+            // Reset the animation after it completes
+            tdElement.addEventListener('animationend', function() {
+              tdElement.style.animation = '';
+            });
+          }
+        }, 500); // Adjust the delay as needed
+  
+        returnValue = true;
+      } else {
+        // show message and erase the non-sensical input
+        displayToast("wrongAddress");
+        const searchInput = document.getElementById("searchInput");
+        searchInput.value = "";
+        searchInput.focus();
+      }
+    }
+  
+    return returnValue;
+  }
+  
+
+/*
+  function scrollToAddress(address) {
     
     returnValue = false;
     if (/^[0-9a-fA-F]+$/.test(address)) { // only do, if the address is hex
@@ -471,7 +573,7 @@ function validateFile(event) {
       oriAddr = parseInt(oriAddr, 16);
       address = address.toString(16).toUpperCase().padStart(4, '0');
       oriAddr = oriAddr.toString(16).toUpperCase().padStart(4, '0');
-      
+
       address = address.slice(0, -1) + "0";
       const anchorElement = document.getElementById(address);
 
@@ -507,7 +609,7 @@ function validateFile(event) {
 
     return returnValue;
   }
-  
+  */
   
   function showLoadingAnimation() {
     document.getElementById("loadingAnimation").style.display = "block";

@@ -332,6 +332,7 @@ const newLicenseeCode = {
 
     // Populate the second column of the existing table with header data
     document.getElementById("gameTitle").textContent = gameTitle;
+    document.getElementById("gameTitle").setAttribute('data-titleBefore', gameTitle);
     document.getElementById("thisCgbFlag").textContent = thisCgbFlag;
     document.getElementById("thisSgbFlag").textContent = thisSgbFlag;
     document.getElementById("thisCartridgeType").textContent = thisCartridgeType;

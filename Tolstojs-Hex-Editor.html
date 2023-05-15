@@ -37,7 +37,6 @@
         <div class="table-wrapper">
           <table id="hexViewer"></table>
         </div>
-        
         <button class="accordion">
           Game header data<span class="accordion-symbol">+</span>
         </button>
@@ -46,7 +45,7 @@
           <table id="headerData" style="background-color: azure;">
               <tr>
                 <td>Game Title</td>
-                <td id="gameTitle">&nbsp;</td>
+                <td id="gameTitle" contenteditable="true" onkeydown="handleGameTitleKeydown(event)" onblur="validateGameTitle(event)">&nbsp;</td>
               </tr>
               <tr>
                   <td>CGB Flag</td>
@@ -77,10 +76,11 @@
                   <td id="licenseeCode">&nbsp;</td>
               </tr>
             </table>
+
           </div><br>
           <div id="checksumContainer">
             <b>Checksums</b>
-            <p><b>Header</b> <input type="text" id="headerChecksum" disabled> ($014D) | <b>Global</b> <input type="text" id="globalChecksum" disabled> ($014E, $014F)</p>
+            <p><b>Header</b> <input type="text" id="headerChecksum" readonly> ($014D) | <b>Global</b> <input type="text" id="globalChecksum" readonly> ($014E, $014F)</p>
           </div>
         </p>
         <p>
@@ -417,6 +417,8 @@
       <div class="toast green" id="hexValueChanged">A value has been altered!</div>
       <div class="toast red" id="wrongAddress">The address you provided does not exist in this ROM data.</div>
       <div class="toast green" id="GLHF">** Good luck, have fun! **</div>
+      <div class="toast red" id="invalidGameTitle">The game title must have 16 LETTERS or less.</div>
+      <div class="toast green" id="gameTitleChanged">The game title was changed</div>
     </div>
     
     <script src="hexeditor.js"></script>
