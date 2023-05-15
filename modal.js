@@ -153,8 +153,6 @@ function stopResize() {
   document.removeEventListener("mouseup", stopResize);
 }
 
-
-
 // GENERATE STUFF FOR THE GRAVITY TABLES
 // Get the container element where the selects will be added
 const gravityTablesContainer = document.getElementById('gravityTablesContainer');
@@ -269,88 +267,3 @@ for (let i = 0; i <= numLevels; i++) {
 
 // Append the table to the gravityTablesContainer element
 gravityTablesContainer.appendChild(gravityTableTable);
-
-
-
-
-
-/*
-// GENERATE STUFF FOR THE GRAVITY TABLES
-// Get the container element where the selects will be added
-const gravityTablesContainer = document.getElementById('gravityTablesContainer');
-const ggCodeInput = document.getElementById('ggCode');
-
-// Define the number of levels
-const numLevels = 20;
-
-// Create a table element
-const gravityTableTable = document.createElement('table');
-
-for (let i = 0; i <= numLevels; i++) {
-    const row = document.createElement('tr');
-    const text = document.createTextNode(`Level ${i}`);
-    const textCell = document.createElement('td');
-    textCell.appendChild(text);
-
-    // Create a new select element
-    const select = document.createElement('select');
-    select.classList.add('hexSel');
-    select.id = `s_L${i}`;
-
-    // Create options ranging from 0 to 255
-    for (let j = 0; j <= 255; j++) {
-        const option = document.createElement('option');
-        option.value = j.toString(16).padStart(2, "0").toUpperCase();
-        option.textContent = j + 1;
-        select.appendChild(option);
-    }
-
-    // Set the preselected value based on the specified values
-    const preselectedValues = [53, 49, 45, 41, 37, 33, 28, 22, 17, 11, 10, 9, 8, 7, 6, 6, 5, 5, 4, 4, 3];
-    select.value = (preselectedValues[i] - 1).toString(16).padStart(2, "0").toUpperCase();
-
-    // Create a new cell for the select
-    const selectCell = document.createElement('td');
-    selectCell.appendChild(select);
-
-    // Create a new cell for the link
-    const linkCell = document.createElement('td');
-
-    // Create the link text content
-    const hexValue = (6 + i).toString(16).padStart(2, "0").toUpperCase();
-    const linkText = `XXB-${hexValue}E`;
-
-    // Create the link
-    const link = document.createElement('a');
-    link.href = '#';
-    link.classList.add('copyLink', 'inactive');
-    link.textContent = linkText;
-    link.id = `s_G${i}`;
-
-    // Add event listener to the select element
-    select.addEventListener('change', function () {
-        // Get the selected option value
-        const selectedOption = select.value;
-
-        // Update the link text with the selected option value
-        updateLinkText(link, selectedOption);
-
-        // Fill in the input text with the link value
-        ggCodeInput.value = link.textContent;
-    });
-
-    // Append the link to the cell
-    linkCell.appendChild(link);
-
-    // Append the text, select, and link cells to the row
-    row.appendChild(textCell);
-    row.appendChild(selectCell);
-    row.appendChild(linkCell);
-
-    // Append the row to the table
-    gravityTableTable.appendChild(row);
-}
-
-// Append the table to the gravityTablesContainer element
-gravityTablesContainer.appendChild(gravityTableTable);
-*/

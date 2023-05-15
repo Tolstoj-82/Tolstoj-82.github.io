@@ -562,55 +562,6 @@ function validateFile(event) {
     return returnValue;
   }
   
-
-/*
-  function scrollToAddress(address) {
-    
-    returnValue = false;
-    if (/^[0-9a-fA-F]+$/.test(address)) { // only do, if the address is hex
-      oriAddr = address;
-      address = parseInt(address, 16) - 16;
-      oriAddr = parseInt(oriAddr, 16);
-      address = address.toString(16).toUpperCase().padStart(4, '0');
-      oriAddr = oriAddr.toString(16).toUpperCase().padStart(4, '0');
-
-      address = address.slice(0, -1) + "0";
-      const anchorElement = document.getElementById(address);
-
-      // check it the address exists - if not show red toast
-      if (anchorElement) {
-        
-        anchorElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-        // Apply the pulsate animation after a slight delay
-        setTimeout(function() {
-          const tdElement = document.getElementById(oriAddr);
-          tdElement.style.animation = 'pulsate 2s';
-    
-          // Reset the animation after it completes
-          tdElement.addEventListener('animationend', function () {
-            tdElement.style.animation = '';
-          });
-
-        }, 500); // Adjust the delay as needed
-        
-        returnValue = true;
-
-      } else {
-        
-        // show message and erase the non-sensical input
-        displayToast("wrongAddress");
-        const searchInput = document.getElementById("searchInput");
-        searchInput.value = "";
-        searchInput.focus();
-
-      }
-    }
-
-    return returnValue;
-  }
-  */
-  
   function showLoadingAnimation() {
     document.getElementById("loadingAnimation").style.display = "block";
     document.getElementById("wrapper2").style.display = "none";
