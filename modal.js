@@ -18,7 +18,7 @@ for (let dropdown of dropdowns) {
   }
 }
 
-// Get the necessary elements
+// Get the DOM elements
 const leftDasDelaySelect = document.getElementById('leftDasDelay');
 const leftDasArrSelect = document.getElementById('leftDasArr');
 const rightDasDelaySelect = document.getElementById('rightDasDelay');
@@ -39,10 +39,8 @@ function updateLinkText(linkElement, selectedOption) {
     const isRightLink = linkElement.id.startsWith('l_right');
     const isGravityLink = linkElement.id.startsWith('s_G');
   
-    // Update the link text immediately
     linkElement.textContent = updatedLinkText;
   
-    // Remove the inactive class from the link element
     linkElement.classList.remove('inactive');
   
     // Add animation class to the link element after a small delay, for both left, right, and gravity links
@@ -157,13 +155,11 @@ function stopResize() {
 const gravityTablesContainer = document.getElementById('gravityTablesContainer');
 const ggCodeInput = document.getElementById('ggCode');
 
-// Define the number of levels
+
 const numLevels = 20;
 
 // Create a table element
 const gravityTableTable = document.createElement('table');
-
-// Define the column names
 const columnNames = ['Level', 'Speed [1/G]', 'Code', 'Original', 'To Bottom'];
 
 // Create the header row
@@ -185,7 +181,6 @@ for (let i = 0; i <= numLevels; i++) {
     select.classList.add('hexSel');
     select.id = `s_L${i}`;
 
-    // Create options ranging from 0 to 255
     for (let j = 0; j <= 255; j++) {
         const option = document.createElement('option');
         option.value = j.toString(16).padStart(2, "0").toUpperCase();
@@ -193,21 +188,19 @@ for (let i = 0; i <= numLevels; i++) {
         select.appendChild(option);
     }
 
-    // Set the preselected value based on the specified values
     const preselectedValues = [53, 49, 45, 41, 37, 33, 28, 22, 17, 11, 10, 9, 8, 7, 6, 6, 5, 5, 4, 4, 3];
     select.value = (preselectedValues[i] - 1).toString(16).padStart(2, "0").toUpperCase();
 
-    // Create a new cell for the select
     const selectCell = document.createElement('td');
     selectCell.appendChild(select);
 
-    // Create a new cell for the original value
+    // original value
     const originalValueCell = document.createElement('td');
     const oriValue = preselectedValues[i];
     const originalValueText = document.createTextNode(`${oriValue}`);
     originalValueCell.appendChild(originalValueText);
 
-    // Create a new cell for the speed
+    // speed
     const speedCell = document.createElement('td');
     const value = parseInt(select.options[select.selectedIndex].textContent);
     var timeToBottom = Math.round(1000 * 18 * (1 / 59.7) * value);
@@ -216,14 +209,12 @@ for (let i = 0; i <= numLevels; i++) {
     const speedText = document.createTextNode(timeToBottom);
     speedCell.appendChild(speedText);
 
-    // Create a new cell for the link
+    // gg code
     const linkCell = document.createElement('td');
 
-    // Create the link text content
     const hexValue = (6 + i).toString(16).padStart(2, "0").toUpperCase();
     const linkText = `XXB-${hexValue}E`;
 
-    // Create the link
     const link = document.createElement('a');
     link.href = '#';
     link.classList.add('copyLink', 'inactive');
@@ -232,16 +223,13 @@ for (let i = 0; i <= numLevels; i++) {
 
     // Add event listener to the select element
     select.addEventListener('change', function () {
-        // Get the selected option value
+        
         const selectedOption = select.value;
-
-        // Update the link text with the selected option value
         updateLinkText(link, selectedOption);
 
-        // Fill in the input text with the link value
         ggCodeInput.value = link.textContent;
 
-        // Update the speed value
+        // Update the speed
         const updatedValue = parseInt(select.options[select.selectedIndex].textContent);
         var updatedTimeToBottom = Math.round(1000 * 17 * (1 / 59.7) * updatedValue);
         if(updatedTimeToBottom >= 1000) updatedTimeToBottom = Math.round(updatedTimeToBottom/100)/10 + " s";
@@ -249,7 +237,6 @@ for (let i = 0; i <= numLevels; i++) {
         speedText.textContent = updatedTimeToBottom;
     });
 
-    // Append the link to the cell
     linkCell.appendChild(link);
 
     // Append the text, select, original value, speed, and link cells to the row
@@ -260,7 +247,6 @@ for (let i = 0; i <= numLevels; i++) {
     row.appendChild(speedCell);
 
 
-    // Append the row to the table
     gravityTableTable.appendChild(row);
 }
 

@@ -315,13 +315,13 @@ function validateFile(event) {
     return false;
   }
 
-    // add the file name to the field patchRomName
-    var patchRomNameInput = document.getElementById("patchRomName");
-    var fileNameWithoutExtension = file.name.replace(".gb", "");
-    patchRomNameInput.value = fileNameWithoutExtension + "-modified";
+  // add the file name to the field patchRomName
+  var patchRomNameInput = document.getElementById("patchRomName");
+  var fileNameWithoutExtension = file.name.replace(".gb", "");
+  patchRomNameInput.value = fileNameWithoutExtension + "-modified";
 
-    // Show loading animation
-    showLoadingAnimation();
+  // Show loading animation
+  showLoadingAnimation();
 
   // Read the file data
   var reader = new FileReader();
@@ -530,6 +530,14 @@ function validateFile(event) {
 
     // update the checksums, but no need to write them to the ROM yet
     updateChecksums(false);
+    
+    // Open the modal at the beginning 
+    // wait 1 second - like this the positioning should be correct
+    const openModalButton = document.getElementById("openModalButton");
+    setTimeout(function() {
+      openModalButton.click();
+    }, 1000);
+
   }
 
     // Loading animation
