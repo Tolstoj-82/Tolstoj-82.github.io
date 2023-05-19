@@ -8,7 +8,7 @@
     <div class="container">
 
       <div id="wrapper2" style="text-align: center;">
-        <h2>Henlo friends!</h2>
+        <h2>Henlo friens!</h2>
         <label class="custom-file-input">
           <input type="file" onchange="validateFile(event)">
         </label>
@@ -42,7 +42,7 @@
         </button>
         <div class="panel">
           
-          <table id="headerData" style="background-color: azure;">
+          <table id="headerData">
               <tr>
                 <td>Game Title</td>
                 <td id="gameTitle" contenteditable="true" onkeydown="handleGameTitleKeydown(event)" onblur="validateGameTitle(event)">&nbsp;</td>
@@ -92,7 +92,7 @@
           <textarea id="log" readonly></textarea>
         </p>
 
-        <button id="openModalButton">Show GG Codes</button>
+        <button id="openModalButton">&larr;</button>
 
         <div id="modalOverlay">
           <div id="modalContent">
@@ -100,7 +100,7 @@
               <div id="modalResizeHandle"></div>
             </div>
             <div id="modalBody">
-
+              
               <table id="t_codeList">
                 <tr>
                     <th id="t_desc">Description</th>
@@ -334,7 +334,7 @@
                   <td>BigBossman</td>
                   <td><a href="#" class="copyLink">30B-ED9</a></td>
                 </tr>
-
+            
                 <tr>
                   <td>Place blocks off the screen</td>
                   <td>BigBossman</td>
@@ -408,6 +408,9 @@
                   </td>
                 </tr>
               </table>
+
+              <!-- <iframe src="ggcodes.html" style="width: 100%; height: 300px;"></iframe> -->
+
             </div>
             </div>
           </div>

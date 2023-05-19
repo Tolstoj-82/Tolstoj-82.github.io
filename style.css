@@ -16,6 +16,7 @@ body {
   box-sizing: border-box;
 }
 
+
 .container {
   display: flex;
   justify-content: center;
@@ -63,6 +64,22 @@ body {
   }
 }
 
+#openModalButton {
+  position: fixed;
+  top: 8px;
+  right: 15px;
+  z-index: 9999;
+  border: 1px solid black;
+  font-size: x-large;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
 /*----------------------------------------------------------------------------------------------------------------------
 / Colors and Themeing
 /---------------------------------------------------------------------------------------------------------------------*/
@@ -70,7 +87,7 @@ body {
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #333;
-  color: #EEE;
+  color: #FFF;
 }
 
 .table-wrapper table {
@@ -101,6 +118,7 @@ td:first-child {
   font-weight: bold;
 }
 
+
 #log {
   background-color: #EEE;
   color: #333;
@@ -122,7 +140,8 @@ input[readonly] {
   font-family: monospace;
 }
 
-button {
+button,
+.custom-file-input {
   background-color: #09C;
   font-weight: bold;
   color: #FFF;
@@ -133,7 +152,8 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:hover,
+.custom-file-input:hover {
   background-color: #0AC;
 }
 
@@ -149,17 +169,6 @@ button:active {
   border: 4px solid #09C;
   border-top: 4px solid #FFF;
   border-radius: 50%;
-}
-
-.custom-file-input {
-  background-color: #09C;
-  color: #FFF;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.custom-file-input:hover {
-  background-color: #0AC;
 }
 
 .custom-file-input:focus {
@@ -214,7 +223,8 @@ button:disabled {
   color: #CCC;
 }
 
-.copyLink.clicked {
+.copyLink.clicked,
+.toast.green {
   background-color: #8F8;
 }
 
@@ -228,27 +238,12 @@ button:disabled {
   background-color: #F9D;
 }
 
-.toast.green {
-  background-color: #8F8;
-}
-
 
 /*----------------------------------------------------------------------------------------------------------------------
 / Page elements
 /---------------------------------------------------------------------------------------------------------------------*/
 
-td.checksum {
-  pointer-events: none;
-  background-color: #888;
-}
-
-td.header {
-  cursor: not-allowed;
-  color: #777;
-}
-
-
-/* Table Styles */
+/* Tables */
 table{
   border-collapse: collapse;
   border-spacing: 0;
@@ -262,8 +257,31 @@ th, td {
   padding: 5px;
 }
 
+td.checksum {
+  pointer-events: none;
+  background-color: #888;
+}
 
-/* Log Styles */
+td.header {
+  cursor: not-allowed;
+  color: #777;
+}
+
+#headerData {
+  width: 100%;
+}
+
+#headerData td,
+#headerData th {
+  padding: 5px;
+  border: 1px solid #CCC;
+}
+
+td.baseAddress {
+  text-align: right;
+}
+
+/* Log */
 #log {
   width: 100%;
   height: 60px;
@@ -277,7 +295,7 @@ th, td {
   background-color: inherit;
 }
 
-/* Input Styles */
+/* Input */
 
 input.four {
   width: 3em;
@@ -291,29 +309,14 @@ input[readonly] {
   cursor: not-allowed;
 }
 
-
 /* Specific Styles */
 #wrapper2, #loadingAnimation {
   text-align: left;
   width: 600px;
 }
 
-#headerData {
-  width: 100%;
-}
-
-#headerData td,
-#headerData th {
-  padding: 5px;
-  border: 1px solid #CCC;
-}
-
 #patchRomName {
   width: 20em;
-  text-align: right;
-}
-
-td.baseAddress {
   text-align: right;
 }
 
@@ -333,19 +336,6 @@ button {
   padding: 10px 20px;
 }
 
-/* CSS for the loading animation */
-.loader {
-  width: 30px;
-  height: 30px;
-  animation: spin 1s linear infinite;
-  margin: 20px auto;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 /* Style for the file input */
 .custom-file-input {
   display: inline-block;
@@ -358,7 +348,6 @@ button {
 }
 
 .custom-file-input input[type="file"] {
-  /* Hide default text */
   position: absolute;
   top: 0;
   left: 0;
@@ -387,7 +376,20 @@ button {
   white-space: nowrap;
 }
 
-/* Accordion styles */
+/* loading animation */
+.loader {
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Accordion */
 .accordion {
   cursor: pointer;
   padding: 8px;
@@ -448,7 +450,7 @@ button:disabled {
   width: 2em;
 }
 
-/* Modal overlay styles */
+/* Modal */
 #modalOverlay {
   display: none;
   position: fixed;
@@ -508,6 +510,8 @@ button:disabled {
   border-radius: 5px;
   text-decoration: none;
 }
+
+/* pulsate animation */
 
 .link-animation {
   animation: pulsate 1s infinite;
@@ -572,6 +576,7 @@ button:disabled {
   to {top: 30px; opacity: 0;}
 }
 
+/* gravity table */
 #gravityTablesContainer {
   display: flex;
   justify-content: center;

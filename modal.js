@@ -60,7 +60,6 @@ function updateLinkText(linkElement, selectedOption) {
     }  
 }
 
-
 // Add event listeners to the select elements
 leftDasDelaySelect.addEventListener('change', function () {
   const selectedOption = leftDasDelaySelect.value;
@@ -96,7 +95,7 @@ openModalButton.addEventListener("click", function () {
       container.style.width = "auto";
   
       // Update the button text
-      openModalButton.textContent = "Show GG Codes";
+      openModalButton.innerHTML = "&larr;";
     } else {
       // Modal is closed, so open it
       modalOverlay.style.display = "block";
@@ -109,7 +108,7 @@ openModalButton.addEventListener("click", function () {
       container.style.width = `${remainingWidth}px`;
   
       // Update the button text
-      openModalButton.textContent = "Hide GG Codes";
+      openModalButton.innerHTML = "&times;";
 
     }
 });

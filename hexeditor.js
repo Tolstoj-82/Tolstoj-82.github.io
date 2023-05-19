@@ -4,18 +4,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 // 
-// Known issues:
-// -------------
-// * Bigger files mess up the performance (continuous loading?)
-// * Flakey behavior with the loading animation
-// * Flakey behavior with the drag handle on the game genie modal
-// * Flakey behavior with the toast message height (ok now, I guess)
-//
 // Todo:
 // -----
 // * Clean up the mess!!!
 //   1) global variables
-//   2) each DOM element in a variable (in DOM elements ready envent listener)
+//   2) each DOM element as a variable (in DOM elements ready envent listener)
 //   3) event listeners
 // * functions gg2Addr() and addr2Gg(). Also improve it
 // 
@@ -29,7 +22,7 @@
 //    * maybe the banks are at fixed positions - then it shouldn't be a problem
 // * identify the tiles and make them editable
 // 
-// Tasks for the distant future (mabe?):
+// Tasks for the distant future (maybe?):
 // -------------------------------------
 // * find the OP-codes and also show these in assembly style
 // * identify tables and tile maps
@@ -49,7 +42,7 @@ function updateChecksums(updateInRom) {
   hexValueCellElements.forEach(element => {
     const hexValue = parseInt(element.textContent.trim(), 16);
     if (!isNaN(hexValue)) {
-      if (element.id >= '0134' && element.id <= '014C') {
+      if (element.id >= '0134' && element.id <= '014C') { // ignore the global checksum addresses for the header checksum
         headerChecksum -= hexValue + 1;
       }
     }
@@ -227,14 +220,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // When enter is pressed apply the code
-  e_ggCode.addEventListener('keydown', function(event) {
-    if (event.keyCode === 13) applyCode();
-  });
-
-  // When enter is pressed search the address
-  e_searchInput.addEventListener('keydown', function(event) {
-    if (event.keyCode === 13) searchAndSelectCell();
+  // pressing enter either applies a gg code or searches an address, depending on the scope
+  document.addEventListener('keydown', function(event) {
+    if (event.keyCode === 13) {
+      if (event.target === e_ggCode) {
+        applyCode();
+      } else if (event.target === e_searchInput) {
+        searchAndSelectCell();
+      }
+    }
   });
 
   // Get all the link elements
@@ -433,7 +427,6 @@ function validateFile(event) {
 
       }
       
-
       hexValueCells.forEach(cell => {
         cell.addEventListener('focus', function() {
           const cell = event.target;
