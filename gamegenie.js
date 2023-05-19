@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------------------------
+
 // Transforms a game genie code to (1) address (2) old value (3) newvalue and displays it
-//-------------------------------------------------------------------------------------------
 function handleInput() {
       
   const disabledButtonText = "nothing to apply - add a code first";
@@ -15,9 +15,9 @@ function handleInput() {
   ggCodeToAddr(input);
 }
 
-//-------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
+
 // No adding a code if invalid
-//-------------------------------------------------------------------------------------------
 function clearFields(elem, cleanGG = false){
   elem.style.backgroundColor = 'white';
   if(cleanGG) elem.value = "";
@@ -29,8 +29,8 @@ function clearFields(elem, cleanGG = false){
 }
 
 //-------------------------------------------------------------------------------------------
+
 // Transforms a game genie code to (1) address (2) old value (3) newvalue
-//-------------------------------------------------------------------------------------------
 function ggCodeToAddr(input){
   // This whole function could be optimized... a lot! It feels (and is) so inefficient     
   
@@ -97,8 +97,8 @@ function ggCodeToAddr(input){
 }
 
 //-------------------------------------------------------------------------------------------
+
 // Overwrites a ROM value
-//-------------------------------------------------------------------------------------------
 function applyCode(){
   address = e_romAddr.value.trim();
   oldVal = e_oldVal.value.trim();
@@ -119,11 +119,6 @@ function applyCode(){
       //exchange the value in the cell
       document.getElementById(address).textContent = newVal;
       document.getElementById(address).classList.add("edited");
-      
-      // only enable to save if at least one modification has been made
-      if(log != ""){
-
-      }
 
       displayToast("hexValueChanged");
 
@@ -152,8 +147,8 @@ function formattedTime(){
 }
 
 //-------------------------------------------------------------------------------------------
+
 // Change the color of the code field depending on the validity of the input
-//-------------------------------------------------------------------------------------------
 function formatInputs(input){
   
   var c_red = '#f3baba';

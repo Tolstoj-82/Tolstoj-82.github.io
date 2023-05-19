@@ -11,6 +11,8 @@
 //   2) each DOM element as a variable (in DOM elements ready envent listener)
 //   3) event listeners
 // * functions gg2Addr() and addr2Gg(). Also improve it
+// * function highlightAnimation()
+// * outsource the modal in its own HTML File
 // 
 // Tasks for the future:
 // --------------------
@@ -34,117 +36,11 @@
 const disabledButtonText = "nothing to apply - add a code first";
 let e_ggCode;
 
-// CHECKSUMS
-function updateChecksums(updateInRom) {
-  let headerChecksum = 0;
-  const hexValueCellElements = document.querySelectorAll('.hexValueCell');
-
-  hexValueCellElements.forEach(element => {
-    const hexValue = parseInt(element.textContent.trim(), 16);
-    if (!isNaN(hexValue)) {
-      if (element.id >= '0134' && element.id <= '014C') { // ignore the global checksum addresses for the header checksum
-        headerChecksum -= hexValue + 1;
-      }
-    }
-  });
-
-  headerChecksum &= 0xFF; // Keep only the lower 8 bits
-
-  const headerChecksumField = document.getElementById('headerChecksum');
-  headerChecksumField.value = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
-
-  let globalChecksum = 0;
-
-  hexValueCellElements.forEach(element => {
-    const hexValue = parseInt(element.textContent.trim(), 16);
-    if (!isNaN(hexValue)) {
-      if (element.id !== '014E' && element.id !== '014F') {
-        globalChecksum += hexValue;
-      }
-    }
-  });
-
-  globalChecksum &= 0xFFFF; // Keep only the lower 16 bits
-
-  const globalChecksumField = document.getElementById('globalChecksum');
-  globalChecksumField.value = globalChecksum.toString(16).toUpperCase().padStart(4, '0');
-
-  if (updateInRom) {
-    const checksumDigits = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
-    const td014D = document.getElementById('014D');
-    td014D.textContent = checksumDigits;
-
-    const digits014E = globalChecksum.toString(16).toUpperCase().padStart(4, '0').slice(0, 2);
-    const digits014F = globalChecksum.toString(16).toUpperCase().padStart(4, '0').slice(2, 4);
-
-    const td014E = document.getElementById('014E');
-    const td014F = document.getElementById('014F');
-    td014E.textContent = digits014E;
-    td014F.textContent = digits014F;
-  }
-}
-
-function handleGameTitleKeydown(event) {
-  if (event.key === 'Enter') {
-    event.target.blur();
-  }
-}
-
-function validateGameTitle(event) {
-  const gameTitleCell = document.getElementById('gameTitle');
-  const titleBefore = gameTitleCell.getAttribute('data-titleBefore');
-
-  const input = event.target.textContent.trim().toUpperCase();
-  const validInput = input.replace(/[^A-Z]/g, '').slice(0, 16);
-
-  if (validInput.length === 0 || validInput !== input) {
-    gameTitleCell.textContent = titleBefore;
-    gameTitleCell.setAttribute('data-titleBefore', titleBefore);
-    displayToast('invalidGameTitle');
-    return;
-  }
-
-  gameTitleCell.textContent = validInput;
-  gameTitleCell.setAttribute('data-titleBefore', validInput);
-
-  const gameTitle = validInput;
-  let hexValues = '';
-  let currentIndex = 0;
-
-  for (let i = 0; i < 16; i++) {
-    const cellID = '01' + (0x34 + i).toString(16).padStart(2, '0').toUpperCase();
-    const targetCell = document.getElementById(cellID);
-    if (targetCell) {
-      targetCell.textContent = '';
-      if (currentIndex < gameTitle.length) {
-        const char = gameTitle[currentIndex];
-        const asciiCode = char.charCodeAt(0);
-        const hexValue = asciiCode.toString(16).padStart(2, '0').toUpperCase();
-        targetCell.textContent = hexValue;
-        currentIndex++;
-        hexValues += hexValue;
-      } else {
-        targetCell.textContent = '00';
-      }
-    }
-  }
-
-  displayToast('gameTitleChanged');
-  const logMessage = 'Game title changed to "' + gameTitle + '"';
-  addToLog(logMessage);
-  updateChecksums(true);
-  scrollToAddress("0134");
-}
-
-// enables download button if changes were made
-function enableDownload() {
-  var button = document.getElementById("createFileBtn");
-  button.removeAttribute("disabled");
-}
-
-// DOM Content loaded
+//**************************************************************************************/
+// (2) DOM CONTENT LOADED
+//**************************************************************************************/
 document.addEventListener('DOMContentLoaded', function() {
-
+  
   // get the DOM elements
   e_ggCode = document.getElementById("ggCode");
   e_romAddr = document.getElementById("romAddr");
@@ -154,8 +50,8 @@ document.addEventListener('DOMContentLoaded', function() {
   e_searchInput = document.getElementById("searchInput");
 
   e_applyCode.setAttribute("title", disabledButtonText);
- 
-  // ASSIGN A CODE WHEN A VALUE IS CHOSEN IN THE SELECT ELEMENT
+
+  // piece orientation (N,E,S,W)
   const selectElements = {
     pieceOri: { element: document.getElementById("pieceOri"), links: ".copyLink.pieceSpawn" },
     nClearedLines: { element: document.getElementById("nClearedLines"), link: document.getElementById("nClearedLinesCode") }
@@ -222,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // pressing enter either applies a gg code or searches an address, depending on the scope
   document.addEventListener('keydown', function(event) {
-    if (event.keyCode === 13) {
+    if (event.key === "Enter") {
       if (event.target === e_ggCode) {
         applyCode();
       } else if (event.target === e_searchInput) {
@@ -248,16 +144,153 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
-
 });
 
-function searchAndSelectCell() {
-  const searchInput = document.getElementById('searchInput');
-  const address = searchInput.value.trim();
-  if(address != "") scrollToAddress(address);
+
+//**************************************************************************************/
+// (3) FUNCTIONS
+//**************************************************************************************/
+
+//------------------------------------------------------------------------------------------
+
+// Adds text to the Log
+function addToLog(logText){
+  const log = document.getElementById("log");
+  log.value = logText + "\n" + log.value;
+  enableDownload();
+  updateChecksums(true);
 }
 
+//------------------------------------------------------------------------------------------
+
+// enables download button if changes were made
+function enableDownload() {
+var button = document.getElementById("createFileBtn");
+button.removeAttribute("disabled");
+}
+
+//------------------------------------------------------------------------------------------
+
+// scrolls to and highlights address (User search)
+function searchAndSelectCell() {
+const searchInput = document.getElementById('searchInput');
+const address = searchInput.value.trim();
+if(address != "") scrollToAddress(address);
+}
+
+
+// CHECKSUMS
+function updateChecksums(updateInRom) {
+  let headerChecksum = 0;
+  const hexValueCellElements = document.querySelectorAll('.hexValueCell');
+
+  hexValueCellElements.forEach(element => {
+    const hexValue = parseInt(element.textContent.trim(), 16);
+    if (!isNaN(hexValue)) {
+      if (element.id >= '0134' && element.id <= '014C') { // ignore the global checksum addresses for the header checksum
+        headerChecksum -= hexValue + 1;
+      }
+    }
+  });
+
+  headerChecksum &= 0xFF; // Keep only the lower 8 bits
+
+  const headerChecksumField = document.getElementById('headerChecksum');
+  headerChecksumField.value = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
+
+  let globalChecksum = 0;
+
+  hexValueCellElements.forEach(element => {
+    const hexValue = parseInt(element.textContent.trim(), 16);
+    if (!isNaN(hexValue)) {
+      if (element.id !== '014E' && element.id !== '014F') {
+        globalChecksum += hexValue;
+      }
+    }
+  });
+
+  globalChecksum &= 0xFFFF; // Keep only the lower 16 bits
+
+  const globalChecksumField = document.getElementById('globalChecksum');
+  globalChecksumField.value = globalChecksum.toString(16).toUpperCase().padStart(4, '0');
+
+  if (updateInRom) {
+    const checksumDigits = headerChecksum.toString(16).toUpperCase().padStart(2, '0');
+    const td014D = document.getElementById('014D');
+    td014D.textContent = checksumDigits;
+
+    const digits014E = globalChecksum.toString(16).toUpperCase().padStart(4, '0').slice(0, 2);
+    const digits014F = globalChecksum.toString(16).toUpperCase().padStart(4, '0').slice(2, 4);
+
+    const td014E = document.getElementById('014E');
+    const td014F = document.getElementById('014F');
+    td014E.textContent = digits014E;
+    td014F.textContent = digits014F;
+  }
+}
+
+//------------------------------------------------------------------------------------------
+
+// WHEN THE GAME TITLE IS CHANGED (Header Data)
+function handleGameTitleKeydown(event) {
+  if (event.key === 'Enter') {
+    event.target.blur();
+  }
+}
+
+function validateGameTitle(event) {
+  const gameTitleCell = document.getElementById('gameTitle');
+  const titleBefore = gameTitleCell.getAttribute('data-titleBefore');
+
+  const input = event.target.textContent.trim().toUpperCase();
+  const validInput = input.replace(/[^A-Z]/g, '').slice(0, 16);
+
+  if (validInput.length === 0 || validInput !== input) {
+    gameTitleCell.textContent = titleBefore;
+    gameTitleCell.setAttribute('data-titleBefore', titleBefore);
+    displayToast('invalidGameTitle');
+    return;
+  }
+
+  gameTitleCell.textContent = validInput;
+  gameTitleCell.setAttribute('data-titleBefore', validInput);
+
+  const gameTitle = validInput;
+  let hexValues = '';
+  let currentIndex = 0;
+
+  for (let i = 0; i < 16; i++) {
+    const cellID = '01' + (0x34 + i).toString(16).padStart(2, '0').toUpperCase();
+    const targetCell = document.getElementById(cellID);
+    if (targetCell) {
+      targetCell.textContent = '';
+      if (currentIndex < gameTitle.length) {
+        const char = gameTitle[currentIndex];
+        const asciiCode = char.charCodeAt(0);
+        const hexValue = asciiCode.toString(16).padStart(2, '0').toUpperCase();
+        targetCell.textContent = hexValue;
+        currentIndex++;
+        hexValues += hexValue;
+      } else {
+        targetCell.textContent = '00';
+      }
+    }
+  }
+
+  displayToast('gameTitleChanged');
+  const logMessage = 'Game title changed to "' + gameTitle + '"';
+  addToLog(logMessage);
+  updateChecksums(true);
+  scrollToAddress("0134");
+}
+
+//------------------------------------------------------------------------------------------
+
+// LOAD A ROM FILE
 function validateFile(event) {
+
+  maxFileSize = 3000; // files can't be bigger than that
+
   var file = event.target.files[0];
 
   // Check if a file is selected
@@ -276,7 +309,7 @@ function validateFile(event) {
 
   // Check the file size
   var fileSize = file.size / 1024; // in KB
-  if (fileSize > 3000) {
+  if (fileSize > maxFileSize) {
     alert('File size should be less than or equal to 3 MB.');
     hideLoadingAnimation();
     return false;
@@ -361,6 +394,7 @@ function validateFile(event) {
     link.download = newFileName;
     link.click();
     displayToast("GLHF");
+    addToLog(`Game saved as "${newFileName}"`);
   }
 
   function convertToHex(fileData) {
@@ -498,13 +532,19 @@ function validateFile(event) {
     updateChecksums(false);
   }
 
-  function addToLog(logText){
-    const log = document.getElementById("log");
-    log.value = logText + "\n" + log.value;
-    enableDownload();
-    updateChecksums(true);
-  }
+    // Loading animation
+    function showLoadingAnimation() {
+      document.getElementById("loadingAnimation").style.display = "block";
+      document.getElementById("wrapper2").style.display = "none";
+    }
+  
+    function hideLoadingAnimation() {
+      document.getElementById("loadingAnimation").style.display = "none";
+    }
 
+  //------------------------------------------------------------------------------------------
+  
+  // Scrolls to and highlights an address
   function scrollToAddress(address) {
     let returnValue = false;
   
@@ -554,12 +594,135 @@ function validateFile(event) {
   
     return returnValue;
   }
-  
-  function showLoadingAnimation() {
-    document.getElementById("loadingAnimation").style.display = "block";
-    document.getElementById("wrapper2").style.display = "none";
+
+//------------------------------------------------------------------------------------------
+
+// display a toast
+let toastQueue = [];
+let canCall = true;
+const maxToastQueueLen = 3; // maximum size of the toastQueue
+
+function displayToast(id) {
+  toastQueue.push(id);
+
+  if (toastQueue.length > maxToastQueueLen) {
+    toastQueue.splice(0, toastQueue.length - maxToastQueueLen);
   }
 
-  function hideLoadingAnimation() {
-    document.getElementById("loadingAnimation").style.display = "none";
+  if (toastQueue.length === 1) {
+    showNextToast();
   }
+}
+
+function showNextToast() {
+  if (!toastQueue.length) return;
+
+  let id = toastQueue[0];
+  /*if (id !== 'rowsFull' || canCall) {
+    if (id === 'rowsFull') {
+      canCall = false;
+      setTimeout(() => {
+        canCall = true;
+      }, 10000);
+    }*/
+    var toast = document.getElementById(id);
+    setTimeout(function() {
+      toast.classList.add("show");
+    }, 10);
+    setTimeout(function() {
+      toast.classList.remove("show");
+      toastQueue.shift();
+      showNextToast();
+    }, 2500);
+  }
+//}
+
+//------------------------------------------------------------------------------------------
+
+// populates header data 
+function obtainHeaderData() {
+  
+  // (1) Game Title
+  let gameTitle = "";
+  let i = 308;
+  let thisHex = "";
+
+  while (true) {
+      const thisAddress = i.toString(16).padStart(4, "0");
+      const element = document.getElementById(thisAddress);
+
+      if (!element) {
+          break; // Exit the loop if the element does not exist
+      }
+
+      thisHex = element.textContent;
+      if (i === 323 || thisHex === "00") {
+          break; // Exit the loop if the end condition is met
+      }
+
+      const thisAsciiValue = String.fromCharCode(parseInt(thisHex, 16));
+      gameTitle += thisAsciiValue;
+      i++;
+  }
+
+  // (2) Header Data
+  const thisCgbFlag = cgbFlag[document.getElementById("0143").textContent] || "Unknown";
+  const thisCartridgeType = cartridgeType[document.getElementById("0147").textContent] || "Unknown";
+  const thisRomSize = romSize[document.getElementById("0148").textContent] || "Unknown";
+  const thisRamSize = ramSize[document.getElementById("0149").textContent] || "Unknown";
+  const thisDestinationCode = destinationCode[document.getElementById("014A").textContent] || "Unknown";
+  var thisSgbFlag = "No Super Game Boy enhancements for this game";
+  if(document.getElementById("0146").textContent == "03"){
+      thisSgbFlag = "This game contains Super Game Boy enhancements";
+  }
+
+  let licenseeCode = "";
+  const licensee = document.getElementById("014B").textContent;
+  if (licensee !== "33") {
+      licenseeCode = oldLicenseeCode[licensee] || "Unknown";
+  } else {
+      const licenseeCode1 = newLicenseeCode[document.getElementById("0144").textContent] || "";
+      const licenseeCode2 = newLicenseeCode[document.getElementById("0145").textContent] || "";
+
+      licenseeCode = licenseeCode1; 
+      if(licenseeCode2 != "" && licenseeCode1 != ""){
+          licenseeCode += " / ";
+      }
+      licenseeCode += licenseeCode2;
+  }
+
+  // Populate the second column of the existing table with header data
+  document.getElementById("gameTitle").textContent = gameTitle;
+  document.getElementById("gameTitle").setAttribute('data-titleBefore', gameTitle);
+  document.getElementById("thisCgbFlag").textContent = thisCgbFlag;
+  document.getElementById("thisSgbFlag").textContent = thisSgbFlag;
+  document.getElementById("thisCartridgeType").textContent = thisCartridgeType;
+  document.getElementById("thisRomSize").textContent = thisRomSize;
+  document.getElementById("thisRamSize").textContent = thisRamSize;
+  document.getElementById("thisDestinationCode").textContent = thisDestinationCode;
+  document.getElementById("licenseeCode").textContent = licenseeCode;
+}
+
+//------------------------------------------------------------------------------------------
+
+function getBGMap(id) {
+  const startIndex = parseInt(id, 16);
+  const endIndex = startIndex + 359;
+  let bgMap = '';
+
+  for (let i = startIndex; i <= endIndex; i++) {
+    const cellId = i.toString(16).padStart(4, '0').toUpperCase();
+    const cellContent = document.getElementById(cellId).textContent;
+    bgMap += cellContent;
+
+    if (i !== endIndex) {
+      bgMap += '\t'; // Use tab-separated values instead of comma-separated values
+    }
+
+    if ((i - startIndex) % 20 === 19 && i !== endIndex) {
+      bgMap += '\n'; // Add a new line after every 20 entries
+    }
+  }
+
+  console.log(bgMap);
+}
