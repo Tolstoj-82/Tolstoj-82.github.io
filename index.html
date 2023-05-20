@@ -27,7 +27,7 @@
         Address: <input type="text" id="romAddr" class="four" maxlength="4" readonly>
         Value: <input type="text" id="oldVal" class="two" maxlength="2" readonly> &rarr;
         <input type="text" id="newVal" class="two" maxlength="2" readonly>
-        <button id="applyCode" onclick="applyCode()" disabled>Apply</button>
+        <button id="applyCode" onclick="applyCode(true)" disabled>Apply</button>
         <p>
           <b>ROM File (Hex values)</b><br>
           <input type="text" id="searchInput">
@@ -93,7 +93,7 @@
         </p>
 
         <!-- Modal open / close button -->
-        <button id="openModalButton">&larr;</button>
+        <button id="openModalButton">&larr;</button>      
 
         <div id="modalOverlay">
           <div id="modalContent">
@@ -101,6 +101,13 @@
               <div id="modalResizeHandle"></div>
             </div>
             <div id="modalBody">
+              
+              <div class="toggle-switch">
+                <input type="checkbox" id="autoApplyToggle">
+                <label for="autoApplyToggle"></label>
+                <span class="toggle-text">Apply codes automatically when clicked</span>
+              </div>                      
+
               <table id="t_codeList">
                 <tr>
                     <th id="t_desc">Description</th>
@@ -443,6 +450,7 @@
       <div class="toast green" id="GLHF">** Good luck, have fun! **</div>
       <div class="toast red" id="invalidGameTitle">The game title must have 16 LETTERS or less.</div>
       <div class="toast green" id="gameTitleChanged">The game title was changed</div>
+      <div class="toast green" id="manuallySet">The code is ready to be applied</div>
 
     </div>
     

@@ -205,6 +205,7 @@ button:disabled {
 
 #modalContent {
   background-color: #FFF;
+  color: #333;
 }
 
 .copyLink {
@@ -236,6 +237,19 @@ button:disabled {
 
 .toast.red {
   background-color: #F9D;
+}
+
+.toggle-switch label {
+  background-color: #ccc;
+  cursor: pointer;
+}
+
+.toggle-switch label:before {
+  background-color: #FFF;
+}
+
+.toggle-switch input:checked + label {
+  background-color: #8F8;
 }
 
 
@@ -585,4 +599,42 @@ button:disabled {
 #gravityTablesContainer table td {
   text-align: center;
   vertical-align: middle;
+}
+
+/* toggle switch */
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.toggle-switch input {
+  display: none;
+}
+
+.toggle-switch label {
+  display: block;
+  position: relative;
+  width: 60px;
+  height: 34px;
+  border-radius: 34px;
+}
+
+.toggle-switch label:before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + label:before {
+  transform: translateX(26px);
+}
+
+.toggle-text {
+  margin-left: 10px;
 }

@@ -1,4 +1,3 @@
-// MODAL STUFF
 const openModalButton = document.getElementById("openModalButton");
 const modalOverlay = document.getElementById("modalOverlay");
 const closeModalButton = document.getElementById("closeModalButton");
@@ -89,10 +88,8 @@ openModalButton.addEventListener("click", function () {
       modalOverlay.style.display = "none";
       container.classList.remove("with-modal");
   
-      // Reset the container's width
       container.style.width = "auto";
   
-      // Update the button text
       openModalButton.innerHTML = "&larr;";
     } else {
       // Modal is closed, so open it
@@ -105,7 +102,6 @@ openModalButton.addEventListener("click", function () {
       const remainingWidth = containerWidth - modalWidth;
       container.style.width = `${remainingWidth}px`;
   
-      // Update the button text
       openModalButton.innerHTML = "&times;";
 
     }
@@ -150,15 +146,13 @@ function stopResize() {
   document.removeEventListener("mouseup", stopResize);
 }
 
-// GENERATE STUFF FOR THE GRAVITY TABLES
-// Get the container element where the selects will be added
+// Gravity tables
 const gravityTablesContainer = document.getElementById('gravityTablesContainer');
 const ggCodeInput = document.getElementById('ggCode');
 
 
 const numLevels = 20;
 
-// Create a table element
 const gravityTableTable = document.createElement('table');
 const columnNames = ['Level', 'Speed [1/G]', 'Code', 'Original', 'To Bottom'];
 

@@ -99,7 +99,13 @@ function ggCodeToAddr(input){
 //-------------------------------------------------------------------------------------------
 
 // Overwrites a ROM value
-function applyCode(){
+function applyCode(force = false) {
+  
+  if (!autoApply && !force) {
+    displayToast("manuallySet");
+    return false;
+  }
+
   address = e_romAddr.value.trim();
   oldVal = e_oldVal.value.trim();
   newVal = e_newVal.value.trim();

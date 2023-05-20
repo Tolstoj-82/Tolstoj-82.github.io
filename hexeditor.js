@@ -35,6 +35,7 @@
 
 const disabledButtonText = "nothing to apply - add a code first";
 let e_ggCode;
+var autoApply = false;
 
 //**************************************************************************************/
 // (2) DOM CONTENT LOADED
@@ -151,6 +152,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // (3) FUNCTIONS
 //**************************************************************************************/
 
+// toggle to automatically apply GG Codes
+
+document.getElementById('autoApplyToggle').addEventListener('change', function() {
+  autoApply = this.checked;
+});
+
 //------------------------------------------------------------------------------------------
 
 // Adds text to the Log
@@ -173,13 +180,14 @@ button.removeAttribute("disabled");
 
 // scrolls to and highlights address (User search)
 function searchAndSelectCell() {
-const searchInput = document.getElementById('searchInput');
-const address = searchInput.value.trim();
-if(address != "") scrollToAddress(address);
+  const searchInput = document.getElementById('searchInput');
+  const address = searchInput.value.trim();
+  if(address != "") scrollToAddress(address);
 }
 
+//------------------------------------------------------------------------------------------
 
-// CHECKSUMS
+// Checksums
 function updateChecksums(updateInRom) {
   let headerChecksum = 0;
   const hexValueCellElements = document.querySelectorAll('.hexValueCell');
@@ -231,7 +239,7 @@ function updateChecksums(updateInRom) {
 
 //------------------------------------------------------------------------------------------
 
-// WHEN THE GAME TITLE IS CHANGED (Header Data)
+// Game title changes in header data
 function handleGameTitleKeydown(event) {
   if (event.key === 'Enter') {
     event.target.blur();
@@ -286,7 +294,7 @@ function validateGameTitle(event) {
 
 //------------------------------------------------------------------------------------------
 
-// LOAD A ROM FILE
+// Loads a ROM file
 function validateFile(event) {
 
   maxFileSize = 3000; // files can't be bigger than that
@@ -428,7 +436,7 @@ function validateFile(event) {
     }
 
     for (let i = 0; i < hexData.length; i += 16) {
-      const row = table.insertRow(); // Add this line to create a new row
+      const row = table.insertRow();
       const addressCell = row.insertCell();
       const hexValueCells = [];
 
@@ -650,7 +658,7 @@ function showNextToast() {
 // populates header data 
 function obtainHeaderData() {
   
-  // (1) Game Title
+  // (1) Game title
   let gameTitle = "";
   let i = 308;
   let thisHex = "";
@@ -673,7 +681,7 @@ function obtainHeaderData() {
       i++;
   }
 
-  // (2) Header Data
+  // (2) Header data
   const thisCgbFlag = cgbFlag[document.getElementById("0143").textContent] || "Unknown";
   const thisCartridgeType = cartridgeType[document.getElementById("0147").textContent] || "Unknown";
   const thisRomSize = romSize[document.getElementById("0148").textContent] || "Unknown";
