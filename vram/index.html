@@ -8,20 +8,24 @@
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 </head>
 <body>
-  <div class="center-container">
-    <div class="container">
-      <div class="playfieldgrid">
-        <ol id="selectable"></ol>
-      </div>
-      <div class="spacing">&nbsp;</div>
-      <div class="playfieldgrid">
-        <div class="vramgrid" id="vramgrid"></div>
-      </div>
-      <div class="spacing">&nbsp;</div>
-      <div class="playfieldgrid">
+  <button id="openModalBtn">Open Modal</button>
+
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+
+      <div class="center-container">
+        <div class="container">
+          <div class="playfieldgrid">
+            <ol id="selectable"></ol>
+          </div>
+          <div class="spacing">&nbsp;</div>
+          <div class="vramgrid" id="vramgrid"></div>
+        </div>
       </div>
     </div>
   </div>
-  <script src="scripts.js"></script>
+
+  <script src="vram/scripts.js"></script>
 </body>
 </html>

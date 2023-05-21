@@ -3,6 +3,9 @@
   <head>
     <title>Tolstojs Hex Editor</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="bgeditor.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
   </head>
   <body>
     <div class="container">
@@ -91,8 +94,6 @@
           <b>Log (newest on top)</b><br>
           <textarea id="log" readonly></textarea>
         </p>
-
-        <!-- Modal open / close button -->
         <button id="openModalButton">&larr;</button>      
 
         <div id="modalOverlay">
@@ -435,14 +436,31 @@
                   </td>
                 </tr>
               </table>
-
-              <!-- <iframe src="ggcodes.html" style="width: 100%; height: 300px;"></iframe> -->
-
             </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Background Map Editor (Modal) -->
+      <!-- <button id="BG-openModalBtn">Open Modal</button> -->
+
+      <div id="BG-myModal" class="BG-modal">
+        <div class="BG-modal-content">
+          <span class="BG-close">&times;</span>
+    
+          <div class="BG-center-container">
+            <div class="BG-container">
+              <div class="BG-playfieldgrid">
+                <ol id="selectable"></ol>
+              </div>
+              <div class="BG-spacing">&nbsp;</div>
+              <div class="BG-vramgrid" id="BG-vramgrid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
       
       <!-- TOAST MESSAGES -->
       <div class="toast green" id="hexValueChanged">A value has been altered!</div>
@@ -459,6 +477,7 @@
     <script src="gamegenie.js"></script>
     <script src="lookup.js"></script>
     <script src="modal.js"></script>
+    <script src="vram/scripts.js"></script>
 
   </body>
 </html>
