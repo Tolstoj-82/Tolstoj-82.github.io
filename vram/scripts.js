@@ -11,23 +11,7 @@
 // global variables defines initial mino and empty mino
 var currentMino = "87";
 let emptyMino = "2F";
-
-$(document).ready(function() {
-    $("#getBGMap").click(function() {
-      $("#BG-myModal").css("display", "flex");
-    });
-  
-    $(".BG-close").click(function() {
-      $("#BG-myModal").css("display", "none");
-    });
-  });
-  
-
-// do this, once all DOM elements have been loaded 
-document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById(currentMino).click();
-    addMatrix();
-});
+ 
 
 /*******************************************************************************
  (2) EVENT LISTENERS
@@ -67,7 +51,6 @@ document.addEventListener("keydown", function(event) {
  (2) FUNCTIONS
 *******************************************************************************/
 
-
 // add the mino list to the textarea
 function updateCurrentConfiguration() {
     let garbage = "";
@@ -83,7 +66,6 @@ function updateCurrentConfiguration() {
     });
     
 }
-
 
 // create the playfield
 function addMatrix(){

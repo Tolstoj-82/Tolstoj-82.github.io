@@ -52,6 +52,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
   e_applyCode.setAttribute("title", disabledButtonText);
 
+  // create the background map outline
+  document.getElementById(currentMino).click();
+  addMatrix();
+
   // piece orientation (N,E,S,W)
   const selectElements = {
     pieceOri: { element: document.getElementById("pieceOri"), links: ".copyLink.pieceSpawn" },
@@ -151,6 +155,22 @@ document.addEventListener('DOMContentLoaded', function() {
 //**************************************************************************************/
 // (3) FUNCTIONS
 //**************************************************************************************/
+
+
+  // save the bg map and close the modal
+  function saveBGMap(){
+    alert("Coming soon");
+    document.getElementById("BG-myModal").style.display = "none";
+  }
+
+//------------------------------------------------------------------------------------------
+
+// close the bg map modal without saving
+  function closeBGModal(){
+    document.getElementById("BG-myModal").style.display = "none";
+  }
+
+//------------------------------------------------------------------------------------------
 
 // toggle to automatically apply GG Codes
 
@@ -721,24 +741,21 @@ function obtainHeaderData() {
 
 //------------------------------------------------------------------------------------------
 
+// this woks, but now we need to make sure, the correct VRAM is loaded
+
 function getBGMap(id) {
   const startIndex = parseInt(id, 16);
   const endIndex = startIndex + 359;
-  let bgMap = '';
 
-  for (let i = startIndex; i <= endIndex; i++) {
-    const cellId = i.toString(16).padStart(4, '0').toUpperCase();
+  document.getElementById("BG-myModal").style.display = "flex";
+
+  const selectableList = document.getElementById("selectable");
+  const imageElements = selectableList.getElementsByTagName("img");
+
+  for (let i = 0; i < imageElements.length; i++) {
+    const cellId = (startIndex + i).toString(16).padStart(2, '0').toUpperCase();
     const cellContent = document.getElementById(cellId).textContent;
-    bgMap += cellContent;
-
-    if (i !== endIndex) {
-      bgMap += '\t'; // Use tab-separated values instead of comma-separated values
-    }
-
-    if ((i - startIndex) % 20 === 19 && i !== endIndex) {
-      bgMap += '\n'; // Add a new line after every 20 entries
-    }
+    const newFileName = cellContent + ".png";
+    imageElements[i].setAttribute("src", "images/green/" + newFileName);
   }
-
-  console.log(bgMap);
 }

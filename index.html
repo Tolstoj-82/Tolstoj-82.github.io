@@ -94,6 +94,7 @@
           <b>Log (newest on top)</b><br>
           <textarea id="log" readonly></textarea>
         </p>
+        
         <button id="openModalButton">&larr;</button>      
 
         <div id="modalOverlay">
@@ -443,12 +444,9 @@
       </div>
 
       <!-- Background Map Editor (Modal) -->
-      <!-- <button id="BG-openModalBtn">Open Modal</button> -->
-
+      
       <div id="BG-myModal" class="BG-modal">
-        <div class="BG-modal-content">
-          <span class="BG-close">&times;</span>
-    
+        <div class="BG-modal-content">   
           <div class="BG-center-container">
             <div class="BG-container">
               <div class="BG-playfieldgrid">
@@ -456,8 +454,12 @@
               </div>
               <div class="BG-spacing">&nbsp;</div>
               <div class="BG-vramgrid" id="BG-vramgrid"></div>
-            </div>
+            </div>    
           </div>
+          <p>
+            <button id="applyBGMap" onclick="saveBGMap()">Save Changes</button> 
+            <button id="discardBGMap" onclick="closeBGModal()">Discard Changes</button>
+          </p>
         </div>
       </div>
     
