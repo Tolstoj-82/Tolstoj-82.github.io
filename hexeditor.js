@@ -37,6 +37,12 @@ const disabledButtonText = "nothing to apply - add a code first";
 let e_ggCode;
 var autoApply = false;
 
+// toggle to automatically apply GG Codes
+document.getElementById('autoApplyToggle').addEventListener('change', function() {
+  autoApply = this.checked;
+});
+
+
 //**************************************************************************************/
 // (2) DOM CONTENT LOADED
 //**************************************************************************************/
@@ -55,6 +61,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // create the background map outline
   document.getElementById(currentMino).click();
   addMatrix();
+
+  // populate the dropdown with the BM map addresses
+  const selectElement = document.getElementById("BGMapSelector");
+
+  for (const key in bgMapAddress) {
+    const option = document.createElement("option");
+    option.value = bgMapAddress[key];
+    option.text = key;
+    selectElement.appendChild(option);
+  }
 
   // piece orientation (N,E,S,W)
   const selectElements = {
@@ -158,25 +174,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
   // save the bg map and close the modal
-  function saveBGMap(){
-    alert("Coming soon");
+  function saveBGMap() {
+    var olElement = document.getElementById("selectable");
+    var imgElements = olElement.querySelectorAll("li img");
+    var startAddress = document.getElementById("BGMapStartAddress").value;
+  
+    var currentAddress = parseInt(startAddress, 16);
+  
+    imgElements.forEach(function(imgElement) {
+      var src = imgElement.getAttribute("src");
+      var imageName = src.split("/").pop().split(".")[0];
+  
+      // Convert the current address to a 4-digit hex value
+      var hexAddress = currentAddress.toString(16).toUpperCase().padStart(4, '0');
+  
+      var td = document.getElementById(hexAddress);
+      td.textContent = imageName;
+  
+      // Increment the current address
+      currentAddress++;
+    });
+  
     document.getElementById("BG-myModal").style.display = "none";
-  }
+    scrollToAddress(startAddress);
+    document.getElementById("createFileBtn").removeAttribute("disabled");
+    addToLog("*Background map starting at address $" + startAddress + " overwritten.");
 
+  }
+  
+  
 //------------------------------------------------------------------------------------------
 
 // close the bg map modal without saving
   function closeBGModal(){
     document.getElementById("BG-myModal").style.display = "none";
   }
-
-//------------------------------------------------------------------------------------------
-
-// toggle to automatically apply GG Codes
-
-document.getElementById('autoApplyToggle').addEventListener('change', function() {
-  autoApply = this.checked;
-});
 
 //------------------------------------------------------------------------------------------
 
@@ -758,4 +790,7 @@ function getBGMap(id) {
     const newFileName = cellContent + ".png";
     imageElements[i].setAttribute("src", "images/green/" + newFileName);
   }
+  
+  document.getElementById("BGMapStartAddress").value = id;
+  
 }

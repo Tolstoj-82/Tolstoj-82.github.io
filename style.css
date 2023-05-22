@@ -161,6 +161,18 @@ button:active {
   background-color: #0BC;
 }
 
+button.secondary {
+  background-color: #333;
+}
+
+button.secondary:hover {
+  background-color: #777;
+}
+
+button.secondary:active {
+  background-color: #AAA;
+}
+
 .hexValueCell.edited {
   background-color: #8F8;
 }

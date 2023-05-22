@@ -421,13 +421,13 @@
                     <p><b>Alter a Background Screen</b></p>
                     <p>
                       <select id="BGMapSelector">
-                        <option value="4A07">Copyright Screen</option>
+                        <!--<option value="4A07">Copyright Screen</option>
                         <option value="4B6F">Stats Screen</option>
                         <option value="4CD7">Type Selection</option>
                         <option value="4E3F">Type A Menu</option>
                         <option value="5214">2 Player Menu?</option>
                         <option value="537C">Score Summary</option>
-                        <option value="2889">State 18?</option>
+                        <option value="2889">State 18?</option>-->
                       </select>
                       <button id="getBGMap" onclick="getBGMap(document.getElementById('BGMapSelector').value);">BGMap</button>                   
                     </p>
@@ -458,7 +458,8 @@
           </div>
           <p>
             <button id="applyBGMap" onclick="saveBGMap()">Save Changes</button> 
-            <button id="discardBGMap" onclick="closeBGModal()">Discard Changes</button>
+            <button id="discardBGMap" onclick="closeBGModal()"class="secondary">Discard Changes</button>
+            <input type="text" id="BGMapStartAddress" disabled></input>
           </p>
         </div>
       </div>

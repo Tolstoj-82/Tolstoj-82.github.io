@@ -279,3 +279,22 @@ const oldLicenseeCode = {
   "F3": "Extreme Entertainment",
   "FF": "LJN"
 };
+
+const bgMapAddress = {
+  "Copyright Screen": "4A07",
+  "Title Screen": "4B6F",
+  "Music Type": "4CD7",
+  "A-Type Select": "4E3F",
+  "B-Type Select": "4FA7",
+  "A-Playfield": "3E8F",
+  "B-Playfield": "3FF7",
+  "Mario & Luigi": "5214",
+  "2P-Playfield": "537C",
+  "Mario Luigi Score": "5534",
+  "Rocket": "1430",
+  "Celebration": "510F",
+  "Score Counter": "2889",
+  "Pause": "2839",
+  "Game Over": "2976",
+  "Buran Shuttle": "1429"
+};
