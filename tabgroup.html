@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      background-color: #f5f5f5;
+      /*margin: 0;
+      padding: 0;*/
+    }
+
+    .tab-group {
+      background-color: #f5f5f5;
+    }
+
+    .tab-container {
+      display: flex;
+      background-color: #eee;
+    }
+
+    .tab {
+      padding: 10px;
+      cursor: pointer;
+      text-align: center;
+      flex-grow: 0;
+      flex-shrink: 1;
+      flex-basis: auto;
+    }
+
+    .tab.active {
+      background-color: #ccc;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 20px;
+      background-color: #fff;
+    }
+
+    .tab-content h2 {
+      margin-top: 0;
+    }
+  </style>
+  <script>
+    function openTab(event, tabName) {
+      var i, tabContent, tab;
+
+      // Hide all tab content
+      tabContent = document.getElementsByClassName("tab-content");
+      for (i = 0; i < tabContent.length; i++) {
+        tabContent[i].style.display = "none";
+      }
+
+      // Remove active class from all tabs
+      tab = document.getElementsByClassName("tab");
+      for (i = 0; i < tab.length; i++) {
+        tab[i].className = tab[i].className.replace(" active", "");
+      }
+
+      // Show the selected tab content
+      document.getElementById(tabName).style.display = "block";
+
+      // Add the active class to the clicked tab
+      event.currentTarget.className += " active";
+    }
+  </script>
+</head>
+<body>
+  <div class="tab-group">
+    <div class="tab-container">
+      <div class="tab active" onclick="openTab(event, 'tab1')">GG Codes</div>
+      <div class="tab" onclick="openTab(event, 'tab2')">BG Maps</div>
+      <div class="tab" onclick="openTab(event, 'tab3')">Edit Tiles</div>
+    </div>
+  </div>
+
+  <div class="content-container">
+    <div id="tab1" class="tab-content">
+      <h2>Tab 1 Content</h2>
+      <p>This is the content of Tab 1.</p>
+    </div>
+
+    <div id="tab2" class="tab-content">
+      <h2>Tab 2 Content</h2>
+      <p>This is the content of Tab 2.</p>
+    </div>
+
+    <div id="tab3" class="tab-content">
+      <h2>Tab 3 Content</h2>
+      <p>This is the content of Tab 3.</p>
+    </div>
+  </div>
+
+  <script>
+    // Open the first tab by default
+    document.getElementById("tab1").style.display = "block";
+  </script>
+</body>
+</html>
