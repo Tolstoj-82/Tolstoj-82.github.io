@@ -2,7 +2,7 @@ const openModalButton = document.getElementById("openModalButton");
 const modalOverlay = document.getElementById("modalOverlay");
 const closeModalButton = document.getElementById("closeModalButton");
 const modalContent = document.getElementById("modalContent");
-const modalResizeHandle = document.getElementById("modalResizeHandle");
+//const modalResizeHandle = document.getElementById("modalResizeHandle");
 const container = document.querySelector(".container");
 
 const dropdowns = document.querySelectorAll(".hexSel");
@@ -112,7 +112,7 @@ modalOverlay.addEventListener("click", function (event) {
     modalOverlay.style.display = "none";
   }
 });
-
+/*
 let isResizing = false;
 let resizeStartX = 0;
 let initialWidth = 0;
@@ -144,7 +144,7 @@ function stopResize() {
   isResizing = false;
   document.removeEventListener("mousemove", handleResize);
   document.removeEventListener("mouseup", stopResize);
-}
+}*/
 
 // Gravity tables
 const gravityTablesContainer = document.getElementById('gravityTablesContainer');
@@ -182,6 +182,8 @@ for (let i = 0; i <= numLevels; i++) {
         select.appendChild(option);
     }
 
+
+    // --> PUT THAT IN THE LUTs
     const preselectedValues = [53, 49, 45, 41, 37, 33, 28, 22, 17, 11, 10, 9, 8, 7, 6, 6, 5, 5, 4, 4, 3];
     select.value = (preselectedValues[i] - 1).toString(16).padStart(2, "0").toUpperCase();
 
