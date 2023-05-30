@@ -165,6 +165,27 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+
+
+
+  // Generate 8x8 table with ID "tileTable"
+  var table = document.getElementById('tileTable');
+
+  var count = 0;
+  for (var i = 0; i < 8; i++) {
+    var row = document.createElement('tr');
+
+    for (var j = 0; j < 8; j++) {
+      var cell = document.createElement('td');
+      cell.id = 'tilePixel' + count.toString().padStart(2, '0');
+      row.appendChild(cell);
+      count++;
+    }
+
+    table.appendChild(row);
+  }
+
+
 });
 
 
@@ -236,6 +257,41 @@ function searchAndSelectCell() {
   const address = searchInput.value.trim();
   if(address != "") scrollToAddress(address);
 }
+
+//------------------------------------------------------------------------------------------
+
+// gets the Tile Data (8x8)
+function getTileData(startAddress, isOneBPP) {
+  // Get the text contents of the <td> elements
+  var tdElements = document.querySelectorAll('td');
+  var startIndex = Array.from(tdElements).findIndex(td => td.id === startAddress);
+  var endIndex = startIndex + (isOneBPP ? 8 : 16);
+  var hexValues = Array.from(tdElements).slice(startIndex, endIndex).map(td => td.textContent);
+
+  // Convert the hex values to binary and concatenate them
+  var binaryValue = hexValues.map(hexValue => parseInt(hexValue, 16).toString(2).padStart(8, '0')).join('');
+
+  console.log(binaryValue);
+
+  // Populate the existing table with ID "tileTable"
+  var table = document.getElementById('tileTable');
+
+  if (table) {
+    var rows = table.getElementsByTagName('tr');
+
+    for (var i = 0; i < 8; i++) {
+      var cells = rows[i].getElementsByTagName('td');
+      for (var j = 0; j < 8; j++) {
+        var cellValue = binaryValue[i * 8 + j];
+        cells[j].style.backgroundColor = cellValue === '0' ? 'white' : 'black';
+      }
+    }
+  } else {
+    console.log('Table with ID "tileTable" does not exist.');
+  }
+}
+
+
 
 //------------------------------------------------------------------------------------------
 
@@ -370,7 +426,7 @@ function validateFile(event) {
   // Check the file size
   var fileSize = file.size / 1024; // in KB
   if (fileSize > maxFileSize) {
-    alert('File size should be less than or equal to 3 MB.');
+    alert('File size should be less than or equal to ' + round(maxFileSize/1000) + ' MB.');
     hideLoadingAnimation();
     return false;
   }

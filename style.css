@@ -252,7 +252,7 @@ button:disabled {
 }
 
 .toggle-switch label {
-  background-color: #ccc;
+  background-color: #CCC;
   cursor: pointer;
 }
 
@@ -270,8 +270,8 @@ button:disabled {
 }
 
 .tab:hover {
-  background-color: #09C;
-  color: #000;
+  background-color: #0AC;
+  /*color: #CCC;*/
 }
 
 .tab.active,
@@ -776,4 +776,10 @@ button:disabled {
   .tab-content::-moz-scrollbar-thumb:hover {
     background: #555;
   }
+}
+
+#tileTable td {
+  background-color: white;
+  width: 32px;
+  height: 32px;
 }
