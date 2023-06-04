@@ -288,6 +288,20 @@
                         </td>
                     </tr>
                     <tr>
+                      <td>
+                        2-Player Speed
+                        <p>
+                          <select id="twoPlayerSpeed" class="level">
+                            <option value="01">--</option>
+                          </select>
+                        </p>
+                      </td>
+                      <td>PasZau <br>(and Tolstoj)</td>
+                      <td>
+                        <a href="#" class="copyLink inactive" id="l_twoPlayerSpeed">XX8-56F-E6E</a>
+                      </td>
+                    </tr>
+                    <tr>
                         <td>Almost Any Value Messes Up The Music</td>
                         <td>nensondubois</td>
                         <td><a href="#" class="copyLink">22B-0F9-91A</a></td>
@@ -454,6 +468,16 @@
                   <button id="getTileVals" onclick="getTileData(document.getElementById('tileStartAddress').value, document.getElementById('oneBPPCheckbox').checked);">Tile Data</button>
                   <p>
                     <table id="tileTable"></table>
+                  </p>
+                  <p>
+                    <table id="tileColors">
+                      <tr>
+                        <td id="col0" class="chosen"></td>
+                        <td id="col1"></td>
+                        <td id="col2"></td>
+                        <td id="col3"></td>
+                      </tr>
+                    </table>
                   </p>
                 </div>
               </div>

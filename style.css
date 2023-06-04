@@ -778,8 +778,36 @@ button:disabled {
   }
 }
 
-#tileTable td {
-  background-color: white;
+#tileTable td,
+#tileColors td {
   width: 32px;
   height: 32px;
+}
+
+/*#tileTable td{
+  background-color: #FFF;
+}*/
+
+#tileColors td.chosen{
+  border: 2px solid #8F8;
+}
+
+#col0,
+.col0 {
+  background-color: white;
+}
+
+#col1,
+.col1 {
+  background-color: #777;
+}
+
+#col2,
+.col2 {
+  background-color: #333;
+}
+
+#col3,
+.col3 {
+  background-color: black;
 }

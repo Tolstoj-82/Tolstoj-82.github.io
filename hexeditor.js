@@ -42,7 +42,6 @@ document.getElementById('autoApplyToggle').addEventListener('change', function()
   autoApply = this.checked;
 });
 
-
 //**************************************************************************************/
 // (2) DOM CONTENT LOADED
 //**************************************************************************************/
@@ -111,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => link.classList.remove('link-animation'), 1010);
       }
     }
-  }
+ }
   
   for (const key in selectElements) {
     selectElements[key].element.addEventListener("change", handleSelectChange);
@@ -135,6 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
       accordionSymbol.textContent = '+';
       panel.style.maxHeight = 0;
     }
+
   });
 
   // pressing enter either applies a gg code or searches an address, depending on the scope
@@ -166,8 +166,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-
-
   // Generate 8x8 table with ID "tileTable"
   var table = document.getElementById('tileTable');
 
@@ -185,14 +183,41 @@ document.addEventListener('DOMContentLoaded', function() {
     table.appendChild(row);
   }
 
-
+  // draw a tile
+  const tilePixelTds = document.querySelectorAll('#tileTable td');
+  let isMouseDown = false;
+  
+  tilePixelTds.forEach(td => {
+    td.addEventListener('mousedown', () => {
+      isMouseDown = true;
+      const chosenTd = document.querySelector('#tileColors td.chosen');
+      if (chosenTd) {
+        const chosenId = chosenTd.id;
+        td.className = chosenId;
+      }
+    });
+  
+    td.addEventListener('mouseup', () => {
+      isMouseDown = false;
+    });
+  
+    td.addEventListener('mousemove', () => {
+      if (isMouseDown) {
+        const chosenTd = document.querySelector('#tileColors td.chosen');
+        if (chosenTd) {
+          const chosenId = chosenTd.id;
+          td.className = chosenId;
+        }
+      }
+    });
+  });
+  
 });
 
 
 //**************************************************************************************/
 // (3) FUNCTIONS
 //**************************************************************************************/
-
 
   // save the bg map and close the modal
   function saveBGMap() {
@@ -223,16 +248,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   }
   
-  
 //------------------------------------------------------------------------------------------
-
 // close the bg map modal without saving
   function closeBGModal(){
     document.getElementById("BG-myModal").style.display = "none";
   }
 
 //------------------------------------------------------------------------------------------
-
 // Adds text to the Log
 function addToLog(logText){
   const log = document.getElementById("log");
@@ -242,7 +264,6 @@ function addToLog(logText){
 }
 
 //------------------------------------------------------------------------------------------
-
 // enables download button if changes were made
 function enableDownload() {
 var button = document.getElementById("createFileBtn");
@@ -250,7 +271,6 @@ button.removeAttribute("disabled");
 }
 
 //------------------------------------------------------------------------------------------
-
 // scrolls to and highlights address (User search)
 function searchAndSelectCell() {
   const searchInput = document.getElementById('searchInput');
@@ -259,42 +279,51 @@ function searchAndSelectCell() {
 }
 
 //------------------------------------------------------------------------------------------
-
 // gets the Tile Data (8x8)
 function getTileData(startAddress, isOneBPP) {
-  // Get the text contents of the <td> elements
   var tdElements = document.querySelectorAll('td');
   var startIndex = Array.from(tdElements).findIndex(td => td.id === startAddress);
   var endIndex = startIndex + (isOneBPP ? 8 : 16);
   var hexValues = Array.from(tdElements).slice(startIndex, endIndex).map(td => td.textContent);
-
-  // Convert the hex values to binary and concatenate them
   var binaryValue = hexValues.map(hexValue => parseInt(hexValue, 16).toString(2).padStart(8, '0')).join('');
 
-  console.log(binaryValue);
-
-  // Populate the existing table with ID "tileTable"
+  // Populate the tileTable
   var table = document.getElementById('tileTable');
+  var rows = table.getElementsByTagName('tr');
 
-  if (table) {
-    var rows = table.getElementsByTagName('tr');
-
-    for (var i = 0; i < 8; i++) {
-      var cells = rows[i].getElementsByTagName('td');
-      for (var j = 0; j < 8; j++) {
-        var cellValue = binaryValue[i * 8 + j];
-        cells[j].style.backgroundColor = cellValue === '0' ? 'white' : 'black';
+  for (var i = 0; i < 8; i++) {
+    var cells = rows[i].getElementsByTagName('td');
+    for (var j = 0; j < 8; j++) {
+      var cellValue = binaryValue[i * 8 + j];
+      cells[j].classList.remove('col0', 'col1', 'col2', 'col3');
+      if (cellValue === '0') {
+        cells[j].classList.add('col0');
+      } else if (cellValue === '1') {
+        cells[j].classList.add('col1');
+      } else if (cellValue === '2') {
+        cells[j].classList.add('col2');
+      } else if (cellValue === '3') {
+        cells[j].classList.add('col3');
       }
     }
-  } else {
-    console.log('Table with ID "tileTable" does not exist.');
   }
 }
 
+//------------------------------------------------------------------------------------------
+// Tile Editor
+// Make the colors selectable
+const tileColorTds = document.querySelectorAll('#tileColors td');
 
+  tileColorTds.forEach(td => {
+  td.addEventListener('click', () => {
+    tileColorTds.forEach(td => {
+      td.classList.remove('chosen');
+    });
+    td.classList.add('chosen');
+  });
+});
 
 //------------------------------------------------------------------------------------------
-
 // Checksums
 function updateChecksums(updateInRom) {
   let headerChecksum = 0;
@@ -346,7 +375,6 @@ function updateChecksums(updateInRom) {
 }
 
 //------------------------------------------------------------------------------------------
-
 // Game title changes in header data
 function handleGameTitleKeydown(event) {
   if (event.key === 'Enter') {
@@ -401,7 +429,6 @@ function validateGameTitle(event) {
 }
 
 //------------------------------------------------------------------------------------------
-
 // Loads a ROM file
 function validateFile(event) {
 
@@ -667,7 +694,6 @@ function validateFile(event) {
     }
 
   //------------------------------------------------------------------------------------------
-  
   // Scrolls to and highlights an address
   function scrollToAddress(address) {
     let returnValue = false;
@@ -720,7 +746,6 @@ function validateFile(event) {
   }
 
 //------------------------------------------------------------------------------------------
-
 // display a toast
 let toastQueue = [];
 let canCall = true;
@@ -762,7 +787,6 @@ function showNextToast() {
 //}
 
 //------------------------------------------------------------------------------------------
-
 // populates header data 
 function obtainHeaderData() {
   
@@ -828,7 +852,6 @@ function obtainHeaderData() {
 }
 
 //------------------------------------------------------------------------------------------
-
 // this woks, but now we need to make sure, the correct VRAM is loaded
 
 function getBGMap(id) {
@@ -852,7 +875,6 @@ function getBGMap(id) {
 }
 
 //------------------------------------------------------------------------------------------
-
 // tab group
 function openTab(event, tabName) {
   var i, tabContent, tab;

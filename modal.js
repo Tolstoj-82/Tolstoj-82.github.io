@@ -5,14 +5,26 @@ const modalContent = document.getElementById("modalContent");
 //const modalResizeHandle = document.getElementById("modalResizeHandle");
 const container = document.querySelector(".container");
 
+// populate dropdowns with values 0-255
 const dropdowns = document.querySelectorAll(".hexSel");
-
 for (let dropdown of dropdowns) {
   for (let i = 1; i <= 255; i++) {
     const hexValue = i.toString(16).padStart(2, "0").toUpperCase();
     const option = document.createElement("option");
     option.value = hexValue;
     option.text = i.toString();
+    dropdown.appendChild(option);
+  }
+}
+
+// populate dropdown for level selection (Level 0 - Level 20)
+const levelDropdowns = document.querySelectorAll(".level");
+for (let dropdown of levelDropdowns) {
+  for (let i = 0; i <= 20; i++) {
+    const hexValue = i.toString(16).padStart(2, "0").toUpperCase();
+    const option = document.createElement("option");
+    option.value = hexValue;
+    option.text = "Level " + i.toString();
     dropdown.appendChild(option);
   }
 }
@@ -81,6 +93,12 @@ rightDasArrSelect.addEventListener('change', function () {
   const selectedOption = rightDasArrSelect.value;
   updateLinkText(l_rightDasArrLink, selectedOption);
 });
+
+var twoPlayerSpeedSelect = document.getElementById("twoPlayerSpeed");
+twoPlayerSpeedSelect.addEventListener('change', function () {
+    const selectedOption = twoPlayerSpeedSelect.value;
+    updateLinkText(l_twoPlayerSpeed, selectedOption);
+ });
 
 openModalButton.addEventListener("click", function () {
     if (modalOverlay.style.display === "block") {
