@@ -37,6 +37,10 @@ const disabledButtonText = "nothing to apply - add a code first";
 let e_ggCode;
 var autoApply = false;
 
+// Initialize the pixelData array
+var pixelData = [];
+
+
 // toggle to automatically apply GG Codes
 document.getElementById('autoApplyToggle').addEventListener('change', function() {
   autoApply = this.checked;
@@ -211,7 +215,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
-  
 });
 
 
@@ -280,6 +283,7 @@ function searchAndSelectCell() {
 
 //------------------------------------------------------------------------------------------
 // gets the Tile Data (8x8)
+/*
 function getTileData(startAddress, isOneBPP) {
   var tdElements = document.querySelectorAll('td');
   var startIndex = Array.from(tdElements).findIndex(td => td.id === startAddress);
@@ -307,7 +311,7 @@ function getTileData(startAddress, isOneBPP) {
       }
     }
   }
-}
+}*/
 
 //------------------------------------------------------------------------------------------
 // Tile Editor
@@ -666,7 +670,6 @@ function validateFile(event) {
           cell.setAttribute('data-previous-value', value);
         });
 
-
       });
       
     }
@@ -679,6 +682,12 @@ function validateFile(event) {
     const openModalButton = document.getElementById("openModalButton");
     setTimeout(function() {
       openModalButton.click();
+      
+      pixelData = pixelData.concat(getTileData("4167", 36, 1));
+      pixelData = pixelData.concat(getTileData("323F", 197, 2));
+      pixelData = pixelData.concat(getTileData("55AC", 207, 2));
+      pixelData = pixelData.concat(getTileData("4297", 119, 2));
+
     }, 1000);
 
   }
@@ -892,4 +901,58 @@ function openTab(event, tabName) {
   document.getElementById(tabName).style.display = "block";
 
   event.currentTarget.className += " active";
+}
+
+//------------------------------------------------------------------------------------------
+// get the pixel values from tiles in the ROM (0-3)
+function getTileData(startAddress, nTiles, bitsPerPixel) {
+  const pixelData = [];
+  let currentAddress = startAddress;
+
+  for (let i = 0; i < nTiles * 8; i++) {
+    if (bitsPerPixel === 2 && i % 2 === 1) {
+      continue; // Skip every other iteration when bitsPerPixel is 2
+    }
+
+    const currentTd = document.getElementById(currentAddress);
+    const thisValue = currentTd.textContent;
+    
+    const nextAddress = (parseInt(currentAddress, 16) + 1).toString(16).toUpperCase();
+    const nextTd = document.getElementById(nextAddress);
+    const nextValue = nextTd.textContent;
+
+    const thisBinary = parseInt(thisValue, 16).toString(2).padStart(8, '0');
+    const nextBinary = parseInt(nextValue, 16).toString(2).padStart(8, '0');
+
+    let pixelValues = "";
+
+    for (let j = 0; j < 8; j++) {
+      let decimalValue;
+      if (bitsPerPixel === 2) {
+        const concatenatedBinary = nextBinary[j] + thisBinary[j];
+        decimalValue = parseInt(concatenatedBinary, 2);
+      } else {
+        // The factor 3 makes sure the dark pixel of the 1BPP is black
+        decimalValue = 3 * parseInt(thisBinary[j], 2);
+      }
+      pixelValues += decimalValue;
+    }
+
+    let binaryValue;
+    if (bitsPerPixel === 2) {
+      binaryValue = currentAddress + ": " + thisBinary + " - " + nextBinary + " --> " + pixelValues;
+    } else {
+      binaryValue = currentAddress + ": " + thisBinary + " --> " + pixelValues;
+    }
+
+    console.log(binaryValue);
+
+    pixelData.push(binaryValue);
+    
+    const skip = (bitsPerPixel === 2) ? 2 : 1;
+
+    currentAddress = (parseInt(currentAddress, 16) + skip).toString(16).toUpperCase();
+  }
+
+  return pixelData;
 }
