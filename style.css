@@ -812,21 +812,16 @@ button:disabled {
   background-color: black;
 }
 
+.tile {
+  display: inline-block;
+  margin: 5px;
+}
+
+.row {
+  display: flex;
+}
+
 .pixel {
   width: 5px;
   height: 5px;
-  display: inline-block;
-  margin: 0;
-  padding: 0;
 }
-
-.tileRow {
-  white-space: nowrap;
-  margin-bottom: 0;
-}
-
-.tile {
-  width: 40px;
-  height: 40px;
-}
-

@@ -945,45 +945,60 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
     currentAddress = (parseInt(currentAddress, 16) + skip).toString(16).toUpperCase();
   }
 
-  displayPixelValues(pixelData);
+  displayTiles(pixelData);
   console.log(pixelData);
   //return pixelData;
 }
 
-function displayPixelValues(pixelValues) {
-  const tileContainer = document.getElementById('tileContainer');
+function displayTiles(pixelValues) {
+  const container = document.getElementById("tileContainer");
 
-  for (let i = 0; i < pixelValues.length; i += 8) {
-    const tile = pixelValues.slice(i, i + 8);
-    const tileDiv = document.createElement('div');
-    tileDiv.classList.add('tile');
+  const tileCount = Math.ceil(pixelValues.length / 8);
 
-    for (let row = 0; row < 5; row++) {
-      const tileRowDiv = document.createElement('div');
-      tileRowDiv.classList.add('tileRow');
+  for (let t = 0; t < tileCount; t++) {
+    const tile = document.createElement("div");
+    tile.className = "tile";
 
-      for (const value of tile) {
-        const pixelDiv = document.createElement('div');
-        pixelDiv.classList.add('pixel');
-        pixelDiv.style.backgroundColor = getPixelColor(value, row);
-        tileRowDiv.appendChild(pixelDiv);
+    for (let row = 0; row < 8; row++) {
+      const rowIndex = t * 8 + row;
+      if (rowIndex >= pixelValues.length) {
+        break; // Skip remaining rows if no more data
       }
 
-      tileDiv.appendChild(tileRowDiv);
+      const rowValue = pixelValues[rowIndex].toString().padStart(8, "0");
+
+      const rowContainer = document.createElement("div");
+      rowContainer.className = "row";
+
+      for (let col = 0; col < 8; col++) {
+        const digit = rowValue[col];
+
+        const pixel = document.createElement("div");
+        pixel.className = "pixel";
+
+        switch (digit) {
+          case "0":
+            pixel.style.backgroundColor = "white";
+            break;
+          case "1":
+            pixel.style.backgroundColor = "lightgrey";
+            break;
+          case "2":
+            pixel.style.backgroundColor = "darkgrey";
+            break;
+          case "3":
+            pixel.style.backgroundColor = "black";
+            break;
+          default:
+            break;
+        }
+
+        rowContainer.appendChild(pixel);
+      }
+
+      tile.appendChild(rowContainer);
     }
 
-    tileContainer.appendChild(tileDiv);
+    container.appendChild(tile);
   }
-}
-
-function getPixelColor(value, row) {
-  const colorMap = {
-    '0': 'white',
-    '1': 'lightgrey',
-    '2': 'darkgrey',
-    '3': 'black'
-  };
-
-  const pixelValue = parseInt(value[row]);
-  return colorMap[pixelValue.toString()];
 }
