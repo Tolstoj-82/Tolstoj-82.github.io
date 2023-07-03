@@ -811,3 +811,22 @@ button:disabled {
 .col3 {
   background-color: black;
 }
+
+.pixel {
+  width: 5px;
+  height: 5px;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
+
+.tileRow {
+  white-space: nowrap;
+  margin-bottom: 0;
+}
+
+.tile {
+  width: 40px;
+  height: 40px;
+}
+

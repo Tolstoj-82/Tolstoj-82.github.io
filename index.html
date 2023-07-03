@@ -460,25 +460,7 @@
             
                 <div id="tab3" class="tab-content" style="display: none;">
                   <h2>Edit individual tiles</h2>
-
-                  <input type="text" id="tileStartAddress" value="4167" />
-                  <label>
-                    <input type="checkbox" id="oneBPPCheckbox" checked /> 1BPP
-                  </label>
-                  <button id="getTileVals" onclick="getTileData(document.getElementById('tileStartAddress').value, document.getElementById('oneBPPCheckbox').checked);">Tile Data</button>
-                  <p>
-                    <table id="tileTable"></table>
-                  </p>
-                  <p>
-                    <table id="tileColors">
-                      <tr>
-                        <td id="col0" class="chosen"></td>
-                        <td id="col1"></td>
-                        <td id="col2"></td>
-                        <td id="col3"></td>
-                      </tr>
-                    </table>
-                  </p>
+                  <div id="tileContainer"></div>
                 </div>
               </div>
               

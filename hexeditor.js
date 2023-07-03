@@ -171,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Generate 8x8 table with ID "tileTable"
+  /*
   var table = document.getElementById('tileTable');
 
   var count = 0;
@@ -215,6 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+  */
 });
 
 
@@ -938,21 +940,50 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
       pixelValues += decimalValue;
     }
 
-    let binaryValue;
-    if (bitsPerPixel === 2) {
-      binaryValue = currentAddress + ": " + thisBinary + " - " + nextBinary + " --> " + pixelValues;
-    } else {
-      binaryValue = currentAddress + ": " + thisBinary + " --> " + pixelValues;
-    }
-
-    console.log(binaryValue);
-
-    pixelData.push(binaryValue);
-    
+    pixelData.push(pixelValues);   
     const skip = (bitsPerPixel === 2) ? 2 : 1;
-
     currentAddress = (parseInt(currentAddress, 16) + skip).toString(16).toUpperCase();
   }
 
-  return pixelData;
+  displayPixelValues(pixelData);
+  console.log(pixelData);
+  //return pixelData;
+}
+
+function displayPixelValues(pixelValues) {
+  const tileContainer = document.getElementById('tileContainer');
+
+  for (let i = 0; i < pixelValues.length; i += 8) {
+    const tile = pixelValues.slice(i, i + 8);
+    const tileDiv = document.createElement('div');
+    tileDiv.classList.add('tile');
+
+    for (let row = 0; row < 5; row++) {
+      const tileRowDiv = document.createElement('div');
+      tileRowDiv.classList.add('tileRow');
+
+      for (const value of tile) {
+        const pixelDiv = document.createElement('div');
+        pixelDiv.classList.add('pixel');
+        pixelDiv.style.backgroundColor = getPixelColor(value, row);
+        tileRowDiv.appendChild(pixelDiv);
+      }
+
+      tileDiv.appendChild(tileRowDiv);
+    }
+
+    tileContainer.appendChild(tileDiv);
+  }
+}
+
+function getPixelColor(value, row) {
+  const colorMap = {
+    '0': 'white',
+    '1': 'lightgrey',
+    '2': 'darkgrey',
+    '3': 'black'
+  };
+
+  const pixelValue = parseInt(value[row]);
+  return colorMap[pixelValue.toString()];
 }
