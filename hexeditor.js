@@ -946,7 +946,6 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
   }
 
   displayTiles(pixelData);
-  console.log(pixelData);
   //return pixelData;
 }
 
@@ -954,10 +953,25 @@ function displayTiles(pixelValues) {
   const container = document.getElementById("tileContainer");
 
   const tileCount = Math.ceil(pixelValues.length / 8);
+  let selectedTile = null; // Variable to store the currently selected tile
+
+  const digitColors = {
+    "0": "white",
+    "1": "lightgrey",
+    "2": "darkgrey",
+    "3": "black",
+  };
 
   for (let t = 0; t < tileCount; t++) {
     const tile = document.createElement("div");
     tile.className = "tile";
+    tile.addEventListener("click", function () {
+      if (selectedTile !== null) {
+        selectedTile.classList.remove("selected"); // Remove selected class from the previously selected tile
+      }
+      selectedTile = tile; // Set the current tile as the selected tile
+      tile.classList.add("selected"); // Add selected class to the clicked tile
+    });
 
     for (let row = 0; row < 8; row++) {
       const rowIndex = t * 8 + row;
@@ -976,22 +990,7 @@ function displayTiles(pixelValues) {
         const pixel = document.createElement("div");
         pixel.className = "pixel";
 
-        switch (digit) {
-          case "0":
-            pixel.style.backgroundColor = "white";
-            break;
-          case "1":
-            pixel.style.backgroundColor = "lightgrey";
-            break;
-          case "2":
-            pixel.style.backgroundColor = "darkgrey";
-            break;
-          case "3":
-            pixel.style.backgroundColor = "black";
-            break;
-          default:
-            break;
-        }
+        pixel.style.backgroundColor = digitColors[digit] || ""; // Set the background color based on the digit value
 
         rowContainer.appendChild(pixel);
       }

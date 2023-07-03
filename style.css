@@ -814,7 +814,13 @@ button:disabled {
 
 .tile {
   display: inline-block;
-  margin: 5px;
+  margin: 3px;
+  border: 2px solid grey; /* Set 2px grey border for each tile */
+  cursor: pointer; /* Add cursor pointer for selection */
+}
+
+.tile.selected {
+  border-color: orange; /* Change border color to orange when selected */
 }
 
 .row {
@@ -822,6 +828,6 @@ button:disabled {
 }
 
 .pixel {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
