@@ -883,3 +883,8 @@ button:disabled {
   border: none;
   /*border-radius: 10%;*/
 }
+
+.new-line {
+  display: block;
+  margin-bottom: 1em; /* Adjust as needed */
+}

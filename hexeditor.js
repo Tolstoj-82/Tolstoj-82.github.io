@@ -964,7 +964,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
         const concatenatedBinary = nextBinary[j] + thisBinary[j];
         decimalValue = parseInt(concatenatedBinary, 2);
       } else {
-        // The factor 3 makes sure the dark pixel of the 1BPP is black
+        // The factor 3 makes sure the dark pixel of the 1BPP tiles is black
         decimalValue = 3 * parseInt(thisBinary[j], 2);
       }
       pixelValues += decimalValue;

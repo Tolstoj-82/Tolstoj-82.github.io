@@ -299,9 +299,11 @@ const bgMapAddress = {
   "Buran Shuttle": "1429"
 };
 
+// COLOR PALETTES
+// this was taken from here: https://bulbapedia.bulbagarden.net/wiki/Color_palette_(Generations_I%E2%80%93II)
 const paletteLookup = {
-  "DMG-01": ["B8F878", "80B050", "486828", "102000"],
   "MGB-001": ["F8F8F8", "A8A8A8", "585858", "080808"],
+  "DMG-01": ["B8F878", "80B050", "486828", "102000"],
   "MGB-101": ["08F8F8", "08A8A8", "085858", "080808"],
   "SGB-1-A": ["F8E8C8", "D89048", "A82820", "301850"],
   "SGB-1-B": ["D8D8C0", "C8B070", "B05010", "000000"],
@@ -335,20 +337,20 @@ const paletteLookup = {
   "SGB-4-F": ["B8D0D0", "D880D8", "8000A0", "380000"],
   "SGB-4-G": ["B0E018", "B82058", "281000", "008060"],
   "SGB-4-H": ["F8F8C8", "B8C058", "808840", "405028"],
-  "Up": ["FFFFFF", "FFAD63", "843100", "000000"],
-  "Up+A": ["FFFFFF", "FF8484", "943A3A", "000000"],
-  "Up+B": ["FFE6C5", "CE9C84", "846B29", "5A3108"],
-  "Down": ["FFFFA5", "FF9494", "9494FF", "000000"],
-  "Down+A": ["FFFFFF", "FFFF00", "FF0000", "000000"],
-  "Down+B": ["FFFFFF", "FFFF00", "7B4A00", "000000"],
-  "Left": ["FFFFFF", "63A5FF", "0000FF", "000000"],
-  "Left+A": ["FFFFFF", "8C8CDE", "52528C", "000000"],
-  "Left+B": ["FFFFFF", "A5A5A5", "525252", "000000"],
-  "Right": ["FFFFFF", "52FF00", "FF4200", "000000"],
-  "Right+A": ["FFFFFF", "0BF3F1", "0063C5", "000000"],
-  "Right+B": ["000000", "008484", "FFDE00", "FFFFFF"],
-  "Pokémon Red": ["FFFFFF", "FF8484", "943A3A", "000000"],
-  "Pokémon Blue": ["FFFFFF", "63A5FF", "0000FF", "000000"],
-  "Pokémon Green": ["FFFFFF", "7BFF31", "0063C5", "000000"],
-  "Pokémon Yellow": ["FFFFFF", "FFFF00", "FF0000", "000000"]
+  "GBC: Up": ["FFFFFF", "FFAD63", "843100", "000000"],
+  "GBC: Up+A": ["FFFFFF", "FF8484", "943A3A", "000000"],
+  "GBC: Up+B": ["FFE6C5", "CE9C84", "846B29", "5A3108"],
+  "GBC: Down": ["FFFFA5", "FF9494", "9494FF", "000000"],
+  "GBC: Down+A": ["FFFFFF", "FFFF00", "FF0000", "000000"],
+  "GBC: Down+B": ["FFFFFF", "FFFF00", "7B4A00", "000000"],
+  "GBC: Left": ["FFFFFF", "63A5FF", "0000FF", "000000"],
+  "GBC: Left+A": ["FFFFFF", "8C8CDE", "52528C", "000000"],
+  "GBC: Left+B": ["FFFFFF", "A5A5A5", "525252", "000000"],
+  "GBC: Right": ["FFFFFF", "52FF00", "FF4200", "000000"],
+  "GBC: Right+A": ["FFFFFF", "0BF3F1", "0063C5", "000000"],
+  "GBC: Right+B": ["000000", "008484", "FFDE00", "FFFFFF"],
+  "GBC: Pokémon Red": ["FFFFFF", "FF8484", "943A3A", "000000"],
+  "GBC: Pokémon Blue": ["FFFFFF", "63A5FF", "0000FF", "000000"],
+  "GBC: Pokémon Green": ["FFFFFF", "7BFF31", "0063C5", "000000"],
+  "GBC: Pokémon Yellow": ["FFFFFF", "FFFF00", "FF0000", "000000"]
 };
