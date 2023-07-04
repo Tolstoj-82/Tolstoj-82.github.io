@@ -217,6 +217,37 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   */
+  // Get the dropdown element
+  const dropdown = document.getElementById("palette-dropdown");
+
+  // Iterate over the paletteLookup object keys and create an option for each palette
+  for (const palette in paletteLookup) {
+    // Create a new option element
+    const option = document.createElement("option");
+
+    // Set the option text to the palette name
+    option.text = palette;
+
+    // Append the option to the dropdown
+    dropdown.add(option);
+  }
+
+  dropdown.addEventListener("change", function() {
+    // Get the selected palette name
+    const selectedPalette = this.value;
+    
+    // Get the color values for the selected palette
+    const colors = paletteLookup[selectedPalette];
+    
+    // Set the color values to the color pickers
+    for (let i = 0; i < colors.length; i++) {
+      const colorPicker = document.getElementById(`color-picker-${i}`);
+      colorPicker.value = "#" + colors[i];
+      
+      // Trigger the 'change' event to update the CSS class and any related elements
+      colorPicker.dispatchEvent(new Event('change'));
+    }
+  });
 });
 
 
@@ -910,8 +941,7 @@ function openTab(event, tabName) {
 function getTileData(startAddress, nTiles, bitsPerPixel) {
   const pixelData = [];
   let currentAddress = startAddress;
-
-  for (let i = 0; i < nTiles * 8; i++) {
+  for (let i = 0; i < nTiles*8*bitsPerPixel; i++) {
     if (bitsPerPixel === 2 && i % 2 === 1) {
       continue; // Skip every other iteration when bitsPerPixel is 2
     }
@@ -955,13 +985,6 @@ function displayTiles(pixelValues) {
   const tileCount = Math.ceil(pixelValues.length / 8);
   let selectedTile = null; // Variable to store the currently selected tile
 
-  const digitColors = {
-    "0": "white",
-    "1": "lightgrey",
-    "2": "darkgrey",
-    "3": "black",
-  };
-
   for (let t = 0; t < tileCount; t++) {
     const tile = document.createElement("div");
     tile.className = "tile";
@@ -990,7 +1013,7 @@ function displayTiles(pixelValues) {
         const pixel = document.createElement("div");
         pixel.className = "pixel";
 
-        pixel.style.backgroundColor = digitColors[digit] || ""; // Set the background color based on the digit value
+        pixel.classList.add(`col${digit}`); // Assign the class col0, col1, col2, or col3 based on the digit value
 
         rowContainer.appendChild(pixel);
       }
@@ -1000,4 +1023,11 @@ function displayTiles(pixelValues) {
 
     container.appendChild(tile);
   }
+}
+
+function updateColor(className, color) {
+  const elements = document.querySelectorAll(className);
+  elements.forEach(element => {
+    element.style.backgroundColor = color;
+  });
 }

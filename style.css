@@ -831,3 +831,55 @@ button:disabled {
   width: 4px;
   height: 4px;
 }
+
+/*.pixel {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+}*/
+
+.col0 {
+  background-color: white;
+}
+
+.col1 {
+  background-color: lightgrey;
+}
+
+.col2 {
+  background-color: darkgrey;
+}
+
+.col3 {
+  background-color: black;
+}
+
+.color-scheme-container {
+  display: flex;
+  align-items: center;
+}
+
+.color-scheme-container > * {
+  margin-right: 6px;
+}
+
+.color-picker {
+  width: 30px;
+  height: 30px;
+  border: 3px solid black;
+  /*border-radius: 10%;*/
+  outline: none;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-picker::-webkit-color-swatch {
+  border: none;
+  /*border-radius: 10%;*/
+}
