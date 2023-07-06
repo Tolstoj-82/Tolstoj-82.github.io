@@ -895,7 +895,6 @@ function obtainHeaderData() {
 
 //------------------------------------------------------------------------------------------
 // this woks, but now we need to make sure, the correct VRAM is loaded
-
 function getBGMap(id) {
   const startIndex = parseInt(id, 16);
   const endIndex = startIndex + 359;
@@ -940,15 +939,20 @@ function openTab(event, tabName) {
 // get the pixel values from tiles in the ROM (0-3)
 function getTileData(startAddress, nTiles, bitsPerPixel) {
   const pixelData = [];
+  const addresses = [];
   let currentAddress = startAddress;
-  for (let i = 0; i < nTiles*8*bitsPerPixel; i++) {
+
+  const tileContainer = document.getElementById("tileContainer");
+  tileContainer.innerHTML += "<p>ROM Tile Set (0x" + startAddress + ", " + bitsPerPixel + "BPP)<br>";
+
+  for (let i = 0; i < nTiles * 8 * bitsPerPixel; i++) {
     if (bitsPerPixel === 2 && i % 2 === 1) {
       continue; // Skip every other iteration when bitsPerPixel is 2
     }
 
     const currentTd = document.getElementById(currentAddress);
     const thisValue = currentTd.textContent;
-    
+
     const nextAddress = (parseInt(currentAddress, 16) + 1).toString(16).toUpperCase();
     const nextTd = document.getElementById(nextAddress);
     const nextValue = nextTd.textContent;
@@ -970,36 +974,41 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
       pixelValues += decimalValue;
     }
 
-    pixelData.push(pixelValues);   
+    pixelData.push(pixelValues);
+    addresses.push(currentAddress);
     const skip = (bitsPerPixel === 2) ? 2 : 1;
-    currentAddress = (parseInt(currentAddress, 16) + skip).toString(16).toUpperCase();
+    const nextTileAddress = (parseInt(currentAddress, 16) + skip).toString(16).toUpperCase();
+    currentAddress = nextTileAddress;
   }
 
-  displayTiles(pixelData);
-  //return pixelData;
+  displayTiles(pixelData, addresses);
+
+  tileContainer.innerHTML += "</p>";
 }
 
-function displayTiles(pixelValues) {
+
+function displayTiles(pixelValues, tileAddress) {
   const container = document.getElementById("tileContainer");
 
   const tileCount = Math.ceil(pixelValues.length / 8);
-  let selectedTile = null; // Variable to store the currently selected tile
+  let selectedTile = null;
 
   for (let t = 0; t < tileCount; t++) {
     const tile = document.createElement("div");
     tile.className = "tile";
+    tile.id = tileAddress[t];
     tile.addEventListener("click", function () {
       if (selectedTile !== null) {
-        selectedTile.classList.remove("selected"); // Remove selected class from the previously selected tile
+        selectedTile.classList.remove("selected");
       }
-      selectedTile = tile; // Set the current tile as the selected tile
-      tile.classList.add("selected"); // Add selected class to the clicked tile
+      selectedTile = this;
+      selectedTile.classList.add("selected");
     });
 
     for (let row = 0; row < 8; row++) {
       const rowIndex = t * 8 + row;
       if (rowIndex >= pixelValues.length) {
-        break; // Skip remaining rows if no more data
+        break;
       }
 
       const rowValue = pixelValues[rowIndex].toString().padStart(8, "0");
@@ -1013,7 +1022,7 @@ function displayTiles(pixelValues) {
         const pixel = document.createElement("div");
         pixel.className = "pixel";
 
-        pixel.classList.add(`col${digit}`); // Assign the class col0, col1, col2, or col3 based on the digit value
+        pixel.classList.add(`col${digit}`);
 
         rowContainer.appendChild(pixel);
       }
@@ -1025,6 +1034,7 @@ function displayTiles(pixelValues) {
   }
 }
 
+// updates the color of the tiles
 function updateColor(className, color) {
   const elements = document.querySelectorAll(className);
   elements.forEach(element => {
