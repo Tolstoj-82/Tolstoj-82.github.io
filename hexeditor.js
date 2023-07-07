@@ -943,7 +943,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
   let currentAddress = startAddress;
 
   const tileContainer = document.getElementById("tileContainer");
-  tileContainer.innerHTML += "<p>ROM Tile Set (Entry Address = $" + startAddress + ", " + bitsPerPixel + "BPP)<br></p>";
+  tileContainer.innerHTML += "<p>ROM Tile Region (Entry Address = $" + startAddress + ", " + bitsPerPixel + "BPP)<br></p>";
 
   for (let i = 0; i < nTiles * 8 * bitsPerPixel; i++) {
     if (bitsPerPixel === 2 && i % 2 === 1) {
@@ -1047,6 +1047,7 @@ function displayTiles(pixelValues, tileAddress) {
 
 let isDialogOpen = false;
 
+/*
 function openTileDialog(tile) {
   if (isDialogOpen) {
     return; // Dialog is already open, do nothing
@@ -1057,34 +1058,121 @@ function openTileDialog(tile) {
   // Create a dialog container
   const dialogContainer = document.createElement("div");
   dialogContainer.className = "dialog-container";
-  dialogContainer.style.display = "flex";
-  dialogContainer.style.justifyContent = "center";
-  dialogContainer.style.alignItems = "center";
-  dialogContainer.style.position = "fixed";
-  dialogContainer.style.top = "0";
-  dialogContainer.style.left = "0";
-  dialogContainer.style.width = "100%";
-  dialogContainer.style.height = "100%";
-  dialogContainer.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-  dialogContainer.style.zIndex = "9999";
 
   // Create a dialog box
   const dialogBox = document.createElement("div");
   dialogBox.className = "dialog-box";
-  dialogBox.style.backgroundColor = "#fff";
-  dialogBox.style.padding = "20px";
 
   // Clone the selected tile and add it to the dialog box
   const clonedTile = tile.cloneNode(true);
-  clonedTile.style.transform = "scale(7)"; // Enlarge the cloned tile
+
+  // Add the class "big" to all div elements with class "pixel" in the cloned tile
+  const pixelDivs = clonedTile.getElementsByClassName("pixel");
+  Array.from(pixelDivs).forEach((div) => {
+    div.classList.add("big");
+  });
+
   dialogBox.appendChild(clonedTile);
 
-  // Attach click event listeners to selectable pixels
-  const selectablePixels = clonedTile.getElementsByClassName("pixel");
-  Array.from(selectablePixels).forEach((pixel) => {
-    pixel.addEventListener("click", function () {
-      pixel.style.backgroundColor = "red";
-    });
+  // Create a white box with the same width as the cloned tile
+  const whiteBox = document.createElement("div");
+  whiteBox.className = "white-box";
+  const tileWidth = clonedTile.offsetWidth;
+  whiteBox.style.width = tileWidth + "px";
+  dialogBox.appendChild(whiteBox);
+
+  // Attach event listener to dialog box for pixel selection using event delegation
+  dialogBox.addEventListener("mousedown", function (event) {
+    const selectedPixel = event.target;
+    if (selectedPixel.classList.contains("pixel")) {
+      selectedPixel.style.backgroundColor = "red"; // Set initial color when mouse button is pressed
+    }
+  });
+
+  dialogBox.addEventListener("mousemove", function (event) {
+    const selectedPixel = event.target;
+    if (selectedPixel.classList.contains("pixel") && event.buttons === 1) {
+      selectedPixel.style.backgroundColor = "red"; // Continue coloring while mouse button is down
+    }
+  });
+
+  // Append the dialog box to the dialog container
+  dialogContainer.appendChild(dialogBox);
+
+  // Append the dialog container to the body
+  document.body.appendChild(dialogContainer);
+
+  // Close the tile dialog when clicked outside the tile
+  dialogContainer.addEventListener("click", function (event) {
+    if (event.target === dialogContainer) {
+      closeTileDialog();
+    }
+  });
+
+  function closeTileDialog() {
+    // Remove the dialog container from the body
+    document.body.removeChild(dialogContainer);
+    isDialogOpen = false;
+  }
+}*/
+
+function openTileDialog(tile) {
+  if (isDialogOpen) {
+    return; // Dialog is already open, do nothing
+  }
+
+  isDialogOpen = true;
+
+  // Create a dialog container
+  const dialogContainer = document.createElement("div");
+  dialogContainer.className = "dialog-container";
+
+  // Create a dialog box
+  const dialogBox = document.createElement("div");
+  dialogBox.className = "dialog-box";
+
+  // Create the "Tile Editor" text element
+  const tileEditorText = document.createElement("div");
+  tileEditorText.textContent = "Tile Editor";
+  tileEditorText.className = "tile-editor-text";
+  dialogBox.appendChild(tileEditorText);
+
+  // Clone the selected tile and add it to the dialog box
+  const clonedTile = tile.cloneNode(true);
+  dialogBox.appendChild(clonedTile);
+
+  // Create the "YOYOYOYO" text element
+  const yoyoText = document.createElement("div");
+  yoyoText.textContent = "YOYOYOYO";
+  yoyoText.className = "yoyo-text";
+  dialogBox.appendChild(yoyoText);
+
+  // Add the class "big" to all div elements with class "pixel" in the cloned tile
+  const pixelDivs = clonedTile.getElementsByClassName("pixel");
+  Array.from(pixelDivs).forEach((div) => {
+    div.classList.add("big");
+  });
+
+  // Create a white box with the same width as the cloned tile
+  const whiteBox = document.createElement("div");
+  whiteBox.className = "white-box";
+  const tileWidth = clonedTile.offsetWidth;
+  whiteBox.style.width = tileWidth + "px";
+  dialogBox.appendChild(whiteBox);
+
+  // Attach event listener to dialog box for pixel selection using event delegation
+  dialogBox.addEventListener("mousedown", function (event) {
+    const selectedPixel = event.target;
+    if (selectedPixel.classList.contains("pixel")) {
+      selectedPixel.style.backgroundColor = "red"; // Set initial color when mouse button is pressed
+    }
+  });
+
+  dialogBox.addEventListener("mousemove", function (event) {
+    const selectedPixel = event.target;
+    if (selectedPixel.classList.contains("pixel") && event.buttons === 1) {
+      selectedPixel.style.backgroundColor = "red"; // Continue coloring while mouse button is down
+    }
   });
 
   // Append the dialog box to the dialog container
