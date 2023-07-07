@@ -943,7 +943,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
   let currentAddress = startAddress;
 
   const tileContainer = document.getElementById("tileContainer");
-  tileContainer.innerHTML += "<p>ROM Tile Set (0x" + startAddress + ", " + bitsPerPixel + "BPP)<br>";
+  tileContainer.innerHTML += "<p>ROM Tile Set (Entry Address = $" + startAddress + ", " + bitsPerPixel + "BPP)<br></p>";
 
   for (let i = 0; i < nTiles * 8 * bitsPerPixel; i++) {
     if (bitsPerPixel === 2 && i % 2 === 1) {
@@ -983,7 +983,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
 
   displayTiles(pixelData, addresses);
 
-  tileContainer.innerHTML += "</p>";
+  //tileContainer.innerHTML += "</p>";
 }
 
 
@@ -993,17 +993,14 @@ function displayTiles(pixelValues, tileAddress) {
   const tileCount = Math.ceil(pixelValues.length / 8);
   let selectedTile = null;
 
+  const wrapper = document.createElement("div");
+  wrapper.className = "wrapper";
+  wrapper.id = tileAddress[0];
+
   for (let t = 0; t < tileCount; t++) {
     const tile = document.createElement("div");
     tile.className = "tile";
     tile.id = tileAddress[t];
-    tile.addEventListener("click", function () {
-      if (selectedTile !== null) {
-        selectedTile.classList.remove("selected");
-      }
-      selectedTile = this;
-      selectedTile.classList.add("selected");
-    });
 
     for (let row = 0; row < 8; row++) {
       const rowIndex = t * 8 + row;
@@ -1032,7 +1029,84 @@ function displayTiles(pixelValues, tileAddress) {
 
     container.appendChild(tile);
   }
+
+  container.addEventListener("click", function (event) {
+    const clickedTile = event.target.closest(".tile");
+    
+    if (clickedTile) {
+      //alert("yo!");
+      if (selectedTile !== null) {
+        selectedTile.classList.remove("selected");
+      }
+      selectedTile = clickedTile;
+      selectedTile.classList.add("selected");
+      openTileDialog(clickedTile);
+    }
+  });
 }
+
+let isDialogOpen = false;
+
+function openTileDialog(tile) {
+  if (isDialogOpen) {
+    return; // Dialog is already open, do nothing
+  }
+
+  isDialogOpen = true;
+
+  // Create a dialog container
+  const dialogContainer = document.createElement("div");
+  dialogContainer.className = "dialog-container";
+  dialogContainer.style.display = "flex";
+  dialogContainer.style.justifyContent = "center";
+  dialogContainer.style.alignItems = "center";
+  dialogContainer.style.position = "fixed";
+  dialogContainer.style.top = "0";
+  dialogContainer.style.left = "0";
+  dialogContainer.style.width = "100%";
+  dialogContainer.style.height = "100%";
+  dialogContainer.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+  dialogContainer.style.zIndex = "9999";
+
+  // Create a dialog box
+  const dialogBox = document.createElement("div");
+  dialogBox.className = "dialog-box";
+  dialogBox.style.backgroundColor = "#fff";
+  dialogBox.style.padding = "20px";
+
+  // Clone the selected tile and add it to the dialog box
+  const clonedTile = tile.cloneNode(true);
+  clonedTile.style.transform = "scale(7)"; // Enlarge the cloned tile
+  dialogBox.appendChild(clonedTile);
+
+  // Attach click event listeners to selectable pixels
+  const selectablePixels = clonedTile.getElementsByClassName("pixel");
+  Array.from(selectablePixels).forEach((pixel) => {
+    pixel.addEventListener("click", function () {
+      pixel.style.backgroundColor = "red";
+    });
+  });
+
+  // Append the dialog box to the dialog container
+  dialogContainer.appendChild(dialogBox);
+
+  // Append the dialog container to the body
+  document.body.appendChild(dialogContainer);
+
+  // Close the tile dialog when clicked outside the tile
+  dialogContainer.addEventListener("click", function (event) {
+    if (event.target === dialogContainer) {
+      closeTileDialog();
+    }
+  });
+
+  function closeTileDialog() {
+    // Remove the dialog container from the body
+    document.body.removeChild(dialogContainer);
+    isDialogOpen = false;
+  }
+}
+
 
 // updates the color of the tiles
 function updateColor(className, color) {
