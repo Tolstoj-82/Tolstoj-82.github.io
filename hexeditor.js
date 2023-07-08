@@ -975,15 +975,22 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
     }
 
     pixelData.push(pixelValues);
-    addresses.push(currentAddress);
+
+    if (bitsPerPixel === 1) {
+      if (i % 8 === 0) {
+        addresses.push(currentAddress);
+      }
+    } else {
+      if (i % 16 === 0) {
+        addresses.push(currentAddress);
+      }
+    }
+  
     const skip = (bitsPerPixel === 2) ? 2 : 1;
     const nextTileAddress = (parseInt(currentAddress, 16) + skip).toString(16).toUpperCase();
     currentAddress = nextTileAddress;
   }
-
   displayTiles(pixelData, addresses, bitsPerPixel);
-
-  //tileContainer.innerHTML += "</p>";
 }
 
 
@@ -1196,6 +1203,7 @@ function openTileDialog(tile) {
     tile.parentNode.replaceChild(modifiedTile, tile);
 
     closeTileDialog();
+    addToLog("Tile starting at address $" + tile.id + " was overwritten");
   });
   
 
