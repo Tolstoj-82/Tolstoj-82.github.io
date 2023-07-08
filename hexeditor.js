@@ -981,13 +981,13 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
     currentAddress = nextTileAddress;
   }
 
-  displayTiles(pixelData, addresses);
+  displayTiles(pixelData, addresses, bitsPerPixel);
 
   //tileContainer.innerHTML += "</p>";
 }
 
 
-function displayTiles(pixelValues, tileAddress) {
+function displayTiles(pixelValues, tileAddress, bitsPerPixel) {
   const container = document.getElementById("tileContainer");
 
   const tileCount = Math.ceil(pixelValues.length / 8);
@@ -1001,6 +1001,7 @@ function displayTiles(pixelValues, tileAddress) {
     const tile = document.createElement("div");
     tile.className = "tile";
     tile.id = tileAddress[t];
+    tile.setAttribute("data-BPP", bitsPerPixel);    
 
     for (let row = 0; row < 8; row++) {
       const rowIndex = t * 8 + row;
@@ -1108,6 +1109,15 @@ function openTileDialog(tile) {
     clickableDivs.push(clickableDiv); // Add the clickable div to the array
   }
 
+// Check if clonedTile has data-BPP equal to 1
+if (clonedTile.getAttribute("data-BPP") === "1") {
+  // Make clickableDivs 1 and 2 not clickable
+  clickableDivs[1].classList.add("not-clickable-div");
+  clickableDivs[2].classList.add("not-clickable-div");
+}
+
+
+
   // Set the first clickable div as the initial selected div
   clickableDivs[0].style.border = o;
 
@@ -1164,7 +1174,7 @@ function openTileDialog(tile) {
     }
   }
   
-  // Create the "Save changes" button
+  // Save changes
   const saveButton = document.createElement("button");
   saveButton.textContent = "Save changes";
   dialogBox.appendChild(saveButton);
@@ -1182,8 +1192,7 @@ function openTileDialog(tile) {
   
     // Replace the original tile with the modified tile
     tile.parentNode.replaceChild(modifiedTile, tile);
-  
-    // Close the dialog
+
     closeTileDialog();
   });
   
