@@ -315,52 +315,6 @@ function searchAndSelectCell() {
 }
 
 //------------------------------------------------------------------------------------------
-// gets the Tile Data (8x8)
-/*
-function getTileData(startAddress, isOneBPP) {
-  var tdElements = document.querySelectorAll('td');
-  var startIndex = Array.from(tdElements).findIndex(td => td.id === startAddress);
-  var endIndex = startIndex + (isOneBPP ? 8 : 16);
-  var hexValues = Array.from(tdElements).slice(startIndex, endIndex).map(td => td.textContent);
-  var binaryValue = hexValues.map(hexValue => parseInt(hexValue, 16).toString(2).padStart(8, '0')).join('');
-
-  // Populate the tileTable
-  var table = document.getElementById('tileTable');
-  var rows = table.getElementsByTagName('tr');
-
-  for (var i = 0; i < 8; i++) {
-    var cells = rows[i].getElementsByTagName('td');
-    for (var j = 0; j < 8; j++) {
-      var cellValue = binaryValue[i * 8 + j];
-      cells[j].classList.remove('col0', 'col1', 'col2', 'col3');
-      if (cellValue === '0') {
-        cells[j].classList.add('col0');
-      } else if (cellValue === '1') {
-        cells[j].classList.add('col1');
-      } else if (cellValue === '2') {
-        cells[j].classList.add('col2');
-      } else if (cellValue === '3') {
-        cells[j].classList.add('col3');
-      }
-    }
-  }
-}*/
-
-//------------------------------------------------------------------------------------------
-// Tile Editor
-// Make the colors selectable
-const tileColorTds = document.querySelectorAll('#tileColors td');
-
-  tileColorTds.forEach(td => {
-  td.addEventListener('click', () => {
-    tileColorTds.forEach(td => {
-      td.classList.remove('chosen');
-    });
-    td.classList.add('chosen');
-  });
-});
-
-//------------------------------------------------------------------------------------------
 // Checksums
 function updateChecksums(updateInRom) {
   let headerChecksum = 0;
@@ -993,7 +947,6 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
   displayTiles(pixelData, addresses, bitsPerPixel);
 }
 
-
 function displayTiles(pixelValues, tileAddress, bitsPerPixel) {
   const container = document.getElementById("tileContainer");
 
@@ -1199,44 +1152,8 @@ function openTileDialog(tile) {
       div.classList.remove("big");
     });
 
-
     // Extract the bitsPerPixels value from the data-bpp attribute of the tile div
     const bitsPerPixels = parseInt(tile.getAttribute("data-bpp"));
-/*
-    // Initialize the binVals array
-    const binVals = [];
-    const binVals2 = [];
-    const hexVals = [];
-    const hexVals2 = [];
-
-    // Get the class names starting with "col" from the modified pixel divs
-    Array.from(modifiedPixelDivs).forEach((div) => {
-      const classNames = Array.from(div.classList);
-      const colClass = classNames.find((className) => className.startsWith("col"));
-      if (colClass) {
-        let colNumber = colClass.slice(3);
-        if (bitsPerPixels === 1) {
-          colNumber /= 3;
-          // Add the colNumber to binVals
-          binVals.push(colNumber);
-        } else {
-          // Convert colNumber to a 2-digit binary value
-          const binaryValue = colNumber.toString(2).padStart(2, "0");
-          binVals.push(binaryValue[0]);
-          binVals2.push(binaryValue[1]);
-        }
-
-        // Check if binVals has 8 values
-        if (binVals.length === 8) {
-          // Join 8 values and make them a hex value
-          const joinedValues = binVals.join("");
-          const hexValue = parseInt(joinedValues, 2).toString(16).padStart(2, "0").toUpperCase();
-          hexVals.push(hexValue);
-          binVals.length = 0;
-        }
-        
-      }
-    });*/
 
     // Initialize the binVals array
     const binVals = [];
@@ -1293,40 +1210,35 @@ function openTileDialog(tile) {
       hexVals.splice(0, hexVals.length, ...combinedHexVals);
 
     }
+
+    // Replace the original tile with the modified tile
+    tile.parentNode.replaceChild(modifiedTile, tile);
+
+    closeTileDialog();
     
-    // Push the values to the ROM :)
+    // replace the values in the ROM
+    startAddress = tile.id;
+    let currentAddress = startAddress;
+    
+    for (let i = 0; i < hexVals.length; i++) {
+      let cellId = currentAddress.toUpperCase();
+      let cell = document.querySelector(`td.hexValueCell[id="${cellId}"]`);
+    
+      if (cell) {
+        cell.textContent = hexVals[i];
+      }
+    
+      // Increment currentAddress to the next higher hexadecimal value
+      let currentNumber = parseInt(currentAddress, 16);
+      currentNumber++;
+      currentAddress = currentNumber.toString(16).toUpperCase().padStart(4, '0');
+    }
+    
+    
+    scrollToAddress(startAddress);
 
-
-    // Replace the original tile with the modified tile
-    tile.parentNode.replaceChild(modifiedTile, tile);
-
-    closeTileDialog();
-    addToLog("Tile starting at address $" + tile.id + " was overwritten");
+    addToLog("Tile starting at address $" + startAddress + " was overwritten");
   });
-
-/*  // Save changes
-  const saveButton = document.createElement("button");
-  saveButton.textContent = "Save changes";
-  dialogBox.appendChild(saveButton);
-  saveButton.style.marginRight = "10px";
-  saveButton.style.marginTop = "10px";
-  saveButton.addEventListener("click", function () {
-    // Get the modified tile from the dialog box
-    const modifiedTile = dialogBox.querySelector(".tile-editor-text + div");
-  
-    // Remove the "big" class from the pixel divs of the modified tile
-    const modifiedPixelDivs = modifiedTile.getElementsByClassName("pixel");
-    Array.from(modifiedPixelDivs).forEach((div) => {
-      div.classList.remove("big");
-    });
-  
-    // Replace the original tile with the modified tile
-    tile.parentNode.replaceChild(modifiedTile, tile);
-
-    closeTileDialog();
-    addToLog("Tile starting at address $" + tile.id + " was overwritten");
-  });*/
-  
 
   // Create the "Discard changes" button
   const discardButton = document.createElement("button");
@@ -1346,7 +1258,6 @@ function openTileDialog(tile) {
   }
   
 }
-
 
 function updateColor(selector, color, colorPicker) {
   colorPicker.setAttribute('value', color);
