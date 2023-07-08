@@ -1202,11 +1202,12 @@ function openTileDialog(tile) {
 
     // Extract the bitsPerPixels value from the data-bpp attribute of the tile div
     const bitsPerPixels = parseInt(tile.getAttribute("data-bpp"));
-
+/*
     // Initialize the binVals array
     const binVals = [];
     const binVals2 = [];
     const hexVals = [];
+    const hexVals2 = [];
 
     // Get the class names starting with "col" from the modified pixel divs
     Array.from(modifiedPixelDivs).forEach((div) => {
@@ -1216,10 +1217,14 @@ function openTileDialog(tile) {
         let colNumber = colClass.slice(3);
         if (bitsPerPixels === 1) {
           colNumber /= 3;
+          // Add the colNumber to binVals
+          binVals.push(colNumber);
+        } else {
+          // Convert colNumber to a 2-digit binary value
+          const binaryValue = colNumber.toString(2).padStart(2, "0");
+          binVals.push(binaryValue[0]);
+          binVals2.push(binaryValue[1]);
         }
-
-        // Add the colNumber to binVals
-        binVals.push(colNumber);
 
         // Check if binVals has 8 values
         if (binVals.length === 8) {
@@ -1229,11 +1234,67 @@ function openTileDialog(tile) {
           hexVals.push(hexValue);
           binVals.length = 0;
         }
+        
+      }
+    });*/
+
+    // Initialize the binVals array
+    const binVals = [];
+    const binVals2 = [];
+    const hexVals = [];
+    const hexVals2 = [];
+
+    // Get the class names starting with "col" from the modified pixel divs
+    Array.from(modifiedPixelDivs).forEach((div) => {
+      const classNames = Array.from(div.classList);
+      const colClass = classNames.find((className) => className.startsWith("col"));
+      if (colClass) {
+        let colNumber = colClass.slice(3);
+        if (bitsPerPixels === 1) {
+          colNumber /= 3;
+          // Add the colNumber to binVals
+          binVals.push(colNumber);
+        } else {
+          // Convert colNumber to a 2-digit binary value
+          const binaryValue = parseInt(colNumber).toString(2).padStart(2, "0");
+          binVals.push(binaryValue[0]);
+          binVals2.push(binaryValue[1]);
+          //console.log(binVals2);
+        }
+
+        // Check if binVals has 8 values
+        if (binVals.length === 8) {
+          // Join 8 values and make them a hex value
+          const joinedValues = binVals.join("");
+          const hexValue = parseInt(joinedValues, 2).toString(16).padStart(2, "0").toUpperCase();
+          hexVals.push(hexValue);
+          binVals.length = 0;
+        }
+
+        // Check if binVals2 has 8 values
+        if (binVals2.length === 8) {
+          // Join 8 values and make them a hex value
+          const joinedValues2 = binVals2.join("");
+          const hexValue2 = parseInt(joinedValues2, 2).toString(16).padStart(2, "0").toUpperCase();
+          hexVals2.push(hexValue2);
+          binVals2.length = 0;
+        }
       }
     });
 
-    console.log(hexVals);
+    if (bitsPerPixels === 2) {
+      const combinedHexVals = [];
+    
+      for (let i = 0; i < hexVals.length; i++) {
+        combinedHexVals.push(hexVals2[i]);
+        combinedHexVals.push(hexVals[i]);
+      }
+    
+      hexVals.splice(0, hexVals.length, ...combinedHexVals);
 
+    }
+    
+    // Push the values to the ROM :)
 
 
     // Replace the original tile with the modified tile
