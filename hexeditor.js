@@ -1192,6 +1192,66 @@ function openTileDialog(tile) {
   saveButton.addEventListener("click", function () {
     // Get the modified tile from the dialog box
     const modifiedTile = dialogBox.querySelector(".tile-editor-text + div");
+
+    // Remove the "big" class from the pixel divs of the modified tile
+    const modifiedPixelDivs = modifiedTile.getElementsByClassName("pixel");
+    Array.from(modifiedPixelDivs).forEach((div) => {
+      div.classList.remove("big");
+    });
+
+
+    // Extract the bitsPerPixels value from the data-bpp attribute of the tile div
+    const bitsPerPixels = parseInt(tile.getAttribute("data-bpp"));
+
+    // Initialize the binVals array
+    const binVals = [];
+    const binVals2 = [];
+    const hexVals = [];
+
+    // Get the class names starting with "col" from the modified pixel divs
+    Array.from(modifiedPixelDivs).forEach((div) => {
+      const classNames = Array.from(div.classList);
+      const colClass = classNames.find((className) => className.startsWith("col"));
+      if (colClass) {
+        let colNumber = colClass.slice(3);
+        if (bitsPerPixels === 1) {
+          colNumber /= 3;
+        }
+
+        // Add the colNumber to binVals
+        binVals.push(colNumber);
+
+        // Check if binVals has 8 values
+        if (binVals.length === 8) {
+          // Join 8 values and make them a hex value
+          const joinedValues = binVals.join("");
+          const hexValue = parseInt(joinedValues, 2).toString(16).padStart(2, "0").toUpperCase();
+          hexVals.push(hexValue);
+          binVals.length = 0;
+        }
+      }
+    });
+
+    console.log(hexVals);
+
+
+
+    // Replace the original tile with the modified tile
+    tile.parentNode.replaceChild(modifiedTile, tile);
+
+    closeTileDialog();
+    addToLog("Tile starting at address $" + tile.id + " was overwritten");
+  });
+
+/*  // Save changes
+  const saveButton = document.createElement("button");
+  saveButton.textContent = "Save changes";
+  dialogBox.appendChild(saveButton);
+  saveButton.style.marginRight = "10px";
+  saveButton.style.marginTop = "10px";
+  saveButton.addEventListener("click", function () {
+    // Get the modified tile from the dialog box
+    const modifiedTile = dialogBox.querySelector(".tile-editor-text + div");
   
     // Remove the "big" class from the pixel divs of the modified tile
     const modifiedPixelDivs = modifiedTile.getElementsByClassName("pixel");
@@ -1204,7 +1264,7 @@ function openTileDialog(tile) {
 
     closeTileDialog();
     addToLog("Tile starting at address $" + tile.id + " was overwritten");
-  });
+  });*/
   
 
   // Create the "Discard changes" button
