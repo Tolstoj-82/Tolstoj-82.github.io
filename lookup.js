@@ -308,11 +308,12 @@ const tileAddressesInROM = {
   "Start Screen": ["4297", 119, 2]
 };
 
-/*const vRamTileSets = {
-  "Start",
-  "Play",
-  "Celebration"
-}*/
+// this contains the vRam Tile sets that can be loaded, there are 3 of them
+const vRamTileSets = {
+  "Start-Set": [tileAddressesInROM["ABC"], tileAddressesInROM["Start Screen"]],
+  "Game Play-Set": [tileAddressesInROM["ABC"], tileAddressesInROM["Game Play"]],
+  "Celebration-Set": [tileAddressesInROM["Celebration"]]
+};
 
 // COLOR PALETTES
 // this was taken from here: https://bulbapedia.bulbagarden.net/wiki/Color_palette_(Generations_I%E2%80%93II)

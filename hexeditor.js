@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
   e_applyCode.setAttribute("title", disabledButtonText);
 
   // create the background map outline
-  document.getElementById(currentMino).click();
+  //document.getElementById(currentMino).click();
   addMatrix();
 
   // populate the dropdown with the BM map addresses
@@ -819,6 +819,9 @@ function getBGMap(id) {
     imageElements[i].setAttribute("src", "images/green/" + newFileName);
   }
   
+  // Call the function to load tile content into VRAM grid
+  loadTileContentToVRAMGrid();
+
   document.getElementById("BGMapStartAddress").value = id;
   
 }

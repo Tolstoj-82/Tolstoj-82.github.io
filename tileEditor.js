@@ -71,7 +71,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
     for (let t = 0; t < tileCount; t++) {
       const tile = document.createElement("div");
       tile.className = "tile";
-      tile.id = tileAddress[t];
+      tile.id = "tileaddr-" + tileAddress[t];
       tile.setAttribute("data-BPP", bitsPerPixel);    
   
       for (let row = 0; row < 8; row++) {
@@ -146,8 +146,6 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
     const clonedTile = tile.cloneNode(true);
     clonedTile.style.border = b;
     dialogBox.appendChild(clonedTile);
-    /*dialogBox.appendChild(clonedTile);
-    dialogBox.appendChild(clonedTile);*/
   
     // Create container for the color selector
     const divContainer = document.createElement("div");
