@@ -1,12 +1,12 @@
 //------------------------------------------------------------------------------------------
 // get the pixel values from tiles in the ROM (0-3)
-function getTileData(startAddress, nTiles, bitsPerPixel) {
+function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
     const pixelData = [];
     const addresses = [];
     let currentAddress = startAddress;
   
     const tileContainer = document.getElementById("tileContainer");
-    tileContainer.innerHTML += "<p>ROM Tile Region (Entry Address = $" + startAddress + ", " + bitsPerPixel + "BPP)<br></p>";
+    tileContainer.innerHTML += "<p>" + tilesetTitle + " (ROM Entry Address = $" + startAddress + ", " + nTiles + " Tiles, " + bitsPerPixel + "BPP)<br></p>";
   
     for (let i = 0; i < nTiles * 8 * bitsPerPixel; i++) {
       if (bitsPerPixel === 2 && i % 2 === 1) {
@@ -146,6 +146,8 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
     const clonedTile = tile.cloneNode(true);
     clonedTile.style.border = b;
     dialogBox.appendChild(clonedTile);
+    /*dialogBox.appendChild(clonedTile);
+    dialogBox.appendChild(clonedTile);*/
   
     // Create container for the color selector
     const divContainer = document.createElement("div");
@@ -189,7 +191,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel) {
   
     // Check if clonedTile has data-BPP equal to 1
     if (clonedTile.getAttribute("data-BPP") === "1") {
-      // Make clickableDivs 1 and 2 not clickable (1BPP)
+      // Disable Colors 2 and 3 (1BPP)
       clickableDivs[1].classList.add("not-clickable-div");
       clickableDivs[2].classList.add("not-clickable-div");
     }

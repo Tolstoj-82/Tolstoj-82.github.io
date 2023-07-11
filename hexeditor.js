@@ -208,34 +208,34 @@ document.addEventListener('DOMContentLoaded', function() {
 // (3) FUNCTIONS
 //**************************************************************************************/
 
-  // save the bg map and close the modal
-  function saveBGMap() {
-    var olElement = document.getElementById("selectable");
-    var imgElements = olElement.querySelectorAll("li img");
-    var startAddress = document.getElementById("BGMapStartAddress").value;
-  
-    var currentAddress = parseInt(startAddress, 16);
-  
-    imgElements.forEach(function(imgElement) {
-      var src = imgElement.getAttribute("src");
-      var imageName = src.split("/").pop().split(".")[0];
-  
-      // Convert the current address to a 4-digit hex value
-      var hexAddress = currentAddress.toString(16).toUpperCase().padStart(4, '0');
-  
-      var td = document.getElementById(hexAddress);
-      td.textContent = imageName;
-  
-      // Increment the current address
-      currentAddress++;
-    });
-  
-    document.getElementById("BG-myModal").style.display = "none";
-    scrollToAddress(startAddress);
-    document.getElementById("createFileBtn").removeAttribute("disabled");
-    addToLog("*Background map starting at address $" + startAddress + " overwritten.");
+// save the bg map and close the modal
+function saveBGMap() {
+  var olElement = document.getElementById("selectable");
+  var imgElements = olElement.querySelectorAll("li img");
+  var startAddress = document.getElementById("BGMapStartAddress").value;
 
-  }
+  var currentAddress = parseInt(startAddress, 16);
+
+  imgElements.forEach(function(imgElement) {
+    var src = imgElement.getAttribute("src");
+    var imageName = src.split("/").pop().split(".")[0];
+
+    // Convert the current address to a 4-digit hex value
+    var hexAddress = currentAddress.toString(16).toUpperCase().padStart(4, '0');
+
+    var td = document.getElementById(hexAddress);
+    td.textContent = imageName;
+
+    // Increment the current address
+    currentAddress++;
+  });
+
+  document.getElementById("BG-myModal").style.display = "none";
+  scrollToAddress(startAddress);
+  document.getElementById("createFileBtn").removeAttribute("disabled");
+  addToLog("*Background map starting at address $" + startAddress + " overwritten.");
+
+}
   
 //------------------------------------------------------------------------------------------
 // close the bg map modal without saving
@@ -623,24 +623,26 @@ function validateFile(event) {
     setTimeout(function() {
       openModalButton.click();
       
-      pixelData = pixelData.concat(getTileData("415F", 39, 1));
-      pixelData = pixelData.concat(getTileData("323F", 197, 2));
-      pixelData = pixelData.concat(getTileData("55AC", 207, 2));
-      pixelData = pixelData.concat(getTileData("4297", 119, 2));
+      // load tile data from the lookup table  
+      let pixelData = [];
+      for (const setName in tileAddressesInROM) {
+        const [address, length, bPP] = tileAddressesInROM[setName];
+        pixelData = pixelData.concat(getTileData(address, length, bPP, setName));
+      }
 
     }, 1000);
 
   }
 
-    // Loading animation
-    function showLoadingAnimation() {
-      document.getElementById("loadingAnimation").style.display = "block";
-      document.getElementById("wrapper2").style.display = "none";
-    }
-  
-    function hideLoadingAnimation() {
-      document.getElementById("loadingAnimation").style.display = "none";
-    }
+  // Loading animation
+  function showLoadingAnimation() {
+    document.getElementById("loadingAnimation").style.display = "block";
+    document.getElementById("wrapper2").style.display = "none";
+  }
+
+  function hideLoadingAnimation() {
+    document.getElementById("loadingAnimation").style.display = "none";
+  }
 
   //------------------------------------------------------------------------------------------
   // Scrolls to and highlights an address

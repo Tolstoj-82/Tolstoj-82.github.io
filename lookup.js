@@ -280,6 +280,7 @@ const oldLicenseeCode = {
   "FF": "LJN"
 };
 
+// background maps
 const bgMapAddress = {
   "Copyright Screen": "4A07",
   "Title Screen": "4B6F",
@@ -299,8 +300,23 @@ const bgMapAddress = {
   "Buran Shuttle": "1429"
 };
 
+// Tile Addresses in ROM (Start address, #Tiles, #BPP)
+const tileAddressesInROM = {
+  "ABC": ["415F", 39, 1],
+  "Game Play": ["323F", 197, 2],
+  "Celebration": ["55AC", 207, 2],
+  "Start Screen": ["4297", 119, 2]
+};
+
+/*const vRamTileSets = {
+  "Start",
+  "Play",
+  "Celebration"
+}*/
+
 // COLOR PALETTES
 // this was taken from here: https://bulbapedia.bulbagarden.net/wiki/Color_palette_(Generations_I%E2%80%93II)
+// at the moment, it only shows the background colors
 const paletteLookup = {
   "MGB-001": ["F8F8F8", "A8A8A8", "585858", "080808"],
   "DMG-01": ["B8F878", "80B050", "486828", "102000"],
