@@ -22,7 +22,6 @@
 // * add a RAM map (https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):RAM_map)
 // * check out how difficult it is to work with ROMs that require ROM bank switching
 //    * maybe the banks are at fixed positions - then it shouldn't be a problem
-// * identify the tiles and make them editable
 // 
 // Tasks for the distant future (maybe?):
 // -------------------------------------

@@ -136,3 +136,7 @@ $( function(){
         }
     });  
 });
+
+function loadVRAM(){
+    alert "YO!";
+}
