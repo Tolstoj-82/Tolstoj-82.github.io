@@ -79,22 +79,32 @@
     cursor: pointer;
 }
 
-.BG-cell, .BG-playfieldcell {
-    width: 32px;
-    height: 32px;
-    border: 2px solid #999;
-    background-size: cover;
-    box-sizing: border-box;
+.BG-cell,
+.BG-playfieldcell {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #999;
+  background-size: cover;
+  box-sizing: border-box;
 }
 
-.selected {
+.BG-cell.no-tile {
+  cursor: not-allowed;
+}
+
+.BG-cell.no-tile:hover {
+  border-color: #999;
+}
+
+.selected:not(.no-tile) {
   border: 2px solid rgb(255, 157, 0);
   box-sizing: border-box;
 }
 
-.BG-cell:hover {
-    border: 2px solid rgb(0, 255, 17);
+.BG-cell:not(.no-tile):hover {
+  border-color: rgb(0, 255, 17);
 }
+
 
 /* BG Map */
   li img{

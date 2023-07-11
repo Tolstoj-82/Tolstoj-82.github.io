@@ -109,6 +109,8 @@ function loadTileContentToVRAMGrid() {
         if (tileDiv) {
             console.log(hexId);
             cell.innerHTML = tileDiv.innerHTML;
+        } else {
+            cell.classList.add("no-tile"); // Add the "no-tile" class to cells without tile content
         }
 
         cell.onclick = function() {
@@ -122,6 +124,8 @@ function loadTileContentToVRAMGrid() {
         vramGrid.appendChild(cell);
     }
 }
+
+
 
 
 // Given the user selection, add minos to the playfield
