@@ -68,64 +68,34 @@ function updateCurrentConfiguration() {
 }
 
 // create the playfield
-function addMatrix(){
-    ol = document.getElementById("selectable");
-    rows = 18;
-    cols = 20;
-    currentRow = 1;
-    currentCol = 0;
- 
-    for(i=1; i<=(rows*cols); i++){
-        li = document.createElement("li");
-        let img = document.createElement("img");
+function addMatrix(cols, rows) {
+    // Deconstruct the existing matrix
+    const ol = document.getElementById("selectable");
+    while (ol.firstChild) {
+        ol.removeChild(ol.firstChild);
+    }
+
+    // Set the width and height dynamically
+    const width = cols * 32;
+    const height = rows * 32;
+    ol.style.width = `${width}px`;
+    ol.style.height = `${height}px`;
+
+    // Create the new matrix
+    //let currentRow = 1;
+    //let currentCol = 0;
+
+    for (let i = 1; i <= rows * cols; i++) {
+        const li = document.createElement("li");
+        const img = document.createElement("img");
         img.src = "images/green/" + emptyMino.toUpperCase() + ".png";
         li.appendChild(img);
         li.classList.add("BG-stack");
         ol.appendChild(li);
-        
-        currentCol++;
-    }
-    updateCurrentConfiguration();
-}
 
-function loadTileContentToVRAMGrid() {
-    // Clear existing cells in the VRAM grid
-    const vramGrid = document.querySelector(".BG-vramgrid");
-    vramGrid.innerHTML = "";
-
-    // VRAM Grid (right)
-    for (let i = 0; i < 256; i++) {
-        let hexId = i.toString(16).padStart(2, "0").toUpperCase();
-        let cell = document.createElement("div");
-        cell.classList.add("BG-cell");
-        if (i >= 128 && i <= 135) {
-            cell.classList.add("standard");
-        }
-        cell.id = hexId;
-        cell.textContent = hexId; // Set the text content to hexId
-
-        // Load content from tile divs with data-vram
-        let tileDiv = document.querySelector(`.tile[data-vram="${hexId}"]`);
-        if (tileDiv) {
-            console.log(hexId);
-            cell.innerHTML = tileDiv.innerHTML;
-        } else {
-            cell.classList.add("no-tile"); // Add the "no-tile" class to cells without tile content
-        }
-
-        cell.onclick = function() {
-            document.querySelectorAll(".BG-cell").forEach(function(c) {
-                c.classList.remove("selected");
-            });
-            this.classList.add("selected");
-            currentMino = this.id;
-            document.getElementById("BG-vramgrid").style.borderColor = "rgb(158, 210, 144)";
-        };
-        vramGrid.appendChild(cell);
+        //currentCol++;
     }
 }
-
-
 
 
 // Given the user selection, add minos to the playfield
@@ -155,6 +125,46 @@ $( function(){
         }
     });  
 });
+
+// Collects the tiles, that go to the VRAM Grid
+// These were assigned the data attribute "data-vram"
+// containing the index 0-255 in the vram tile set
+function loadTileContentToVRAMGrid() {
+    // Clear existing cells in the VRAM grid
+    const vramGrid = document.querySelector(".BG-vramgrid");
+    vramGrid.innerHTML = "";
+
+    // VRAM Grid (right)
+    for (let i = 0; i < 256; i++) {
+        let hexId = i.toString(16).padStart(2, "0").toUpperCase();
+        let cell = document.createElement("div");
+        cell.classList.add("BG-cell");
+        if (i >= 128 && i <= 135) {
+            cell.classList.add("standard");
+        }
+        cell.id = hexId;
+        cell.textContent = hexId; // Set the text content to hexId
+
+        // Load content from tile divs with data-vram
+        let tileDiv = document.querySelector(`.tile[data-vram="${hexId}"]`);
+        if (tileDiv) {
+            cell.innerHTML = tileDiv.innerHTML;
+        } else {
+            cell.classList.add("no-tile"); // Add the "no-tile" class to cells without tile content
+        }
+
+        cell.onclick = function() {
+            document.querySelectorAll(".BG-cell").forEach(function(c) {
+                c.classList.remove("selected");
+            });
+            this.classList.add("selected");
+            currentMino = this.id;
+            //alert(currentMino);
+            document.getElementById("BG-vramgrid").style.borderColor = "rgb(158, 210, 144)";
+        };
+        vramGrid.appendChild(cell);
+    }
+}
 
 // loads a VRAM Tile Set
 // assigns data-vram attribute to the tile divs starting at 1 (max 256 tiles!)
@@ -187,7 +197,4 @@ function assignVramTileSet(setToLoad) {
       }
       vramIndex += nTiles;
     });
-  }
-  
-  
-  
+}

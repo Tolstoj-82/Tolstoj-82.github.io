@@ -18,6 +18,7 @@
 // --------------------
 // * make the header data editable
 // * maybe make some tweaks easier
+// * multiple tiles editor (sprite editor)
 // * add a ROM map (https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):ROM_map)
 // * add a RAM map (https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):RAM_map)
 // * check out how difficult it is to work with ROMs that require ROM bank switching
@@ -62,17 +63,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // create the background map outline
   //document.getElementById(currentMino).click();
-  addMatrix();
+  //addMatrix();
 
   // populate the dropdown with the BM map addresses
   const selectElement = document.getElementById("BGMapSelector");
 
-  for (const key in bgMapAddress) {
+  for (const key in bgMaps) {
     const option = document.createElement("option");
-    option.value = bgMapAddress[key];
+    option.value = bgMaps[key][0];
     option.text = key;
     selectElement.appendChild(option);
   }
+  
 
   // piece orientation (N,E,S,W)
   const selectElements = {
@@ -803,9 +805,15 @@ function obtainHeaderData() {
 
 //------------------------------------------------------------------------------------------
 // this woks, but now we need to make sure, the correct VRAM is loaded
-function getBGMap(id) {
+function getBGMap(id, bgMap) {
+  
+  assignVramTileSet(vRamTileSets[bgMaps[bgMap][3]]);
+
+  loadTileContentToVRAMGrid();
+
+  addMatrix(bgMaps[bgMap][1], bgMaps[bgMap][2]);
+
   const startIndex = parseInt(id, 16);
-  const endIndex = startIndex + 359;
 
   document.getElementById("BG-myModal").style.display = "flex";
 
@@ -823,8 +831,8 @@ function getBGMap(id) {
   loadTileContentToVRAMGrid();
 
   document.getElementById("BGMapStartAddress").value = id;
-  
 }
+
 
 //------------------------------------------------------------------------------------------
 // tab group

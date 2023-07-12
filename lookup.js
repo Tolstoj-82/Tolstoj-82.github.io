@@ -281,23 +281,24 @@ const oldLicenseeCode = {
 };
 
 // background maps
-const bgMapAddress = {
-  "Copyright Screen": "4A07",
-  "Title Screen": "4B6F",
-  "Music Type": "4CD7",
-  "A-Type Select": "4E3F",
-  "B-Type Select": "4FA7",
-  "A-Playfield": "3E8F",
-  "B-Playfield": "3FF7",
-  "Mario & Luigi": "5214",
-  "2P-Playfield": "537C",
-  "Mario Luigi Score": "5534",
-  "Rocket": "1430",
-  "Celebration": "510F",
-  "Score Counter": "2889",
-  "Pause": "2839",
-  "Game Over": "2976",
-  "Buran Shuttle": "1429"
+// name: start address, width, height, vram tile set
+const bgMaps = {
+  "Copyright Screen": ["4A07", 20, 18, "Start-Set"],
+  "Title Screen": ["4B6F", 20, 18, "Start-Set"],
+  "Music Type": ["4CD7", 20, 18, "Game Play-Set"],
+  "A-Type Select": ["4E3F", 20, 18, "Game Play-Set"],
+  "B-Type Select": ["4FA7", 20, 18, "Game Play-Set"],
+  "A-Playfield": ["3E8F", 20, 18, "Game Play-Set"],
+  "B-Playfield": ["3FF7", 20, 18, "Game Play-Set"],
+  "Mario & Luigi": ["5214", 20, 18, "Game Play-Set"],
+  "2P-Playfield": ["537C", 20, 18, "Game Play-Set"],
+  "Mario Luigi Score": ["5534", 20, 18, "Celebration-Set"],
+  "Rocket": ["1430", 20, 18, "Celebration-Set"],
+  "Celebration": ["510F", 10, 18, "Start-Set"],
+  "Score Counter": ["2889", 10, 18, "Game Play-Set"],
+  "Pause": ["2839", 8, 10, "Game Play-Set"],
+  "Game Over": ["2976", 8, 6, "Game Play-Set"],
+  "Buran Shuttle": ["1429", 20, 18, "Celebration-Set"]
 };
 
 // Tile Addresses in ROM (Start address, #Tiles, #BPP)
