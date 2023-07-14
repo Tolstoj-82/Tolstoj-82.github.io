@@ -211,6 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // save the bg map and close the modal
 function saveBGMap() {
+
   var olElement = document.getElementById("selectable");
   var imgElements = olElement.querySelectorAll("li img");
   var startAddress = document.getElementById("BGMapStartAddress").value;
@@ -239,7 +240,7 @@ function saveBGMap() {
   var selectElement = document.getElementById("BGMapSelector");
   var bgMapName = selectElement.options[selectElement.selectedIndex].text;
 
-  addToLog("*Background map \"" + bgMapName + "\" overwritten.");
+  addToLog("Background map \"" + bgMapName + "\" overwritten.");
 
 }
   
@@ -253,7 +254,7 @@ function saveBGMap() {
 // Adds text to the Log
 function addToLog(logText){
   const log = document.getElementById("log");
-  log.value = logText + " (" + formattedTime() + ")\n" + log.value;
+  log.value = "*" + logText + " (" + formattedTime() + ")\n" + log.value;
   enableDownload();
   updateChecksums(true);
 }
@@ -608,7 +609,7 @@ function validateFile(event) {
           // Check if the value has changed
           if (previousValue && previousValue.toLowerCase() !== value.toLowerCase()) {
             cell.classList.add('edited');
-            addToLog("Address $" + cell.id + " | " + previousValue + " > " + value + " (" + formattedTime() + "), manually altered");
+            addToLog("Address $" + cell.id + " | " + previousValue + " > " + value + ", manually altered");
           } else {
             cell.classList.remove('edited');
           }
@@ -633,7 +634,9 @@ function validateFile(event) {
       let pixelData = [];
       for (const setName in tileAddressesInROM) {
         const [address, length, bPP] = tileAddressesInROM[setName];
-        pixelData = pixelData.concat(getTileData(address, length, bPP, setName));
+
+        // this is an ugly solution!
+        if(!(setName == "Partial")) pixelData = pixelData.concat(getTileData(address, length, bPP, setName));
       }
 
     }, 1000);

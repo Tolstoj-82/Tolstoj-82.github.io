@@ -93,6 +93,7 @@
           <b>Log (newest on top)</b><br>
           <textarea id="log" readonly></textarea>
         </p>
+        <p>2023 Tolstoj (Hextris-Editor v0.9 beta)</p>
         
         <button id="openModalButton">&larr;</button>      
 
@@ -459,14 +460,16 @@
             
                 <div id="tab3" class="tab-content" style="display: none;">
                   <h2>Edit individual tiles</h2>
-                  <p class="color-scheme-container">
-                    <b>Color scheme</b>
-                    <select id="palette-dropdown"></select>
-                    <input type="color" id="color-picker-0" class="color-picker" value="#ffffff" onchange="updateColor('.col0', this.value, this);" style="margin-right: 10px;">
-                    <input type="color" id="color-picker-1" class="color-picker" value="#d3d3d3" onchange="updateColor('.col1', this.value, this);" style="margin-right: 10px;">
-                    <input type="color" id="color-picker-2" class="color-picker" value="#a9a9a9" onchange="updateColor('.col2', this.value, this);" style="margin-right: 10px;">
-                    <input type="color" id="color-picker-3" class="color-picker" value="#000000" onchange="updateColor('.col3', this.value, this);">
-                  </p>
+                  <div class="color-scheme-picker">
+                    <p class="color-scheme-container">
+                      <b>Color scheme</b>
+                      <select id="palette-dropdown"></select>
+                      <input type="color" id="color-picker-0" class="color-picker" value="#ffffff" onchange="updateColor('.col0', this.value, this);" style="margin-right: 10px;">
+                      <input type="color" id="color-picker-1" class="color-picker" value="#d3d3d3" onchange="updateColor('.col1', this.value, this);" style="margin-right: 10px;">
+                      <input type="color" id="color-picker-2" class="color-picker" value="#a9a9a9" onchange="updateColor('.col2', this.value, this);" style="margin-right: 10px;">
+                      <input type="color" id="color-picker-3" class="color-picker" value="#000000" onchange="updateColor('.col3', this.value, this);">
+                    </p>
+                  </div>
                   <p>
                     <div id="tileContainer"></div>
                   </p>
@@ -480,8 +483,7 @@
         </div>
       </div>
 
-      <!-- Background Map Editor (Modal) -->
-      
+      <!-- Background Map Editor (Modal) -->  
       <div id="BG-myModal" class="BG-modal">
         <div class="BG-modal-content">   
           <div class="BG-center-container">
@@ -501,7 +503,6 @@
         </div>
       </div>
     
-      
       <!-- TOAST MESSAGES -->
       <div class="toast green" id="hexValueChanged">A value has been altered!</div>
       <div class="toast red" id="wrongAddress">The address you provided does not exist in this ROM data.</div>

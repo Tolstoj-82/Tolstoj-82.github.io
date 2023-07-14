@@ -10,7 +10,6 @@
 
 // global variables defines initial mino and empty mino
 var currentMino = "87";
-let emptyMino = "2F";
  
 
 /*******************************************************************************
@@ -81,13 +80,13 @@ $( function(){
     $("#selectable").selectable({
         stop: function(){
             var mino = "mino";
-            var remove = false;
+            //var remove = false;
             $(".ui-selected", this).each(function(i, el){
-                if(i === 0 && this.classList.contains("mino")) remove = true;
+                //if(i === 0 && this.classList.contains("mino")) remove = true;
                     
                 // fill with the current selection
-                if(currentMino.toUpperCase() == emptyMino) this.classList.remove(mino);
-                else this.classList.add(mino);
+                //if(currentMino.toUpperCase() == emptyMino) this.classList.remove(mino);
+                /*else this.classList.add(mino);*/
                 $(el).find('img')
                 .attr('src', localStorage.getItem("tileImage-" + currentMino.toUpperCase()))
                 .attr('data-tile-ID', currentMino.toUpperCase());

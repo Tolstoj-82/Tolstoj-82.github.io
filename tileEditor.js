@@ -331,7 +331,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
       closeTileDialog();
       
       // replace the values in the ROM
-      startAddress = tile.id;
+      startAddress = tile.id.replace("tileaddr-","");
       let currentAddress = startAddress;
       
       for (let i = 0; i < hexVals.length; i++) {
