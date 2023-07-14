@@ -17,6 +17,7 @@ let emptyMino = "2F";
  (2) EVENT LISTENERS
 *******************************************************************************/
 
+/*
 // Track Key presses
 document.addEventListener("keydown", function(event) {
     
@@ -46,34 +47,18 @@ document.addEventListener("keydown", function(event) {
         currentMino = cell.id;
     }
 });
+*/
 
 /*******************************************************************************
  (2) FUNCTIONS
 *******************************************************************************/
 
-// add the mino list to the textarea
-function updateCurrentConfiguration() {
-    let garbage = "";
-    
-    // get the garbage
-    let stackCells = document.querySelectorAll(".BG-stack");
-    stackCells.forEach(function(cell) {
-        let cellImage = cell.querySelector("img").src;
-        let startIndex = cellImage.indexOf("green/") + 6;
-        let endIndex = cellImage.indexOf(".png");
-        let newGarbage = cellImage.substring(startIndex, endIndex).toUpperCase();
-        garbage += newGarbage;
-    });
-    
-}
-
-// create the playfield
+// create the background map
 function addMatrix(cols, rows) {
+
     // Deconstruct the existing matrix
     const ol = document.getElementById("selectable");
-    while (ol.firstChild) {
-        ol.removeChild(ol.firstChild);
-    }
+    while (ol.firstChild) ol.removeChild(ol.firstChild);
 
     // Set the width and height dynamically
     const width = cols * 32;
@@ -81,24 +66,17 @@ function addMatrix(cols, rows) {
     ol.style.width = `${width}px`;
     ol.style.height = `${height}px`;
 
-    // Create the new matrix
-    //let currentRow = 1;
-    //let currentCol = 0;
-
     for (let i = 1; i <= rows * cols; i++) {
         const li = document.createElement("li");
         const img = document.createElement("img");
-        img.src = "images/green/" + emptyMino.toUpperCase() + ".png";
         li.appendChild(img);
         li.classList.add("BG-stack");
         ol.appendChild(li);
 
-        //currentCol++;
     }
 }
 
-
-// Given the user selection, add minos to the playfield
+// Given the user selection, add tiles to the playfield
 $( function(){
     $("#selectable").selectable({
         stop: function(){
@@ -106,22 +84,15 @@ $( function(){
             var remove = false;
             $(".ui-selected", this).each(function(i, el){
                 if(i === 0 && this.classList.contains("mino")) remove = true;
-                
-                if(remove){
-                    this.classList.remove(mino);    
-                    $(el).find('img').attr('src', 'images/green/' + emptyMino + '.png');
-                }else{
                     
-                    // make sure 2F is not treated as a mino
-                    if(currentMino.toUpperCase() == emptyMino) this.classList.remove(mino);
-                    else this.classList.add(mino);
-                    $(el).find('img').attr('src', 'images/green/' + currentMino.toUpperCase() + '.png');
-                }
-                
+                // fill with the current selection
+                if(currentMino.toUpperCase() == emptyMino) this.classList.remove(mino);
+                else this.classList.add(mino);
+                $(el).find('img')
+                .attr('src', localStorage.getItem("tileImage-" + currentMino.toUpperCase()))
+                .attr('data-tile-ID', currentMino.toUpperCase());
             });
 
-            // update the mino list
-            updateCurrentConfiguration();
         }
     });  
 });
@@ -130,6 +101,7 @@ $( function(){
 // These were assigned the data attribute "data-vram"
 // containing the index 0-255 in the vram tile set
 function loadTileContentToVRAMGrid() {
+    
     // Clear existing cells in the VRAM grid
     const vramGrid = document.querySelector(".BG-vramgrid");
     vramGrid.innerHTML = "";
@@ -138,32 +110,38 @@ function loadTileContentToVRAMGrid() {
     for (let i = 0; i < 256; i++) {
         let hexId = i.toString(16).padStart(2, "0").toUpperCase();
         let cell = document.createElement("div");
-        cell.classList.add("BG-cell");
-        if (i >= 128 && i <= 135) {
-            cell.classList.add("standard");
-        }
-        cell.id = hexId;
-        cell.textContent = hexId; // Set the text content to hexId
+        
+        var imageSrc = localStorage.getItem("tileImage-" + hexId);
+        if (imageSrc) {
+            cell.classList.add("BG-cell");
+            cell.id = hexId;
+            var img = document.createElement("img");
+            img.src = imageSrc;
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.imageRendering = "pixelated";
+            cell.appendChild(img);
+            cell.onclick = function() {
+                document.querySelectorAll(".BG-cell").forEach(function(c) {
+                    c.classList.remove("selected");
+                });
+                this.classList.add("selected");
+                currentMino = this.id;
 
-        // Load content from tile divs with data-vram
-        let tileDiv = document.querySelector(`.tile[data-vram="${hexId}"]`);
-        if (tileDiv) {
-            cell.innerHTML = tileDiv.innerHTML;
-        } else {
-            cell.classList.add("no-tile"); // Add the "no-tile" class to cells without tile content
+                document.getElementById("BG-vramgrid").style.borderColor = "rgb(158, 210, 144)";
+            };
+        }else{
+            cell.classList.add("not-clickable-div");
         }
 
-        cell.onclick = function() {
-            document.querySelectorAll(".BG-cell").forEach(function(c) {
-                c.classList.remove("selected");
-            });
-            this.classList.add("selected");
-            currentMino = this.id;
-            //alert(currentMino);
-            document.getElementById("BG-vramgrid").style.borderColor = "rgb(158, 210, 144)";
-        };
         vramGrid.appendChild(cell);
+
+        // Check if it is the first entry and click it
+        if (i === 0) {
+            cell.click();
+        }
     }
+
 }
 
 // loads a VRAM Tile Set
@@ -191,10 +169,68 @@ function assignVramTileSet(setToLoad) {
         if (tile) {
             let vramValue = (i + vramIndex).toString(16).padStart(2, "0").toUpperCase();
             tile.setAttribute('data-vram', vramValue);
+
+            // add the tile to the local storage
+            saveTileToLocalStorage(vramValue);
         }        
 
         currentId += incrementValue;
       }
       vramIndex += nTiles;
     });
+}
+
+// saves a tile to the local storage
+// a tile div is made into an 8x8 px image
+function saveTileToLocalStorage(vramAddress) {
+    var canvas = document.createElement("canvas");
+    canvas.width = 8;
+    canvas.height = 8;
+    var context = canvas.getContext("2d");
+  
+    //var div = document.getElementById("tileaddr-" + tileAddress);
+    var div = document.querySelector('.tile[data-vram="' + vramAddress + '"]');
+    
+    var pixels = div.getElementsByClassName("pixel");
+  
+    var pixelStyles = window.getComputedStyle(pixels[0]); // Get computed styles for the first pixel
+  
+    for (var i = 0; i < pixels.length; i++) {
+      var pixel = pixels[i];
+      var pixelStyles = window.getComputedStyle(pixel);
+      var color = pixelStyles.backgroundColor;
+  
+      var x = i % 8;
+      var y = Math.floor(i / 8);
+      context.fillStyle = color;
+      context.fillRect(x, y, 1, 1);
+    }
+  
+    var imageDataURL = canvas.toDataURL();
+    var localStorageKey = "tileImage-" + vramAddress;
+    localStorage.setItem(localStorageKey, imageDataURL);
+}
+  
+// exchanges the src of an existing Image with ID = imgId with the tile with tileAddress
+function displayTileImageFromLocalStorage(tileAddress, imgId) {
+    var localStorageKey = "tileImage-" + tileAddress;
+    var imageDataURL = localStorage.getItem(localStorageKey);
+
+    if (imageDataURL) {
+        var img = document.getElementById(imgId);
+        if (img) {
+            img.src = imageDataURL;
+            img.setAttribute("data-tile-ID", tileAddress);
+        }
+    }
+}
+
+// wipes the image from the local storage
+// tiles 00 to FF
+function wipeTilesFromLocalStorage() {
+    for (let i = 0; i < 256; i++) {
+      const imageID = i.toString(16).padStart(2, '0').toUpperCase();
+      const key = 'tileImage-' + imageID;
+      if (localStorage.getItem(key)) localStorage.removeItem(key);
+    }
 }

@@ -283,37 +283,54 @@ const oldLicenseeCode = {
 // background maps
 // name: start address, width, height, vram tile set
 const bgMaps = {
-  "Copyright Screen": ["4A07", 20, 18, "Start-Set"],
-  "Title Screen": ["4B6F", 20, 18, "Start-Set"],
-  "Music Type": ["4CD7", 20, 18, "Game Play-Set"],
-  "A-Type Select": ["4E3F", 20, 18, "Game Play-Set"],
-  "B-Type Select": ["4FA7", 20, 18, "Game Play-Set"],
-  "A-Playfield": ["3E8F", 20, 18, "Game Play-Set"],
-  "B-Playfield": ["3FF7", 20, 18, "Game Play-Set"],
-  "Mario & Luigi": ["5214", 20, 18, "Game Play-Set"],
-  "2P-Playfield": ["537C", 20, 18, "Game Play-Set"],
-  "Mario Luigi Score": ["5534", 20, 18, "Celebration-Set"],
-  "Rocket": ["1430", 20, 18, "Celebration-Set"],
-  "Celebration": ["510F", 10, 18, "Start-Set"],
-  "Score Counter": ["2889", 10, 18, "Game Play-Set"],
-  "Pause": ["2839", 8, 10, "Game Play-Set"],
-  "Game Over": ["2976", 8, 6, "Game Play-Set"],
-  "Buran Shuttle": ["1429", 20, 18, "Celebration-Set"]
+  "Copyright Screen":   ["4A07", 20, 18, "Start-Set"],
+  "Title Screen":       ["4B6F", 20, 18, "Start-Set"],
+  "Music Type":         ["4CD7", 20, 18, "Game Play-Set"],
+  "A-Type Select":      ["4E3F", 20, 18, "Game Play-Set"],
+  "B-Type Select":      ["4FA7", 20, 18, "Game Play-Set"],
+  "A-Playfield":        ["3E8F", 20, 18, "Game Play-Set"],
+  "B-Playfield":        ["3FF7", 20, 18, "Game Play-Set"],
+  "Mario & Luigi":      ["5214", 20, 18, "Game Play-Set"],
+  "2P-Playfield":       ["537C", 20, 18, "Game Play-Set"],
+
+  "Celebration":        ["510F", 10, 18, "Game Play-Set"],
+  "Score Counter":      ["2889", 10, 18, "Game Play-Set"],
+
+  "Mario Score":        ["54E4", 20,  4, "Celebration-Set"],
+  "Luigi Score":        ["5534", 20,  6, "Celebration-Set"],
+
+  "Platform":           ["51C4", 20,  4, "Celebration-Set"],
+  "Scaffold (l)":       ["1429",  1,  7, "Celebration-Set"],
+  "Scaffold (r)":       ["1430",  1,  7, "Celebration-Set"],
+  "Buran Scaffold (l)": ["141B",  1,  7, "Celebration-Set"],
+  "Buran Scaffold (r)": ["1422",  1,  7, "Celebration-Set"],
+
+  "Pause":              ["2839",  8, 10, "Game Play-Set"],
+  "Game Over":          ["2976",  8,  6, "Game Play-Set"]
 };
 
 // Tile Addresses in ROM (Start address, #Tiles, #BPP)
 const tileAddressesInROM = {
-  "ABC": ["415F", 39, 1],
-  "Game Play": ["323F", 197, 2],
-  "Celebration": ["55AC", 207, 2],
-  "Start Screen": ["4297", 119, 2]
+  "ABC":                ["415F",  39, 1],
+  "Game Play":          ["323F", 197, 2],
+  "Celebration":        ["55AC", 207, 2],
+  "Start Screen":       ["4297", 119, 2],
+  "Partial":            ["4297",   9, 2]
 };
 
 // this contains the vRam Tile sets that can be loaded, there are 3 of them
 const vRamTileSets = {
-  "Start-Set": [tileAddressesInROM["ABC"], tileAddressesInROM["Start Screen"]],
-  "Game Play-Set": [tileAddressesInROM["ABC"], tileAddressesInROM["Game Play"]],
-  "Celebration-Set": [tileAddressesInROM["Celebration"]]
+  "Start-Set":       [tileAddressesInROM["ABC"], 
+                      tileAddressesInROM["Start Screen"]
+                     ],
+  "Game Play-Set":   [
+                      tileAddressesInROM["ABC"], 
+                      tileAddressesInROM["Partial"], 
+                      tileAddressesInROM["Game Play"]
+                     ],
+  "Celebration-Set": [
+                      tileAddressesInROM["Celebration"]
+                     ]
 };
 
 // COLOR PALETTES

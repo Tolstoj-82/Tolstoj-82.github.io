@@ -128,8 +128,7 @@ function applyCode(force = false) {
 
       displayToast("hexValueChanged");
 
-
-      addToLog("Address $" + address + " | " + oldVal + " > " + newVal + " (" + formattedTime() + ")");
+      addToLog("Address $" + address + " | " + oldVal + " > " + newVal);
       
       // clear the fields
       clearFields(e_ggCode, true);

@@ -218,14 +218,14 @@ function saveBGMap() {
   var currentAddress = parseInt(startAddress, 16);
 
   imgElements.forEach(function(imgElement) {
-    var src = imgElement.getAttribute("src");
-    var imageName = src.split("/").pop().split(".")[0];
+
+    var tileID = imgElement.getAttribute("data-tile-id");
 
     // Convert the current address to a 4-digit hex value
     var hexAddress = currentAddress.toString(16).toUpperCase().padStart(4, '0');
 
     var td = document.getElementById(hexAddress);
-    td.textContent = imageName;
+    td.textContent = tileID;
 
     // Increment the current address
     currentAddress++;
@@ -234,7 +234,12 @@ function saveBGMap() {
   document.getElementById("BG-myModal").style.display = "none";
   scrollToAddress(startAddress);
   document.getElementById("createFileBtn").removeAttribute("disabled");
-  addToLog("*Background map starting at address $" + startAddress + " overwritten.");
+  
+  //name of the selected BG map
+  var selectElement = document.getElementById("BGMapSelector");
+  var bgMapName = selectElement.options[selectElement.selectedIndex].text;
+
+  addToLog("*Background map \"" + bgMapName + "\" overwritten.");
 
 }
   
@@ -248,7 +253,7 @@ function saveBGMap() {
 // Adds text to the Log
 function addToLog(logText){
   const log = document.getElementById("log");
-  log.value = logText + "\n" + log.value;
+  log.value = logText + " (" + formattedTime() + ")\n" + log.value;
   enableDownload();
   updateChecksums(true);
 }
@@ -633,6 +638,8 @@ function validateFile(event) {
 
     }, 1000);
 
+    wipeTilesFromLocalStorage();
+
   }
 
   // Loading animation
@@ -806,11 +813,16 @@ function obtainHeaderData() {
 //------------------------------------------------------------------------------------------
 // this woks, but now we need to make sure, the correct VRAM is loaded
 function getBGMap(id, bgMap) {
+
+  // delete previous VRAM Tile Set
+  wipeTilesFromLocalStorage();
   
+  // assign new VRAM Tile Set
   assignVramTileSet(vRamTileSets[bgMaps[bgMap][3]]);
-
+  
+  // Call the function to load tile content into VRAM grid
   loadTileContentToVRAMGrid();
-
+  
   addMatrix(bgMaps[bgMap][1], bgMaps[bgMap][2]);
 
   const startIndex = parseInt(id, 16);
@@ -823,12 +835,16 @@ function getBGMap(id, bgMap) {
   for (let i = 0; i < imageElements.length; i++) {
     const cellId = (startIndex + i).toString(16).padStart(2, '0').toUpperCase();
     const cellContent = document.getElementById(cellId).textContent;
-    const newFileName = cellContent + ".png";
-    imageElements[i].setAttribute("src", "images/green/" + newFileName);
+    const bgTileId = i.toString(16).padStart(2,'0').toLocaleUpperCase();
+    
+    // the image needs an ID / also make sure it's upscaled using point filtering (pixel perfect)
+    imageElements[i].setAttribute("id", "bg-tile-" + bgTileId);
+    imageElements[i].style.imageRendering = "pixelated";
+    //
+    displayTileImageFromLocalStorage(cellContent, "bg-tile-" + bgTileId);
   }
   
-  // Call the function to load tile content into VRAM grid
-  loadTileContentToVRAMGrid();
+
 
   document.getElementById("BGMapStartAddress").value = id;
 }
