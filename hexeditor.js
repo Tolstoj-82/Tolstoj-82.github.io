@@ -232,7 +232,7 @@ function saveBGMap() {
     currentAddress++;
   });
 
-  document.getElementById("BG-myModal").style.display = "none";
+  closeBGModal();
   scrollToAddress(startAddress);
   document.getElementById("createFileBtn").removeAttribute("disabled");
   
@@ -248,6 +248,9 @@ function saveBGMap() {
 // close the bg map modal without saving
   function closeBGModal(){
     document.getElementById("BG-myModal").style.display = "none";
+    
+    // make sure, the key press event listeners are disabled once the modal closes
+    disableKeyPressTracking();
   }
 
 //------------------------------------------------------------------------------------------
@@ -819,6 +822,9 @@ function getBGMap(id, bgMap) {
 
   // delete previous VRAM Tile Set
   wipeTilesFromLocalStorage();
+
+  // enable key press tracking, this enables quick access certain tiles 
+  enableKeyPressTracking();
   
   // assign new VRAM Tile Set
   assignVramTileSet(vRamTileSets[bgMaps[bgMap][3]]);
@@ -871,4 +877,50 @@ function openTab(event, tabName) {
   document.getElementById(tabName).style.display = "block";
 
   event.currentTarget.className += " active";
+}
+
+//------------------------------------------------------------------------------------------
+
+// Function to load the tiles of an object (e.g. sprite)
+function loadObjectSprite(objectName, highlightOnly) {
+  const objectData = spriteObjects[objectName];
+
+  // Remove the "highlighted" class from all tiles before proceeding
+  const allTiles = document.getElementsByClassName('tile');
+  for (let i = 0; i < allTiles.length; i++) {
+    allTiles[i].classList.remove('highlighted');
+  }
+
+  // assign some variables
+  const romTileSet = objectData[0];
+  const startingAddressHex = tileAddressesInROM[romTileSet][0];
+  const startingAddress = parseInt(startingAddressHex, 16);
+  const bitsPerPixel = tileAddressesInROM[romTileSet][2];
+
+  // Step 4: Loop through all consecutive entries of objects[objectName]
+  for (let i = 1; i < objectData.length; i++) {
+    const entry = objectData[i];
+    if (!isNaN(entry)) {
+      const entryValue = parseInt(entry) - 1;
+      const combinedValue = (startingAddress + 8 * entryValue * bitsPerPixel).toString(16).toUpperCase().padStart(4, '0');
+      if(highlightOnly){
+        // Highlight the corresponding tile with animation
+        const tileElement = document.getElementById(`tileaddr-${combinedValue}`);
+        if (tileElement) {
+          tileElement.classList.add('highlighted');
+
+          // Remove the "highlighted" class after the animation completes
+          setTimeout(() => {
+            tileElement.classList.remove('highlighted');
+          }, 1000); // 1000ms (1 second) is the duration of the animation
+        }
+      }else{
+        console.log(combinedValue);  
+      }
+    } else {
+      if(!highlightOnly){
+        console.log(entry); // It's a string, log it as it is
+      }
+    }
+  }
 }

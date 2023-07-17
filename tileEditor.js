@@ -1,61 +1,79 @@
 //------------------------------------------------------------------------------------------
 // get the pixel values from tiles in the ROM (0-3)
+
 function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
-    const pixelData = [];
-    const addresses = [];
-    let currentAddress = startAddress;
-  
-    const tileContainer = document.getElementById("tileContainer");
-    tileContainer.innerHTML += "<p>" + tilesetTitle + " (ROM Entry Address = $" + startAddress + ", " + nTiles + " Tiles, " + bitsPerPixel + "BPP)<br></p>";
-  
-    for (let i = 0; i < nTiles * 8 * bitsPerPixel; i++) {
-      if (bitsPerPixel === 2 && i % 2 === 1) {
-        continue; // Skip every other iteration when bitsPerPixel is 2
-      }
-  
-      const currentTd = document.getElementById(currentAddress);
-      const thisValue = currentTd.textContent;
-  
-      const nextAddress = (parseInt(currentAddress, 16) + 1).toString(16).toUpperCase();
-      const nextTd = document.getElementById(nextAddress);
-      const nextValue = nextTd.textContent;
-  
-      const thisBinary = parseInt(thisValue, 16).toString(2).padStart(8, '0');
-      const nextBinary = parseInt(nextValue, 16).toString(2).padStart(8, '0');
-  
-      let pixelValues = "";
-  
-      for (let j = 0; j < 8; j++) {
-        let decimalValue;
-        if (bitsPerPixel === 2) {
-          const concatenatedBinary = nextBinary[j] + thisBinary[j];
-          decimalValue = parseInt(concatenatedBinary, 2);
-        } else {
-          // The factor 3 makes sure the dark pixel of the 1BPP tiles is black
-          decimalValue = 3 * parseInt(thisBinary[j], 2);
-        }
-        pixelValues += decimalValue;
-      }
-  
-      pixelData.push(pixelValues);
-  
-      if (bitsPerPixel === 1) {
-        if (i % 8 === 0) {
-          addresses.push(currentAddress);
-        }
-      } else {
-        if (i % 16 === 0) {
-          addresses.push(currentAddress);
-        }
-      }
-    
-      const skip = (bitsPerPixel === 2) ? 2 : 1;
-      const nextTileAddress = (parseInt(currentAddress, 16) + skip).toString(16).toUpperCase();
-      currentAddress = nextTileAddress;
+  const pixelData = [];
+  const addresses = [];
+  let currentAddress = startAddress;
+
+  const tileContainer = document.getElementById("tileContainer");
+
+  // Add accordion element
+  tileContainer.innerHTML += `
+    <p><b>${tilesetTitle} (ROM Entry Address = ${startAddress}, ${nTiles} Tiles, ${bitsPerPixel}BPP)</b></p>`;
+
+  // Check if tilesetTitle exists in the first entry of any object in spriteObjects
+  const matchingTitles = Object.keys(spriteObjects).filter(title => spriteObjects[title][0] === tilesetTitle);
+
+  // Add the dropdown and button if there were matching titles
+  if (matchingTitles.length > 0) {
+    let dropdownHTML = `<p><select id="spriteDropdown" onchange="loadObjectSprite(this.value, true)">`;
+    for (const title of matchingTitles) {
+      dropdownHTML += `<option value="${title}">${title}</option>`;
     }
-    displayTiles(pixelData, addresses, bitsPerPixel);
+    dropdownHTML += '</select>&nbsp;';
+    dropdownHTML += `<button onclick="loadObjectSprite(document.getElementById('spriteDropdown').value, false)">Load Tile Group</button></p>`;
+    tileContainer.innerHTML += dropdownHTML;
   }
+
+  for (let i = 0; i < nTiles * 8 * bitsPerPixel; i++) {
+    if (bitsPerPixel === 2 && i % 2 === 1) {
+      continue; // Skip every other iteration when bitsPerPixel is 2
+    }
+
+    const currentTd = document.getElementById(currentAddress);
+    const thisValue = currentTd.textContent;
+
+    const nextAddress = (parseInt(currentAddress, 16) + 1).toString(16).toUpperCase();
+    const nextTd = document.getElementById(nextAddress);
+    const nextValue = nextTd.textContent;
+
+    const thisBinary = parseInt(thisValue, 16).toString(2).padStart(8, '0');
+    const nextBinary = parseInt(nextValue, 16).toString(2).padStart(8, '0');
+
+    let pixelValues = "";
+
+    for (let j = 0; j < 8; j++) {
+      let decimalValue;
+      if (bitsPerPixel === 2) {
+        const concatenatedBinary = nextBinary[j] + thisBinary[j];
+        decimalValue = parseInt(concatenatedBinary, 2);
+      } else {
+        // The factor 3 makes sure the dark pixel of the 1BPP tiles is black
+        decimalValue = 3 * parseInt(thisBinary[j], 2);
+      }
+      pixelValues += decimalValue;
+    }
+
+    pixelData.push(pixelValues);
+
+    if (bitsPerPixel === 1) {
+      if (i % 8 === 0) {
+        addresses.push(currentAddress);
+      }
+    } else {
+      if (i % 16 === 0) {
+        addresses.push(currentAddress);
+      }
+    }
   
+    const skip = (bitsPerPixel === 2) ? 2 : 1;
+    const nextTileAddress = (parseInt(currentAddress, 16) + skip).toString(16).toUpperCase();
+    currentAddress = nextTileAddress;
+  }
+  displayTiles(pixelData, addresses, bitsPerPixel);
+}
+
   //------------------------------------------------------------------------------------------
   // gets pixel data from the ROM and displays them as tiles
   function displayTiles(pixelValues, tileAddress, bitsPerPixel) {

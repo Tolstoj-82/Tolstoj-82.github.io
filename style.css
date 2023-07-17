@@ -1132,3 +1132,36 @@ button:disabled {
 .BG-stack{
     background-color: #FFF;
 }
+
+/* Add any highlighting styles you want */
+.tile.highlighted {
+  position: relative;
+  animation: highlightAnimation 1s ease-in-out;
+  border: 2px solid grey; /* Start with a transparent border */
+}
+
+.tile.highlighted::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 0, 0, 0.5); /* Transparent red overlay */
+  pointer-events: none; /* Ensure clicks pass through the overlay */
+  animation: overlayAnimation 1s ease-in-out; /* Same animation as the border */
+}
+
+/* Animation for the border */
+@keyframes highlightAnimation {
+  0% { border-color: grey; }
+  50% { border-color: red; }
+  100% { border-color: grey; }
+}
+
+/* Animation for the overlay */
+@keyframes overlayAnimation {
+  0% { opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { opacity: 0; }
+}

@@ -15,38 +15,42 @@ var currentMino = "87";
 /*******************************************************************************
  (2) EVENT LISTENERS
 *******************************************************************************/
-
-/*
-// Track Key presses
-document.addEventListener("keydown", function(event) {
-    
+// Define the event listener function
+function trackKeyPress(event) {
     let cell = null;
-    if(event.code >= "Numpad1" && event.code <= "Numpad8"){
-        // numbers 1-8 select the standard minos
-        cell = document.getElementById((event.key.charCodeAt(0)-49+128).toString(16).padStart(2, "0"));
-    }else if(event.code >= "KeyA" && event.code <= "KeyZ"){
-        // letters
-        cell = document.getElementById((event.key.toUpperCase().charCodeAt(0) - "A".charCodeAt(0) + 10).toString(16).padStart(2, "0"));
-    }else if((event.code >= "Digit0" && event.code <= "Digit9")){
-        // numpad 
-        cell = document.getElementById((event.key.charCodeAt(0)-48).toString(16).padStart(2, "0"));
-    }else if(event.code == "Period" || event.code == "NumpadDecimal"){
-        // the dot
-        cell = document.getElementById("24");
-    }else if(event.code == "Minus" || event.code == "NumpadSubtract"){
-        // the dash
-        cell = document.getElementById("25");
+    if (event.code >= "KeyA" && event.code <= "KeyZ") {
+      // letters
+      cell = document.getElementById((event.key.toUpperCase().charCodeAt(0) - "A".charCodeAt(0) + 10).toString(16).padStart(2, "0"));
+    } else if ((event.code >= "Digit0" && event.code <= "Digit9")) {
+      // numpad
+      cell = document.getElementById((event.key.charCodeAt(0) - 48).toString(16).padStart(2, "0"));
+    } else if (event.code == "Period" || event.code == "NumpadDecimal") {
+      // the dot
+      cell = document.getElementById("24");
+    } else if (event.code == "Minus" || event.code == "NumpadSubtract") {
+      // the dash
+      cell = document.getElementById("25");
     }
-    
-    if(cell != null){
-        document.querySelectorAll(".BG-cell").forEach(function(c) {
-            c.classList.remove("selected");          
-        });
-        cell.classList.add("selected");
-        currentMino = cell.id;
+  
+    if (cell != null) {
+      document.querySelectorAll(".BG-cell").forEach(function (c) {
+        c.classList.remove("selected");
+      });
+      cell.classList.add("selected");
+      currentMino = cell.id;
     }
-});
-*/
+  }
+  
+  // Function to enable key press tracking
+  function enableKeyPressTracking() {
+    document.addEventListener("keydown", trackKeyPress);
+  }
+  
+  // Function to disable key press tracking
+  function disableKeyPressTracking() {
+    document.removeEventListener("keydown", trackKeyPress);
+  }
+  
 
 /*******************************************************************************
  (2) FUNCTIONS
