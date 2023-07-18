@@ -392,21 +392,36 @@ const paletteLookup = {
 
 // stores the composition of object tiles (= Sprites)
 // first entry: ROM tile set (see "tileAddressesInROM")
-// "001": position in ROM tile set (3 digits, starts at 1)
+// #: position in ROM tile set (starts at 0)
 //     flags: 
-//       * "-m" = mirror
+//       * "-x" = mirror horizontally
+//       * "-y" = mirror vertically
 //       * "-d" = non-editable duplicate
 // "x": empty non-editable tile
 // "nl": new line
 const spriteObjects = {
   "Border 1": ["Game Play",
-              "001", "002", "003", "nl", 
-              "007", "x",   "008", "nl",
-              "017", "019", "018", "nl",
-              "004", "005", "006"],
+              0,1,2,"nl", 
+              6,"x",7,"nl",
+              16,18,17,"nl",
+              3,4,5],
   
   "Border 2": ["Game Play",
-              "009", "010", "011", "nl",
-              "012", "x",   "013", "nl",
-              "014", "015", "016"]
+              8,9,10,"nl",
+              11,"x",12,"nl",
+              13,14,15],
+
+  "Border 3": ["Game Play",
+              23,24,25,"nl",
+              26,"x",27,"nl",
+              28,29,30],
+  
+  "Nintendo": ["Start Screen",
+              9,10,11,"10-d",12,13,14,15,16,17,18],
+
+  "Numbers":  ["ABC",
+              0,1,2,3,4,5,6,7,8,9],
+  
+  "Letters": ["ABC",
+             10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35]
 }

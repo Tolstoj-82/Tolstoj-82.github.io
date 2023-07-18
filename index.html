@@ -483,6 +483,31 @@
         </div>
       </div>
 
+      <!-- Tile Editor (Modal) -->
+      <div id="tileModal" class="dialog-container" style="display: none;">
+        <div class="dialog-box" id="dialog-box">
+          <div class="tile-editor-text" id="tile-editor-text">Tile Editor</div>
+          <input type="range" id="pixelSizeSlider" min="4" max="30" value="28" />
+          
+          <!-- THIS ONE IS NEW!!! -->
+          <div class="tile-container" id="tile-container"></div>
+          
+          <!-- Color Selector Container -->
+          <div class="color-selector-container">
+            <div class="clickable-div" id="c1"></div>
+            <div class="clickable-div" id="c2"></div>
+            <div class="clickable-div" id="c3"></div>
+            <div class="clickable-div" id="c4"></div>
+          </div>
+
+          <p>
+            <button id="saveButton">Save changes</button>
+            <button id="discardButton">Discard changes</button>
+          </p>
+          
+        </div>
+      </div>
+
       <!-- Background Map Editor (Modal) -->  
       <div id="BG-myModal" class="BG-modal">
         <div class="BG-modal-content">   

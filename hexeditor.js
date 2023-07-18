@@ -883,7 +883,11 @@ function openTab(event, tabName) {
 
 // Function to load the tiles of an object (e.g. sprite)
 function loadObjectSprite(objectName, highlightOnly) {
+  
+  if(objectName === "no") return;
+
   const objectData = spriteObjects[objectName];
+  
 
   // Remove the "highlighted" class from all tiles before proceeding
   const allTiles = document.getElementsByClassName('tile');
@@ -901,7 +905,7 @@ function loadObjectSprite(objectName, highlightOnly) {
   for (let i = 1; i < objectData.length; i++) {
     const entry = objectData[i];
     if (!isNaN(entry)) {
-      const entryValue = parseInt(entry) - 1;
+      const entryValue = parseInt(entry);
       const combinedValue = (startingAddress + 8 * entryValue * bitsPerPixel).toString(16).toUpperCase().padStart(4, '0');
       if(highlightOnly){
         // Highlight the corresponding tile with animation
