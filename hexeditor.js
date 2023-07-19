@@ -888,7 +888,6 @@ function loadObjectSprite(objectName, highlightOnly) {
 
   const objectData = spriteObjects[objectName];
   
-
   // Remove the "highlighted" class from all tiles before proceeding
   const allTiles = document.getElementsByClassName('tile');
   for (let i = 0; i < allTiles.length; i++) {
@@ -900,6 +899,9 @@ function loadObjectSprite(objectName, highlightOnly) {
   const startingAddressHex = tileAddressesInROM[romTileSet][0];
   const startingAddress = parseInt(startingAddressHex, 16);
   const bitsPerPixel = tileAddressesInROM[romTileSet][2];
+
+  // address array
+  const tileAddresses = [];
 
   // Step 4: Loop through all consecutive entries of objects[objectName]
   for (let i = 1; i < objectData.length; i++) {
@@ -919,12 +921,15 @@ function loadObjectSprite(objectName, highlightOnly) {
           }, 1000); // 1000ms (1 second) is the duration of the animation
         }
       }else{
-        console.log(combinedValue);  
+        //console.log(combinedValue);
+        tileAddresses.push(combinedValue);  
       }
     } else {
       if(!highlightOnly){
-        console.log(entry); // It's a string, log it as it is
+        tileAddresses.push(entry);
       }
     }
   }
+
+  console.log(tileAddresses); 
 }
