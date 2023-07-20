@@ -207,8 +207,9 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
       generateColorSelector(colors, [clonedTile]); // Pass the cloned tile in an array
     });
 
-    // Check if 1BPP. If so, deactivate colors 2 and 3 
-    if (clonedTile.getAttribute("data-BPP") === "1") {
+    // Check if 1BPP. If so, deactivate colors 2 and 3
+    clickableDivs = document.getElementsByClassName("clickable-div");
+    if (tilesToOpen[0].getAttribute("data-BPP") === "1") {
       clickableDivs[1].classList.add("not-clickable-div");
       clickableDivs[2].classList.add("not-clickable-div");
     }
@@ -261,18 +262,6 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
       });
       
       tileToUpdate = null;
-
-    function handlePixelColoring(event) {
-      const selectedPixel = event.target;
-      if (selectedPixel.classList.contains("pixel")) {
-        if (event.type === "mousedown") {
-          isMouseButtonDown = true;
-          setColorAndClass(selectedPixel);
-        } else if (event.type === "mousemove" && isMouseButtonDown) {
-          setColorAndClass(selectedPixel);
-        }
-      }
-    }
 
     // Save changes
     const saveButton = document.getElementById("saveButton");
@@ -384,17 +373,29 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
     discardButton.addEventListener("click", function () {
       closeTileDialog();
     });
-
-    function setColorAndClass(pixel) {
-      const selectedDiv = clickableDivs.find((div) => div.style.border === o);
-      const newIndex = clickableDivs.indexOf(selectedDiv);
-      const selectedColor = selectedDiv ? selectedDiv.style.backgroundColor : "";
-
-      pixel.style.backgroundColor = selectedColor;
-      pixel.className = pixel.className.replace(/col\d/, "col" + newIndex);
-    }
   }
 
+    function handlePixelColoring(event) {
+      const selectedPixel = event.target;
+      if (selectedPixel.classList.contains("pixel")) {
+        if (event.type === "mousedown") {
+          isMouseButtonDown = true;
+          setColorAndClass(selectedPixel);
+        } else if (event.type === "mousemove" && isMouseButtonDown) {
+          setColorAndClass(selectedPixel);
+        }
+      }
+ 
+
+  function setColorAndClass(pixel) {
+    const selectedDiv = clickableDivs.find((div) => div.style.border === o);
+    const newIndex = clickableDivs.indexOf(selectedDiv);
+    const selectedColor = selectedDiv ? selectedDiv.style.backgroundColor : "";
+
+    pixel.style.backgroundColor = selectedColor;
+    pixel.className = pixel.className.replace(/col\d/, "col" + newIndex);
+  }
+}
   function updateColor(selector, color, colorPicker) {
     colorPicker.style.backgroundColor = color;
     const elements = document.querySelectorAll(selector);
@@ -402,47 +403,6 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
       element.style.backgroundColor = color;
     });
   }
-/*
-  function generateColorSelector(colors, clonedTile) {
-    const b = "2px solid black";
-    const o = "2px solid orange";
-
-    const colorSelectorContainer = document.querySelector(".color-selector-container");
-    colorSelectorContainer.innerHTML = ''; // Clear existing content
-
-    clickableDivs = []; // Array to hold the clickable div elements
-
-    colors.forEach((color, index) => {
-      const clickableDiv = document.createElement("div");
-      clickableDiv.className = "clickable-div";
-      clickableDiv.style.backgroundColor = color;
-      clickableDiv.style.marginRight = "10px";
-      clickableDiv.style.border = b;
-
-      // Add click event listener to the color selector
-      clickableDiv.addEventListener("click", function () {
-        // Check if the clickable div does not have the class "not-clickable-div" (1BPP can only have 2 options)
-        if (!clickableDiv.classList.contains("not-clickable-div")) {
-          clickableDivs.forEach((div) => {
-            div.style.border = b;
-          });
-          
-          clickableDiv.style.border = o;
-
-          // Update the border color of pixels in clonedTile with the selected color
-          const selectedColor = clickableDiv.style.backgroundColor;
-          const pixelDivs = clonedTile.getElementsByClassName("pixel");
-          Array.from(pixelDivs).forEach((div) => {
-            div.style.borderColor = selectedColor;
-          });
-        }
-      });
-
-      // Append the clickable div to the color selector container
-      colorSelectorContainer.appendChild(clickableDiv);
-      clickableDivs.push(clickableDiv); // Add the clickable div to the array
-    });
-  }*/
 
   function generateColorSelector(colors, clonedTiles) {
     const b = "2px solid black";
@@ -488,5 +448,4 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
       clickableDivs.push(clickableDiv); // Add the clickable div to the array
     });
   }
-  
-  }
+}
