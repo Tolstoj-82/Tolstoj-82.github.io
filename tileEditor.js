@@ -28,6 +28,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
     tileContainer.innerHTML += dropdownHTML;
   }
 
+  // collect the pixel values for the tiles
   for (let i = 0; i < nTiles * 8 * bitsPerPixel; i++) {
     if (bitsPerPixel === 2 && i % 2 === 1) {
       continue; // Skip every other iteration when bitsPerPixel is 2
@@ -121,21 +122,36 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
   
       container.appendChild(tile);
     }
-  
-    container.addEventListener("click", function (event) {
+
+    // Add an event listener to each tile-pixel...
+    function handleClick(event) {
       const clickedTile = event.target.closest(".tile");
-      
+
       if (clickedTile) {
+        event.stopPropagation(); // Prevent unnecessary propagation
+
         if (selectedTile !== null) {
           selectedTile.classList.remove("selected");
         }
         selectedTile = clickedTile;
         selectedTile.classList.add("selected");
-        openTileDialog(clickedTile);
+
+        const clickedPixel = event.target.closest(".pixel");
+        if (clickedPixel) {
+          //alert([clickedTile.id.replace("tileaddr-", "")]);
+          openTileDialog([clickedTile.id.replace("tileaddr-", "")]);
+        }
       }
-    });
+    }
+
+    // ...add only if the element has none yet (I had massive redundancy before that)
+    if (!container.hasListener) {
+      container.addEventListener("click", handleClick);
+      container.hasListener = true;
+    }
+
   }
-  
+ 
   //------------------------------------------------------------------------------------------
   // Modal that let's you edit tiles
   // THERE IS A LOT OF ROOM FOR IMPROVEMENT HERE!
@@ -144,47 +160,55 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
   let isDialogOpen = false;
   let clickableDivs;
   
-  function openTileDialog(tile) {
-    tileToUpdate = tile;
-    const b = "2px solid black";
-    const o = "2px solid orange";
+  function openTileDialog(tileIDs) {
 
-    if (isDialogOpen) return;
-    isDialogOpen = true;
+    // Find the matching tiles based on the provided IDs
+    const tilesToOpen = [];
+    const allTiles = document.querySelectorAll(".tile");
 
-    // Show the modal
+    tileIDs.forEach((idPart) => {
+      const matchingTile = Array.from(allTiles).find((tile) =>
+        tile.id.includes("tileaddr-" + idPart)
+      );
+
+      if (matchingTile) tilesToOpen.push(matchingTile);
+    });
+
+    // Show the modal with the selected tiles
     const dialogContainer = document.getElementById("tileModal");
     dialogContainer.style.display = "block";
 
     const dialogBox = document.getElementById("dialog-box");
 
-    // Clone the selected tile and add it to the dialog box
-    const clonedTile = tile.cloneNode(true);
+    // Clone the selected tiles and add them to the dialog box
+    const b = "2px solid black";
+    const o = "2px solid orange";
+    tilesToOpen.forEach((tile, index) => {
+      const clonedTile = tile.cloneNode(true);
 
-    // Add the class "big" to all div elements with class "pixel" in the cloned tile
-    const pixelDivs = clonedTile.getElementsByClassName("pixel");
-    Array.from(pixelDivs).forEach((div) => {
-      div.classList.add("big");
+      // Add the class "big" to all div elements with class "pixel" in the cloned tile
+      const pixelDivs = clonedTile.getElementsByClassName("pixel");
+      Array.from(pixelDivs).forEach((div) => {
+        div.classList.add("big");
+      });
+
+      clonedTile.style.border = b;
+      const tileContainer = document.getElementById("tile-container");
+      tileContainer.appendChild(clonedTile);
+
+      // Fetch colors from color pickers
+      const colors = [];
+      for (let i = 0; i < 4; i++) {
+        const chosenColor = document.getElementById("color-picker-" + i).value;
+        colors.push(chosenColor);
+      }
+
+      // Pass the colors array and the clonedTile to the generateColorSelector function
+      generateColorSelector(colors, [clonedTile]); // Pass the cloned tile in an array
     });
 
-    // add the cloned tile to the tile container (on the modal)
-    clonedTile.style.border = b;
-    const tileContainer = document.getElementById("tile-container");
-    tileContainer.innerHTML = '';
-    tileContainer.appendChild(clonedTile);
-
-    // Fetch colors from color pickers
-    const colors = [];
-    for (let i = 0; i < 4; i++) {
-      const chosenColor = document.getElementById("color-picker-" + i).value;
-      colors.push(chosenColor);
-    }
-
-    // Generate color selector content and interact with the clonedTile
-    generateColorSelector(colors, clonedTile);
-
     // Check if 1BPP. If so, deactivate colors 2 and 3 
-    if (clonedTile.getAttribute("data-BPP") === "1") { /// <---- use the variable!
+    if (clonedTile.getAttribute("data-BPP") === "1") {
       clickableDivs[1].classList.add("not-clickable-div");
       clickableDivs[2].classList.add("not-clickable-div");
     }
@@ -237,7 +261,6 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
       });
       
       tileToUpdate = null;
-    }
 
     function handlePixelColoring(event) {
       const selectedPixel = event.target;
@@ -379,7 +402,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
       element.style.backgroundColor = color;
     });
   }
-
+/*
   function generateColorSelector(colors, clonedTile) {
     const b = "2px solid black";
     const o = "2px solid orange";
@@ -419,4 +442,51 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
       colorSelectorContainer.appendChild(clickableDiv);
       clickableDivs.push(clickableDiv); // Add the clickable div to the array
     });
+  }*/
+
+  function generateColorSelector(colors, clonedTiles) {
+    const b = "2px solid black";
+    const o = "2px solid orange";
+  
+    // Get the container where the color selectors will be added
+    const colorSelectorContainer = document.querySelector(".color-selector-container");
+    colorSelectorContainer.innerHTML = ''; // Clear existing content
+  
+    // Array to hold the clickable div elements
+    const clickableDivs = [];
+  
+    colors.forEach((color, index) => {
+      const clickableDiv = document.createElement("div");
+      clickableDiv.className = "clickable-div";
+      clickableDiv.style.backgroundColor = color;
+      clickableDiv.style.marginRight = "10px";
+      clickableDiv.style.border = b;
+  
+      // Add click event listener to the color selector
+      clickableDiv.addEventListener("click", function () {
+        // Check if the clickable div does not have the class "not-clickable-div" (1BPP can only have 2 options)
+        if (!clickableDiv.classList.contains("not-clickable-div")) {
+          clickableDivs.forEach((div) => {
+            div.style.border = b;
+          });
+            
+          clickableDiv.style.border = o;
+  
+          // Update the border color of pixels in each clonedTile with the selected color
+          const selectedColor = clickableDiv.style.backgroundColor;
+          clonedTiles.forEach((clonedTile) => {
+            const pixelDivs = clonedTile.getElementsByClassName("pixel");
+            Array.from(pixelDivs).forEach((div) => {
+              div.style.borderColor = selectedColor;
+            });
+          });
+        }
+      });
+  
+      // Append the clickable div to the color selector container
+      colorSelectorContainer.appendChild(clickableDiv);
+      clickableDivs.push(clickableDiv); // Add the clickable div to the array
+    });
+  }
+  
   }

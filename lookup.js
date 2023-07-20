@@ -309,13 +309,13 @@ const bgMaps = {
   "Game Over":          ["2976",  8,  6, "Game Play-Set"]
 };
 
-// Tile Addresses in ROM (Start address, #Tiles, #BPP)
+// Tile Addresses in ROM (Start address, #Tiles, #BPP, show)
 const tileAddressesInROM = {
-  "ABC":                ["415F",  39, 1],
-  "Game Play":          ["323F", 197, 2],
-  "Celebration":        ["55AC", 207, 2],
-  "Start Screen":       ["4297", 119, 2],
-  "Partial":            ["4297",   9, 2]
+  "ABC":                ["415F",  39, 1, true],
+  "Game Play":          ["323F", 197, 2, true],
+  "Celebration":        ["55AC", 207, 2, true],
+  "Start Screen":       ["4297", 119, 2, true],
+  "Partial":            ["4297",   9, 2, false]
 };
 
 // this contains the vRam Tile sets that can be loaded, there are 3 of them

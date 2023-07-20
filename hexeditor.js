@@ -257,7 +257,7 @@ function saveBGMap() {
 // Adds text to the Log
 function addToLog(logText){
   const log = document.getElementById("log");
-  log.value = "*" + logText + " (" + formattedTime() + ")\n" + log.value;
+  log.value = "* " + logText + " (" + formattedTime() + ")\n" + log.value;
   enableDownload();
   updateChecksums(true);
 }
@@ -636,10 +636,11 @@ function validateFile(event) {
       // load tile data from the lookup table  
       let pixelData = [];
       for (const setName in tileAddressesInROM) {
-        const [address, length, bPP] = tileAddressesInROM[setName];
+        const [address, length, bPP, showTiles] = tileAddressesInROM[setName];
 
-        // this is an ugly solution!
-        if(!(setName == "Partial")) pixelData = pixelData.concat(getTileData(address, length, bPP, setName));
+        // show the tiles
+        if(showTiles) pixelData = pixelData.concat(getTileData(address, length, bPP, setName));
+        
       }
 
     }, 1000);
@@ -931,5 +932,6 @@ function loadObjectSprite(objectName, highlightOnly) {
     }
   }
 
-  console.log(tileAddresses); 
+  //console.log(tileAddresses); 
+  if(!highlightOnly) openTileDialog(tileAddresses);
 }
