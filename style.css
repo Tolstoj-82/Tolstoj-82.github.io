@@ -41,29 +41,6 @@ body {
   overflow: auto;
 }
 
-/*.table-wrapper::-webkit-scrollbar, 
-#modalContent::-webkit-scrollbar {
-  width: 10px;
-}
-
-.table-wrapper::-webkit-scrollbar-track,
-#modalContent::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb,
-#modalContent::-webkit-scrollbar-thumb {
-  background: #888;
-}
-
-@-moz-document url-prefix() {
-  .table-wrapper,
-  #modalContent {
-    scrollbar-width: thin;
-    scrollbar-color: #888 #f1f1f1;
-  }
-}*/
-
 #openModalButton {
   position: fixed;
   top: 0px;
@@ -508,23 +485,12 @@ button:disabled {
   top: 0;
   right: 0;
   bottom: 0;
-  padding: 0; /***********/
+  padding: 0;
   width: 500px;
-  overflow: none; /***********/
+  overflow: none;
   box-sizing: border-box;
   z-index: 1;
 }
-
-/*
-#modalResizeHandle {
-  position: absolute;
-  top: 0;
-  left: -6px;
-  width: 12px;
-  height: 100%;
-  cursor: ew-resize;
-  z-index: 2;
-}*/
 
 /* Modal table */
 #t_codeList {
@@ -555,7 +521,6 @@ button:disabled {
 }
 
 /* pulsate animation */
-
 .link-animation {
   animation: pulsate 1s infinite;
 }
@@ -672,13 +637,13 @@ button:disabled {
 
 
 #modalBody {
-  height: 100vh; /* Set the height to 100 viewport height */
+  height: 100vh;
   box-sizing: border-box;
   overflow: none;
 }
 
 .content-container {
-  height: calc(100% - 40px); /* Subtract the height of .tab-container */
+  height: calc(100% - 40px);
   flex: 1;
   box-sizing: border-box;
   overflow: none;
@@ -706,7 +671,6 @@ button:disabled {
   flex-shrink: 1;
   flex-basis: auto;
 }
-
 
 .tab-content {
   overflow-y: auto;
@@ -784,39 +748,19 @@ button:disabled {
   height: 32px;
 }
 
-/*#tileTable td{
-  background-color: #FFF;
-}*/
-
 #tileColors td.chosen{
   border: 2px solid #8F8;
-}
-
-#col0{
-  background-color: white;
-}
-
-#col1{
-  background-color: #777;
-}
-
-#col2{
-  background-color: #333;
-}
-
-#col3{
-  background-color: black;
 }
 
 .tile {
   display: inline-block;
   margin: 3px;
-  border: 2px solid grey; /* Set 2px grey border for each tile */
-  cursor: pointer; /* Add cursor pointer for selection */
+  border: 2px solid grey;
+  cursor: pointer;
 }
 
 .tile.selected {
-  border-color: orange; /* Change border color to orange when selected */
+  border-color: orange;
 }
 
 .row {
@@ -829,24 +773,8 @@ button:disabled {
 }
 
 .pixel.big {
-  width: 4px;
-  height: 4px;
-}
-
-.col0 {
-  background-color: white;
-}
-
-.col1 {
-  background-color: lightgrey;
-}
-
-.col2 {
-  background-color: darkgrey;
-}
-
-.col3 {
-  background-color: black;
+  width: 8px;
+  height: 8px;
 }
 
 .color-scheme-container {
@@ -862,7 +790,6 @@ button:disabled {
   width: 30px;
   height: 30px;
   border: 3px solid black;
-  /*border-radius: 10%;*/
   outline: none;
   cursor: pointer;
   background: none;
@@ -876,12 +803,11 @@ button:disabled {
 
 .color-picker::-webkit-color-swatch {
   border: none;
-  /*border-radius: 10%;*/
 }
 
 .new-line {
   display: block;
-  margin-bottom: 1em; /* Adjust as needed */
+  margin-bottom: 1em;
 }
 
 .dialog-container {
@@ -894,11 +820,15 @@ button:disabled {
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1;
 }
+
 .dialog-box {
   background-color: white;
   padding: 20px;
   max-width: 70%;
+  max-height: 70%;
   margin: 50px auto;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 .dialog-box .pixel {
@@ -958,7 +888,6 @@ button:disabled {
     rgba(0, 0, 0, 0.1) 14px
   );
 }
-
 
 /* Background Editor */
 
@@ -1084,8 +1013,6 @@ button:disabled {
     list-style-type: none;
     margin: 0;
     padding: 0;
-    /*width: 640px; /* 32 * 20 = 640 */
-    /*height: 576px; /* 32 * 18 = 576 */
     border: 3px solid rgb(255, 255, 255);
   }
   
@@ -1129,11 +1056,10 @@ button:disabled {
     background-color: #FFF;
 }
 
-/* Add any highlighting styles you want */
 .tile.highlighted {
   position: relative;
   animation: highlightAnimation 1s ease-in-out;
-  border: 2px solid grey; /* Start with a transparent border */
+  border: 2px solid grey;
 }
 
 .tile.highlighted::after {
@@ -1143,9 +1069,9 @@ button:disabled {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 0, 0, 0.5); /* Transparent red overlay */
-  pointer-events: none; /* Ensure clicks pass through the overlay */
-  animation: overlayAnimation 1s ease-in-out; /* Same animation as the border */
+  background-color: rgba(255, 0, 0, 0.5);
+  pointer-events: none;
+  animation: overlayAnimation 1s ease-in-out;
 }
 
 /* Animation for the border */
@@ -1177,4 +1103,39 @@ button:disabled {
 
 .not-clickable-div {
   pointer-events: none;
+}
+/*
+.tile-container {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 2px solid black;
+}
+
+.tile-container > div {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+*/
+
+.tile-container {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 0;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 2px solid black;
+}
+
+.tile-container > div {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.tile-container > .new-line {
+  flex-wrap: wrap;
 }

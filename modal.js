@@ -130,39 +130,6 @@ modalOverlay.addEventListener("click", function (event) {
     modalOverlay.style.display = "none";
   }
 });
-/*
-let isResizing = false;
-let resizeStartX = 0;
-let initialWidth = 0;
-let initialContainerWidth = container.offsetWidth;
-
-modalResizeHandle.addEventListener("mousedown", function (event) {
-  isResizing = true;
-  resizeStartX = event.clientX;
-  initialWidth = modalContent.offsetWidth;
-
-  document.addEventListener("mousemove", handleResize);
-  document.addEventListener("mouseup", stopResize);
-});
-
-function handleResize(event) {
-  if (!isResizing) return;
-
-  const mouseDiff = resizeStartX - event.clientX;
-  const newWidth = initialWidth + mouseDiff;
-  modalContent.style.width = `${newWidth}px`;
-
-  // Calculate and set the remaining width
-  const modalWidth = modalContent.offsetWidth;
-  const remainingWidth = initialContainerWidth - modalWidth;
-  container.style.width = `${remainingWidth}px`;
-}
-
-function stopResize() {
-  isResizing = false;
-  document.removeEventListener("mousemove", handleResize);
-  document.removeEventListener("mouseup", stopResize);
-}*/
 
 // Gravity tables
 const gravityTablesContainer = document.getElementById('gravityTablesContainer');

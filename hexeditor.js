@@ -61,10 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   e_applyCode.setAttribute("title", disabledButtonText);
 
-  // create the background map outline
-  //document.getElementById(currentMino).click();
-  //addMatrix();
-
   // populate the dropdown with the BM map addresses
   const selectElement = document.getElementById("BGMapSelector");
 
@@ -878,6 +874,9 @@ function openTab(event, tabName) {
   document.getElementById(tabName).style.display = "block";
 
   event.currentTarget.className += " active";
+
+  // add the correct color to the tiles
+  if(tab = "tab3") document.getElementById("palette-dropdown").dispatchEvent(new Event("change"));
 }
 
 //------------------------------------------------------------------------------------------

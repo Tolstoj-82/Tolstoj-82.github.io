@@ -337,6 +337,7 @@ const vRamTileSets = {
 // this was taken from here: https://bulbapedia.bulbagarden.net/wiki/Color_palette_(Generations_I%E2%80%93II)
 // at the moment, it only shows the background colors
 const paletteLookup = {
+  "BGB Emulator":        ["E0F8D0", "88C070", "346856", "081820"],
   "MGB-001":             ["F8F8F8", "A8A8A8", "585858", "080808"],
   "DMG-01":              ["B8F878", "80B050", "486828", "102000"],
   "MGB-101":             ["08F8F8", "08A8A8", "085858", "080808"],
@@ -397,23 +398,23 @@ const paletteLookup = {
 //       * "-x" = mirror horizontally
 //       * "-y" = mirror vertically
 //       * "-d" = non-editable duplicate
-// "x": empty non-editable tile
-// "nl": new line
+// "e": empty non-editable tile
+// "n": new line
 const spriteObjects = {
   "Border 1": ["Game Play",
-              0,1,2,"nl", 
-              6,"x",7,"nl",
-              16,18,17,"nl",
+              0,1,2,"n", 
+              6,"e",7,"n",
+              16,18,17,"n",
               3,4,5],
   
   "Border 2": ["Game Play",
-              8,9,10,"nl",
-              11,"x",12,"nl",
+              8,9,10,"n",
+              11,"e",12,"n",
               13,14,15],
 
   "Border 3": ["Game Play",
-              23,24,25,"nl",
-              26,"x",27,"nl",
+              23,24,25,"n",
+              26,"e",27,"n",
               28,29,30],
   
   "Nintendo": ["Start Screen",
