@@ -398,24 +398,24 @@ const paletteLookup = {
 //       * "-x" = mirror horizontally
 //       * "-y" = mirror vertically
 //       * "-d" = non-editable duplicate
-// "e": empty non-editable tile
-// "n": new line
+//       * "-n" = this tile will be rendered on a new line
+// use 0 to indicate an empty tile, that is not editable
 const spriteObjects = {
   "Border 1": ["Game Play",
-              0,1,2,"n", 
-              6,"e",7,"n",
-              16,18,17,"n",
-              3,4,5],
+              0,1,2, 
+              "6-n","e",7,
+              "16-n",18,17,
+              "3-n",4,5],
   
   "Border 2": ["Game Play",
-              8,9,10,"n",
-              11,"e",12,"n",
-              13,14,15],
+              8,9,10,
+              "11-n","e",12,
+              "13-n",14,15],
 
   "Border 3": ["Game Play",
-              23,24,25,"n",
-              26,"e",27,"n",
-              28,29,30],
+              23,24,25,
+              "26-n","e",27,
+              "28-n",29,30],
   
   "Nintendo": ["Start Screen",
               9,10,11,"10-d",12,13,14,15,16,17,18],

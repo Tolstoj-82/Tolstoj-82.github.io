@@ -900,37 +900,44 @@ function loadObjectSprite(objectName, highlightOnly) {
   const startingAddress = parseInt(startingAddressHex, 16);
   const bitsPerPixel = tileAddressesInROM[romTileSet][2];
 
-  // address array
+  // arrays
   const tileAddresses = [];
+  const flags = [];
 
-  // Step 4: Loop through all consecutive entries of objects[objectName]
+  // Loop through all consecutive entries of objects[objectName]
   for (let i = 1; i < objectData.length; i++) {
-    const entry = objectData[i];
-    if (!isNaN(entry)) {
-      const entryValue = parseInt(entry);
-      const combinedValue = (startingAddress + 8 * entryValue * bitsPerPixel).toString(16).toUpperCase().padStart(4, '0');
-      if(highlightOnly){
-        // Highlight the corresponding tile with animation
-        const tileElement = document.getElementById(`tileaddr-${combinedValue}`);
-        if (tileElement) {
-          tileElement.classList.add('highlighted');
+    let entry = String(objectData[i]);
+    let flag = "";
 
-          // Remove the "highlighted" class after the animation completes
-          setTimeout(() => {
-            tileElement.classList.remove('highlighted');
-          }, 1000); // 1000ms (1 second) is the duration of the animation
-        }
-      }else{
-        //console.log(combinedValue);
-        tileAddresses.push(combinedValue);  
-      }
-    } else {
-      if(!highlightOnly){
-        tileAddresses.push(entry);
-      }
+    // for some reason this is required (0 could be any existing tile number)
+    if(entry === "e") entry = "0-e"; 
+
+    // if the entry contains flags...
+    if (entry.includes("-")) {
+      const splitEntry = entry.split("-");
+      entry = splitEntry[0];
+      flag = splitEntry[1];
     }
-  }
+
+    const combinedValue = (startingAddress + 8 * parseInt(entry) * bitsPerPixel).toString(16).toUpperCase().padStart(4, '0');
+    if(highlightOnly){
+      // Highlight the corresponding tile with animation
+      const tileElement = document.getElementById(`tileaddr-${combinedValue}`);
+      if (tileElement) {
+        tileElement.classList.add('highlighted');
+
+        // Remove the "highlighted" class after the animation completes
+        setTimeout(() => {
+          tileElement.classList.remove('highlighted');
+        }, 1000); // 1000ms (1 second) is the duration of the animation
+      }
+    }else{
+      tileAddresses.push(combinedValue);
+      flags.push(flag);
+    }
+
+}
 
   //console.log(tileAddresses); 
-  if(!highlightOnly) openTileDialog(tileAddresses);
+  if(!highlightOnly) openTileDialog(tileAddresses, flags);
 }

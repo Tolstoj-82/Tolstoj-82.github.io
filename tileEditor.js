@@ -157,7 +157,7 @@ function handleClick(event) {
     const clickedPixel = event.target.closest(".pixel");
     if (clickedPixel) {
       //alert([clickedTile.id.replace("tileaddr-", "")]);
-      openTileDialog([clickedTile.id.replace("tileaddr-", "")]);
+      openTileDialog([clickedTile.id.replace("tileaddr-", "")],[""]);
     }
   }
 }
@@ -167,7 +167,7 @@ function handleClick(event) {
 // THERE IS A LOT OF ROOM FOR IMPROVEMENT HERE!
 
 // Make sure to have an isDialogOpen variable to track the dialog state
-function openTileDialog(tileIDs) {
+function openTileDialog(tileIDs, flags) {
 
   // Find the matching tiles based on the provided IDs
   const tilesToOpen = [];
@@ -186,10 +186,21 @@ function openTileDialog(tileIDs) {
   dialogContainer.style.display = "block";
 
   const dialogBox = document.getElementById("dialog-box");
+  
+  // Create a new wrapper div with class "tile-row"
+  let currentRow = document.createElement("div");
+  currentRow.classList.add("tile-row");
 
   // Clone the selected tiles and add them to the dialog box
-  tilesToOpen.forEach((tile) => {
-    const clonedTile = tile.cloneNode(true);
+  tilesToOpen.forEach((tile, index) => {
+    let clonedTile;
+
+    // add a dummy tile, if "e" (empty) is in the lookup table
+    if (flags[index] === "e") {
+      clonedTile = createDummyTile();
+    } else {
+      clonedTile = tile.cloneNode(true);
+    }
 
     // Add the class "big" to all div elements with class "pixel" in the cloned tile
     const pixelDivs = clonedTile.getElementsByClassName("pixel");
@@ -203,9 +214,20 @@ function openTileDialog(tileIDs) {
       clonedTile.setAttribute("id", originalID + "-clone");
     }
 
-    clonedTile.style.border = "none";
-    const tileContainer = document.getElementById("tile-container");
-    tileContainer.appendChild(clonedTile);
+    // Check if the flag for the current tile is "n" and start a new row if needed
+    if (flags[index] === "n") {
+      // Append the current row to the container before starting a new row
+      const tileContainer = document.getElementById("tile-container");
+      tileContainer.appendChild(currentRow);
+
+      // Create a new row for the next set of tiles
+      currentRow = document.createElement("div");
+      currentRow.classList.add("tile-row");
+    }
+
+    // Append the cloned tile to the current row
+    clonedTile.style.border = "1px dotted blue";
+    currentRow.appendChild(clonedTile);
 
     // Fetch colors from color pickers
     const colors = [];
@@ -217,6 +239,10 @@ function openTileDialog(tileIDs) {
     // Pass the colors array and the clonedTile to the generateColorSelector function
     generateColorSelector(colors, [clonedTile]); // Pass the cloned tile in an array
   });
+
+  // After the loop, append the last row (if any) to the container
+  const tileContainer = document.getElementById("tile-container");
+  tileContainer.appendChild(currentRow);
 
   tileToUpdate = tilesToOpen[0];
 
@@ -236,6 +262,7 @@ function openTileDialog(tileIDs) {
   dialogBox.addEventListener("mouseup", () => {
     isMouseButtonDown = false;
   });
+
 
   dialogContainer.appendChild(dialogBox);
   document.body.appendChild(dialogContainer);
@@ -261,7 +288,7 @@ function openTileDialog(tileIDs) {
 //------------------------------------------------------------------------------------------
 function handlePixelColoring(event) {
   const selectedPixel = event.target;
-  if (selectedPixel.classList.contains("pixel")) {
+  if (selectedPixel.classList.contains("pixel") && !selectedPixel.classList.contains("cole")) {
     if (event.type === "mousedown") {
       isMouseButtonDown = true;
       setColorAndClass(selectedPixel);
@@ -358,20 +385,28 @@ function discardChangesOnTiles(){
 function saveTilesAfterDrawing(){
 
   // Get the modified tile from the dialog box
-  const modifiedTile = document.getElementById("tile-container").firstElementChild;    
+  //const modifiedTile = document.getElementById("tile-container").firstElementChild; 
+  
+  // Get the tile-container element
+  const tileContainer = document.getElementById("tile-container");
+  const tilesArray = Array.from(tileContainer.querySelectorAll(".tile"));
+  const modifiedTile = tilesArray[0];
 
   let thisTileStartAddress;
   let bitsPerPixels;
 
   // only procede if there is a tile
   if (modifiedTile && modifiedTile.id) {
-    thisTileStartAddress = modifiedTile.id.replace("tileaddr-", "");
+
+    // Remove "tileaddr-" and "-clone" from the ID to get the tile address
+    thisTileStartAddress = modifiedTile.id.replace("tileaddr-", "").replace("-clone", "");
     bitsPerPixels = parseInt(modifiedTile.getAttribute("data-bpp"));
 
-    // Remove the "big" class from the pixel divs of the modified tile
+    // Remove the "big" and "-clone"
     const modifiedPixelDivs = modifiedTile.getElementsByClassName("pixel");
     Array.from(modifiedPixelDivs).forEach((div) => {
       div.classList.remove("big");
+      div.id = div.id.replace("-clone", "");
     });
 
     // Initialize the binVals array
@@ -395,7 +430,6 @@ function saveTilesAfterDrawing(){
           const binaryValue = parseInt(colNumber).toString(2).padStart(2, "0");
           binVals.push(binaryValue[0]);
           binVals2.push(binaryValue[1]);
-          //console.log(binVals2);
         }
 
         // Check if binVals has 8 values, join them and make them a hex value
@@ -467,4 +501,36 @@ function updateColorPalette(selector, color, colorPicker) {
   elements.forEach((element) => {
     element.style.backgroundColor = color;
   });
+}
+
+//------------------------------------------------------------------------------------------
+// Function to create the 8x8 dummy tile grid dynamically
+// Usage:
+// const gridElement = createDummyTile();
+// document.getElementById("gridContainer").appendChild(gridElement);
+function createDummyTile() {
+
+  // Create a container element for the grid
+  const gridContainer = document.createElement("div");
+  gridContainer.classList.add("tile", "dummy");
+
+  // Create the rows and columns with nested loops
+  for (let i = 0; i < 8; i++) {
+    const rowDiv = document.createElement("div");
+    rowDiv.classList.add("row");
+
+    for (let j = 0; j < 8; j++) {
+      const pixelDiv = document.createElement("div");
+      pixelDiv.classList.add("pixel", "cole");
+
+      // Append the pixel to the row
+      rowDiv.appendChild(pixelDiv);
+    }
+
+    // Append the row to the grid container
+    gridContainer.appendChild(rowDiv);
+  }
+
+  // Return the grid container
+  return gridContainer;
 }
