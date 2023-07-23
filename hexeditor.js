@@ -922,7 +922,9 @@ function loadObjectSprite(objectName, highlightOnly) {
     const combinedValue = (startingAddress + 8 * parseInt(entry) * bitsPerPixel).toString(16).toUpperCase().padStart(4, '0');
     if(highlightOnly){
       // Highlight the corresponding tile with animation
-      const tileElement = document.getElementById(`tileaddr-${combinedValue}`);
+      let tileElement = document.getElementById(`tileaddr-${combinedValue}`);
+      if(flag === "e") tileElement = null;
+
       if (tileElement) {
         tileElement.classList.add('highlighted');
 

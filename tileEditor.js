@@ -383,113 +383,109 @@ function discardChangesOnTiles(){
 //------------------------------------------------------------------------------------------
 // Save changes made to tiles
 function saveTilesAfterDrawing(){
-
-  // Get the modified tile from the dialog box
-  //const modifiedTile = document.getElementById("tile-container").firstElementChild; 
   
   // Get the tile-container element
   const tileContainer = document.getElementById("tile-container");
   const tilesArray = Array.from(tileContainer.querySelectorAll(".tile"));
-  const modifiedTile = tilesArray[0];
-
+  let modifiedTile;
   let thisTileStartAddress;
   let bitsPerPixels;
 
-  // only procede if there is a tile
-  if (modifiedTile && modifiedTile.id) {
+  for(let i = 0; i<tilesArray.length; i++){
+    // only procede if there is a tile
+    modifiedTile = tilesArray[i];
+    if (modifiedTile && modifiedTile.id) {
 
-    // Remove "tileaddr-" and "-clone" from the ID to get the tile address
-    thisTileStartAddress = modifiedTile.id.replace("tileaddr-", "").replace("-clone", "");
-    bitsPerPixels = parseInt(modifiedTile.getAttribute("data-bpp"));
+      // Remove "tileaddr-" and "-clone" from the ID to get the tile address
+      thisTileStartAddress = modifiedTile.id.replace("tileaddr-", "").replace("-clone", "");
+      bitsPerPixels = parseInt(modifiedTile.getAttribute("data-bpp"));
 
-    // Remove the "big" and "-clone"
-    const modifiedPixelDivs = modifiedTile.getElementsByClassName("pixel");
-    Array.from(modifiedPixelDivs).forEach((div) => {
-      div.classList.remove("big");
-      div.id = div.id.replace("-clone", "");
-    });
+      // Remove the "big" and "-clone"
+      const modifiedPixelDivs = modifiedTile.getElementsByClassName("pixel");
+      const binVals = [];
+      const binVals2 = [];
+      const hexVals = [];
+      const hexVals2 = [];
 
-    // Initialize the binVals array
-    const binVals = [];
-    const binVals2 = [];
-    const hexVals = [];
-    const hexVals2 = [];
+      modifiedTile.id = modifiedTile.id.replace("-clone", "");
 
-    // Get the class names starting with "col" from the modified pixel divs
-    Array.from(modifiedPixelDivs).forEach((div) => {
-      const classNames = Array.from(div.classList);
-      const colClass = classNames.find((className) => className.startsWith("col"));
-      if (colClass) {
-        let colNumber = colClass.slice(3);
-        if (bitsPerPixels === 1) {
-          colNumber /= 3;
-          // Add the colNumber to binVals
-          binVals.push(colNumber);
-        } else {
-          // Convert colNumber to a 2-digit binary value
-          const binaryValue = parseInt(colNumber).toString(2).padStart(2, "0");
-          binVals.push(binaryValue[0]);
-          binVals2.push(binaryValue[1]);
+      Array.from(modifiedPixelDivs).forEach((div) => {
+        div.classList.remove("big");
+
+        const classNames = Array.from(div.classList);
+        const colClass = classNames.find((className) => className.startsWith("col"));
+        if (colClass) {
+          let colNumber = colClass.slice(3);
+          if (bitsPerPixels === 1) {
+            colNumber /= 3;
+            binVals.push(colNumber);
+          } else {
+            const binaryValue = parseInt(colNumber).toString(2).padStart(2, "0");
+            binVals.push(binaryValue[0]);
+            binVals2.push(binaryValue[1]);
+          }
+
+          // Check if binVals has 8 values, join them and make them a hex value
+          if (binVals.length === 8) {
+            const joinedValues = binVals.join("");
+            const hexValue = parseInt(joinedValues, 2).toString(16).padStart(2, "0").toUpperCase();
+            hexVals.push(hexValue);
+            binVals.length = 0;
+          }
+
+          // Check if binVals2 has 8 values, join them and make them a hex value
+          if (binVals2.length === 8) {
+            const joinedValues2 = binVals2.join("");
+            const hexValue2 = parseInt(joinedValues2, 2).toString(16).padStart(2, "0").toUpperCase();
+            hexVals2.push(hexValue2);
+            binVals2.length = 0;
+          }
         }
+      });
 
-        // Check if binVals has 8 values, join them and make them a hex value
-        if (binVals.length === 8) {
-          const joinedValues = binVals.join("");
-          const hexValue = parseInt(joinedValues, 2).toString(16).padStart(2, "0").toUpperCase();
-          hexVals.push(hexValue);
-          binVals.length = 0;
+      if (bitsPerPixels === 2) {
+        const combinedHexVals = [];
+      
+        for (let i = 0; i < hexVals.length; i++) {
+          combinedHexVals.push(hexVals2[i]);
+          combinedHexVals.push(hexVals[i]);
         }
+      
+        hexVals.splice(0, hexVals.length, ...combinedHexVals);
 
-        // Check if binVals2 has 8 values, join them and make them a hex value
-        if (binVals2.length === 8) {
-          const joinedValues2 = binVals2.join("");
-          const hexValue2 = parseInt(joinedValues2, 2).toString(16).padStart(2, "0").toUpperCase();
-          hexVals2.push(hexValue2);
-          binVals2.length = 0;
-        }
       }
-    });
+      
+      closeTileDialog();
 
-    if (bitsPerPixels === 2) {
-      const combinedHexVals = [];
-    
+      tileToUpdate = document.getElementById("tileaddr-" + thisTileStartAddress);
+
+      // Replace the original tile with the modified tile
+      if (tileToUpdate) {
+        tileToUpdate.parentNode.replaceChild(modifiedTile, tileToUpdate);
+      }
+
+      // replace the values in the ROM
+      startAddress = thisTileStartAddress;
+      let currentAddress = startAddress;
+
       for (let i = 0; i < hexVals.length; i++) {
-        combinedHexVals.push(hexVals2[i]);
-        combinedHexVals.push(hexVals[i]);
-      }
-    
-      hexVals.splice(0, hexVals.length, ...combinedHexVals);
+        let cellId = currentAddress.toUpperCase();
+        let cell = document.querySelector(`td.hexValueCell[id="${cellId}"]`);
 
-    }
+        if (cell) {
+          cell.textContent = hexVals[i];
+        }
 
-    // Replace the original tile with the modified tile
-    if (tileToUpdate) {
-      tileToUpdate.parentNode.replaceChild(modifiedTile, tileToUpdate);
-    }
-
-    closeTileDialog();
-
-    // replace the values in the ROM
-    startAddress = thisTileStartAddress;
-    let currentAddress = startAddress;
-
-    for (let i = 0; i < hexVals.length; i++) {
-      let cellId = currentAddress.toUpperCase();
-      let cell = document.querySelector(`td.hexValueCell[id="${cellId}"]`);
-
-      if (cell) {
-        cell.textContent = hexVals[i];
+        // Increment currentAddress to the next higher hexadecimal value
+        let currentNumber = parseInt(currentAddress, 16);
+        currentNumber++;
+        currentAddress = currentNumber.toString(16).toUpperCase().padStart(4, '0');
       }
 
-      // Increment currentAddress to the next higher hexadecimal value
-      let currentNumber = parseInt(currentAddress, 16);
-      currentNumber++;
-      currentAddress = currentNumber.toString(16).toUpperCase().padStart(4, '0');
+      scrollToAddress(startAddress);
+
+      addToLog("Tile starting at address $" + startAddress + " was overwritten");
     }
-
-    scrollToAddress(startAddress);
-
-    addToLog("Tile starting at address $" + startAddress + " was overwritten");
   }
 }
 
