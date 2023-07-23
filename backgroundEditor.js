@@ -215,7 +215,7 @@ function saveTileToLocalStorage(vramAddress) {
 }
   
 // exchanges the src of an existing Image with ID = imgId with the tile with tileAddress
-function displayTileImageFromLocalStorage(tileAddress, imgId) {
+/*function displayTileImageFromLocalStorage(tileAddress, imgId) {
     var localStorageKey = "tileImage-" + tileAddress;
     var imageDataURL = localStorage.getItem(localStorageKey);
 
@@ -226,7 +226,38 @@ function displayTileImageFromLocalStorage(tileAddress, imgId) {
             img.setAttribute("data-tile-ID", tileAddress);
         }
     }
+}*/
+function displayTileImageFromLocalStorage(tileAddress, imgId) {
+  var localStorageKey = "tileImage-" + tileAddress;
+  var imageDataURL = localStorage.getItem(localStorageKey);
+
+  if (imageDataURL) {
+      var img = document.getElementById(imgId);
+      if (img) {
+          img.src = imageDataURL;
+          img.setAttribute("data-tile-ID", tileAddress);
+
+          // Get the parent <li> element of the img
+          var liElement = img.parentNode;
+          if (liElement) {
+              // Clear existing content of the <li> element
+              liElement.innerHTML = '';
+
+              // Create a <div> element for the tileAddress and make it invisible
+              var divElement = document.createElement('div');
+              divElement.textContent = tileAddress;
+              divElement.classList.add('BGtileID');
+              divElement.style.display = 'none';
+
+              // Append the img and the div to the <li> element
+              liElement.appendChild(img);
+              liElement.appendChild(divElement);
+          }
+      }
+  }
 }
+
+
 
 // wipes the image from the local storage
 // tiles 00 to FF
@@ -237,3 +268,26 @@ function wipeTilesFromLocalStorage() {
       if (localStorage.getItem(key)) localStorage.removeItem(key);
     }
 }
+
+function toggleBGImages() {
+  var olElement = document.getElementById("selectable");
+  if (!olElement) return;
+
+  var liElements = olElement.getElementsByTagName("li");
+
+  // Loop through all li elements and toggle the visibility of their child images and BGtileID divs
+  for (var i = 0; i < liElements.length; i++) {
+      var imgElement = liElements[i].querySelector("img");
+      var bgDiv = liElements[i].querySelector(".BGtileID");
+      if (imgElement && bgDiv) {
+          if (imgElement.style.display === "none") {
+              imgElement.style.display = "block";
+              bgDiv.style.display = "none";
+          } else {
+              imgElement.style.display = "none";
+              bgDiv.style.display = "block";
+          }
+      }
+  }
+}
+
