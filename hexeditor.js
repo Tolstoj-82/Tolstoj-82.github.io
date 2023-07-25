@@ -46,6 +46,11 @@ document.getElementById('autoApplyToggle').addEventListener('change', function()
   autoApply = this.checked;
 });
 
+document.getElementById('addressesToggle').addEventListener('change', function() {
+  toggleBGImages();
+});
+
+
 //**************************************************************************************/
 // (2) DOM CONTENT LOADED
 //**************************************************************************************/
@@ -910,7 +915,11 @@ function loadObjectSprite(objectName, highlightOnly) {
     let flag = "";
 
     // for some reason this is required (0 could be any existing tile number)
-    if(entry === "e") entry = "0-e"; 
+    if(entry === "e"){
+      entry = "0-e";
+    }else if(entry === "e-n"){
+      entry = "0-en";
+    } 
 
     // if the entry contains flags...
     if (entry.includes("-")) {
@@ -940,6 +949,5 @@ function loadObjectSprite(objectName, highlightOnly) {
 
 }
 
-  //console.log(tileAddresses); 
   if(!highlightOnly) openTileDialog(tileAddresses, flags);
 }

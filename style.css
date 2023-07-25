@@ -1135,3 +1135,18 @@ div.pixel.cole{
   background-color: lightgray;
   cursor: not-allowed;
 }
+
+.button-group {
+  display: flex;
+  align-items: center;
+}
+
+.button-group button,
+.button-group input,
+.button-group .toggle-switch {
+  margin-right: 10px;
+}
+
+.toggle-text {
+  color: #333;
+}

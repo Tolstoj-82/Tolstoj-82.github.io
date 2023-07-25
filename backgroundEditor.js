@@ -93,7 +93,10 @@ $( function(){
                 /*else this.classList.add(mino);*/
                 $(el).find('img')
                 .attr('src', localStorage.getItem("tileImage-" + currentMino.toUpperCase()))
-                .attr('data-tile-ID', currentMino.toUpperCase());
+                .attr('data-tile-id', currentMino.toUpperCase());
+
+                // Also update the text "behind" the image
+                $(el).find('.BGtileID').text(currentMino.toUpperCase());
             });
 
         }
@@ -214,19 +217,7 @@ function saveTileToLocalStorage(vramAddress) {
     localStorage.setItem(localStorageKey, imageDataURL);
 }
   
-// exchanges the src of an existing Image with ID = imgId with the tile with tileAddress
-/*function displayTileImageFromLocalStorage(tileAddress, imgId) {
-    var localStorageKey = "tileImage-" + tileAddress;
-    var imageDataURL = localStorage.getItem(localStorageKey);
-
-    if (imageDataURL) {
-        var img = document.getElementById(imgId);
-        if (img) {
-            img.src = imageDataURL;
-            img.setAttribute("data-tile-ID", tileAddress);
-        }
-    }
-}*/
+// exchanges src of images (BG Map) also adds the address in a DIV. This can be toggled.
 function displayTileImageFromLocalStorage(tileAddress, imgId) {
   var localStorageKey = "tileImage-" + tileAddress;
   var imageDataURL = localStorage.getItem(localStorageKey);
@@ -257,8 +248,6 @@ function displayTileImageFromLocalStorage(tileAddress, imgId) {
   }
 }
 
-
-
 // wipes the image from the local storage
 // tiles 00 to FF
 function wipeTilesFromLocalStorage() {
@@ -269,13 +258,12 @@ function wipeTilesFromLocalStorage() {
     }
 }
 
+  // Toggles the visibility in the BG Map (image or address)
 function toggleBGImages() {
   var olElement = document.getElementById("selectable");
   if (!olElement) return;
 
   var liElements = olElement.getElementsByTagName("li");
-
-  // Loop through all li elements and toggle the visibility of their child images and BGtileID divs
   for (var i = 0; i < liElements.length; i++) {
       var imgElement = liElements[i].querySelector("img");
       var bgDiv = liElements[i].querySelector(".BGtileID");

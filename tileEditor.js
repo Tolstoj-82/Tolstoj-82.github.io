@@ -8,7 +8,7 @@ let isMouseButtonDown = false;
 let isDialogOpen = false;
 let clickableDivs;
 let selectedTile;
-let tileToUpdate; // <----------- CHANGE THIS! WE NOW WORK WITH AN ARRAY!
+let tileToUpdate;
 
 //------------------------------------------------------------------------------------------
 // Draws all tiles from the ROM file
@@ -194,10 +194,19 @@ function openTileDialog(tileIDs, flags) {
   // Clone the selected tiles and add them to the dialog box
   tilesToOpen.forEach((tile, index) => {
     let clonedTile;
+    let newLine = false;
+
+    if(flags[index].includes["n"]) newLine = true;
+
+    if(flags[index] == "en"){
+      flags[index] = "e";
+      newLine = true;
+    }
 
     // add a dummy tile, if "e" (empty) is in the lookup table
-    if (flags[index] === "e") {
+    if (flags[index].includes("e")) {
       clonedTile = createDummyTile();
+      if(newLine == true) flags[index] = "n";
     } else {
       clonedTile = tile.cloneNode(true);
     }
@@ -504,7 +513,7 @@ function updateColorPalette(selector, color, colorPicker) {
 // Usage:
 // const gridElement = createDummyTile();
 // document.getElementById("gridContainer").appendChild(gridElement);
-function createDummyTile() {
+function createDummyTile(onANewLine) {
 
   // Create a container element for the grid
   const gridContainer = document.createElement("div");
@@ -518,15 +527,10 @@ function createDummyTile() {
     for (let j = 0; j < 8; j++) {
       const pixelDiv = document.createElement("div");
       pixelDiv.classList.add("pixel", "cole");
-
-      // Append the pixel to the row
       rowDiv.appendChild(pixelDiv);
     }
-
-    // Append the row to the grid container
     gridContainer.appendChild(rowDiv);
   }
 
-  // Return the grid container
   return gridContainer;
 }
