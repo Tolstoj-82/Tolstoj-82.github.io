@@ -884,8 +884,8 @@ function openTab(event, tabName) {
   if(tab = "tab3") document.getElementById("palette-dropdown").dispatchEvent(new Event("change"));
 }
 
-//------------------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------------------
 // Function to load the tiles of an object (e.g. sprite)
 function loadObjectSprite(objectName, highlightOnly) {
   

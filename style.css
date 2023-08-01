@@ -1150,3 +1150,16 @@ div.pixel.cole{
 .toggle-text {
   color: #333;
 }
+
+.mirror-x {
+  transform: scaleX(-1);
+}
+
+.mirror-y {
+  transform: scaleY(-1);
+}
+
+.non-editable {
+  opacity: 0.5;
+  pointer-events: none;
+}

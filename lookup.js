@@ -395,15 +395,17 @@ const paletteLookup = {
 // first entry: ROM tile set (see "tileAddressesInROM")
 // #: position in ROM tile set (starts at 0)
 //     flags: 
-//       * "-x" = mirror horizontally
-//       * "-y" = mirror vertically
-//       * "-d" = non-editable duplicate
-//       * "-n" = this tile will be rendered on a new line
+//       * "x" = mirror horizontally
+//       * "y" = mirror vertically
+//       * "d" = non-editable duplicate
+//       * "n" = this tile will be rendered on a new line
 // use "e" to indicate an empty tile, that is not editable
 //
 // a tile can have multiple flags 0-nxd: tile #0 on a new line,... 
 // ...mirrored horizontally and as a non-editable duplicate
 const spriteObjects = {
+  
+  // Borders
   "Score/Lines Border": 
     ["Game Play",
     "0","1","2", 
@@ -422,14 +424,24 @@ const spriteObjects = {
     "23","24","25",
     "26-n","e","27",
     "28-n","29","30"],
+
+    "Dotted border":
+    ["Game Play",
+    "36","32","33","34","35",
+    "37-n","39", "40", "41", "42"],
+
+  "Bright border":
+    ["Game Play",
+    "49","50","51",
+    "52-n", "e", "53",
+    "54-n", "57", "58"
+    ],
   
   "Nintendo": 
-    ["Start Screen",
-    "12","9","10","11","10-d","e","13","14","15","16","17","18"],
+    ["Start Screen","12","9","10","11","10-d","e","13","14","15","16","17","18"],
 
   "Numbers":  
-    ["ABC",
-    "0","1","2","3","4","5","6","7","8","9"],
+    ["ABC","0","1","2","3","4","5","6","7","8","9"],
   
   "Letters": 
     ["ABC",
@@ -449,11 +461,7 @@ const spriteObjects = {
     "156-n","157","158","159"],
 
   "Playfield Wall":
-    ["Game Play",
-    "75",
-    "76-n",
-    "77-n"
-    ],
+    ["Game Play","75","76-n","77-n"],
 
   "Bright letters":
     ["Game Play",
@@ -461,67 +469,18 @@ const spriteObjects = {
     "100-n", "101", "102", "103", "104", "105", "106", "107", "108",
     "110-n", "111", "112", "113", "114", "115", "116", "117", "118",
     "119-n", "150", "151"],
+ 
+  // Pieces
+  "L-Piece":              ["Game Play","84-d","84-d","84-d","84-n","e","e"],
+  "J-Piece":              ["Game Play","81-d","81-d","81-d","e-n","e","81"],
+  "I-Piece (horizontal)": ["Game Play","90","91","91-d","95"],
+  "I-Piece (vertical)":   ["Game Play","80","88-n","88-n","89-n"],
+  "O-Piece":              ["Game Play","83","83","83-n","83"],
+  "Z-Piece":              ["Game Play","82","82","e","e-n","82","82"],
+  "S-Piece":              ["Game Play","e","86","86","86","86","e"],
+  "T-Piece":              ["Game Play","85","85","85","e-n","85","e"], 
   
-  "L-Piece":
-    ["Game Play",
-    "84-d", "84-d", "84-d",
-    "84-n", "e", "e"],
-  
-  "J-Piece":
-    ["Game Play",
-    "81-d", "81-d", "81-d",
-    "e-n", "e", "81"],
-
-  "I-Piece (horizontal)":
-    ["Game Play",
-    "90", "91", "91-d", "95"
-    ],
-  
-  "I-Piece (vertical)":
-    ["Game Play",
-    "80", 
-    "88-n", 
-    "88-n", 
-    "89-n"
-    ],
-
-  "O-Piece":
-    ["Game Play",
-    "83","83",
-    "83-n","83"
-    ],
-
-  "Z-Piece":
-    ["Game Play",
-    "82","82","e",
-    "e-n","82","82"
-    ],
-
-  "S-Piece":
-    ["Game Play",
-    "e","86","86",
-    "86","86","e"
-    ],
-
-  "T-Piece":
-    ["Game Play",
-    "85","85","85",
-    "e-n","85","e"
-    ],
-  
-  "Dotted border":
-    ["Game Play",
-    "36","32","33","34","35",
-    "37-n","39", "40", "41", "42"],
-
-  "Bright border":
-    ["Game Play",
-    "49","50","51",
-    "52-n", "e", "53",
-    "54-n", "57", "58"
-    ],
-  
-  "Mario Head":["Game Play", "126", "127-n"],
+  "Mario Head":["Game Play", "126", "126-xd", "127-n", "127-xd"],
   "Luigi Head":["Game Play", "144", "145-n"],
   
   "Rod":["Game Play", "131", "133-n", "132-n"],
@@ -541,6 +500,4 @@ const spriteObjects = {
     "163-n", "164",
     "165-n", "166",
     "168-n", "e"],
-
-  
 }

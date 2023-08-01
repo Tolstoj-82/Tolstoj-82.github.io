@@ -169,6 +169,9 @@ function handleClick(event) {
 // Make sure to have an isDialogOpen variable to track the dialog state
 function openTileDialog(tileIDs, flags) {
 
+  /*console.log(tileIDs);
+  console.log(flags);*/
+
   // Find the matching tiles based on the provided IDs
   const tilesToOpen = [];
   const allTiles = document.querySelectorAll(".tile");
@@ -191,11 +194,15 @@ function openTileDialog(tileIDs, flags) {
   let currentRow = document.createElement("div");
   currentRow.classList.add("tile-row");
 
+  // Create a map to store editable tiles with their corresponding non-editable clones
+  const tilesMap = new Map();
+
   // Clone the selected tiles and add them to the dialog box
   tilesToOpen.forEach((tile, index) => {
     let clonedTile;
     let newLine = false;
 
+    // new line
     if(flags[index].includes["n"]) newLine = true;
 
     if(flags[index] == "en"){
@@ -203,12 +210,57 @@ function openTileDialog(tileIDs, flags) {
       newLine = true;
     }
 
-    // add a dummy tile, if "e" (empty) is in the lookup table
+    // Check if the flag contains "e" (empty) or "d" (non-editable clone)
+    if (flags[index].includes("e") || flags[index].includes("d")) {
+      const originalTileID = tileIDs[index].replace("d", ""); // Remove "d" from the ID to find the editable tile
+      const editableTile = tilesMap.get(originalTileID); // Check if the editable tile exists in the map
+
+      if (editableTile) {
+        // If the editable tile exists in the map, clone it and add the "non-editable" class if necessary
+        clonedTile = flags[index].includes("d") ? editableTile.cloneNode(true) : createDummyTile();
+        if (flags[index].includes("d")) clonedTile.classList.add("non-editable");
+      } else {
+        // If the editable tile does not exist in the map, create a dummy tile
+        clonedTile = createDummyTile();
+      }
+    } else {
+      // If the flag is not "e" or "d", it is an editable tile; store it in the tilesMap
+      tilesMap.set(tileIDs[index], tile);
+      clonedTile = tile.cloneNode(true);
+    }
+
+
+  /*  // add a dummy tile, if flag = "e" (empty)
     if (flags[index].includes("e")) {
       clonedTile = createDummyTile();
       if(newLine == true) flags[index] = "n";
     } else {
       clonedTile = tile.cloneNode(true);
+    }
+
+    // Check if the flag contains "d" (non-editable clone)
+    if (flags[index].includes("d")) {
+      const originalTileID = tileIDs[index]; // Get the original tile ID (without the "d" flag)
+      const editableTile = tilesMap.get(originalTileID); // Check if the editable tile exists in the map
+
+      if (editableTile) {
+        // If the editable tile exists in the map, clone it and add the "non-editable" class
+        clonedTile = editableTile.cloneNode(true);
+        clonedTile.classList.add("non-editable");
+      } else {
+        // If the editable tile does not exist in the map, create a dummy tile
+        clonedTile = createDummyTile();
+      }
+    }*/
+
+    // Check if the flag contains "x" (mirror horizontally)
+    if (flags[index].includes("x")) {
+      clonedTile.classList.add("mirror-x");
+    }
+
+    // Check if the flag contains "y" (mirror vertically)
+    if (flags[index].includes("y")) {
+      clonedTile.classList.add("mirror-y");
     }
 
     // Add the class "big" to all div elements with class "pixel" in the cloned tile
