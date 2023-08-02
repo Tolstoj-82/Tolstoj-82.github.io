@@ -175,6 +175,7 @@ function openTileDialog(tileIDs, flags) {
   // Find the matching tiles based on the provided IDs
   const tilesToOpen = [];
   const allTiles = document.querySelectorAll(".tile");
+  let newLine = false;
 
   tileIDs.forEach((idPart) => {
     const matchingTile = Array.from(allTiles).find((tile) =>
@@ -203,11 +204,26 @@ function openTileDialog(tileIDs, flags) {
     let newLine = false;
 
     // new line
-    if(flags[index].includes["n"]) newLine = true;
+    if (flags[index].includes("n")) newLine = true; // Update the newLine flag if "n" is found in the flags
 
-    if(flags[index] == "en"){
+    // Check if the flag contains "e" (empty) or "d" (non-editable clone)
+    if (flags[index] == "en") {
       flags[index] = "e";
       newLine = true;
+    }
+
+    // Check if the flag for the current tile is "n" and start a new row if needed
+    if (newLine) {
+      // Append the current row to the container before starting a new row
+      const tileContainer = document.getElementById("tile-container");
+      tileContainer.appendChild(currentRow);
+
+      // Create a new row for the next set of tiles
+      currentRow = document.createElement("div");
+      currentRow.classList.add("tile-row");
+
+      // Reset the newLine flag after starting a new line
+      newLine = false;
     }
 
     // Check if the flag contains "e" (empty) or "d" (non-editable clone)
@@ -228,30 +244,6 @@ function openTileDialog(tileIDs, flags) {
       tilesMap.set(tileIDs[index], tile);
       clonedTile = tile.cloneNode(true);
     }
-
-
-  /*  // add a dummy tile, if flag = "e" (empty)
-    if (flags[index].includes("e")) {
-      clonedTile = createDummyTile();
-      if(newLine == true) flags[index] = "n";
-    } else {
-      clonedTile = tile.cloneNode(true);
-    }
-
-    // Check if the flag contains "d" (non-editable clone)
-    if (flags[index].includes("d")) {
-      const originalTileID = tileIDs[index]; // Get the original tile ID (without the "d" flag)
-      const editableTile = tilesMap.get(originalTileID); // Check if the editable tile exists in the map
-
-      if (editableTile) {
-        // If the editable tile exists in the map, clone it and add the "non-editable" class
-        clonedTile = editableTile.cloneNode(true);
-        clonedTile.classList.add("non-editable");
-      } else {
-        // If the editable tile does not exist in the map, create a dummy tile
-        clonedTile = createDummyTile();
-      }
-    }*/
 
     // Check if the flag contains "x" (mirror horizontally)
     if (flags[index].includes("x")) {
