@@ -105,6 +105,8 @@ function displayTiles(pixelValues, tileAddress, bitsPerPixel) {
     tile.id = "tileaddr-" + tileAddress[t];
     tile.setAttribute("data-BPP", bitsPerPixel);    
 
+    let pixelCount = 0;
+
     for (let row = 0; row < 8; row++) {
       const rowIndex = t * 8 + row;
       if (rowIndex >= pixelValues.length) {
@@ -121,10 +123,13 @@ function displayTiles(pixelValues, tileAddress, bitsPerPixel) {
 
         const pixel = document.createElement("div");
         pixel.className = "pixel";
-
+        
+        pixel.setAttribute("data-pixelNumber", pixelCount);
+        
         pixel.classList.add(`col${digit}`);
 
         rowContainer.appendChild(pixel);
+        pixelCount++;
       }
 
       tile.appendChild(rowContainer);
@@ -166,16 +171,22 @@ function handleClick(event) {
 // Modal that let's you edit tiles
 // THERE IS A LOT OF ROOM FOR IMPROVEMENT HERE!
 
-// Make sure to have an isDialogOpen variable to track the dialog state
 function openTileDialog(tileIDs, flags) {
+  //console.log("tileIDs= " + tileIDs);
 
-  /*console.log(tileIDs);
-  console.log(flags);*/
+  const countMap = {};
+
+  // Get the unique tiles and count how many of these there are in this tile set
+  // This is important to identify duplicates
+  for (const tileID of tileIDs) {
+    if (tileID !== "" && !countMap.hasOwnProperty(tileID)) {
+      countMap[tileID] = [0, 0];
+    }
+  }  
 
   // Find the matching tiles based on the provided IDs
   const tilesToOpen = [];
   const allTiles = document.querySelectorAll(".tile");
-  let newLine = false;
 
   tileIDs.forEach((idPart) => {
     const matchingTile = Array.from(allTiles).find((tile) =>
@@ -190,17 +201,13 @@ function openTileDialog(tileIDs, flags) {
   dialogContainer.style.display = "block";
 
   const dialogBox = document.getElementById("dialog-box");
-  
+
   // Create a new wrapper div with class "tile-row"
   let currentRow = document.createElement("div");
   currentRow.classList.add("tile-row");
 
-  // Create a map to store editable tiles with their corresponding non-editable clones
-  const tilesMap = new Map();
-
   // Clone the selected tiles and add them to the dialog box
   tilesToOpen.forEach((tile, index) => {
-    let clonedTile;
     let newLine = false;
 
     // new line
@@ -226,24 +233,22 @@ function openTileDialog(tileIDs, flags) {
       newLine = false;
     }
 
-    // Check if the flag contains "e" (empty) or "d" (non-editable clone)
-    if (flags[index].includes("e") || flags[index].includes("d")) {
-      const originalTileID = tileIDs[index].replace("d", ""); // Remove "d" from the ID to find the editable tile
-      const editableTile = tilesMap.get(originalTileID); // Check if the editable tile exists in the map
+    let clonedTile;
 
-      if (editableTile) {
-        // If the editable tile exists in the map, clone it and add the "non-editable" class if necessary
-        clonedTile = flags[index].includes("d") ? editableTile.cloneNode(true) : createDummyTile();
-        if (flags[index].includes("d")) clonedTile.classList.add("non-editable");
-      } else {
-        // If the editable tile does not exist in the map, create a dummy tile
-        clonedTile = createDummyTile();
-      }
+    // Check if the flag contains "e" (empty) create a dummy tile
+    if (flags[index].includes("e")) {
+      clonedTile = createDummyTile();
     } else {
-      // If the flag is not "e" or "d", it is an editable tile; store it in the tilesMap
-      tilesMap.set(tileIDs[index], tile);
       clonedTile = tile.cloneNode(true);
+      let splitID = clonedTile.id.split("-");
+      let thisTileAddr = splitID[1];
+
+      countMap[thisTileAddr][1]++;
+      clonedTile.id = "tileaddr-" + thisTileAddr + "-clone" + countMap[thisTileAddr][1];
     }
+
+    // can be deleted eventually
+    if (flags[index].includes("d")) clonedTile.classList.add("non-editable"); // Add the "non-editable" class if necessary
 
     // Check if the flag contains "x" (mirror horizontally)
     if (flags[index].includes("x")) {
@@ -257,18 +262,13 @@ function openTileDialog(tileIDs, flags) {
 
     // Add the class "big" to all div elements with class "pixel" in the cloned tile
     const pixelDivs = clonedTile.getElementsByClassName("pixel");
-    Array.from(pixelDivs).forEach((div) => {
+    Array.from(pixelDivs).forEach((div, index) => {
       div.classList.add("big");
     });
 
-    // Add "-clone" to the ID of the cloned tile
-    const originalID = clonedTile.getAttribute("id");
-    if (originalID) {
-      clonedTile.setAttribute("id", originalID + "-clone");
-    }
-
     // Check if the flag for the current tile is "n" and start a new row if needed
     if (flags[index] === "n") {
+      
       // Append the current row to the container before starting a new row
       const tileContainer = document.getElementById("tile-container");
       tileContainer.appendChild(currentRow);
@@ -293,6 +293,26 @@ function openTileDialog(tileIDs, flags) {
     generateColorSelector(colors, [clonedTile]); // Pass the cloned tile in an array
   });
 
+  // add the data attribute nclones to the tile
+  tilesToOpen.forEach((tile, index) => {
+    if (!flags[index].includes("e") && tile.id.indexOf("-") >= 0) {
+      let splitID = tile.id.split("-");
+      let thisTileAddr = splitID[1];
+  
+      // Adding a 300ms delay before executing the loop 
+      // this is an ugly but necessary tweak to make sure the tiles are loaded
+      setTimeout(() => {
+        for (let i = 1; i <= countMap[thisTileAddr][1]; i++) {
+          let thisID = "tileaddr-" + thisTileAddr.toString() + "-clone" + i.toString();
+          let thisLoadedTile = document.getElementById(thisID);
+          if (thisLoadedTile) {
+            thisLoadedTile.setAttribute("data-nclones", countMap[thisTileAddr][1]);
+          }
+        }
+      }, 300);
+    }
+  });
+
   // After the loop, append the last row (if any) to the container
   const tileContainer = document.getElementById("tile-container");
   tileContainer.appendChild(currentRow);
@@ -315,7 +335,6 @@ function openTileDialog(tileIDs, flags) {
   dialogBox.addEventListener("mouseup", () => {
     isMouseButtonDown = false;
   });
-
 
   dialogContainer.appendChild(dialogBox);
   document.body.appendChild(dialogContainer);
@@ -352,14 +371,34 @@ function handlePixelColoring(event) {
 }
 
 //------------------------------------------------------------------------------------------
+
 function setColorAndClass(pixel) {
   const clickableDivs = Array.from(document.querySelectorAll(".clickable-div"));
   const selectedDiv = clickableDivs.find((div) => div.style.border === o);
   const newIndex = clickableDivs.indexOf(selectedDiv);
   const selectedColor = selectedDiv ? selectedDiv.style.backgroundColor : "";
 
-  pixel.style.backgroundColor = selectedColor;
-  pixel.className = pixel.className.replace(/col\d/, "col" + newIndex);
+  let pixelnumber = pixel.getAttribute("data-pixelnumber");
+
+  // Get the outermost parent div containing the "pixel" div
+  const currentTile = pixel.closest(".row").closest("[data-nclones]");
+
+  if (currentTile) {
+    const currentTileID = currentTile.id;
+    const nClones = currentTile.getAttribute("data-nclones");
+    let thisPixel = document.getElementById(currentTileID).querySelector(`[data-pixelnumber="${pixelnumber}"]`);
+    for(i=0; i<nClones; i++){
+      let cloneIDParts = currentTileID.split('-');
+      cloneIDParts[cloneIDParts.length - 1] = "clone" + (i + 1).toString();
+      let cloneID = cloneIDParts.join('-');
+      let clonePixel = document.getElementById(cloneID).querySelector(`[data-pixelnumber="${pixelnumber}"]`);
+      clonePixel.style.backgroundColor = selectedColor;
+      clonePixel.className = pixel.className.replace(/col\d/, "col" + newIndex);  
+    }
+    //thisPixel.style.backgroundColor = selectedColor;
+    //thisPixel.className = pixel.className.replace(/col\d/, "col" + newIndex);
+  }
+
 }
 
 //------------------------------------------------------------------------------------------
@@ -445,12 +484,13 @@ function saveTilesAfterDrawing(){
   let bitsPerPixels;
 
   for(let i = 0; i<tilesArray.length; i++){
-    // only procede if there is a tile
+    // only procede if there is a tile and this tile is the first clone
     modifiedTile = tilesArray[i];
-    if (modifiedTile && modifiedTile.id) {
+    if (modifiedTile && modifiedTile.id && modifiedTile.id.endsWith("-clone1")) {
 
       // Remove "tileaddr-" and "-clone" from the ID to get the tile address
-      thisTileStartAddress = modifiedTile.id.replace("tileaddr-", "").replace("-clone", "");
+      thisTileStartAddress = modifiedTile.id.replace("tileaddr-", "").replace("-clone1", "");
+      //alert(thisTileStartAddress);
       bitsPerPixels = parseInt(modifiedTile.getAttribute("data-bpp"));
 
       // Remove the "big" and "-clone"
@@ -460,7 +500,8 @@ function saveTilesAfterDrawing(){
       const hexVals = [];
       const hexVals2 = [];
 
-      modifiedTile.id = modifiedTile.id.replace("-clone", "");
+      modifiedTile.id = modifiedTile.id.replace("-clone1", "");
+      modifiedTile.removeAttribute("data-nclones");
 
       Array.from(modifiedPixelDivs).forEach((div) => {
         div.classList.remove("big");

@@ -913,12 +913,15 @@ function loadObjectSprite(objectName, highlightOnly) {
   for (let i = 1; i < objectData.length; i++) {
     let entry = String(objectData[i]);
     let flag = "";
+    let isTile = true;
 
     // for some reason this is required (0 could be any existing tile number)
     if(entry === "e"){
       entry = "0-e";
+      isTile = false;
     }else if(entry === "e-n"){
       entry = "0-en";
+      isTile = false;
     } 
 
     // if the entry contains flags...
@@ -928,7 +931,9 @@ function loadObjectSprite(objectName, highlightOnly) {
       flag = splitEntry[1];
     }
 
-    const combinedValue = (startingAddress + 8 * parseInt(entry) * bitsPerPixel).toString(16).toUpperCase().padStart(4, '0');
+    let combinedValue = "";
+    if(isTile) combinedValue = (startingAddress + 8 * parseInt(entry) * bitsPerPixel).toString(16).toUpperCase().padStart(4, '0');
+
     if(highlightOnly){
       // Highlight the corresponding tile with animation
       let tileElement = document.getElementById(`tileaddr-${combinedValue}`);

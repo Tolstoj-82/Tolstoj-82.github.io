@@ -397,7 +397,7 @@ const paletteLookup = {
 //     flags: 
 //       * "x" = mirror horizontally
 //       * "y" = mirror vertically
-//       * "d" = non-editable duplicate
+//       * "d" = non-editable duplicate  <-- DEPRECTAED
 //       * "n" = this tile will be rendered on a new line
 // use "e" to indicate an empty tile, that is not editable
 //
@@ -438,7 +438,7 @@ const spriteObjects = {
     ],
   
   "Nintendo": 
-    ["Start Screen","12","9","10","11","10-d","e","13","14","15","16","17","18"],
+    ["Start Screen","12","9","10","11","10","e","13","14","15","16","17","18"],
 
   "Numbers":  
     ["ABC","0","1","2","3","4","5","6","7","8","9"],
@@ -471,25 +471,25 @@ const spriteObjects = {
     "119-n", "150", "151"],
  
   // Pieces
-  "L-Piece":              ["Game Play","84-d","84-d","84-d","84-n","e","e"],
-  "J-Piece":              ["Game Play","81-d","81-d","81-d","e-n","e","81"],
-  "I-Piece (horizontal)": ["Game Play","90","91","91-d","95"],
+  "L-Piece":              ["Game Play","84","84","84","84-n","e","e"],
+  "J-Piece":              ["Game Play","81","81","81","e-n","e","81"],
+  "I-Piece (horizontal)": ["Game Play","90","91","91","95"],
   "I-Piece (vertical)":   ["Game Play","80","88-n","88-n","89-n"],
   "O-Piece":              ["Game Play","83","83","83-n","83"],
   "Z-Piece":              ["Game Play","82","82","e","e-n","82","82"],
-  "S-Piece":              ["Game Play","e","86","86","86","86","e"],
+  "S-Piece":              ["Game Play","e","86","86","86-n","86","e"],
   "T-Piece":              ["Game Play","85","85","85","e-n","85","e"], 
   
-  "Mario Head":["Game Play", "126", "126-xd", "127-n", "127-xd"],
+  "Mario Head":["Game Play", "126", "126-x", "127-n", "127-x"],
   "Luigi Head":["Game Play", "144", "145-n"],
   
   "Rod":["Game Play", "131", "133-n", "132-n"],
   "Moon":["Game Play", "153", "154" ,"155-n", "156"],
   "Female Dancer":["Game Play", "137", "138", "e", "141", "142", "139-n", "140", "e", "170", "171"],
-  "Violin Player":["Game Play",  "172", "173", "e", "174", "175", "176-n", "177", "e", "176-d", "177-d"],
-  "Balalayka Player":["Game Play",  "185", "186", "e", "189", "186-d", "187-n", "188", "e", "187-d", "188-d"],
+  "Violin Player":["Game Play",  "172", "173", "e", "174", "175", "176-n", "177", "e", "176", "177-d"],
+  "Balalayka Player":["Game Play",  "185", "186", "e", "189", "186", "187-n", "188", "e", "187", "188"],
   "Bass Drum Player":["Game Play", "181", "182" ,"183-n", "184"],
-  "Accordion Player":["Game Play",  "146", "146-xd", "e", "148", "148-xd", "147-n", "147-xd", "e", "149", "149-xd"],
+  "Accordion Player":["Game Play",  "146", "146-x", "e", "148", "148-x", "147-n", "147-x", "e", "149", "149-x"],
 
   "Dome":[
     "Game Play", 
