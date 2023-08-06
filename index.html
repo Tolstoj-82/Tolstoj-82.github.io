@@ -5,6 +5,10 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
   </head>
   <body>
     <div class="container">
@@ -489,19 +493,25 @@
             <div class="tile-editor-text" id="tile-editor-text">Tile Editor</div>
             <input type="range" id="pixelSizeSlider" min="4" max="30" value="5" />
             <br>
-            <div class="tile-container" id="tile-container"></div>
+
             <div class="color-selector-container">
               <div class="clickable-div" id="c1"></div>
               <div class="clickable-div" id="c2"></div>
               <div class="clickable-div" id="c3"></div>
               <div class="clickable-div" id="c4"></div>
             </div>
-
             <p>
-              <button id="saveButton" onclick="saveTilesAfterDrawing();">Save changes</button>
-              <button id="discardButton" class="secondary" onclick="discardChangesOnTiles();">Discard changes</button>
+              <div class="button-group">
+                <button id="saveButton" onclick="saveTilesAfterDrawing();">Save changes</button>
+                <button id="discardButton" class="secondary" onclick="discardChangesOnTiles();">Discard changes</button>
+                <div class="toggle-switch" id="tileBorderToggle">
+                  <input type="checkbox" id="tileBorders">
+                  <label for="tileBorders"></label>
+                  <span class="toggle-text">Tile Border</span>
+                </div>
+              </div>
             </p>
-
+            <div class="tile-container" id="tile-container"></div>
           </div>
       </div>
 

@@ -50,6 +50,21 @@ document.getElementById('addressesToggle').addEventListener('change', function()
   toggleBGImages();
 });
 
+document.getElementById('tileBorders').addEventListener('change', function() {
+  const checkbox = document.getElementById('tileBorders');
+  const tiles = document.querySelectorAll('.tile-container .tile-row .tile');
+
+  if (checkbox.checked) {
+    tiles.forEach(tile => {
+      tile.style.border = '1px dotted blue';
+    });
+  } else {
+    tiles.forEach(tile => {
+      tile.style.border = 'none';
+    });
+  }
+});
+
 
 //**************************************************************************************/
 // (2) DOM CONTENT LOADED
@@ -952,5 +967,5 @@ function loadObjectSprite(objectName, highlightOnly) {
 
   }
 
-  if(!highlightOnly) openTileDialog(tileAddresses, flags);
+  if(!highlightOnly) openTileDialog(tileAddresses, flags, objectName);
 }

@@ -160,8 +160,16 @@ function handleClick(event) {
     selectedTile.classList.add("selected");
 
     const clickedPixel = event.target.closest(".pixel");
+    
+    const parentTile = clickedPixel.closest(".tile");
+    let tileNumber = "?";
+    if (parentTile) {
+      const tileID = parentTile.id;
+      tileNumber = tileID.replace("tileaddr-", "");
+    }
+
     if (clickedPixel) {
-      openTileDialog([clickedTile.id.replace("tileaddr-","")],[""]);
+      openTileDialog([clickedTile.id.replace("tileaddr-","")],[""], "Tile #" + tileNumber);
     }
   }
 }
@@ -170,7 +178,16 @@ function handleClick(event) {
 // Modal that let's you edit tiles
 // THERE IS A LOT OF ROOM FOR IMPROVEMENT HERE!
 
-function openTileDialog(tileIDs, flags) {
+function openTileDialog(tileIDs, flags, setName) {
+
+  // Change the set name
+  var tileEditorText = document.getElementById('tile-editor-text');
+  tileEditorText.textContent = "Tile Editor (" + setName + ")";
+
+  // only show the toggle switch if there is more than one tile
+  var toggleSwitchDiv = document.getElementById("tileBorderToggle");
+  if(tileIDs.length <= 1) toggleSwitchDiv.style.display = "none";
+  else toggleSwitchDiv.style.display = "block";
 
   const countMap = {};
 
@@ -240,9 +257,6 @@ function openTileDialog(tileIDs, flags) {
       clonedTile.id = "tileaddr-" + thisTileAddr + "-clone" + countMap[thisTileAddr][1];
     }
 
-    // can be deleted eventually
-    if (flags[index].includes("d")) clonedTile.classList.add("non-editable"); // Add the "non-editable" class if necessary
-
     // Check if the flag contains "x" (mirror horizontally)
     if (flags[index].includes("x")) {
       clonedTile.classList.add("mirror-x");
@@ -272,7 +286,7 @@ function openTileDialog(tileIDs, flags) {
     }
 
     // Append the cloned tile to the current row
-    clonedTile.style.border = "1px dotted blue";
+    clonedTile.style.border = "none";
     currentRow.appendChild(clonedTile);
 
     // Fetch colors from color pickers
@@ -358,6 +372,8 @@ function openTileDialog(tileIDs, flags) {
   const pixelSizeStyle = document.createElement("style");
   pixelSizeStyle.id = "pixel-size-style";
   document.head.appendChild(pixelSizeStyle);
+
+  document.getElementById('tileBorders').checked = false;
 }
 
 //------------------------------------------------------------------------------------------
@@ -482,7 +498,6 @@ function saveTilesAfterDrawing(){
 
       // Remove "tileaddr-" and "-clone" from the ID to get the tile address
       thisTileStartAddress = modifiedTile.id.replace("tileaddr-", "").replace("-clone1", "");
-      //alert(thisTileStartAddress);
       bitsPerPixels = parseInt(modifiedTile.getAttribute("data-bpp"));
 
       // Remove the "big" and "-clone"
@@ -494,6 +509,7 @@ function saveTilesAfterDrawing(){
 
       modifiedTile.id = modifiedTile.id.replace("-clone1", "");
       modifiedTile.removeAttribute("data-nclones");
+      modifiedTile.style.border = "";
 
       Array.from(modifiedPixelDivs).forEach((div) => {
         div.classList.remove("big");
@@ -568,7 +584,8 @@ function saveTilesAfterDrawing(){
         currentAddress = currentNumber.toString(16).toUpperCase().padStart(4, '0');
       }
 
-      scrollToAddress(startAddress);
+      // only scroll for the last entry, otherwise it's overkill
+      if(i==(tilesArray.length-1)) scrollToAddress(startAddress);
 
       addToLog("Tile starting at address $" + startAddress + " was overwritten");
     }
