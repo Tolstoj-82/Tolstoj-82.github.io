@@ -84,7 +84,74 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
     const nextTileAddress = (parseInt(currentAddress, 16) + skip).toString(16).toUpperCase();
     currentAddress = nextTileAddress;
   }
+
   displayTiles(pixelData, addresses, bitsPerPixel);
+
+  // Add a button to save the tile set as a PNG
+  let thisWidth = getTileSetProperty(tilesetTitle, "width");
+  let thisSetName = getTileSetProperty(tilesetTitle, "name");
+  let savePngHTML = `<p><button onclick="saveTileSet([${addresses.map(address => `'${address}'`).join(',')}], ${nTiles}, ${bitsPerPixel}, '${thisSetName}', ${thisWidth});" class="secondary">Save Tile Group as "${thisSetName}.png"</button></p>`;
+
+  tileContainer.innerHTML += savePngHTML;
+  
+}
+
+//------------------------------------------------------------------------------------------
+// 
+function saveTileSet(addresses, nTiles, bitsPerPixel, name, width) {
+  console.log(addresses[0]);
+  console.log(nTiles);
+  console.log(bitsPerPixel);
+  console.log(name);
+  console.log(width);
+
+  // Get the tileContainer div
+  const tileContainer = document.getElementById("tileContainer");
+  const tileDiv = tileContainer.querySelector("#tileaddr-" + addresses[0]);
+
+  // Check if the tile div exists
+  if (tileDiv) {
+    // Get all pixel divs inside the tile div
+    const pixelDivs = tileDiv.getElementsByClassName("pixel");
+
+    // Loop through each pixel div
+    for (let i = 0; i < pixelDivs.length; i++) {
+      const pixelDiv = pixelDivs[i];
+      const classes = pixelDiv.classList; // Get all classes of the pixel div
+
+      // Loop through each class to find the one that starts with "col"
+      for (let j = 0; j < classes.length; j++) {
+        const className = classes[j];
+
+        if (className.startsWith("col")) {
+          const value = className.substring(3); // Extract the value after "col"
+          console.log("Value after 'col':", exportColors[parseInt(value)]);
+          break; // Stop the loop since we found the class we're looking for
+        }
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------------------
+// Function to get the corresponding value for a given tileSetTitle and property
+function getTileSetProperty(tileSetTitle, property) {
+
+  const index = tileExportData.oNames.indexOf(tileSetTitle);
+  if (index !== -1) {
+    switch (property) {
+      case "name":
+        return tileExportData.eNames[index];
+      case "width":
+        return tileExportData.widths[index];
+      case "height":
+        return tileExportData.heights[index];
+      default:
+        return "Invalid property!";
+    }
+  } else {
+    return "Tile set not found!";
+  }
 }
 
 //------------------------------------------------------------------------------------------

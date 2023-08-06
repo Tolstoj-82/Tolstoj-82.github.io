@@ -397,7 +397,7 @@ const paletteLookup = {
 //     flags: 
 //       * "x" = mirror horizontally
 //       * "y" = mirror vertically
-//       * "d" = non-editable duplicate  <-- DEPRECTAED
+//       * "d" = deactivate
 //       * "n" = this tile will be rendered on a new line
 // use "e" to indicate an empty tile, that is not editable
 //
@@ -411,6 +411,7 @@ const spriteObjects = {
     "0","1","2", 
     "6-n","e","7",
     "16-n","18","17",
+    "6-n","e","7",
     "3-n","4","5"],
   
   "Next Box Border": 
@@ -436,6 +437,11 @@ const spriteObjects = {
     "52-n", "e", "53",
     "54-n", "57", "58"
     ],
+
+  "Sun":
+    ["Game Play",
+    "153","154",
+    "155-n","156"],
   
   "Nintendo": 
     ["Start Screen","12","9","10","11","10","e","13","14","15","16","17","18"],
@@ -526,3 +532,14 @@ const spriteObjects = {
     "165-n", "166",
     "168-n", "e"],
 }
+
+// TILE SET EXPORT
+// this is used to export the images as small png files that can then be
+// used for the disassembly by 
+const tileExportData = {
+  oNames:  ["ABC", "Celebration", "Game Play", "Start Screen"],
+  eNames:  ["ascii", "rocketScene", "titleScreen", "menuScreens"],
+  widths:  [13, 16, 16, 16]
+}
+
+const exportColors = ["#FFFFFF", "#AAAAAA", "#555555","#000000"];
