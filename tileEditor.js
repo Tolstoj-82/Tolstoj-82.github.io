@@ -103,7 +103,7 @@ function displayTiles(pixelValues, tileAddress, bitsPerPixel) {
     const tile = document.createElement("div");
     tile.className = "tile";
     tile.id = "tileaddr-" + tileAddress[t];
-    tile.setAttribute("data-BPP", bitsPerPixel);    
+    tile.setAttribute("data-bpp", bitsPerPixel);    
 
     let pixelCount = 0;
 
@@ -146,7 +146,7 @@ function displayTiles(pixelValues, tileAddress, bitsPerPixel) {
 }
 
 //------------------------------------------------------------------------------------------
-// Add an event listener to each tile-pixel...
+// If you click in a tile (a pixel in the tile actually), open the tile dialog
 function handleClick(event) {
   const clickedTile = event.target.closest(".tile");
 
@@ -161,8 +161,7 @@ function handleClick(event) {
 
     const clickedPixel = event.target.closest(".pixel");
     if (clickedPixel) {
-      //alert([clickedTile.id.replace("tileaddr-", "")]);
-      openTileDialog([clickedTile.id.replace("tileaddr-", "")],[""]);
+      openTileDialog([clickedTile.id.replace("tileaddr-","")],[""]);
     }
   }
 }
@@ -172,11 +171,10 @@ function handleClick(event) {
 // THERE IS A LOT OF ROOM FOR IMPROVEMENT HERE!
 
 function openTileDialog(tileIDs, flags) {
-  //console.log("tileIDs= " + tileIDs);
 
   const countMap = {};
 
-  // Get the unique tiles and count how many of these there are in this tile set
+  // Get the unique tiles and count how many of these there are in this tile set.
   // This is important to identify duplicates
   for (const tileID of tileIDs) {
     if (tileID !== "" && !countMap.hasOwnProperty(tileID)) {
@@ -189,10 +187,7 @@ function openTileDialog(tileIDs, flags) {
   const allTiles = document.querySelectorAll(".tile");
 
   tileIDs.forEach((idPart) => {
-    const matchingTile = Array.from(allTiles).find((tile) =>
-      tile.id.includes("tileaddr-" + idPart)
-    );
-
+    const matchingTile = Array.from(allTiles).find((tile) => tile.id.includes("tileaddr-" + idPart));
     if (matchingTile) tilesToOpen.push(matchingTile);
   });
 
@@ -208,12 +203,12 @@ function openTileDialog(tileIDs, flags) {
 
   // Clone the selected tiles and add them to the dialog box
   tilesToOpen.forEach((tile, index) => {
-    let newLine = false;
 
     // new line
+    let newLine = false;
     if (flags[index].includes("n")) newLine = true; // Update the newLine flag if "n" is found in the flags
 
-    // Check if the flag contains "e" (empty) or "d" (non-editable clone)
+    // Just some stupid replacements
     if (flags[index] == "en") {
       flags[index] = "e";
       newLine = true;
@@ -228,16 +223,14 @@ function openTileDialog(tileIDs, flags) {
       // Create a new row for the next set of tiles
       currentRow = document.createElement("div");
       currentRow.classList.add("tile-row");
-
-      // Reset the newLine flag after starting a new line
       newLine = false;
     }
 
     let clonedTile;
-
     // Check if the flag contains "e" (empty) create a dummy tile
     if (flags[index].includes("e")) {
       clonedTile = createDummyTile();
+      thisTileAddr = "";
     } else {
       clonedTile = tile.cloneNode(true);
       let splitID = clonedTile.id.split("-");
@@ -262,7 +255,7 @@ function openTileDialog(tileIDs, flags) {
 
     // Add the class "big" to all div elements with class "pixel" in the cloned tile
     const pixelDivs = clonedTile.getElementsByClassName("pixel");
-    Array.from(pixelDivs).forEach((div, index) => {
+    Array.from(pixelDivs).forEach((div) => {
       div.classList.add("big");
     });
 
@@ -290,44 +283,54 @@ function openTileDialog(tileIDs, flags) {
     }
 
     // Pass the colors array and the clonedTile to the generateColorSelector function
-    generateColorSelector(colors, [clonedTile]); // Pass the cloned tile in an array
+    generateColorSelector(colors, clonedTile); // Pass the cloned tile in an array
   });
 
   // add the data attribute nclones to the tile
-  tilesToOpen.forEach((tile, index) => {
-    if (!flags[index].includes("e") && tile.id.indexOf("-") >= 0) {
-      let splitID = tile.id.split("-");
-      let thisTileAddr = splitID[1];
-  
-      // Adding a 300ms delay before executing the loop 
-      // this is an ugly but necessary tweak to make sure the tiles are loaded
-      setTimeout(() => {
-        for (let i = 1; i <= countMap[thisTileAddr][1]; i++) {
-          let thisID = "tileaddr-" + thisTileAddr.toString() + "-clone" + i.toString();
-          let thisLoadedTile = document.getElementById(thisID);
-          if (thisLoadedTile) {
-            thisLoadedTile.setAttribute("data-nclones", countMap[thisTileAddr][1]);
+  let dataBppValue;
+  if (tilesToOpen.length > 0) {
+    tilesToOpen.forEach((tile, index) => {
+      // Fetch the data-bpp value only if the tile is not empty
+      if (!flags[index].includes("e") && tile.id.indexOf("-") >= 0) {
+        let splitID = tile.id.split("-");
+        let thisTileAddr = splitID[1];
+    
+        // Adding a delay before executing is an ugly but necessary tweak to make sure the tile DOMs are loaded
+        //setTimeout(() => {   
+
+          // After the loop, append the last row (if any) to the container
+          const tileContainer = document.getElementById("tile-container");
+          tileContainer.appendChild(currentRow);
+
+          for (let i = 1; i <= countMap[thisTileAddr][1]; i++) {
+            let thisID = "tileaddr-" + thisTileAddr.toString() + "-clone" + i.toString();
+            let thisLoadedTile = document.getElementById(thisID);
+
+            if (thisLoadedTile) {
+              thisLoadedTile.setAttribute("data-nclones", countMap[thisTileAddr][1]);
+              if (thisLoadedTile.hasAttribute("data-bpp")) {
+                dataBppValue = thisLoadedTile.getAttribute("data-bpp");
+              }
+            }
           }
-        }
-      }, 300);
-    }
-  });
+          
+          tileToUpdate = tilesToOpen[0];
+        
+          // Check if 1BPP. If so, deactivate colors 2 and 3
+          clickableDivs = document.getElementsByClassName("clickable-div");
+          
+          if (dataBppValue === "1") {
+            clickableDivs[1].classList.add("not-clickable-div");
+            clickableDivs[2].classList.add("not-clickable-div");
+          }
 
-  // After the loop, append the last row (if any) to the container
-  const tileContainer = document.getElementById("tile-container");
-  tileContainer.appendChild(currentRow);
+          // Set the first color as the current selection
+          clickableDivs[0].style.border = o;
 
-  tileToUpdate = tilesToOpen[0];
-
-  // Check if 1BPP. If so, deactivate colors 2 and 3
-  clickableDivs = document.getElementsByClassName("clickable-div");
-  if (tilesToOpen[0].getAttribute("data-BPP") === "1") {
-    clickableDivs[1].classList.add("not-clickable-div");
-    clickableDivs[2].classList.add("not-clickable-div");
+        //}, 200);
+      }
+    });
   }
-
-  // Set the first color as the current selection
-  clickableDivs[0].style.border = o;
 
   // Attach event listeners for pixel selection and coloring
   dialogBox.addEventListener("mousedown", handlePixelColoring);
@@ -395,15 +398,13 @@ function setColorAndClass(pixel) {
       clonePixel.style.backgroundColor = selectedColor;
       clonePixel.className = pixel.className.replace(/col\d/, "col" + newIndex);  
     }
-    //thisPixel.style.backgroundColor = selectedColor;
-    //thisPixel.className = pixel.className.replace(/col\d/, "col" + newIndex);
   }
 
 }
 
 //------------------------------------------------------------------------------------------
-function generateColorSelector(colors, clonedTiles) {
-  
+function generateColorSelector(colors, clonedTile) {
+
   // Get the container where the color selectors will be added
   const colorSelectorContainer = document.querySelector(".color-selector-container");
   colorSelectorContainer.innerHTML = ''; // Clear existing content
@@ -428,15 +429,6 @@ function generateColorSelector(colors, clonedTiles) {
         });
           
         clickableDiv.style.border = o;
-
-        // Update the border color of pixels in each clonedTile with the selected color
-        const selectedColor = clickableDiv.style.backgroundColor;
-        clonedTiles.forEach((clonedTile) => {
-          const pixelDivs = clonedTile.getElementsByClassName("pixel");
-          Array.from(pixelDivs).forEach((div) => {
-            div.style.borderColor = selectedColor;
-          });
-        });
       }
     });
 
@@ -598,11 +590,14 @@ function updateColorPalette(selector, color, colorPicker) {
 // Usage:
 // const gridElement = createDummyTile();
 // document.getElementById("gridContainer").appendChild(gridElement);
-function createDummyTile(onANewLine) {
+function createDummyTile() {
 
   // Create a container element for the grid
   const gridContainer = document.createElement("div");
   gridContainer.classList.add("tile", "dummy");
+
+  // Add the data-bpp attribute to the gridContainer
+  gridContainer.setAttribute("data-bpp", "0");
 
   // Create the rows and columns with nested loops
   for (let i = 0; i < 8; i++) {

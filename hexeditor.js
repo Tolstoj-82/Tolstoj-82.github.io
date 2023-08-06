@@ -952,7 +952,7 @@ function loadObjectSprite(objectName, highlightOnly) {
       flags.push(flag);
     }
 
-}
+  }
 
   if(!highlightOnly) openTileDialog(tileAddresses, flags);
 }

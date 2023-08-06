@@ -481,7 +481,7 @@ const spriteObjects = {
   "T-Piece":              ["Game Play","85","85","85","e-n","85","e"], 
   
   "Mario Head":["Game Play", "126", "126-x", "127-n", "127-x"],
-  "Luigi Head":["Game Play", "144", "145-n"],
+  "Luigi Head":["Game Play", "144", "144-x", "145-n", "145-x"],
   
   "Rod":["Game Play", "131", "133-n", "132-n"],
   "Moon":["Game Play", "153", "154" ,"155-n", "156"],
