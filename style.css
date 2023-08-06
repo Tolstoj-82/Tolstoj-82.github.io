@@ -1089,6 +1089,12 @@ button:disabled {
   100% { opacity: 0; }
 }
 
+.editor-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
 .color-selector-container {
   display: flex;
   align-items: center;
@@ -1107,6 +1113,11 @@ button:disabled {
 }
 
 .tile-container {
+  flex: 1;
+  max-height: 70%;
+  max-width: 100%;
+  overflow-y: auto;
+  overflow-x: auto;
   display: flex;
   flex-direction: column;
   gap: 0;

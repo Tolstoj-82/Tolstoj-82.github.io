@@ -854,8 +854,6 @@ function getBGMap(id, bgMap) {
     //
     displayTileImageFromLocalStorage(cellContent, "bg-tile-" + bgTileId);
   }
-  
-
 
   document.getElementById("BGMapStartAddress").value = id;
 }
