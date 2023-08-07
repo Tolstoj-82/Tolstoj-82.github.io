@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="manifest" href="site.webmanifest">
   </head>
   <body>
     <div class="container">
@@ -466,14 +466,16 @@
                   <h2>Edit Individual Tiles</h2>
                   <div class="color-scheme-picker">
                     <p class="color-scheme-container">
-                      <b>Color scheme</b>
+                      <b>Color Palette</b>
                       <select id="palette-dropdown"></select>
                       <input type="color" id="color-picker-0" class="color-picker" value="#E0F8D0" onchange="updateColorPalette('.col0', this.value, this);" style="margin-right: 10px;">
                       <input type="color" id="color-picker-1" class="color-picker" value="#88C070" onchange="updateColorPalette('.col1', this.value, this);" style="margin-right: 10px;">
                       <input type="color" id="color-picker-2" class="color-picker" value="#346856" onchange="updateColorPalette('.col2', this.value, this);" style="margin-right: 10px;">
                       <input type="color" id="color-picker-3" class="color-picker" value="#081820" onchange="updateColorPalette('.col3', this.value, this);">
                     </p>
+                    <br>
                   </div>
+                  <hr>
                   <p>
                     <div id="tileContainer"></div>
                   </p>
@@ -549,6 +551,7 @@
       <div class="toast red" id="invalidGameTitle">The game title must have 16 LETTERS or less.</div>
       <div class="toast green" id="gameTitleChanged">The game title was changed</div>
       <div class="toast green" id="manuallySet">The code is ready to be applied</div>
+      <div class="toast green" id="tileSetSaved">A tile set has been saved!</div>
 
     </div>
     

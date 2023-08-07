@@ -35,6 +35,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
     }
     dropdownHTML += '</select>&nbsp;';
     dropdownHTML += `<button onclick="loadObjectSprite(document.getElementById('sprites${tilesetTitle}').value, false)">Load Tile Group</button></p>`;
+    dropdownHTML += '<br>';
     tileContainer.innerHTML += dropdownHTML;
   }
 
@@ -88,49 +89,91 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
   displayTiles(pixelData, addresses, bitsPerPixel);
 
   // Add a button to save the tile set as a PNG
-  let thisWidth = getTileSetProperty(tilesetTitle, "width");
+  let nCols = getTileSetProperty(tilesetTitle, "width");
   let thisSetName = getTileSetProperty(tilesetTitle, "name");
-  let savePngHTML = `<p><button onclick="saveTileSet([${addresses.map(address => `'${address}'`).join(',')}], ${nTiles}, ${bitsPerPixel}, '${thisSetName}', ${thisWidth});" class="secondary">Save Tile Group as "${thisSetName}.png"</button></p>`;
-
+  let savePngHTML = `<p style="text-align: center;"><button onclick="saveTileSetAsPNG('${addresses}', ${nTiles}, '${thisSetName}', ${nCols});" class="secondary">Save Tile Group as "${thisSetName}.png"</button></p>`;
+  savePngHTML += "<br><hr>";
   tileContainer.innerHTML += savePngHTML;
   
 }
 
 //------------------------------------------------------------------------------------------
 // 
-function saveTileSet(addresses, nTiles, bitsPerPixel, name, width) {
-  console.log(addresses[0]);
-  console.log(nTiles);
-  console.log(bitsPerPixel);
-  console.log(name);
-  console.log(width);
-
-  // Get the tileContainer div
+function saveTileSetAsPNG(address, nTiles, name, nCols) {
+  
+  let addresses = address.split(",");
+  const nTileRows = Math.ceil(nTiles / nCols);
   const tileContainer = document.getElementById("tileContainer");
-  const tileDiv = tileContainer.querySelector("#tileaddr-" + addresses[0]);
 
-  // Check if the tile div exists
-  if (tileDiv) {
-    // Get all pixel divs inside the tile div
-    const pixelDivs = tileDiv.getElementsByClassName("pixel");
+  // Calculate canvas dimensions based on the number of columns and rows
+  const canvasWidth = nCols * 8;
+  const canvasHeight = nTileRows * 8;
 
-    // Loop through each pixel div
-    for (let i = 0; i < pixelDivs.length; i++) {
-      const pixelDiv = pixelDivs[i];
-      const classes = pixelDiv.classList; // Get all classes of the pixel div
+  const canvas = document.createElement("canvas");
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+  canvas.style.backgroundColor = exportColors[0];
+  const ctx = canvas.getContext("2d");
 
-      // Loop through each class to find the one that starts with "col"
-      for (let j = 0; j < classes.length; j++) {
-        const className = classes[j];
 
-        if (className.startsWith("col")) {
-          const value = className.substring(3); // Extract the value after "col"
-          console.log("Value after 'col':", exportColors[parseInt(value)]);
-          break; // Stop the loop since we found the class we're looking for
+  // Iterate through each tile row
+  for (let tileRow = 0; tileRow < nTileRows; tileRow++) {
+    // Calculate the starting tile index for the current row
+    const startTileIndex = tileRow * nCols;
+
+    // Loop through each tile in the current row
+    for (let tileIndex = startTileIndex; tileIndex < startTileIndex + nCols; tileIndex++) {
+      const tileAddress = addresses[tileIndex];
+      const tileDiv = tileContainer.querySelector("#tileaddr-" + tileAddress);
+
+      if (tileDiv) {
+        // Loop through each row of pixels in the tile
+        for (let row = 0; row < 8; row++) {
+          // Calculate the starting pixel number for the current row in the tile
+          const startPixelNumber = row * 8;
+
+          // Loop through the pixel divs in the current row
+          for (let pixelNum = startPixelNumber; pixelNum < startPixelNumber + 8; pixelNum++) {
+            const pixelDiv = tileDiv.querySelector(`[data-pixelnumber="${pixelNum}"]`);
+            
+            let colorValue = 0; // Default color value if not found in exportColors
+            if (pixelDiv) {
+              const classes = pixelDiv.classList;
+
+              // Loop through each class to find the one that starts with "col"
+              for (let j = 0; j < classes.length; j++) {
+                const className = classes[j];
+
+                // Extract the value after "col" <-- this is color, not columns!
+                if (className.startsWith("col")) {
+                  const value = className.substring(3);
+                  colorValue = exportColors[parseInt(value)] || 0;
+                  break;
+                }
+              }
+            }
+
+            // Calculate pixel position on the canvas
+            const canvasX = (tileIndex % nCols) * 8 + (pixelNum % 8);
+            const canvasY = tileRow * 8 + Math.floor(pixelNum / 8);
+
+            // Set the pixel color on the canvas
+            ctx.fillStyle = colorValue; // Use appropriate format for color value
+            ctx.fillRect(canvasX, canvasY, 1, 1);
+          }
         }
       }
     }
   }
+
+  // Create a PNG image from the canvas and save it
+  const dataURL = canvas.toDataURL("image/png");
+  const a = document.createElement("a");
+  a.href = dataURL;
+  a.download = name + ".png";
+  a.click();
+  displayToast("tileSetSaved");
+  addToLog("Tile set was saved as \"" + name + ".png\"");
 }
 
 //------------------------------------------------------------------------------------------
