@@ -492,7 +492,10 @@ const spriteObjects = {
     "151-n", "151-x"],
 
   "Rocket Flames":
-  ["Celebration", "81", "e", "82", "97-n", "e", "98", "113-n", "e", "e"],
+  ["Celebration", 
+  "81",    "e", "82", "65", 
+  "97-n",  "e", "98", "e",
+  "113-n", "e", "e",  "e"],
 
   "Rocket Smoke":
   ["Celebration", "99", "100", "101", "e", "e", "e", "e",
