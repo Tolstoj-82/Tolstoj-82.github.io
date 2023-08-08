@@ -98,7 +98,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
 }
 
 //------------------------------------------------------------------------------------------
-// 
+// Save a tile set as a PNG, this is used to import into the disassembly
 function saveTileSetAsPNG(address, nTiles, name, nCols) {
   
   let addresses = address.split(",");
@@ -112,8 +112,12 @@ function saveTileSetAsPNG(address, nTiles, name, nCols) {
   const canvas = document.createElement("canvas");
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
-  canvas.style.backgroundColor = exportColors[0];
   const ctx = canvas.getContext("2d");
+
+  // make sure there is a background color (backgroundcolor didn't work with all browsers somehow)
+  let colorValue = exportColors[0];
+  ctx.fillStyle = colorValue;
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
 
   // Iterate through each tile row
