@@ -7,18 +7,12 @@
 // Todo:
 // -----
 // * Clean up the mess!!!
-//   1) global variables
-//   2) each DOM element as a variable (in DOM elements ready envent listener)
-//   3) event listeners
 // * functions gg2Addr() and addr2Gg(). Also improve it
 // * function highlightAnimation()
-// * outsource the modal in its own HTML File
 // 
 // Tasks for the future:
 // --------------------
 // * make the header data editable
-// * maybe make some tweaks easier
-// * multiple tiles editor (sprite editor)
 // * add a ROM map (https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):ROM_map)
 // * add a RAM map (https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):RAM_map)
 // * check out how difficult it is to work with ROMs that require ROM bank switching
@@ -259,7 +253,43 @@ function saveBGMap() {
   addToLog("Background map \"" + bgMapName + "\" overwritten.");
 
 }
-  
+
+//-----------------------------------------------------------------------------------------
+// save the bg map and close the modal
+// how the heck are these bin files encoded? Certainly not like this, but it's a start
+function downloadBGMapAsBin() {
+  var olElement = document.getElementById("selectable");
+  var imgElements = olElement.querySelectorAll("li img");
+  var tileIDs = [];
+
+  imgElements.forEach(function (imgElement) {
+    var tileID = imgElement.getAttribute("data-tile-id");
+    tileIDs.push(tileID);
+  });
+
+  var selectElement = document.getElementById("BGMapSelector");
+  var bgMapName = selectElement.options[selectElement.selectedIndex].text;
+  var bgMapInfo = bgMaps[bgMapName];
+  var bgMapFileName = bgMapInfo[4];
+
+  // I guess \n is not correct... I'll have to check!
+  var content = tileIDs.join("\n");
+
+  var blob = new Blob([content], { type: "application/octet-stream" });
+  var url = URL.createObjectURL(blob);
+
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = bgMapFileName;
+
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+
+  addToLog("Saved \"" + bgMapFileName);
+}
+
 //------------------------------------------------------------------------------------------
 // close the bg map modal without saving
   function closeBGModal(){
