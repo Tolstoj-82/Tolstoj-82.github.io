@@ -296,7 +296,7 @@ function openTileDialog(tileIDs, flags, setName) {
 
   // Change the set name
   var tileEditorText = document.getElementById('tile-editor-text');
-  tileEditorText.textContent = "Tile Editor (" + setName + ")";
+  tileEditorText.textContent = "Tile Editor: " + setName;
 
   // only show the toggle switch if there is more than one tile
   var toggleSwitchDiv = document.getElementById("tileBorderToggle");
