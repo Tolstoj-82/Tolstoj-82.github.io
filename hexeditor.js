@@ -264,19 +264,22 @@ function downloadBGMapAsBin() {
 
   imgElements.forEach(function (imgElement) {
     var tileID = imgElement.getAttribute("data-tile-id");
-    tileIDs.push(tileID);
+    tileIDs.push(parseInt(tileID)); // Ensure IDs are treated as numbers
   });
+
+  var byteArray = new Uint8Array(tileIDs.length);
+
+  for (var i = 0; i < tileIDs.length; i++) {
+    byteArray[i] = tileIDs[i];
+  }
+
+  var blob = new Blob([byteArray], { type: "application/octet-stream" });
+  var url = URL.createObjectURL(blob);
 
   var selectElement = document.getElementById("BGMapSelector");
   var bgMapName = selectElement.options[selectElement.selectedIndex].text;
   var bgMapInfo = bgMaps[bgMapName];
   var bgMapFileName = bgMapInfo[4];
-
-  // I guess \n is not correct... I'll have to check!
-  var content = tileIDs.join("\n");
-
-  var blob = new Blob([content], { type: "application/octet-stream" });
-  var url = URL.createObjectURL(blob);
 
   var a = document.createElement("a");
   a.href = url;
@@ -287,7 +290,7 @@ function downloadBGMapAsBin() {
 
   document.body.removeChild(a);
 
-  addToLog("Saved \"" + bgMapFileName);
+  addToLog("The BG Map \"" + bgMapName + "\" >> \"" + bgMapFileName + "\"");
 }
 
 //------------------------------------------------------------------------------------------
