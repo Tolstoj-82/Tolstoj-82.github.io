@@ -399,12 +399,12 @@ const paletteLookup = {
 //     flags: 
 //       * "x" = mirror horizontally
 //       * "y" = mirror vertically
-//       * "d" = deactivate
 //       * "n" = this tile will be rendered on a new line
-// use "e" to indicate an empty tile, that is not editable
+// use "e" to indicate an empty tile (not editable) 
+//   --> spacial case "e-n"
 //
-// a tile can have multiple flags 0-nxd: tile #0 on a new line,... 
-// ...mirrored horizontally and as a non-editable duplicate
+// a tile can have multiple flags 0-nx: tile #0 on a new line and mirrored horizontally
+
 const spriteObjects = {
   
   // Borders
@@ -447,6 +447,22 @@ const spriteObjects = {
   
   "Nintendo": 
     ["Start Screen","12","9","10","11","10","e","13","14","15","16","17","18"],
+
+  "Big Tetris Logo":
+  ["Start Screen",
+    "89-n", "90", "91", "92", "105", "106", "107", "90", "91", "92", "105", "69", "70", "71", "72", "73", "74", "75", 
+    "93-n", "94", "95", "96", "108", "109", "110", "94", "95", "96", "108", "76", "77", "78", "79", "80", "81", "e", 
+    "e-n", "97", "98", "e", "111", "112", "113", "97", "98", "e", "111", "82", "83", "84", "85", "86", "87", "e", 
+    "e-n", "99", "100", "e", "103", "104", "68", "99", "100", "e", "103", "88", "63", "64", "65", "66", "67", "e"],
+
+  "Dome City":
+  ["Start Screen",
+    "21-n", "21", "21", "21", "21", "22", "23", "21", "21", "21", "21", 
+    "e-n", "e", "e", "e", "e", "27", "28", "e", "e", "e", "e", 
+    "e-n", "e", "e", "e", "e", "29", "30", "e", "e", "e", "e", 
+    "e-n", "e", "e", "e", "31", "32", "33", "34", "24", "25", "e", 
+    "e-n", "44", "45", "e", "35", "36", "37", "38", "27", "28", "e", 
+    "45-n", "46", "47", "48", "39", "40", "41", "42", "43", "30", "e"],  
 
   "Numbers":  
     ["ABC","0","1","2","3","4","5","6","7","8","9"],
@@ -540,11 +556,51 @@ const spriteObjects = {
   
   "Rod":["Game Play", "131", "133-n", "132-n"],
   "Moon":["Game Play", "153", "154" ,"155-n", "156"],
-  "Female Dancer":["Game Play", "137", "138", "e", "141", "142", "139-n", "140", "e", "170", "171"],
-  "Violin Player":["Game Play",  "172", "173", "e", "174", "175", "176-n", "177", "e", "176", "177-d"],
-  "Balalayka Player":["Game Play",  "185", "186", "e", "189", "186", "187-n", "188", "e", "187", "188"],
-  "Bass Drum Player":["Game Play", "181", "182" ,"183-n", "184"],
-  "Accordion Player":["Game Play",  "146", "146-x", "e", "148", "148-x", "147-n", "147-x", "e", "149", "149-x"],
+
+  "Female Dancer":[
+    "Game Play", 
+    "137", "138", "e", "141", "142", 
+    "139-n", "140", "e", "170", "171"],
+  
+  "Violin Player":[
+    "Game Play",  
+    "172", "173", "e", "174", "175", 
+    "176-n", "177", "e", "176", "177"],
+
+  "Balalayka Player":[
+    "Game Play",  
+    "185", "186", "e", "189", "186", 
+    "187-n", "188", "e", "187", "188"],
+
+  "Bass Drum Player":[
+    "Game Play", 
+    "181", "182",
+    "183-n", "184"],
+
+  "Accordion Player":[
+    "Game Play", 
+    "146", "146-x", "e", "148", "148-x", 
+    "147-n", "147-x", "e", "149", "149-x"],
+
+  "Flute Player":[
+    "Game Play",  
+    "194", "e", "196", 
+    "195-n", "e", "143"],
+  
+  "Jumping Dancer":[
+    "Game Play",  
+    "192", "192-x", "e", "172", "172-x", 
+    "193-n", "193-x", "e", "191", "191-x"],
+
+  "Contrabass Player":[
+    "Game Play",
+    "174", "178", "e", "172", "190", 
+    "176-n", "180", "e", "176", "179"],
+  
+  "Surprise":[
+    "Game Play",
+    "192", "172-x",
+    "191-n", "193-x"],
 
   "Dome":[
     "Game Play", 

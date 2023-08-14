@@ -9,6 +9,11 @@
 // * Clean up the mess!!!
 // * functions gg2Addr() and addr2Gg(). Also improve it
 // * function highlightAnimation()
+// * Align the tile editor with CSS (flexbox problem I guess)
+// * Allow bitwise shift for the tiles
+// * Make the standard palette for CGB and Super Game Boy selectable
+// * Implement OAM palettes :-|
+// * hover on tiles highlights VRAM tile set
 // 
 // Tasks for the future:
 // --------------------
@@ -34,7 +39,6 @@ var autoApply = false;
 // Initialize the pixelData array
 var pixelData = [];
 
-
 // toggle to automatically apply GG Codes
 document.getElementById('autoApplyToggle').addEventListener('change', function() {
   autoApply = this.checked;
@@ -59,10 +63,7 @@ document.getElementById('tileBorders').addEventListener('change', function() {
   }
 });
 
-
-//**************************************************************************************/
-// (2) DOM CONTENT LOADED
-//**************************************************************************************/
+//------------------------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function() {
   
   // get the DOM elements
@@ -214,11 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-
-//**************************************************************************************/
-// (3) FUNCTIONS
-//**************************************************************************************/
-
+//------------------------------------------------------------------------------------------
 // save the bg map and close the modal
 function saveBGMap() {
 
@@ -290,7 +287,7 @@ function downloadBGMapAsBin() {
 
   document.body.removeChild(a);
 
-  addToLog("The BG Map \"" + bgMapName + "\" >> \"" + bgMapFileName + "\"");
+  addToLog("BG Map Saved: \"" + bgMapName + "\" >> \"" + bgMapFileName + "\"");
 }
 
 //------------------------------------------------------------------------------------------
@@ -782,13 +779,6 @@ function showNextToast() {
   if (!toastQueue.length) return;
 
   let id = toastQueue[0];
-  /*if (id !== 'rowsFull' || canCall) {
-    if (id === 'rowsFull') {
-      canCall = false;
-      setTimeout(() => {
-        canCall = true;
-      }, 10000);
-    }*/
     var toast = document.getElementById(id);
     setTimeout(function() {
       toast.classList.add("show");
@@ -904,6 +894,12 @@ function getBGMap(id, bgMap) {
   }
 
   document.getElementById("BGMapStartAddress").value = id;
+
+  var button = document.getElementById("saveBGMapAsBIN");
+  const thisMapName = bgMaps[bgMap][4];
+  var suffix = "";
+  if(thisMapName != "undefined") suffix = " as \"" + thisMapName  + "\"";
+  button.innerHTML = "Download" + suffix;
 }
 
 

@@ -1,20 +1,8 @@
-///////////////////////////////////////////////////////////////////////////////
-//
-// TOLSTOJ 2023 (with the help of ChatGPT)
-//
-///////////////////////////////////////////////////////////////////////////////
-
-/*******************************************************************************
- (1) GLOBAL VARIABLES AND INITIAL SET-UP
-*******************************************************************************/
 
 // global variables defines initial mino and empty mino
 var currentMino = "87";
- 
 
-/*******************************************************************************
- (2) EVENT LISTENERS
-*******************************************************************************/
+//------------------------------------------------------------------------------------------
 // Define the event listener function
 function trackKeyPress(event) {
     let cell = null;
@@ -50,12 +38,8 @@ function trackKeyPress(event) {
   function disableKeyPressTracking() {
     document.removeEventListener("keydown", trackKeyPress);
   }
-  
 
-/*******************************************************************************
- (2) FUNCTIONS
-*******************************************************************************/
-
+//------------------------------------------------------------------------------------------
 // create the background map
 function addMatrix(cols, rows) {
 
@@ -79,6 +63,7 @@ function addMatrix(cols, rows) {
     }
 }
 
+//------------------------------------------------------------------------------------------
 // Given the user selection, add tiles to the playfield
 $( function(){
     $("#selectable").selectable({
@@ -86,11 +71,6 @@ $( function(){
             var mino = "mino";
             //var remove = false;
             $(".ui-selected", this).each(function(i, el){
-                //if(i === 0 && this.classList.contains("mino")) remove = true;
-                    
-                // fill with the current selection
-                //if(currentMino.toUpperCase() == emptyMino) this.classList.remove(mino);
-                /*else this.classList.add(mino);*/
                 $(el).find('img')
                 .attr('src', localStorage.getItem("tileImage-" + currentMino.toUpperCase()))
                 .attr('data-tile-id', currentMino.toUpperCase());
@@ -103,6 +83,7 @@ $( function(){
     });  
 });
 
+//------------------------------------------------------------------------------------------
 // Collects the tiles, that go to the VRAM Grid
 // These were assigned the data attribute "data-vram"
 // containing the index 0-255 in the vram tile set
@@ -150,6 +131,7 @@ function loadTileContentToVRAMGrid() {
 
 }
 
+//------------------------------------------------------------------------------------------
 // loads a VRAM Tile Set
 // assigns data-vram attribute to the tile divs starting at 1 (max 256 tiles!)
 // setToLoad is an array of arrays and can be found as "vRamTileSets" in the lookup tables
@@ -186,6 +168,7 @@ function assignVramTileSet(setToLoad) {
     });
 }
 
+//------------------------------------------------------------------------------------------
 // saves a tile to the local storage
 // a tile div is made into an 8x8 px image
 function saveTileToLocalStorage(vramAddress) {
@@ -216,7 +199,8 @@ function saveTileToLocalStorage(vramAddress) {
     var localStorageKey = "tileImage-" + vramAddress;
     localStorage.setItem(localStorageKey, imageDataURL);
 }
-  
+
+//------------------------------------------------------------------------------------------
 // exchanges src of images (BG Map) also adds the address in a DIV. This can be toggled.
 function displayTileImageFromLocalStorage(tileAddress, imgId) {
   var localStorageKey = "tileImage-" + tileAddress;
@@ -248,6 +232,7 @@ function displayTileImageFromLocalStorage(tileAddress, imgId) {
   }
 }
 
+//------------------------------------------------------------------------------------------
 // wipes the image from the local storage
 // tiles 00 to FF
 function wipeTilesFromLocalStorage() {
@@ -258,7 +243,8 @@ function wipeTilesFromLocalStorage() {
     }
 }
 
-  // Toggles the visibility in the BG Map (image or address)
+//------------------------------------------------------------------------------------------
+// Toggles the visibility in the BG Map (image or address)
 function toggleBGImages() {
   var olElement = document.getElementById("selectable");
   if (!olElement) return;
@@ -278,4 +264,3 @@ function toggleBGImages() {
       }
   }
 }
-
