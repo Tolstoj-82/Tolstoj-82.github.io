@@ -91,7 +91,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
   // Add a button to save the tile set as a PNG
   let nCols = getTileSetProperty(tilesetTitle, "width");
   let thisSetName = getTileSetProperty(tilesetTitle, "name");
-  let savePngHTML = `<p style="text-align: center;"><button onclick="saveTileSetAsPNG('${addresses}', ${nTiles}, '${thisSetName}', ${nCols});" class="secondary">Save Tile Group as "${thisSetName}.png"</button></p>`;
+  let savePngHTML = `<p style="text-align: center;"><button onclick="saveTileSetAsPNG('${addresses}', ${nTiles}, '${thisSetName}', ${nCols});" class="secondary">▼ Download Tile Group as "${thisSetName}.png"</button></p>`;
   savePngHTML += "<br><hr>";
   tileContainer.innerHTML += savePngHTML;
   
@@ -177,7 +177,7 @@ function saveTileSetAsPNG(address, nTiles, name, nCols) {
   a.download = name + ".png";
   a.click();
   displayToast("tileSetSaved");
-  addToLog("Tile set was saved as \"" + name + ".png\"");
+  addToLog("Tile set was downloaded as \"" + name + ".png\"");
 }
 
 //------------------------------------------------------------------------------------------
@@ -589,6 +589,7 @@ function closeTileDialog() {
 }
 
 //------------------------------------------------------------------------------------------
+// THIS MAKES NO SENSE! :-D <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 // "Discard changes" button
 function discardChangesOnTiles(){
   closeTileDialog();

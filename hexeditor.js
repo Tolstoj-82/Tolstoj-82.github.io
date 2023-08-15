@@ -899,7 +899,7 @@ function getBGMap(id, bgMap) {
   const thisMapName = bgMaps[bgMap][4];
   var suffix = "";
   if(thisMapName != "undefined") suffix = " as \"" + thisMapName  + "\"";
-  button.innerHTML = "Download" + suffix;
+  button.innerHTML = "▼ Download" + suffix;
 }
 
 
