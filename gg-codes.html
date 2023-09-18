@@ -1,328 +1,37 @@
-<h2>Game Genie codes</h2>
-<div class="toggle-switch">
-  <input type="checkbox" id="autoApplyToggle">
-  <label for="autoApplyToggle"></label>
-  <span class="toggle-text">Apply codes automatically when clicked</span>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Function List</title>
+    <script>
+// Get all script elements in the HTML
+const scriptElements = document.querySelectorAll('script[type="text/javascript"]');
 
-<table id="t_codeList">
-  <tr>
-      <th id="t_desc">Description</th>
-      <th id="t_auth">Author</th>
-      <th id="t_code">Code(s)</th>
-  </tr>
-  <tr>
-      <td>
-        Uncap score<br>
-        (Rollover after 999,999)
-      </td>
-      <td>Kirjava</td>
-      <td><a href="#" class="copyLink">C91-78F-192</a></td>
-  </tr>
-  <tr>
-      <td>Keep the stack displayed while paused</td>
-      <td>Galoob</td>
-      <td><a href="#" class="copyLink">CEC-30E-C45</a></td>
-  </tr>
-  <tr>
-      <td>Keep the current and next pieces displayed while paused</td>
-      <td>Galoob</td>
-      <td><a href="#" class="copyLink">D9C-53E-D5D</a></td>
-  </tr>
-  <tr>
-      <td>No Rocket</td>
-      <td>nitro2k01</td>
-      <td><a href="#" class="copyLink">18F-56E-6EA</a></td>
-  </tr>
-  <tr>
-      <td>Ultra Fast Rocket</td>
-      <td>nitro2k01</td>
-      <td>
-        <a href="#" class="copyLink">003-B9E-B3E</a> +<br>
-        <a href="#" class="copyLink">003-54E-E69</a> +<br>
-        <a href="#" class="copyLink">183-6AE-4CA</a> +<br>
-        <a href="#" class="copyLink">003-82E-5D2</a>
-      </td>
-  </tr>
-  <tr>
-      <td>Play the Rocket after each game</td>
-      <td>nitro2k01</td>
-      <td><a href="#" class="copyLink">18F-60E-2AA</a></td>
-  </tr>
-  <tr>
-      <td>
-        Only one piece type<br>
-        <p>
-          Orientation<br>
-          <select id="pieceOri">
-            <option value="0">North</option>
-            <option value="1">East</option>
-            <option value="2">South</option>
-            <option value="3">West</option>
-          </select>
-          <p style="text-align: center;">
-            <img src="images/n.png" height="250" id="orientationImage">
-          </p>
-        </p>
-      </td>
-      <td>Galoob<br> (Rotations Tolstoj)</td>
-      <td>
-        <a href="#" class="copyLink">000-63D-6E9</a> +<br> 
-        <a href="#" class="copyLink">3E0-64D-5D0</a> + …<br>
-        <p>choose one</p>
-        L pieces<br>
-        … <a href="#" class="copyLink pieceSpawn" id="p_L" data-north="0">000-65D-087</a><br>
-        J pieces<br>
-        … <a href="#" class="copyLink pieceSpawn" id="p_J" data-north="4">040-65D-087</a><br>
-        I pieces<br>
-        … <a href="#" class="copyLink pieceSpawn" id="p_I" data-north="8">080-65D-087</a><br>
-        O pieces<br>
-        … <a href="#" class="copyLink pieceSpawn" id="p_O" data-north="C">0C0-65D-087</a><br>
-        Z pieces<br>
-        … <a href="#" class="copyLink pieceSpawn" id="p_Z" data-north="0">100-65D-087</a><br>
-        S pieces<br>
-        … <a href="#" class="copyLink pieceSpawn" id="p_S" data-north="4">140-65D-087</a><br>
-        T pieces<br>
-        … <a href="#" class="copyLink pieceSpawn" id="p_T" data-north="8">180-65D-087</a><br>
-      </td>
-  </tr>
-  <tr>
-      <td>Extended the level selection up to Level K (K=20)</td>
-      <td>Ospin</td>
-      <td>
-        <p>
-          A-Type<br>
-          <a href="#" class="copyLink">145-F2E-C4E</a>
-        </p>
-        <p>
-          B-Type<br>
-          <a href="#" class="copyLink">146-AFE-C4E</a>
-        </p>
-      </td>
-  </tr>
-  <tr>
-      <td>Extend even further to previously unknown Levels L and M<br>
-        (Replaces level K codes)</td>
-      <td>Tolstoj</td>
-      <td>
-        <p>
-          A-Type<br>
-          <a href="#" class="copyLink">165-F2E-C4E</a> +
-        </p>
-        <p>
-          B-Type<br>
-          <a href="#" class="copyLink">166-AFE-C4E</a> +
-        </p>
-        <p>
-          Add level L<br>
-          <a href="#" class="copyLink">01B-1BE-6EE</a> +
-        </p>
-        <p>
-          Add level M<br>
-          <a href="#" class="copyLink">00B-1CE-E61</a>
-        </p>
-      </td>
-  </tr>
-  <tr>
-      <td>
-        Any DAS
-        <p>
-          Left<br>
-          <select id="leftDasDelay" class="hexSel">
-            <option value="XX">-</option>
-          </select> Delay<br>
-          <select id="leftDasArr" class="hexSel">
-            <option value="XX">-</option>
-          </select> ARR<br>
-        </p>
-        <p>
-          Right<br>
-          <select id="rightDasDelay" class="hexSel">
-            <option value="XX">-</option>
-          </select> Delay<br>
-          <select id="rightDasArr" class="hexSel">
-            <option value="XX">-</option>
-          </select> ARR
-          <p>
-            DAS can be set for left and right movement separately
-          </p>
-        </p>
-      </td>
-      <td>
-        Ospin
-      </td>
-      <td>
-        <p>
-          Left DAS<br>
-          <a href="#" class="copyLink inactive" id="l_leftDasDelay">XX5-18D-B36</a><br>
-          <a href="#" class="copyLink inactive" id="l_leftDasArr">XX5-26D-C4E</a>
-        </p>
-        <p>
-          Right DAS<br>
-          <a href="#" class="copyLink inactive" id="l_rightDasDelay">XX5-4FD-B36</a><br>
-          <a href="#" class="copyLink inactive" id="l_rightDasArr">XX5-5DD-C4E</a>
-        </p>
-        <p>
-          *Original values<br>
-          Delay = 23<br>
-          ARR = 9<br>
-          [frames]
-        </p>
-      </td>
-  </tr>
-  <tr>
-    <td>
-      2-Player Speed
-      <p>
-        <select id="twoPlayerSpeed" class="level">
-          <option value="01">--</option>
-        </select>
-      </p>
-    </td>
-    <td>PasZau <br>(and Tolstoj)</td>
-    <td>
-      <a href="#" class="copyLink inactive" id="l_twoPlayerSpeed">XX8-56F-E6E</a>
-    </td>
-  </tr>
-  <tr>
-      <td>Almost Any Value Messes Up The Music</td>
-      <td>nensondubois</td>
-      <td><a href="#" class="copyLink">22B-0F9-91A</a></td>
-  </tr>
-  <tr>
-      <td>Always Get The Same Piece</td>
-      <td>nensondubois</td>
-      <td><a href="#" class="copyLink">FA0-66D-4C1</a></td>
-  </tr>
-  <tr>
-      <td>Drop Pieces To Clear Line</td>
-      <td>nolberto82</td>
-      <td><a href="#" class="copyLink">001-5ED-3B5</a></td>
-  </tr>
-  <tr>
-      <td>Game Over Music is crazy after the normal song ends</td>
-      <td>nensondubois</td>
-      <td><a href="#" class="copyLink">03C-199-E6A</a></td>
-  </tr>
-  <tr>
-      <td>Glitched Graphics</td>
-      <td>nensondubois</td>
-      <td><a href="#" class="copyLink">044-0BF-F76</a></td>
-  </tr>
-  <tr>
-      <td>Immunity from other player's Tetrises (2 Player)</td>
-      <td>Galoob</td>
-      <td><a href="#" class="copyLink">00C-83F-197</a></td>
-  </tr>
-  <tr>
-      <td>Keep current and next pieces and stack displayed while paused</td>
-      <td>terpsfan101</td>
-      <td><a href="#" class="copyLink">18C-2EE-4CA</a></td>
-  </tr>
-  <tr>
-      <td>Music B sounds different</td>
-      <td>BigBossman</td>
-      <td><a href="#" class="copyLink">30B-ED9</a></td>
-  </tr>
-  <tr>
-    <td>Music Modifier</td>
-    <td>nensondubois</td>
-    <td>??A-239-915</td>
-  </tr>
-  <tr>
-    <td>
-      Need n cleared lines to finish game B<br>
-      <p>
-        <select id="nClearedLines" class="hexSel">
-          <option value="19">-</option>
-        </select>
-      </p>
-      <p>Really only reliable up to a value of XY</p>
-    </td>
-    <td>Galoob</td>
-    <td>
-      <a href="#" class="copyLink inactive" id="nClearedLinesCode">XXA-8BE-7FE</a>
-      <p>
-        *Original value = 25
-      </p>
-    </td>
-  </tr>
-  <tr>
-    <td>Music B sounds different</td>
-    <td>BigBossman</td>
-    <td><a href="#" class="copyLink">30B-ED9</a></td>
-  </tr>
+// Regular expression to match out-commented lines above functions
+const functionPattern = /\/\/\s*(.*?)\n\s*function\s+(\w+)/g;
 
-  <tr>
-    <td>Place blocks off the screen</td>
-    <td>BigBossman</td>
-    <td><a href="#" class="copyLink">A45-41D</a></td>
-  </tr>
-  <tr>
-    <td>Press down To descend Tetriminos</td>
-    <td>nensondubois</td>
-    <td><a href="#" class="copyLink">000-AED-19E</a></td>
-  </tr>
-  <tr>
-    <td>Replace OFF Music with any song</td>
-    <td>nensondubois</td>
-    <td>??5-20E-195</td>
-  </tr>
-  <tr>
-    <td>Replaces A-TYPE with High Score Theme, B-TYPE with Game B Clear, C-TYPE with Title Music, and OFF with Game Over Music</td>
-    <td>nensondubois</td>
-    <td><a href="#" class="copyLink">1B5-1AE-B36</a></td>
-  </tr>
-  <tr>
-    <td>Replaces A-TYPE with Russian Dance Song 1, BTYPE with Russian Dance 2, C-TYPE with Rocket Shootoff, and OFF with 2-Player Win Music</td>
-    <td>nensondubois</td>
-    <td><a href="#" class="copyLink">0E5-1AE-B36</a></td>
-  </tr>
-  <tr>
-    <td>Skip Copyright Screen</td>
-    <td>nensondubois</td>
-    <td>
-      <a href="#" class="copyLink">003-96F-E69</a>+<br>
-      <a href="#" class="copyLink">013-98F-081</a>+<br>
-      <a href="#" class="copyLink">FA3-72F-D5D</a>
-    </td>
-  </tr>
-  <tr>
-    <td>Start at Rocket Shootoff Cutscene</td>
-    <td>nensondubois</td>
-    <td><a href="#" class="copyLink">263-8FF-7FE</a></td>
-  </tr>
-  <tr>
-    <td>Start at VS Game Select</td>
-    <td>nensondubois</td>
-    <td><a href="#" class="copyLink">163-8FF-7FE</a></td>
-  </tr>
-  <tr>
-    <td>When the other player gets a double or better, player with Game Genie gets 4 lines added to his screen (makes game more difficult for that player) (2 Player)</td>
-    <td>Galoob</td>
-    <td>
-      <p>
-        Double<br>
-        <a href="#" class="copyLink">3EC-86F-2AA</a>
-      </p>
-      <p>
-        Triple<br>
-        <a href="#" class="copyLink">04C-87F-7F0</a>
-      </p>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="3">
-      <b>Change the Level Speeds (Gravity Table)</b><br>
-      Code by Tetris.wiki
-      <p>
-        The values are in unit 1/G. This is how many frames it takes for a piece to drop one row.<br>
-        e.g. 1G = 1 drop per frame, 1/5G = 1 drop every 5 frames.
-      </p>
-      <p>
-        <!-- The gravity tables are populated here -->
-        <div id="gravityTablesContainer"></div>
-      </p>
-    </td>
-  </tr>
-</table>
+// Loop through each script element
+scriptElements.forEach(scriptElement => {
+    const scriptText = scriptElement.textContent;
+    let match;
+    
+    // Find matches for the pattern in the script text
+    while ((match = functionPattern.exec(scriptText)) !== null) {
+        const description = match[1];
+        const functionName = match[2];
+        
+        console.log(`Function Name: ${functionName}`);
+        console.log(`Description: ${description}`);
+        console.log('---');
+    }
+});      
+      </script>
+</head>
+<body>
+  <script src="hexeditor.js"></script>
+  <script src="tileEditor.js"></script>    
+  <script src="gamegenie.js"></script>
+  <script src="lookup.js"></script>
+  <script src="modal.js"></script>
+  <script src="backgroundEditor.js"></script>
+</body>
+</html>

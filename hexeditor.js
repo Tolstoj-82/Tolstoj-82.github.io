@@ -12,8 +12,9 @@
 // * Align the tile editor with CSS (flexbox problem I guess)
 // * Allow bitwise shift for the tiles
 // * Make the standard palette for CGB and Super Game Boy selectable
-// * Implement OAM palettes :-|
+// * Implement OAM palettes :-| <-- this is going to be tricky AF!
 // * hover on tiles highlights VRAM tile set
+// * have the slider and the tile zoom always be the
 // 
 // Tasks for the future:
 // --------------------
@@ -854,6 +855,30 @@ function obtainHeaderData() {
   document.getElementById("thisRamSize").textContent = thisRamSize;
   document.getElementById("thisDestinationCode").textContent = thisDestinationCode;
   document.getElementById("licenseeCode").textContent = licenseeCode;
+}
+
+//------------------------------------------------------------------------------------------
+function saveBGMapPreviewIntoLocalStorage(id, bgMap) {
+  
+  cols = bgMaps[bgMap][1]; 
+  rows = bgMaps[bgMap][2];
+
+  // delete previous VRAM Tile Set
+  wipeTilesFromLocalStorage();
+
+  const startIndex = parseInt(id, 16);
+
+  for (let i = 0; i < imageElements.length; i++) {
+    const cellId = (startIndex + i).toString(16).padStart(2, '0').toUpperCase();
+    const cellContent = document.getElementById(cellId).textContent;
+    const bgTileId = i.toString(16).padStart(2,'0').toLocaleUpperCase();
+    
+    // the image needs an ID / also make sure it's upscaled using point filtering (pixel perfect)
+    imageElements[i].setAttribute("id", "bg-tile-" + bgTileId);
+    imageElements[i].style.imageRendering = "pixelated";
+    //
+    //displayTileImageFromLocalStorage(cellContent, "bg-tile-" + bgTileId);
+  }
 }
 
 //------------------------------------------------------------------------------------------

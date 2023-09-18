@@ -172,32 +172,32 @@ function assignVramTileSet(setToLoad) {
 // saves a tile to the local storage
 // a tile div is made into an 8x8 px image
 function saveTileToLocalStorage(vramAddress) {
-    var canvas = document.createElement("canvas");
-    canvas.width = 8;
-    canvas.height = 8;
-    var context = canvas.getContext("2d");
+  var canvas = document.createElement("canvas");
+  canvas.width = 8;
+  canvas.height = 8;
+  var context = canvas.getContext("2d");
+
+  //var div = document.getElementById("tileaddr-" + tileAddress);
+  var div = document.querySelector('.tile[data-vram="' + vramAddress + '"]');
   
-    //var div = document.getElementById("tileaddr-" + tileAddress);
-    var div = document.querySelector('.tile[data-vram="' + vramAddress + '"]');
-    
-    var pixels = div.getElementsByClassName("pixel");
-  
-    var pixelStyles = window.getComputedStyle(pixels[0]); // Get computed styles for the first pixel
-  
-    for (var i = 0; i < pixels.length; i++) {
-      var pixel = pixels[i];
-      var pixelStyles = window.getComputedStyle(pixel);
-      var color = pixelStyles.backgroundColor;
-  
-      var x = i % 8;
-      var y = Math.floor(i / 8);
-      context.fillStyle = color;
-      context.fillRect(x, y, 1, 1);
-    }
-  
-    var imageDataURL = canvas.toDataURL();
-    var localStorageKey = "tileImage-" + vramAddress;
-    localStorage.setItem(localStorageKey, imageDataURL);
+  var pixels = div.getElementsByClassName("pixel");
+
+  var pixelStyles = window.getComputedStyle(pixels[0]); // Get computed styles for the first pixel
+
+  for (var i = 0; i < pixels.length; i++) {
+    var pixel = pixels[i];
+    var pixelStyles = window.getComputedStyle(pixel);
+    var color = pixelStyles.backgroundColor;
+
+    var x = i % 8;
+    var y = Math.floor(i / 8);
+    context.fillStyle = color;
+    context.fillRect(x, y, 1, 1);
+  }
+
+  var imageDataURL = canvas.toDataURL();
+  var localStorageKey = "tileImage-" + vramAddress;
+  localStorage.setItem(localStorageKey, imageDataURL);
 }
 
 //------------------------------------------------------------------------------------------
@@ -207,33 +207,33 @@ function displayTileImageFromLocalStorage(tileAddress, imgId) {
   var imageDataURL = localStorage.getItem(localStorageKey);
 
   if (imageDataURL) {
-      var img = document.getElementById(imgId);
-      if (img) {
-          img.src = imageDataURL;
-          img.setAttribute("data-tile-ID", tileAddress);
+    var img = document.getElementById(imgId);
+    if (img) {
+      img.src = imageDataURL;
+      img.setAttribute("data-tile-ID", tileAddress);
 
-          // Get the parent <li> element of the img
-          var liElement = img.parentNode;
-          if (liElement) {
-              // Clear existing content of the <li> element
-              liElement.innerHTML = '';
+      // Get the parent <li> element of the img
+      var liElement = img.parentNode;
+      if (liElement) {
+          // Clear existing content of the <li> element
+          liElement.innerHTML = '';
 
-              // Create a <div> element for the tileAddress and make it invisible
-              var divElement = document.createElement('div');
-              divElement.textContent = tileAddress;
-              divElement.classList.add('BGtileID');
-              divElement.style.display = 'none';
+          // Create a <div> element for the tileAddress and make it invisible
+          var divElement = document.createElement('div');
+          divElement.textContent = tileAddress;
+          divElement.classList.add('BGtileID');
+          divElement.style.display = 'none';
 
-              // Append the img and the div to the <li> element
-              liElement.appendChild(img);
-              liElement.appendChild(divElement);
-          }
+          // Append the img and the div to the <li> element
+          liElement.appendChild(img);
+          liElement.appendChild(divElement);
       }
+    }
   }
 }
 
 //------------------------------------------------------------------------------------------
-// wipes the image from the local storage
+// wipes images from local storage
 // tiles 00 to FF
 function wipeTilesFromLocalStorage() {
     for (let i = 0; i < 256; i++) {
