@@ -283,31 +283,35 @@ const oldLicenseeCode = {
 // background maps
 // name: start address, width, height, vram tile set
 const bgMaps = {
-  "Copyright Screen":   ["4A07", 20, 18, "Start-Set",       "layout_copyright.bin"],
-  "Title Screen":       ["4B6F", 20, 18, "Start-Set",       "layout_titleScreen.bin"],
-  "Music Type":         ["4CD7", 20, 18, "Game Play-Set",   "layout_gameMusicTypeScreen.bin"],
-  "A-Type Select":      ["4E3F", 20, 18, "Game Play-Set",   "layout_aTypeSelectionScreen.bin"],
-  "B-Type Select":      ["4FA7", 20, 18, "Game Play-Set",   "layout_bTypeSelectionScreen.bin"],
-  "A-Playfield":        ["3E8F", 20, 18, "Game Play-Set",   "layout_aTypeInGame.bin"],
-  "B-Playfield":        ["3FF7", 20, 18, "Game Play-Set",   "layout_bTypeInGame.bin"],
-  "Mario & Luigi":      ["5214", 20, 18, "Game Play-Set",   "layout_marioLuigiScreen.bin"],
-  "2P-Playfield":       ["537C", 20, 18, "Game Play-Set",   "layout_2PlayerInGame.bin"],
+  "Copyright Screen":         ["4A07", 20, 18, "Start-Set",       "layout_copyright.bin"],
+  "Title Screen":             ["4B6F", 20, 18, "Start-Set",       "layout_titleScreen.bin"],
+  "Music Type":               ["4CD7", 20, 18, "Game Play-Set",   "layout_gameMusicTypeScreen.bin"],
+  "A-Type Select":            ["4E3F", 20, 18, "Game Play-Set",   "layout_aTypeSelectionScreen.bin"],
+  "B-Type Select":            ["4FA7", 20, 18, "Game Play-Set",   "layout_bTypeSelectionScreen.bin"],
+  "A-Playfield":              ["3E8F", 20, 18, "Game Play-Set",   "layout_aTypeInGame.bin"],
+  "B-Playfield":              ["3FF7", 20, 18, "Game Play-Set",   "layout_bTypeInGame.bin"],
+  "Mario & Luigi":            ["5214", 20, 18, "Game Play-Set",   "layout_marioLuigiScreen.bin"],
+  "2P-Playfield":             ["537C", 20, 18, "Game Play-Set",   "layout_2PlayerInGame.bin"],
 
-  "Celebration":        ["510F", 10, 18, "Game Play-Set",   "gameScreenLayout_dancers.bin"],
-  "Score Counter":      ["2889", 10, 18, "Game Play-Set",   "gameScreenLayout_scoreTotals.bin"],
+  "Celebration":              ["510F", 10, 18, "Game Play-Set",   "gameScreenLayout_dancers.bin"],
+  "Score Counter":            ["2889", 10, 18, "Game Play-Set",   "gameScreenLayout_scoreTotals.bin"],
 
-  "Mario Score":        ["54E4", 20,  4, "Celebration-Set", "layout_marioScore.bin"],
-  "Luigi Score":        ["5534", 20,  6, "Celebration-Set", "layout_bricksAndLuigiScore.bin"],
+  "Mario Score":              ["54E4", 20,  4, "Celebration-Set", "layout_marioScore.bin"],
+  "Luigi Score":              ["5534", 20,  6, "Celebration-Set", "layout_bricksAndLuigiScore.bin"],
+
+  // The last 
+  "Mario (ignore left cols)": ["0FAA", 3, 5,   "Celebration-Set", "mario.bin", "2"],
+  "Luigi (ignore left cols)": ["0F99", 3, 5,   "Celebration-Set", "luigi.bin", "2"],
   
   // this needs to be changed <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-  "Platform":           ["51C4", 20,  4, "Celebration-Set", "layout_rocketScene.bin"],
-  "Scaffold (l)":       ["1429",  1,  7, "Celebration-Set", "coming soon.bin"],
-  "Scaffold (r)":       ["1430",  1,  7, "Celebration-Set", "coming soon.bin"],
-  "Buran Scaffold (l)": ["141B",  1,  7, "Celebration-Set", "coming soon.bin"],
-  "Buran Scaffold (r)": ["1422",  1,  7, "Celebration-Set", "coming soon.bin"],
+  "Platform":                 ["51C4", 20,  4, "Celebration-Set", "layout_rocketScene.bin"],
+  "Scaffold (l)":             ["1429",  1,  7, "Celebration-Set", "coming soon.bin"],
+  "Scaffold (r)":             ["1430",  1,  7, "Celebration-Set", "coming soon.bin"],
+  "Buran Scaffold (l)":       ["141B",  1,  7, "Celebration-Set", "coming soon.bin"],
+  "Buran Scaffold (r)":       ["1422",  1,  7, "Celebration-Set", "coming soon.bin"],
 
-  "Pause":              ["2839",  8, 10, "Game Play-Set",   "coming soon.bin"],
-  "Game Over":          ["2976",  8,  6, "Game Play-Set",   "coming soon.bin"]
+  "Pause":                    ["2839",  8, 10, "Game Play-Set",   "coming soon.bin"],
+  "Game Over":                ["2976",  8,  6, "Game Play-Set",   "coming soon.bin"]
 };
 
 // Tile Addresses in ROM (Start address, #Tiles, #BPP, show)
