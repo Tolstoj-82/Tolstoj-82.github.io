@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // ROM HEX Editor and Game Genie code patcher
-//
-/////////////////////////////////////////////////////////////////////////////////////////
 // 
 // Tolstoj & ChatGPT 2023
 //
@@ -193,6 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 //------------------------------------------------------------------------------------------
 // save the bg map and close the modal
+/*
 function saveBGMap() {
 
   var olElement = document.getElementById("selectable");
@@ -225,7 +224,42 @@ function saveBGMap() {
 
   addToLog("Background map \"" + bgMapName + "\" overwritten.");
 
+}*/
+
+function saveBGMap(bgMap) {
+
+  var olElement = document.getElementById("selectable");
+  var imgElements = olElement.querySelectorAll("li img");
+  var startAddress = document.getElementById("BGMapStartAddress").value;
+
+  var currentAddress = parseInt(startAddress, 16);
+
+  imgElements.forEach(function(imgElement) {
+
+    var tileID = imgElement.getAttribute("data-tile-id");
+
+    // Extract the number from the image ID (assuming the ID is in the format "bg-tile-X" where X is the number)
+    var tileNumber = parseInt(imgElement.id.replace("bg-tile-", ""), 16);
+
+    // Calculate the address based on the tile number and the starting address
+    var hexAddress = (currentAddress + tileNumber).toString(16).toUpperCase().padStart(4, '0');
+
+    var td = document.getElementById(hexAddress);
+    td.textContent = tileID;
+  });
+
+  closeBGModal();
+  scrollToAddress(startAddress);
+  document.getElementById("createFileBtn").removeAttribute("disabled");
+  
+  // Name of the selected BG map
+  var selectElement = document.getElementById("BGMapSelector");
+  var bgMapName = selectElement.options[selectElement.selectedIndex].text;
+
+  addToLog("Background map \"" + bgMapName + "\" overwritten.");
 }
+
+
 
 //-----------------------------------------------------------------------------------------
 // save the bg map and close the modal
@@ -843,8 +877,6 @@ function saveBGMapPreviewIntoLocalStorage(id, bgMap) {
 
   const startIndex = parseInt(id, 16);
 
-//  console.log(bgMap + ": " + startIndex);
-
   for (let i = 0; i < imageElements.length; i++) {
     const cellId = (startIndex + i).toString(16).padStart(2, '0').toUpperCase();
     const cellContent = document.getElementById(cellId).textContent;
@@ -859,6 +891,7 @@ function saveBGMapPreviewIntoLocalStorage(id, bgMap) {
 }
 
 //------------------------------------------------------------------------------------------
+
 // this woks, but now we need to make sure, the correct VRAM is loaded
 function getBGMap(id, bgMap) {
 
@@ -877,23 +910,32 @@ function getBGMap(id, bgMap) {
   addMatrix(bgMaps[bgMap][1], bgMaps[bgMap][2]);
 
   const startIndex = parseInt(id, 16);
+  const gap = bgMaps[bgMap][5] ? parseInt(bgMaps[bgMap][5]) : 1; // Default gap is 1 if not specified
 
   document.getElementById("BG-myModal").style.display = "flex";
 
   const selectableList = document.getElementById("selectable");
   const imageElements = selectableList.getElementsByTagName("img");
 
-  for (let i = 0; i < imageElements.length; i++) {
-    const cellId = (startIndex + i).toString(16).padStart(4, '0').toUpperCase();
+  let displayIndex = 0; // Initialize a separate index for displayed images
 
+  for (let i = 0; i < imageElements.length; i++) {
+    const cellId = (startIndex + displayIndex).toString(16).padStart(4, '0').toUpperCase();
     const cellContent = document.getElementById(cellId).textContent;
-    const bgTileId = i.toString(16).padStart(2,'0').toLocaleUpperCase();
+    const bgTileId = displayIndex.toString(16).padStart(2,'0').toUpperCase();
     
-    // the image needs an ID / also make sure it's upscaled using point filtering (pixel perfect)
-    imageElements[i].setAttribute("id", "bg-tile-" + bgTileId);
-    imageElements[i].style.imageRendering = "pixelated";
-    //
-    displayTileImageFromLocalStorage(cellContent, "bg-tile-" + bgTileId);
+    if (cellContent.trim() !== "") { // Check if the cell is not empty
+      // the image needs an ID / also make sure it's upscaled using point filtering (pixel perfect)
+      imageElements[i].setAttribute("id", "bg-tile-" + bgTileId);
+      imageElements[i].style.imageRendering = "pixelated";
+      //
+      displayTileImageFromLocalStorage(cellContent, "bg-tile-" + bgTileId);
+    }
+
+    // Increment the display index by gap if the cell is not empty
+    if (cellContent.trim() !== "") {
+      displayIndex += gap;
+    }
   }
 
   document.getElementById("BGMapStartAddress").value = id;
@@ -904,7 +946,6 @@ function getBGMap(id, bgMap) {
   if(thisMapName != "undefined") suffix = " as \"" + thisMapName  + "\"";
   button.innerHTML = "▼ Download" + suffix;
 }
-
 
 //------------------------------------------------------------------------------------------
 // tab group
