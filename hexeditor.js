@@ -191,41 +191,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 //------------------------------------------------------------------------------------------
 // save the bg map and close the modal
-/*
-function saveBGMap() {
-
-  var olElement = document.getElementById("selectable");
-  var imgElements = olElement.querySelectorAll("li img");
-  var startAddress = document.getElementById("BGMapStartAddress").value;
-
-  var currentAddress = parseInt(startAddress, 16);
-
-  imgElements.forEach(function(imgElement) {
-
-    var tileID = imgElement.getAttribute("data-tile-id");
-
-    // Convert the current address to a 4-digit hex value
-    var hexAddress = currentAddress.toString(16).toUpperCase().padStart(4, '0');
-
-    var td = document.getElementById(hexAddress);
-    td.textContent = tileID;
-
-    // Increment the current address
-    currentAddress++;
-  });
-
-  closeBGModal();
-  scrollToAddress(startAddress);
-  document.getElementById("createFileBtn").removeAttribute("disabled");
-  
-  //name of the selected BG map
-  var selectElement = document.getElementById("BGMapSelector");
-  var bgMapName = selectElement.options[selectElement.selectedIndex].text;
-
-  addToLog("Background map \"" + bgMapName + "\" overwritten.");
-
-}*/
-
 function saveBGMap(bgMap) {
 
   var olElement = document.getElementById("selectable");

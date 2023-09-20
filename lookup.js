@@ -300,8 +300,8 @@ const bgMaps = {
   "Luigi Score":              ["5534", 20,  6, "Celebration-Set", "layout_bricksAndLuigiScore.bin"],
 
   // The last 
-  "Mario (ignore left cols)": ["0FAC", 5, 1,   "Celebration-Set", "mario.bin", "3"],
-  "Luigi (ignore left cols)": ["0F9B", 5, 1,   "Celebration-Set", "luigi.bin", "3"],
+  "Mario (when Master)":      ["0FAC", 5, 1,   "Celebration-Set", "mario.bin", "3"],
+  "Luigi (when Master)":      ["0F9B", 5, 1,   "Celebration-Set", "luigi.bin", "3"],
   
   // this needs to be changed <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   "Platform":                 ["51C4", 20,  4, "Celebration-Set", "layout_rocketScene.bin"],
