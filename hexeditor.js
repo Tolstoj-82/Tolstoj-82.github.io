@@ -228,7 +228,6 @@ function saveBGMap(bgMap) {
 
 //-----------------------------------------------------------------------------------------
 // save the bg map and close the modal
-// how the heck are these bin files encoded? Certainly not like this, but it's a start
 function downloadBGMapAsBin() {
   var olElement = document.getElementById("selectable");
   var imgElements = olElement.querySelectorAll("li img");
@@ -236,12 +235,15 @@ function downloadBGMapAsBin() {
 
   imgElements.forEach(function (imgElement) {
     var tileID = imgElement.getAttribute("data-tile-id");
-    tileIDs.push(parseInt(tileID)); // Ensure IDs are treated as numbers
+    tileIDs.push(parseInt(tileID, 16)); // Ensure IDs are treated as numbers
+    
   });
 
   var byteArray = new Uint8Array(tileIDs.length);
 
+
   for (var i = 0; i < tileIDs.length; i++) {
+    console.log(tileIDs[i]);
     byteArray[i] = tileIDs[i];
   }
 
