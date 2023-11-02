@@ -677,7 +677,7 @@ const spriteObjects = {
 // used for the disassembly by 
 const tileExportData = {
   oNames:  ["ABC", "Celebration", "Game Play", "Start Screen"],
-  eNames:  ["ascii", "rocketScene", "titleScreen", "menuScreens"],
+  eNames:  ["ascii", "rocketScene", "menuScreens", "titleScreen"],
   widths:  [13, 16, 16, 16]
 }
 
