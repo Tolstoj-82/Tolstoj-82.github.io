@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+
 //------------------------------------------------------------------------------------------
 // save the bg map and close the modal
 function saveBGMap(bgMap) {
