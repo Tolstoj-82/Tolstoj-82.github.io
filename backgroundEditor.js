@@ -2,6 +2,7 @@
 // global variables defines initial mino and empty mino
 var currentMino = "87";
 
+
 //------------------------------------------------------------------------------------------
 // Define the event listener function
 function trackKeyPress(event) {
@@ -63,12 +64,15 @@ function addMatrix(cols, rows) {
     }
 }
 
+
+
 //------------------------------------------------------------------------------------------
 // Given the user selection, add tiles to the playfield
 $( function(){
     $("#selectable").selectable({
         stop: function(){
-            var mino = "mino";
+            //var mino = "mino";
+            console.log("Current Mino:", currentMino);
             //var remove = false;
             $(".ui-selected", this).each(function(i, el){
                 $(el).find('img')
@@ -166,6 +170,8 @@ function assignVramTileSet(setToLoad) {
       }
       vramIndex += nTiles;
     });
+
+
 }
 
 //------------------------------------------------------------------------------------------
@@ -202,6 +208,8 @@ function saveTileToLocalStorage(vramAddress) {
 
 //------------------------------------------------------------------------------------------
 // exchanges src of images (BG Map) also adds the address in a DIV. This can be toggled.
+var isMouseButtonPressed = false;
+
 function displayTileImageFromLocalStorage(tileAddress, imgId) {
   var localStorageKey = "tileImage-" + tileAddress;
   var imageDataURL = localStorage.getItem(localStorageKey);
@@ -215,18 +223,56 @@ function displayTileImageFromLocalStorage(tileAddress, imgId) {
       // Get the parent <li> element of the img
       var liElement = img.parentNode;
       if (liElement) {
-          // Clear existing content of the <li> element
-          liElement.innerHTML = '';
+        // Clear existing content of the <li> element
+        liElement.innerHTML = '';
 
-          // Create a <div> element for the tileAddress and make it invisible
-          var divElement = document.createElement('div');
-          divElement.textContent = tileAddress;
-          divElement.classList.add('BGtileID');
-          divElement.style.display = 'none';
+        // Create a <div> element for the tileAddress and make it invisible
+        var divElement = document.createElement('div');
+        divElement.textContent = tileAddress;
+        divElement.classList.add('BGtileID');
+        divElement.style.display = 'none';
 
-          // Append the img and the div to the <li> element
-          liElement.appendChild(img);
-          liElement.appendChild(divElement);
+        // Append the img and the div to the <li> element
+        liElement.appendChild(img);
+        liElement.appendChild(divElement);
+
+        // Add event listener to highlight corresponding image on hover
+        img.addEventListener('mouseenter', function () {
+          // Add your highlighting logic here, but only if the mouse button is not pressed
+          if (!isMouseButtonPressed) {
+            var tileID = divElement.textContent;
+            var highlightImage = document.querySelector('.BG-cell[id="' + tileID + '"] img');
+            if (highlightImage) {
+              highlightImage.classList.add('highlighted');
+            }
+          }
+        });
+
+        img.addEventListener('mouseleave', function () {
+          // Remove highlighting when mouse leaves
+          var tileID = divElement.textContent;
+          var highlightImage = document.querySelector('.BG-cell[id="' + tileID + '"] img');
+          if (highlightImage) {
+            highlightImage.classList.remove('highlighted');
+          }
+        });
+
+        // Add event listener to stop highlighting on mouse button press
+        img.addEventListener('mousedown', function () {
+          // Set the flag to indicate that the mouse button is pressed
+          isMouseButtonPressed = true;
+          // Remove highlighting when mouse button is pressed
+          var tileID = divElement.textContent;
+          var highlightImage = document.querySelector('.BG-cell[id="' + tileID + '"] img');
+          if (highlightImage) {
+            highlightImage.classList.remove('highlighted');
+          }
+        });
+
+        // Add event listener to reset the flag when the mouse button is released
+        img.addEventListener('mouseup', function () {
+          isMouseButtonPressed = false;
+        });
       }
     }
   }
