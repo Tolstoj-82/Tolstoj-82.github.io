@@ -1099,3 +1099,19 @@ div.pixel.cole {
   display:flex;
   align-items:center
 }
+
+.BG-cell img.highlighted {
+  box-shadow: 0 0 0 2px rosybrown;
+  filter: invert(0%);
+  transition: box-shadow 0.3s ease, filter 0.3s ease;
+  animation: blinkAnimation 0.5s infinite alternate;
+}
+
+@keyframes blinkAnimation {
+  0%, 100% {
+    filter: invert(0%);
+  }
+  50% {
+    filter: invert(100%);
+  }
+}
