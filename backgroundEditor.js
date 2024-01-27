@@ -65,7 +65,6 @@ function addMatrix(cols, rows) {
 }
 
 
-
 //------------------------------------------------------------------------------------------
 // Given the user selection, add tiles to the playfield
 $( function(){
@@ -132,7 +131,6 @@ function loadTileContentToVRAMGrid() {
             cell.click();
         }
     }
-
 }
 
 //------------------------------------------------------------------------------------------

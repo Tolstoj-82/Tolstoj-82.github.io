@@ -1115,3 +1115,27 @@ div.pixel.cole {
     filter: invert(100%);
   }
 }
+
+#searchResult {
+  height: 50px;
+  overflow-y: auto;
+  background-color: lightgray;
+  color: #333;
+  padding: 10px;
+  display: block;
+  resize: vertical;
+}
+
+#searchResult a {
+  text-decoration: none;
+  color: #333;
+}
+
+#searchResult a:hover {
+  background-color: #ff9d00;
+}
+
+#searchResult a.visited {
+  color: #9900cc;
+  background-color:#9ed290;
+}

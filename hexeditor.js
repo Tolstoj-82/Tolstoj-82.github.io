@@ -244,7 +244,7 @@ function downloadBGMapAsBin() {
 
 
   for (var i = 0; i < tileIDs.length; i++) {
-    console.log(tileIDs[i]);
+    //console.log(tileIDs[i]);
     byteArray[i] = tileIDs[i];
   }
 
@@ -685,40 +685,60 @@ function validateFile(event) {
 
   //------------------------------------------------------------------------------------------
   // Scrolls to and highlights an address
-  function scrollToAddress(address) {
+  function scrollToAddress(address, nCells = 1) {
     let returnValue = false;
   
+    if(nCells > 120) nCells = 120; // make sure there are never more than 120 cells to highlight (actually 7*16 = 112 would be enough) 
+
     if (/^[0-9a-fA-F]+$/.test(address)) { // only do, if the address is hex
       const oriAddr = parseInt(address, 16);
-      address = (oriAddr - 16).toString(16).toUpperCase().padStart(4, '0');
+      subtractor = 0;
+      if (oriAddr > 15) subtractor = 16;
+  
+      address = (oriAddr - subtractor).toString(16).toUpperCase().padStart(4, '0');
+  
       const targetAddress = address.slice(0, -1) + "0";
       const anchorElement = document.getElementById(targetAddress);
-  
+   
       // check if the address exists - if not, show red toast
       if (anchorElement) {
-        anchorElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (subtractor === 0) {
+          // If subtractor is 0, smooth scroll to the top of the table-wrapper
+          const tableWrapper = document.querySelector('.table-wrapper');
+          tableWrapper.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          // If subtractor is not 0, scroll to the anchor element
+          anchorElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
   
         // Apply the pulsate animation after a slight delay
         setTimeout(function() {
           if (oriAddr === 0x0134) {
-            for (let i = 0; i <= 15; i++) {
+            for (let i = 0; i < nCells; i++) {
               const cellId = 0x0134 + i;
               const tdElement = document.getElementById(cellId.toString(16).toUpperCase().padStart(4, '0'));
-              tdElement.style.animation = 'pulsate 2s';
+              if (tdElement) {
+                tdElement.style.animation = 'pulsate 2s';
   
-              // Reset the animation after it completes
-              tdElement.addEventListener('animationend', function() {
-                tdElement.style.animation = '';
-              });
+                // Reset the animation after it completes
+                tdElement.addEventListener('animationend', function() {
+                  tdElement.style.animation = '';
+                });
+              }
             }
           } else {
-            const tdElement = document.getElementById(oriAddr.toString(16).toUpperCase().padStart(4, '0'));
-            tdElement.style.animation = 'pulsate 2s';
+            for (let i = 0; i < nCells; i++) {
+              const cellId = oriAddr + i;
+              const tdElement = document.getElementById(cellId.toString(16).toUpperCase().padStart(4, '0'));
+              if (tdElement) {
+                tdElement.style.animation = 'pulsate 2s';
   
-            // Reset the animation after it completes
-            tdElement.addEventListener('animationend', function() {
-              tdElement.style.animation = '';
-            });
+                // Reset the animation after it completes
+                tdElement.addEventListener('animationend', function() {
+                  tdElement.style.animation = '';
+                });
+              }
+            }
           }
         }, 500); // Adjust the delay as needed
   
@@ -734,7 +754,8 @@ function validateFile(event) {
   
     return returnValue;
   }
-
+  
+  
 //------------------------------------------------------------------------------------------
 // display a toast
 let toastQueue = [];
@@ -1009,4 +1030,90 @@ function loadObjectSprite(objectName, highlightOnly) {
   }
 
   if(!highlightOnly) openTileDialog(tileAddresses, flags, objectName);
+}
+
+//------------------------------------------------------------------------------------------
+// Search for the occurance of a sequence inside the game's code 
+
+function hexViewerSearch(searchString, searchValues) {
+  const cells = document.querySelectorAll('#hexViewer .hexValueCell');
+
+  // Step 1: Create an array of [ID, displayedValue] pairs
+  const cellValues = Array.from(cells).map(cell => {
+      const id = cell.id;
+      const displayedValue = cell.textContent.trim().toUpperCase();
+      return [id, displayedValue];
+  });
+
+  // Step 2: Search for consecutive sequences based on the search string
+  let foundSequences = [];
+
+  // Check if there are at least two values in the search string
+  if (searchValues.length >= 2) {
+      for (let i = 0; i < cellValues.length - searchValues.length + 1; i++) {
+          const sequenceToCheck = cellValues.slice(i, i + searchValues.length);
+          const matchingSequence = sequenceToCheck.every((pair, index) => pair[1] === searchValues[index]);
+
+          if (matchingSequence) {
+              foundSequences.push(sequenceToCheck[0][0]);
+          }
+      }
+  }
+
+  return foundSequences;
+}
+
+function searchSequenceInCode() {
+  const searchInput = document.getElementById('searchAddressInput');
+  const searchResult = document.getElementById('searchResult');
+
+  // Clear previous result and remove the 'visited' class from all links
+  searchResult.innerHTML = '';
+  const links = document.querySelectorAll('#searchResult a');
+  links.forEach(link => link.classList.remove('visited'));
+
+  // Get the search string from the input field
+  const searchString = searchInput.value.trim();
+
+  // Check if the search string is not empty
+  if (searchString !== '') {
+      // Perform the search
+      const searchValues = searchString.split(',').map(value => value.trim().toUpperCase());
+      const foundSequences = hexViewerSearch(searchString, searchValues);
+
+      // Display the result
+      if (foundSequences.length > 0) {
+          const resultDiv = document.getElementById('searchResult');
+          resultDiv.innerHTML = '';
+
+          // Create comma-separated links for each found address
+          const links = foundSequences.map(address => {
+              const link = document.createElement('a');
+              link.href = 'javascript:void(0)';
+              link.textContent = address;
+              
+              // Add a click event listener to scroll to the address
+              link.addEventListener('click', () => {
+                scrollToAddress(address, searchValues.length);
+                  link.classList.add('visited');
+                  sessionStorage.setItem(`visited_${address}`, 'true');
+              });
+
+              return link;
+          });
+
+          // Append links to the result div
+          links.forEach((link, index) => {
+              resultDiv.appendChild(link);
+              // Add a comma after each link, except for the last one
+              if (index < links.length - 1) {
+                  resultDiv.appendChild(document.createTextNode(', '));
+              }
+          });
+      } else {
+          searchResult.innerHTML = 'Sequence not found.';
+      }
+  } else {
+      searchResult.innerHTML = ''; // Clear the result div if the search string is empty
+  }
 }
