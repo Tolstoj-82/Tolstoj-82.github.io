@@ -35,21 +35,33 @@
         <input type="text" id="newVal" class="two" maxlength="2" readonly>
         <button id="applyCode" onclick="applyCode(true)" disabled>Apply</button>
         <p>
-          <b>ROM File (Hex values)</b><br>
-          <input type="text" id="searchInput">
-          <button onclick="searchAndSelectCell()">Navigate to ROM Address</button>
-        </p>
-        <p>
+          
           <!-- Input field for the search sequence -->
           <b>Find a Sequence in the Code (Hex, comma-separated) </b><br>
-          <input type="text" id="searchAddressInput" />
-          <button onclick="searchSequenceInCode()">Search Code</button>
-          <br>
+          <div id="hex-search-wrapper">
+            <div id="search-container">
+                <input type="text" id="searchAddressInput" />
+                <button onclick="searchSequenceInCode()">Search Code</button>
+            </div>
+    
+            <div id="slider-container">
+                <input type="range" id="slider" min="0" max="16" step="1" value="0" oninput="updateSliderValue()">
+                <div id="slider-value">Skip: 0</div>
+            </div>
+        </div>
+        <br>
+
           <b>Found at Addresses </b><br>
           <!-- Result div to display the output -->
           <div id="searchResult">&nbsp;</div>
           <br>
-        
+        </p>
+        <p>
+          <b>Jump to Address (Hex values)</b><br>
+          <input type="text" id="searchInput">
+          <button onclick="searchAndSelectCell()">Navigate to ROM Address</button>
+        </p>
+
         <div class="table-wrapper">
           <table id="hexViewer"></table>
         </div>
