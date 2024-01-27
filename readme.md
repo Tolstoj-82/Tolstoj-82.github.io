@@ -4,7 +4,6 @@
 - [ ]  Function highlightAnimation()
 - [ ]  Align the tile editor with CSS (flexbox problem I guess)
 - [ ]  Allow bitwise shift for the tiles
-- [ ]  Make the standard palette for CGB and Super Game Boy selectable (Not directly possible!)
 - [ ]  Implement OAM palettes :-| <-- this is going to be tricky AF!
 - [ ]  Hover on tiles highlights VRAM tile set
 - [ ]  Have the slider and the tile zoom always be the same

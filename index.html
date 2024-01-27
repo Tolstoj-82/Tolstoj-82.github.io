@@ -38,6 +38,16 @@
           <b>ROM File (Hex values)</b><br>
           <input type="text" id="searchInput">
           <button onclick="searchAndSelectCell()">Navigate to ROM Address</button>
+        </p>
+        <p>
+          <!-- Input field for the search sequence -->
+          <b>Find a Sequence in the Code (Hex, comma-separated) </b><br>
+          <input type="text" id="searchAddressInput" />
+          <button onclick="searchSequenceInCode()">Search Code</button>
+          <br>
+          <b>Found at Addresses </b><br>
+          <!-- Result div to display the output -->
+          <div id="searchResult">&nbsp;</div>
           <br>
         
         <div class="table-wrapper">
@@ -97,7 +107,7 @@
           <b>Log (newest on top)</b><br>
           <textarea id="log" readonly></textarea>
         </p>
-        <p>2023 Tolstoj (Hextris-Editor v0.93 beta)</p>
+        <p>2023 & 2024 Tolstoj (Tris-Editor v0.94 beta)</p>
         
         <button id="openModalButton">&larr;</button>      
 
