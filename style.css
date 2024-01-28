@@ -1119,32 +1119,34 @@ div.pixel.cole {
 #hex-search-wrapper {
   display: flex;
   align-items: center;
+  gap: 20px;
+  margin-right: 20px;
 }
 
 #search-container {
   display: flex;
   gap: 10px;
-  margin-right: 20px; /* Adjust the margin as needed */
 }
-
 
 #slider-container {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 10px;
 }
 
 #slider {
-  width: 100%;
+  margin-left: 10px;
 }
 
 #slider-value {
-  text-align: center;
   font-size: 18px;
-  margin-top: 10px;
+  margin-left: 10px;
 }
 
+
 #searchResult {
+  border:1px solid #CCC;
+  border-radius:4px;
   height: 50px;
   overflow-y: auto;
   background-color: lightgray;
