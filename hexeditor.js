@@ -1066,63 +1066,6 @@ function hexViewerSearch(searchString, searchValues) {
   return foundSequences;
 }
 
-/*function searchSequenceInCode() {
-  const searchInput = document.getElementById('searchAddressInput');
-  const searchResult = document.getElementById('searchResult');
-
-  // Clear previous result and remove the 'visited' class from all links
-  searchResult.innerHTML = '';
-  
-  const links = document.querySelectorAll('#searchResult a');
-  links.forEach(link => link.classList.remove('visited'));
-
-  // Get the search string from the input field
-  const searchString = searchInput.value.trim();
-
-  // Check if the search string is not empty
-  if (searchString !== '') {
-      // Perform the search
-      const searchValues = searchString.split(',').map(value => value.trim().toUpperCase());
-      const foundSequences = hexViewerSearch(searchString, searchValues);
-
-      // Display the result
-      if (foundSequences.length > 0) {
-          const resultDiv = document.getElementById('searchResult');
-          resultDiv.innerHTML = 'Skip:' + slider.value + ' - ';
-
-
-      // Create comma-separated links for each found address
-      const links = foundSequences.map(address => {
-        const link = document.createElement('a');
-        link.href = 'javascript:void(0)';
-        link.textContent = '$' + address; // Add a "$" in front of the address
-        
-        // Add a click event listener to scroll to the address
-        link.addEventListener('click', () => {
-            scrollToAddress(address, searchValues.length);
-            link.classList.add('visited');
-            sessionStorage.setItem(`visited_${address}`, 'true');
-        });
-      
-        return link;
-      });
-
-          // Append links to the result div
-          links.forEach((link, index) => {
-              resultDiv.appendChild(link);
-              // Add a comma after each link, except for the last one
-              if (index < links.length - 1) {
-                  resultDiv.appendChild(document.createTextNode(', '));
-              }
-          });
-      } else {
-          searchResult.innerHTML = 'Sequence not found.';
-      }
-  } else {
-      searchResult.innerHTML = ''; // Clear the result div if the search string is empty
-  }
-}*/
-
 function searchSequenceInCode() {
   const searchInput = document.getElementById('searchAddressInput');
   const searchResult = document.getElementById('searchResult');
@@ -1155,7 +1098,7 @@ function searchSequenceInCode() {
       const links = foundSequences.map(address => {
         const link = document.createElement('a');
         link.href = 'javascript:void(0)';
-        link.textContent = '$' + address; // Add a "$" in front of the address
+        link.textContent = '$' + address;
 
         // Add a click event listener to scroll to the address
         link.addEventListener('click', () => {
@@ -1191,13 +1134,31 @@ function adjustSearchValues(values) {
 
   for (let i = 0; i < values.length; i++) {
     adjustedValues.push(values[i]);
+
+    // Check if it's not the last element
+    if (i < values.length - 1) {
+      for (let j = 1; j <= sliderValue; j++) {
+        adjustedValues.push(wildcard);
+      }
+    }
+  }
+
+  return adjustedValues;
+}
+/*function adjustSearchValues(values) {
+  const adjustedValues = [];
+  const wildcard = '*';
+  const sliderValue = slider.value;
+
+  for (let i = 0; i < values.length; i++) {
+    adjustedValues.push(values[i]);
     for (let j = 1; j <= sliderValue; j++) {
       adjustedValues.push(wildcard);
     }
   }
 
   return adjustedValues;
-}
+}*/
 
 // horizontal slider for the gaps
 function updateSliderValue() {
