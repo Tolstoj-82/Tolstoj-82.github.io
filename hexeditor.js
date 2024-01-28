@@ -1145,20 +1145,6 @@ function adjustSearchValues(values) {
 
   return adjustedValues;
 }
-/*function adjustSearchValues(values) {
-  const adjustedValues = [];
-  const wildcard = '*';
-  const sliderValue = slider.value;
-
-  for (let i = 0; i < values.length; i++) {
-    adjustedValues.push(values[i]);
-    for (let j = 1; j <= sliderValue; j++) {
-      adjustedValues.push(wildcard);
-    }
-  }
-
-  return adjustedValues;
-}*/
 
 // horizontal slider for the gaps
 function updateSliderValue() {
