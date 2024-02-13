@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Tolstoj's Hextris Editor</title>
+    <title>TREP - Tolstoj's ROM Editor Plus</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
@@ -14,10 +14,12 @@
     <div class="container">
 
       <div id="wrapper2" style="text-align: center;">
+        <h1>TREP 0.95 beta</h1>
         <h2>Henlo friens!</h2>
         <label class="custom-file-input">
           <input type="file" onchange="validateFile(event)">
-        </label>
+        </label><br>
+        Build: 2/13/2024
       </div>
 
       <div id="loadingAnimation" style="display: none; text-align: center;">
@@ -117,7 +119,7 @@
           <b>Log (newest on top)</b><br>
           <textarea id="log" readonly></textarea>
         </p>
-        <p>2023 & 2024 Tolstoj (Tris-Editor v0.94 beta)</p>
+        <p>2023 & 2024 Tolstoj (TREP v0.95 beta)</p>
         
         <button id="openModalButton">&larr;</button>      
 
@@ -577,12 +579,23 @@
     </div>
     
     <!-- JAVA SCRIPT FILES -->
+    <!-- OLD -->
     <script src="hexeditor.js"></script>
     <script src="tileEditor.js"></script>    
     <script src="gamegenie.js"></script>
     <script src="lookup.js"></script>
     <script src="modal.js"></script>
     <script src="backgroundEditor.js"></script>
+
+    <!-- NEW -->
+    <script src="ROM-Editor-Body/Address-Jumper.js"></script>
+    <script src="ROM-Editor-Body/Checksum-Display.js"></script>
+    <script src="ROM-Editor-Body/GG-Code-Applicator.js"></script>
+    <script src="ROM-Editor-Body/Header-Data-Editor.js"></script>
+    <script src="ROM-Editor-Body/Hex-ROM-Editor.js"></script>
+    <script src="ROM-Editor-Body/Log-Viewer.js"></script>
+    <script src="ROM-Editor-Body/Save-File-Option.js"></script>
+    <script src="ROM-Editor-Body/Sequence-Finder.js"></script>
 
   </body>
 </html>
