@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="music-Editor.css">
+  <title>Tolstoj's Music Player</title>
+</head>
+<body>
+    <div class="grid-container">
+        <div class="header-cell">
+            BPM
+            <p>
+                <input type="number" id="bpm-number" min="50" max="300" value="200" />
+            </p>
+        </div>
+        <div class="header-cell">
+            Square 1
+            <p>
+                <select id="sq1-select">
+                    <option value="1">Sine</option>
+                    <option value="2">Square</option>
+                    <option value="3">Sawtooth</option>
+                    <option value="4">Triangle</option>
+                </select>
+            </p>
+            <p>
+                <input type="checkbox" id="sq1-toggle" checked />
+                <label for="sq1-toggle">Enable</label>
+            </p>
+        </div>
+        <div class="header-cell">
+            Square 2
+            <p>
+                <select id="sq2-select">
+                    <option value="1">Sine</option>
+                    <option value="2" selected>Square</option>
+                    <option value="3">Sawtooth</option>
+                    <option value="4">Triangle</option>
+                </select>
+            </p>
+            <p>
+                <input type="checkbox" id="sq2-toggle" checked />
+                <label for="sq2-toggle">Enable</label>
+            </p>
+        </div>
+        <div class="header-cell">
+            Wave
+            <p>
+                <select id="wave-select">
+                    <option value=""></option>
+                </select>
+            </p>
+            <p>
+                <input type="checkbox" id="wave-toggle" checked />
+                <label for="wave-toggle">Enable</label>
+            </p>
+        </div>
+        <div class="header-cell">
+            Noise
+            <p>
+                <select id="noise-select">
+                    <option value=""></option>
+                </select>
+            </p>
+            <p>
+                <input type="checkbox" id="noise-toggle" checked />
+                <label for="noise-toggle">Enable</label>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+<script src="music-Editor.js"></script>
