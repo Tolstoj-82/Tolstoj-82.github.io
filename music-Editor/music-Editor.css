@@ -1,0 +1,43 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: auto repeat(4, 1fr);
+    grid-template-rows: auto; /* Let the height adjust based on content */
+    width: 500px;
+    margin: auto;
+    border-left: 1px solid rgb(160, 160, 160);
+    border-bottom: 1px solid rgb(160, 160, 160);
+    border-top: 1px solid rgb(160, 160, 160);
+}
+
+.header-cell {
+    text-align: center;
+    padding: 5px;
+    background-color: rgb(30, 30, 211);
+    color: white;
+    font-weight: bold;
+}
+
+.cell {
+    text-align: center;
+    padding: 5px;
+}
+
+.cell.number {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.header-cell, .cell {
+    border-right: 1px solid rgb(160, 160, 160);
+}
+
+.select-container {
+    position: relative;
+    display: inline-block;
+}
+
+.select-container select {
+    appearance: none;
+    border: none;
+    background-color: #f0f0f0;
+    padding: 5px;
+}
