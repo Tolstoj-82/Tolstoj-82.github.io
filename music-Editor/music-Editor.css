@@ -1,18 +1,44 @@
+.container {
+    height: 90vh;
+    width: 1050px;
+    margin: 0 auto;
+    display: flex;
+    border: 0px;
+}
+
+.sidebar {
+    padding: 10px;
+    overflow: auto;
+}
+
+.sidebar textarea {
+    width: calc(100% - 10px);
+    height: 200px;
+    width: 500px;
+    margin-bottom: 10px;
+}
+
+#import-textarea {
+    resize: vertical;
+    min-height: 100px;
+    max-height: 70vh;
+}
+
 .grid-container {
+    overflow-y: auto;
+    max-height: calc(100vh - 30px - 1px - 1px);
     display: grid;
     grid-template-columns: auto repeat(4, 1fr);
-    grid-template-rows: auto; /* Let the height adjust based on content */
+    grid-template-rows: auto;
     width: 500px;
     margin: auto;
-    border-left: 1px solid rgb(160, 160, 160);
-    border-bottom: 1px solid rgb(160, 160, 160);
-    border-top: 1px solid rgb(160, 160, 160);
+    border: 1px solid rgb(160, 160, 160);
 }
 
 .header-cell {
     text-align: center;
     padding: 5px;
-    background-color: rgb(30, 30, 211);
+    background-color: rgb(136, 136, 239);
     color: white;
     font-weight: bold;
 }
