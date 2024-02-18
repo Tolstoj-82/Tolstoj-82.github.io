@@ -1,9 +1,12 @@
 
 let audioContext = null; // Declare audioContext outside the function
 
-let playSymbol = "▶️";
-let stopSymbol = "⏹️";
-let pauseSymbol = "⏸️";
+let playSymbol = "▷";
+let stopSymbol = "■";
+let pauseSymbol = "❚❚";
+let noNoteSymbol ="✖";
+
+let musicRows = 64;
 
 // Function to find the last selected octave value for a given row and column
 function findLastOctave(row, col) {
@@ -19,13 +22,7 @@ function findLastOctave(row, col) {
 }
 
 // Track the currently playing tones on each channel
-const activeTones = {
-    1: null, // Square 1
-    2: null, // Square 2
-    3: null, // Wave
-    4: null  // Noise
-};
-
+const activeTones = {1: null, 2: null, 3: null, 4: null};
 
 function makeTone(note, octave, channelNumber, lengthMs, waveForm = 1, volume = 0.5) {
     
@@ -46,7 +43,7 @@ function makeTone(note, octave, channelNumber, lengthMs, waveForm = 1, volume = 
         return baseFrequency * Math.pow(2, octave - 4);
     }
 
-    if (note === "X") {
+    if (note === noNoteSymbol) {
         // Stop the oscillator if the note is "X"
         const previousTone = activeTones[channelNumber];
         if (previousTone) {
@@ -90,10 +87,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const gridContainer = document.querySelector('.grid-container');
 
     // Create selection options with empty selected by default
-    const musicRows = 64;
+    //const musicRows = 64;
     const musicCols = 5;
     const emptyOption = document.createElement('option');
-    const notes = ['', 'X', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const notes = ['', noNoteSymbol, 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     const octaves = ['', '2', '3', '4', '5', '6'];
     const channels = ["Sq1_", "Sq2_", "Wav_", "Noise_"];
 
@@ -269,7 +266,7 @@ function playSection() {
         i++;
 
         // Stop the loop if it reaches the end
-        if (i < 64 && isPlaying) {
+        if (i < musicRows && isPlaying) {
             setTimeout(loop, duration);
         } else {
             document.getElementById("play-section").value = playSymbol;
@@ -283,10 +280,146 @@ function playSection() {
 
 // Function to reset the background color of all elements
 function resetBackground() {
-    for (var j = 0; j < 64; j++) {
+    for (var j = 0; j < musicRows; j++) {
         document.getElementById("Sq1_" + j).style.backgroundColor = "";
         document.getElementById("Sq2_" + j).style.backgroundColor = "";
         document.getElementById("Wav_" + j).style.backgroundColor = "";
         document.getElementById("Noise_" + j).style.backgroundColor = "";
     }
 }
+
+function parseText() {
+    var importTextarea = document.getElementById('import-textarea');
+    var exportTextarea = document.getElementById('export-textarea');
+    
+    var importText = importTextarea.value;
+    var currentTempo = null; // Initialize currentTempo variable
+    
+    // Split the text into lines
+    var lines = importText.split('\n');
+
+    // Clear the export textarea
+    exportTextarea.value = "";
+
+    var previousLineEmpty = true; // Start with true to ensure first line starts without empty line
+    
+    // Iterate through each line
+    for(var i = 0; i < lines.length; i++){        
+        var line = lines[i];
+        
+        var isNote = false;
+        if (line.includes("PlayNote")) {
+            isNote = true;
+        }
+
+        line = line.replace("DisableEnvelope", "x");
+        line = line.replace("PlayNote", "");
+        line = line.replace("PlayNoise", "noise-");
+        line = line.replace("note, ", "-");
+        line = line.replace("sharp, ", "#-");
+        line = line.replace("note,", "-");
+        line = line.replace("sharp,", "#-");
+        
+        line = line.trim(); // Trim leading and trailing whitespace
+        
+        // Extract tempo value if line contains "UseTempo"
+        if (line.includes('UseTempo')) {
+            var tempoIndex = line.indexOf('UseTempo') + 'UseTempo'.length;
+            currentTempo = parseInt(line.substring(tempoIndex).trim(), 10);
+        }
+
+        // Remove everything after the semicolon (;)
+        var index = line.indexOf(';');
+        if (index !== -1) {
+            line = line.substring(0, index);
+        }
+        
+        // If the line starts with a semicolon or contains "UseTempo", ignore it
+        if (line.startsWith(';') || line.includes('UseTempo')) {
+            continue;
+        }
+        
+        // Check if the line is empty (contains only whitespace)
+        var isEmpty = /^\s*$/.test(line);
+        
+        // Check if the line ends with a colon, indicating the start of a new code section
+        var isNewSection = line.endsWith(':');
+        
+        // Add "----------" before each new code section
+        if (isNewSection) {
+            exportTextarea.value += "----------\n";
+        }
+        
+        // Add the line to the export textarea if it's not empty
+        if (!isEmpty || !previousLineEmpty) {
+            addThis = "";
+             if(isNote) addThis = '(' + currentTempo + ')';
+            exportTextarea.value += line + addThis + '\n';
+        }
+        
+        // Update the flag for the previous line
+        previousLineEmpty = isEmpty;
+    }
+}
+
+
+/*
+function parseText() {
+    var importTextarea = document.getElementById('import-textarea');
+    var exportTextarea = document.getElementById('export-textarea');
+    
+    var importText = importTextarea.value;
+    
+    // Split the text into lines
+    var lines = importText.split('\n');
+
+    // Clear the export textarea
+    exportTextarea.value = "";
+
+    var previousLineEmpty = true; // Start with true to ensure first line starts without empty line
+    
+    // Iterate through each line
+    for(var i = 0; i < lines.length; i++){
+        
+        var line = lines[i];
+        line = line.replace("PlayNote", "");
+        line = line.replace("PlayNoise", "noise-");
+        line = line.replace("note, ", "-");
+        line = line.replace("sharp, ", "#-");
+        line = line.replace("note,", "-");
+        line = line.replace("sharp,", "#-");
+        
+        line = line.trim(); // Trim leading and trailing whitespace        
+
+        // Remove everything after the semicolon (;)
+        var index = line.indexOf(';');
+        if (index !== -1) {
+            line = line.substring(0, index);
+        }
+        
+        // If the line starts with a semicolon, ignore it
+        if (line.startsWith(';')) {
+            continue;
+        }
+        
+        // Check if the line is empty (contains only whitespace)
+        var isEmpty = /^\s*$/.test(line);
+        
+        // Check if the line ends with a colon, indicating the start of a new code section
+        var isNewSection = line.endsWith(':');
+        
+        // Add "----------" before each new code section
+        if (isNewSection) {
+            exportTextarea.value += "----------\n";
+        }
+        
+        // Add the line to the export textarea if it's not empty
+        if (!isEmpty || !previousLineEmpty) {
+            exportTextarea.value += line + '\n';
+        }
+        
+        // Update the flag for the previous line
+        previousLineEmpty = isEmpty;
+    }
+    exportTextarea.value = output.trim();
+}*/
