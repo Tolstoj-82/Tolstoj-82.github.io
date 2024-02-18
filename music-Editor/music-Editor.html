@@ -7,67 +7,78 @@
   <title>Tolstoj's Music Player</title>
 </head>
 <body>
-    <div class="grid-container">
-        <div class="header-cell">
-            BPM
-            <p>
-                <input type="number" id="bpm-number" min="50" max="300" value="200" />
-            </p>
+    <div class="container">
+        <div class="grid-container">
+            <div class="header-cell">
+                BPM
+                <p>
+                    <input type="number" id="bpm-number" min="50" max="300" value="200" /><br>
+                </p>
+                <p>
+                    <input type="button" id="play-section" value="Play" onclick="playSection()" />
+                </p>
+            </div>
+            <div class="header-cell">
+                Square 1
+                <p>
+                    <select id="sq1-select">
+                        <option value="1">Sine</option>
+                        <option value="2">Square</option>
+                        <option value="3">Sawtooth</option>
+                        <option value="4">Triangle</option>
+                    </select>
+                </p>
+                <p>
+                    <input type="checkbox" id="sq1-toggle" checked />
+                    <label for="sq1-toggle">Enable</label>
+                </p>
+            </div>
+            <div class="header-cell">
+                Square 2
+                <p>
+                    <select id="sq2-select">
+                        <option value="1">Sine</option>
+                        <option value="2" selected>Square</option>
+                        <option value="3">Sawtooth</option>
+                        <option value="4">Triangle</option>
+                    </select>
+                </p>
+                <p>
+                    <input type="checkbox" id="sq2-toggle" checked />
+                    <label for="sq2-toggle">Enable</label>
+                </p>
+            </div>
+            <div class="header-cell">
+                Wave
+                <p>
+                    <select id="wave-select">
+                        <option value=""></option>
+                    </select>
+                </p>
+                <p>
+                    <input type="checkbox" id="wave-toggle" checked />
+                    <label for="wave-toggle">Enable</label>
+                </p>
+            </div>
+            <div class="header-cell">
+                Noise
+                <p>
+                    <select id="noise-select">
+                        <option value=""></option>
+                    </select>
+                </p>
+                <p>
+                    <input type="checkbox" id="noise-toggle" checked />
+                    <label for="noise-toggle">Enable</label>
+                </p>
+            </div>
         </div>
-        <div class="header-cell">
-            Square 1
+        <div class="sidebar">
+            <textarea id="import-textarea" placeholder="Paste your Song data here..."></textarea>
             <p>
-                <select id="sq1-select">
-                    <option value="1">Sine</option>
-                    <option value="2">Square</option>
-                    <option value="3">Sawtooth</option>
-                    <option value="4">Triangle</option>
-                </select>
+                <button id="import-button">&#9664; Import</button>
             </p>
-            <p>
-                <input type="checkbox" id="sq1-toggle" checked />
-                <label for="sq1-toggle">Enable</label>
-            </p>
-        </div>
-        <div class="header-cell">
-            Square 2
-            <p>
-                <select id="sq2-select">
-                    <option value="1">Sine</option>
-                    <option value="2" selected>Square</option>
-                    <option value="3">Sawtooth</option>
-                    <option value="4">Triangle</option>
-                </select>
-            </p>
-            <p>
-                <input type="checkbox" id="sq2-toggle" checked />
-                <label for="sq2-toggle">Enable</label>
-            </p>
-        </div>
-        <div class="header-cell">
-            Wave
-            <p>
-                <select id="wave-select">
-                    <option value=""></option>
-                </select>
-            </p>
-            <p>
-                <input type="checkbox" id="wave-toggle" checked />
-                <label for="wave-toggle">Enable</label>
-            </p>
-        </div>
-        <div class="header-cell">
-            Noise
-            <p>
-                <select id="noise-select">
-                    <option value=""></option>
-                </select>
-            </p>
-            <p>
-                <input type="checkbox" id="noise-toggle" checked />
-                <label for="noise-toggle">Enable</label>
-            </p>
-        </div>
+          </div>
     </div>
 </body>
 </html>
