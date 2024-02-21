@@ -28,6 +28,10 @@
                         <option value="4">Triangle</option>
                     </select>
                 </p>
+                <div class="volume-control">
+                    <input type="range" min="0" max="100" value="100" class="slider" id="sq1-volume">
+                    <output for="sq1-volume" id="sq1-volumeValue">100</output>
+                </div>
                 <p>
                     <input type="checkbox" id="sq1-toggle" checked />
                     <label for="sq1-toggle">Enable</label>
@@ -43,6 +47,10 @@
                         <option value="4">Triangle</option>
                     </select>
                 </p>
+                <div class="volume-control">
+                    <input type="range" min="0" max="100" value="100" class="slider" id="sq2-volume">
+                    <output for="sq2-volume" id="sq2-volumeValue">100</output>
+                </div>
                 <p>
                     <input type="checkbox" id="sq2-toggle" checked />
                     <label for="sq2-toggle">Enable</label>
@@ -55,6 +63,10 @@
                         <option value=""></option>
                     </select>
                 </p>
+                <div class="volume-control">
+                    <input type="range" min="0" max="100" value="100" class="slider" id="wave-volume">
+                    <output for="wave-volume" id="wave-volumeValue">100</output>
+                </div>
                 <p>
                     <input type="checkbox" id="wave-toggle" checked />
                     <label for="wave-toggle">Enable</label>
@@ -67,6 +79,10 @@
                         <option value=""></option>
                     </select>
                 </p>
+                <div class="volume-control">
+                    <input type="range" min="0" max="100" value="100" class="slider" id="noise-volume">
+                    <output for="noise-volume" id="noise-volumeValue">100</output>
+                </div>
                 <p>
                     <input type="checkbox" id="noise-toggle" checked />
                     <label for="noise-toggle">Enable</label>
@@ -75,11 +91,49 @@
         </div>
         <div class="sidebar">
             <textarea id="import-textarea" placeholder="Paste your Song data here..."></textarea>
+            <br>
+            <button id="parse-button" onclick="parseText()">Read data</button>
             <p>
-                <button id="import-button" onclick="parseText()">&#9664; Import</button>
+                <table border="0">
+                    <tr>
+                    <td>Square 1</td>
+                    <td>
+                        <select id="load_Sq1">
+                            <option value="0">---</option>
+                        </select>
+                    </td>
+                    </tr>
+                    <tr>
+                        <td>Square 2</td>
+                        <td>
+                            <select id="load_Sq2">
+                                <option value="0">---</option>
+                            </select>        
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Wave</td>
+                        <td>
+                            <select id="load_Wave">
+                                <option value="0">---</option>
+                            </select>        
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Noise</td>
+                        <td>
+                            <select id="load_Noise">
+                                <option value="0">---</option>
+                            </select>        
+                        </td>
+                    </tr>
+                </table>
             </p>
             <p>
                 <textarea id="export-textarea"></textarea>
+            </p>
+            <p>
+                <button id="import-button" >&#9664; Import</button>
             </p>
         </div>
     </div>

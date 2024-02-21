@@ -24,7 +24,7 @@ function findLastOctave(row, col) {
 // Track the currently playing tones on each channel
 const activeTones = {1: null, 2: null, 3: null, 4: null};
 
-function makeTone(note, octave, channelNumber, lengthMs, waveForm = 1, volume = 0.5) {
+function makeTone(note, octave, channelNumber, lengthMs, waveForm = 1, volume = 1) {
     
     if (!audioContext) {
         // Create the AudioContext if it doesn't exist
@@ -64,7 +64,7 @@ function makeTone(note, octave, channelNumber, lengthMs, waveForm = 1, volume = 
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
 
-    oscillator.start();
+    oscillator.start(audioContext.currentTime);
 
     // Stop the previous oscillator on the same channel, if any
     const previousTone = activeTones[channelNumber];
@@ -216,6 +216,11 @@ function playSection() {
     var sq1WaveForm = document.getElementById("sq1-select").value;
     var sq2WaveForm = document.getElementById("sq2-select").value;
 
+    var sq1Value = Math.round(parseInt(document.getElementById('sq1-volumeValue').value)/100,2);
+    var sq2Value = Math.round(parseInt(document.getElementById('sq2-volumeValue').value)/100,2);
+    var waveValue = Math.round(parseInt(document.getElementById('wave-volumeValue').value)/100,2);
+    var noiseValue = Math.round(parseInt(document.getElementById('noise-volumeValue').value)/100,2);
+
     var bpm = parseInt(document.getElementById("bpm-number").value);
     var duration = (60000 / bpm) / 4; // Divide the duration by 4 to make it four times faster
 
@@ -251,16 +256,16 @@ function playSection() {
 
         // Checking if both note and octave are selected
         if (noteSq1 && octaveSq1 && sq1Enabled) {
-            makeTone(noteSq1, parseInt(octaveSq1), 1, 400, sq1WaveForm);
+            makeTone(noteSq1, parseInt(octaveSq1), 1, 400, sq1WaveForm, sq1Value);
         }
         if (noteSq2 && octaveSq2 && sq2Enabled) {
-            makeTone(noteSq2, parseInt(octaveSq2), 2, 400, sq2WaveForm);
+            makeTone(noteSq2, parseInt(octaveSq2), 2, 400, sq2WaveForm, sq2Value);
         }
         if (noteWav && octaveWav && waveEnabled) {
-            makeTone(noteWav, parseInt(octaveWav), 3, 400, 1);
+            makeTone(noteWav, parseInt(octaveWav), 3, 400, 1, waveValue);
         }
         if (noteNoise && octaveNoise && noiseEnabled) {
-            makeTone(noteNoise, parseInt(octaveNoise), 4, 400, 2);
+            makeTone(noteNoise, parseInt(octaveNoise), 4, 400, 2, noiseValue);
         }
 
         i++;
@@ -297,8 +302,6 @@ function parseText() {
     
     // Split the text into lines
     var lines = importText.split('\n');
-
-    // Clear the export textarea
     exportTextarea.value = "";
 
     var previousLineEmpty = true; // Start with true to ensure first line starts without empty line
@@ -308,19 +311,17 @@ function parseText() {
         var line = lines[i];
         
         var isNote = false;
-        if (line.includes("PlayNote")) {
-            isNote = true;
-        }
+        if (line.includes("PlayNote") || line.includes("DisableEnvelope") || line.includes("PlayNoise")){isNote = true;}
 
         line = line.replace("DisableEnvelope", "x");
+        line = line.replace(":	", ": ");
         line = line.replace("PlayNote", "");
-        line = line.replace("PlayNoise", "noise-");
+        line = line.replace("PlayNoise", "n-");
         line = line.replace("note, ", "-");
         line = line.replace("sharp, ", "#-");
         line = line.replace("note,", "-");
         line = line.replace("sharp,", "#-");
-        
-        line = line.trim(); // Trim leading and trailing whitespace
+        line = line.trim();
         
         // Extract tempo value if line contains "UseTempo"
         if (line.includes('UseTempo')) {
@@ -328,14 +329,14 @@ function parseText() {
             currentTempo = parseInt(line.substring(tempoIndex).trim(), 10);
         }
 
-        // Remove everything after the semicolon (;)
+        // Remove all comments (=everything after the semicolon)
         var index = line.indexOf(';');
         if (index !== -1) {
             line = line.substring(0, index);
         }
         
-        // If the line starts with a semicolon or contains "UseTempo", ignore it
-        if (line.startsWith(';') || line.includes('UseTempo')) {
+        // Ignore these lines
+        if (line.startsWith(';') || line.includes('UseTempo') || line.includes('SetParams')) {
             continue;
         }
         
@@ -348,13 +349,19 @@ function parseText() {
         // Add "----------" before each new code section
         if (isNewSection) {
             exportTextarea.value += "----------\n";
+            thisSectionName = line.replace(":", "");
         }
         
         // Add the line to the export textarea if it's not empty
         if (!isEmpty || !previousLineEmpty) {
-            addThis = "";
-             if(isNote) addThis = '(' + currentTempo + ')';
-            exportTextarea.value += line + addThis + '\n';
+            addThis = '\n';
+            if(isNote) addThis = ", "; //" (" + thisSectionName + "), ";
+            exportTextarea.value += line.replace("- ","-") + addThis;
+            if(isNote && currentTempo > 1){
+                for(j=0; j<currentTempo-1; j++){
+                    exportTextarea.value += '0-0' + addThis;
+                }
+            }
         }
         
         // Update the flag for the previous line
@@ -362,64 +369,28 @@ function parseText() {
     }
 }
 
+// volume sliders
+const sq1Slider = document.getElementById('sq1-volume');
+const sq1Value = document.getElementById('sq1-volumeValue');
+const sq2Slider = document.getElementById('sq2-volume');
+const sq2Value = document.getElementById('sq2-volumeValue');
+const waveSlider = document.getElementById('wave-volume');
+const waveValue = document.getElementById('wave-volumeValue');
+const noiseSlider = document.getElementById('noise-volume');
+const noiseValue = document.getElementById('noise-volumeValue');
 
-/*
-function parseText() {
-    var importTextarea = document.getElementById('import-textarea');
-    var exportTextarea = document.getElementById('export-textarea');
-    
-    var importText = importTextarea.value;
-    
-    // Split the text into lines
-    var lines = importText.split('\n');
+sq1Slider.addEventListener('input', function() {
+  sq1Value.textContent = sq1Slider.value;
+});
 
-    // Clear the export textarea
-    exportTextarea.value = "";
+sq2Slider.addEventListener('input', function() {
+    sq2Value.textContent = sq2Slider.value;
+});
 
-    var previousLineEmpty = true; // Start with true to ensure first line starts without empty line
-    
-    // Iterate through each line
-    for(var i = 0; i < lines.length; i++){
-        
-        var line = lines[i];
-        line = line.replace("PlayNote", "");
-        line = line.replace("PlayNoise", "noise-");
-        line = line.replace("note, ", "-");
-        line = line.replace("sharp, ", "#-");
-        line = line.replace("note,", "-");
-        line = line.replace("sharp,", "#-");
-        
-        line = line.trim(); // Trim leading and trailing whitespace        
+waveSlider.addEventListener('input', function() {
+    waveValue.textContent = waveSlider.value;
+});
 
-        // Remove everything after the semicolon (;)
-        var index = line.indexOf(';');
-        if (index !== -1) {
-            line = line.substring(0, index);
-        }
-        
-        // If the line starts with a semicolon, ignore it
-        if (line.startsWith(';')) {
-            continue;
-        }
-        
-        // Check if the line is empty (contains only whitespace)
-        var isEmpty = /^\s*$/.test(line);
-        
-        // Check if the line ends with a colon, indicating the start of a new code section
-        var isNewSection = line.endsWith(':');
-        
-        // Add "----------" before each new code section
-        if (isNewSection) {
-            exportTextarea.value += "----------\n";
-        }
-        
-        // Add the line to the export textarea if it's not empty
-        if (!isEmpty || !previousLineEmpty) {
-            exportTextarea.value += line + '\n';
-        }
-        
-        // Update the flag for the previous line
-        previousLineEmpty = isEmpty;
-    }
-    exportTextarea.value = output.trim();
-}*/
+noiseSlider.addEventListener('input', function() {
+    noiseValue.textContent = noiseSlider.value;
+});
