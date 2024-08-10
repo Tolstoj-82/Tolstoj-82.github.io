@@ -3,33 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../style.css">
-    <title>Firmware Label Modifier</title>
+    <title>Firmware Title Modifier</title>
 </head>
 <body>
-    <h1>Firmware Label Modifier</h1>
+    <h1>Firmware Title Modifier</h1>
+    <p>
+        <input type="file" id="firmwareFile" accept=".uf2">
+    </p>
 
-    <input type="file" id="firmwareFile" accept=".uf2">
-    <br><br>
-
-    <div id="firmwareSelection" style="display: none;">
-        <label for="firmwareDropdown">Select Firmware Version:</label>
-        <select id="firmwareDropdown">
-            <!-- Dropdown options populated by JavaScript -->
-        </select>
-        <br><br>
-    </div>
-<p>
-    Label<br>
-    <input type="text" id="titleInput" maxlength="20">
-    <br>
-</p>
-<p>
-    New File Name<br>
-    <input type="text" id="fileNameInput">
-    <button id="downloadButton" style="display: none;">Download Modified Firmware</button>
-</p>
-
+    <p>
+        <div id="firmwareSelection" style="display: none;">
+            <label for="firmwareDropdown">Select Firmware Version:</label>
+            <select id="firmwareDropdown">
+                <!-- Dropdown options populated by JavaScript -->
+            </select>
+            <br><br>
+        </div>
+    </p>
+    <p>
+        Label<br>
+        <input type="text" id="titleInput" maxlength="20">
+        <button id="downloadButton" style="display: none;">Download Modified Firmware</button>
+        <br>
+    </p>
+    <p>
+        New File Name <br>
+        <input type="text" id="fileNameInput">
+    </p>
     <script>
         const firmwareAddresses = {
             "gbinterceptor_firmware_v1.2.0.uf2": 0x00090c4c,
@@ -109,7 +109,14 @@
             const firmwareData = new Uint8Array(firmwareArrayBuffer);
             const modifiedFirmwareBlob = new Blob([firmwareData], { type: 'application/octet-stream' });
             const downloadLink = document.createElement('a');
-            const newFileName = document.getElementById('fileNameInput').value;
+
+            let newFileName = document.getElementById('fileNameInput').value.trim();
+            
+            // Ensure the file name has a .uf2 extension
+            if (!newFileName.endsWith('.uf2')) {
+                newFileName += '.uf2';
+            }
+
             downloadLink.href = URL.createObjectURL(modifiedFirmwareBlob);
             downloadLink.download = newFileName;
             downloadLink.click();
