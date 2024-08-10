@@ -746,3 +746,56 @@ function createDummyTile() {
 
   return gridContainer;
 }
+
+//------------------------------------------------------------------------------------------
+// Function to create the preview of a screen
+// Usage:
+
+function makeScreen(tileSeq, xDim, yDim, outputName) {
+  // Create a canvas element
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // Calculate the dimensions of the resulting image
+  const tileWidth = 32;
+  const tileHeight = 32;
+  const resultWidth = xDim * tileWidth;
+  const resultHeight = yDim * tileHeight;
+
+  // Set the canvas dimensions
+  canvas.width = resultWidth;
+  canvas.height = resultHeight;
+
+  // Loop through the tiles and draw them on the canvas
+  let x = 0;
+  let y = 0;
+  for (let i = 0; i < tileSeq.length; i++) {
+      // Load the tile image from local storage
+      const tileImg = new Image();
+      tileImg.src = 'path_to_your_local_storage/' + tileSeq[i];
+
+      // Draw the tile image on the canvas
+      ctx.drawImage(tileImg, x * tileWidth, y * tileHeight);
+
+      // Move to the next position
+      x++;
+      if (x >= xDim) {
+          x = 0;
+          y++;
+      }
+  }
+
+  // Scale the canvas down to width=400px
+  const scaleFactor = 400 / resultWidth;
+  const scaledWidth = resultWidth * scaleFactor;
+  const scaledHeight = resultHeight * scaleFactor;
+  const scaledCanvas = document.createElement('canvas');
+  const scaledCtx = scaledCanvas.getContext('2d');
+  scaledCanvas.width = scaledWidth;
+  scaledCanvas.height = scaledHeight;
+  scaledCtx.drawImage(canvas, 0, 0, scaledWidth, scaledHeight);
+
+  // Convert the scaled canvas to an image and save it to local storage
+  const scaledImg = scaledCanvas.toDataURL('image/png');
+  localStorage.setItem(outputName, scaledImg);
+}
