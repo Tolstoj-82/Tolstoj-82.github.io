@@ -90,7 +90,7 @@
         function extractTitle() {
             const firmwareData = new Uint8Array(firmwareArrayBuffer);
             let titleBytes = firmwareData.slice(selectedAddress, selectedAddress + 20);
-            let originalTitle = String.fromCharCode.apply(null, titleBytes).replace(/\0/g, '');
+            let originalTitle = String.fromCharCode.apply(null, titleBytes).replace(/\0/g, '').trim(); // Trim trailing spaces
             document.getElementById('titleInput').value = originalTitle;
             document.getElementById('titleInput').addEventListener('input', modifyTitle);
             document.getElementById('downloadButton').style.display = 'inline';
