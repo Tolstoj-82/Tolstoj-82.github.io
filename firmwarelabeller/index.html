@@ -35,9 +35,10 @@
 
     <script>
         const firmwareAddresses = {
-            "gbinterceptor_firmware_v1.2.0.uf2": 0x00090c4c,
             // Add more firmware versions and their corresponding addresses here
-            // "gbinterceptor_firmware_v1.3.0.uf2": 0x000XXXXXX,
+            "gbinterceptor_firmware_v1.2.0.uf2": 0x00090c4c,
+            "gbinterceptor_firmware_v1.2.0-beta3.uf2": 0x00090afc,
+            "gbinterceptor_firmware_v1.1.0.uf2": 0x000a3ef4,
         };
 
         let firmwareArrayBuffer;
@@ -48,7 +49,8 @@
             const file = event.target.files[0];
             originalFileName = file.name;
 
-            const versionPattern = /gbinterceptor_firmware_v\d+\.\d+\.\d+/;
+            // Updated regex to match version patterns including alpha/beta with optional numbers
+            const versionPattern = /gbinterceptor_firmware_v\d+\.\d+\.\d+(-(?:alpha|beta)\d*)?/;
             const versionMatch = file.name.match(versionPattern);
 
             if (versionMatch && firmwareAddresses.hasOwnProperty(versionMatch[0] + ".uf2")) {
