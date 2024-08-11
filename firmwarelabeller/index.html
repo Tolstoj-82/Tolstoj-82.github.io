@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firmware Title Modifier</title>
+    <title>Firmware Label Modifier</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,25 +12,27 @@
         <input type="file" id="firmwareFile" accept=".uf2">
     </p>
 
-    <p>
-        <div id="firmwareSelection" style="display: none;">
-            <label for="firmwareDropdown">Select Firmware Version:</label>
+    <!-- Container for the label and new file name fields -->
+    <div id="firmwareEditor" style="display: none;">
+        <p id="firmwareSelection" style="display: none;">
+            <label for="firmwareDropdown">Select Firmware Version</label>
             <select id="firmwareDropdown">
                 <!-- Dropdown options populated by JavaScript -->
             </select>
             <br><br>
-        </div>
-    </p>
-    <p>
-        Label<br>
-        <input type="text" id="titleInput" maxlength="20">
-        <br>
-    </p>
-    <p>
-        New File Name <br>
-        <input type="text" id="fileNameInput">
-        <button id="downloadButton" style="display: none;">Download Modified Firmware</button>
-    </p>
+        </p>
+        <p>
+            Label<br>
+            <input type="text" id="titleInput" maxlength="20">
+            <br>
+        </p>
+        <p>
+            New File Name <br>
+            <input type="text" id="fileNameInput">
+            <button id="downloadButton" style="display: none;">Download Modified Firmware</button>
+        </p>
+    </div>
+
     <script>
         const firmwareAddresses = {
             "gbinterceptor_firmware_v1.2.0.uf2": 0x00090c4c,
@@ -61,6 +63,9 @@
                     readFirmware(file);
                 });
             }
+
+            // Show the firmware editor after a file is selected
+            document.getElementById('firmwareEditor').style.display = 'block';
 
             // Set default new file name
             document.getElementById('fileNameInput').value = originalFileName.replace(/\.uf2$/, '-modified.uf2');
