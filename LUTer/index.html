@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUT generator for OBS (GB Interceptor)</title>
+    <style>
+        body {
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ddd;
+            font-family: Arial, sans-serif;
+        }
+        .color-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .color-picker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .color-picker input[type="color"] {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+        .palette-select {
+            margin-left: 20px;
+        }
+        #canvas-container {
+            margin-top: 20px;
+        }
+        canvas {
+            border: 1px solid black;
+            width: 256px;  /* Display at half the size */
+            height: 256px; /* Display at half the size */
+        }
+        .download-container {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Add space between text box and button */
+        }
+
+        .download-container input[type="text"] {
+            padding: 5px;
+            width: 200px;
+            text-align: left;
+        }
+
+        .download-container button {
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="color-container">
+        <div class="color-picker">
+            <input type="color" id="col1" value="#000000">
+        </div>
+        <div class="color-picker">
+            <input type="color" id="col2" value="#404040">
+        </div>
+        <div class="color-picker">
+            <input type="color" id="col3" value="#A0A0A0">
+        </div>
+        <div class="color-picker">
+            <input type="color" id="col4" value="#FFFFFF">
+        </div>
+        <select id="palette-select" class="palette-select">
+            <option value="">Select Palette</option>
+        </select>
+    </div>
+
+    <div class="download-container">
+        File Name: <input type="text" id="filename" maxlength="20" placeholder="LUT"> <button id="download-btn">Download LUT</button>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="canvas" width="512" height="512"></canvas>
+    </div>
+
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const colorInputs = [
+            document.getElementById('col1'),
+            document.getElementById('col2'),
+            document.getElementById('col3'),
+            document.getElementById('col4')
+        ];
+
+        const paletteSelect = document.getElementById('palette-select');
+        const filenameInput = document.getElementById('filename');
+        const downloadBtn = document.getElementById('download-btn');
+
+        const paletteLookup = {
+            "CTWC UK 2024 (Lucy)": ["18482B", "668235", "BDCF59", "DFEDA2"],
+            "Realistic GB (Tolstoj)": ["0E0F02", "203828", "415625", "696C04"],
+            "BGB Emulator": ["081820", "346856", "88C070", "E0F8D0"],
+            "MGB-001": ["080808", "585858", "A8A8A8", "F8F8F8"],
+            "DMG-01": ["102000", "486828", "80B050", "B8F878"],
+            "MGB-101": ["080808", "085858", "08A8A8", "08F8F8"],
+            "SGB-1-A": ["301850", "A82820", "D89048", "F8E8C8"],
+            "SGB-1-B": ["000000", "B05010", "C8B070", "D8D8C0"],
+            "SGB-1-C": ["383898", "983860", "E89850", "F8C0F8"],
+            "SGB-1-D": ["501800", "F80000", "C08048", "F8F8A8"],
+            "SGB-1-E": ["583820", "688840", "78C078", "F8D8B0"],
+            "SGB-1-F": ["004010", "A80000", "E08850", "D8E8F8"],
+            "SGB-1-G": ["F8F858", "787800", "00A0E8", "000050"],
+            "SGB-1-H": ["301800", "804000", "F8B888", "F8E8E0"],
+            "SGB-2-A": ["000000", "287800", "C08848", "F0C8A0"],
+            "SGB-2-B": ["500058", "F83000", "F8E850", "F8F8F8"],
+            "SGB-2-C": ["282898", "7830E8", "E88888", "F8C0F8"],
+            "SGB-2-D": ["000050", "F83000", "00F800", "F8F8A0"],
+            "SGB-2-E": ["100810", "281060", "90B0E0", "F8C880"],
+            "SGB-2-F": ["180000", "A00000", "F89050", "D0F8F8"],
+            "SGB-2-G": ["001800", "E0B880", "E05040", "68B838"],
+            "SGB-2-H": ["000000", "707070", "B8B8B8", "F8F8F8"],
+            "SGB-3-A": ["304860", "F86028", "70C0C0", "F8D098"],
+            "SGB-3-B": ["001010", "005000", "E08020", "D8D8C0"],
+            "SGB-3-C": ["202058", "00B8F8", "F8F878", "E0A8C8"],
+            "SGB-3-D": ["000000", "08C800", "E0A878", "F0F8B8"],
+            "SGB-3-E": ["504870", "B07820", "E0B068", "F8F8C0"],
+            "SGB-3-F": ["404040", "F8D000", "F868F8", "7878C8"],
+            "SGB-3-G": ["380000", "C83038", "F8F8F8", "60D850"],
+            "SGB-3-H": ["081800", "488818", "78C838", "E0F8A0"],
+            "SGB-4-A": ["000078", "D000D0", "78A8F8", "F0A868"],
+            "SGB-4-B": ["180808", "407838", "E8A060", "F0E8F0"],
+            "SGB-4-C": ["080000", "98A0E0", "D8A0D0", "F8E0E0"],
+            "SGB-4-D": ["082048", "486878", "90C8C8", "F8F8B8"],
+            "SGB-4-E": ["002030", "785888", "E0A878", "F8D8A8"],
+            "SGB-4-F": ["380000", "8000A0", "D880D8", "B8D0D0"],
+            "SGB-4-G": ["008060", "281000", "B82058", "B0E018"],
+            "SGB-4-H": ["405028", "808840", "B8C058", "F8F8C8"],
+            "GBC: Up": ["000000", "843100", "FFAD63", "FFFFFF"],
+            "GBC: Up+A": ["000000", "943A3A", "FF8484", "FFFFFF"],
+            "GBC: Up+B": ["5A3108", "846B29", "CE9C84", "FFE6C5"],
+            "GBC: Down": ["000000", "9494FF", "FF9494", "FFFFA5"],
+            "GBC: Down+A": ["000000", "FF0000", "FFFF00", "FFFFFF"],
+            "GBC: Down+B": ["000000", "7B4A00", "FFFF00", "FFFFFF"],
+            "GBC: Left": ["000000", "0000FF", "63A5FF", "FFFFFF"],
+            "GBC: Left+A": ["000000", "52528C", "8C8CDE", "FFFFFF"],
+            "GBC: Left+B": ["000000", "525252", "A5A5A5", "FFFFFF"],
+            "GBC: Right": ["000000", "FF4200", "52FF00", "FFFFFF"],
+            "GBC: Right+A": ["000000", "0063C5", "0BF3F1", "FFFFFF"],
+            "GBC: Right+B": ["FFFFFF", "FFDE00", "008484", "000000"],
+            "GBC: Pokémon Red": ["000000", "943A3A", "FF8484", "FFFFFF"],
+            "GBC: Pokémon Blue": ["000000", "0000FF", "63A5FF", "FFFFFF"],
+            "GBC: Pokémon Green": ["000000", "0063C5", "7BFF31", "FFFFFF"],
+            "GBC: Pokémon Yellow": ["000000", "FF0000", "FFFF00", "FFFFFF"]
+        };
+
+        function updatePaletteSelect() {
+            for (const [paletteName, colors] of Object.entries(paletteLookup)) {
+                const option = document.createElement('option');
+                option.value = paletteName;
+                option.textContent = paletteName;
+                paletteSelect.appendChild(option);
+            }
+        }
+
+        function applyPalette(palette) {
+            if (!palette) return;
+            const colors = paletteLookup[palette];
+            if (colors) {
+                colorInputs.forEach((input, index) => {
+                    input.value = `#${colors[index]}`;
+                });
+                drawImage();  // Redraw the image with the new palette
+            }
+        }
+
+        function drawImage() {
+            const colors = colorInputs.map(input => input.value);
+
+            const sequence = [];
+            for (let i = 0; i < 48; i++) sequence.push(0);  // 48x col1
+            for (let i = 0; i < 48; i++) sequence.push(1);  // 48x col2
+            for (let i = 0; i < 48; i++) sequence.push(2);  // 48x col3
+            for (let i = 0; i < 48; i++) sequence.push(3);  // 48x col4
+
+            const imageSize = 64;
+            const gridSize = 8;
+
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Loop through each of the 64 images
+            for (let offset = 0; offset < 64; offset++) {
+                let startX = (offset % gridSize) * imageSize;
+                let startY = Math.floor(offset / gridSize) * imageSize;
+
+                // Draw the image with the current offset
+                for (let y = 0; y < imageSize; y++) {
+                    for (let x = 0; x < imageSize; x++) {
+                        let index = (x + y + offset) % sequence.length;
+                        ctx.fillStyle = colors[sequence[index]];
+                        ctx.fillRect(startX + x, startY + y, 1, 1);
+                    }
+                }
+            }
+        }
+
+        function downloadImage() {
+            const filename = filenameInput.value.trim();
+            const validFilename = filename.length > 0 ? `${filename}.png` : 'LUT.png';
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = validFilename;
+            link.click();
+        }
+
+        // Initialize
+        updatePaletteSelect();
+        drawImage();
+
+        // Update the image and palette when a color picker changes
+        colorInputs.forEach((input) => {
+            input.addEventListener('change', drawImage);
+        });
+
+        // Update the colors when a palette is selected
+        paletteSelect.addEventListener('change', (event) => {
+            applyPalette(event.target.value);
+        });
+
+        // Download the image when the button is clicked
+        downloadBtn.addEventListener('click', downloadImage);
+    </script>
+</body>
+</html>
