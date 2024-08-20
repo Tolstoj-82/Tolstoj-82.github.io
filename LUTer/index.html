@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LUT Generator for OBS (GB Interceptor)</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        #myCanvas {
+            image-rendering: pixelated;
+            will-change: transform;
+        }
+    </style>
 </head>
 <body>
     <div class="color-container">
@@ -25,169 +31,26 @@
     </div>
 
     <div class="download-container">
-        File Name: <input type="text" id="filename" maxlength="20" placeholder="LUT"> 
-        <button id="download-btn">Download LUT</button>
+        <div class="lut-controls">
+            File Name: <input type="text" id="filename" maxlength="20" placeholder="LUT">
+            <button id="download-btn">Download LUT</button>
+        </div>
+        <div class="overlay-controls">
+            <label for="grid-select">Overlay Grid:</label>
+            <input type="checkbox" id="grid-select">
+    
+            <label for="transparency-slider">Opacity:</label>
+            <input type="range" id="transparency-slider" min="0" max="100" value="50">
+            <input type="text" id="transparency-value" value="50%" maxlength="4" disabled>
+            <button id="downloadgrid-btn">Download Grid</button>
+        </div>
     </div>
-
+    
     <div id="canvas-container">
         <canvas id="canvas" width="512" height="512"></canvas>
-        <canvas id="myCanvas" width="160" height="144"></canvas>
+        <canvas id="myCanvas" width="1280" height="1152"></canvas>
     </div>
     <script src="data.js"></script>
-    <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-
-        const colorInputs = [
-            document.getElementById('col1'),
-            document.getElementById('col2'),
-            document.getElementById('col3'),
-            document.getElementById('col4')
-        ];
-
-        const paletteSelect = document.getElementById('palette-select');
-        const filenameInput = document.getElementById('filename');
-        const downloadBtn = document.getElementById('download-btn');
-
-        const pixelColors = {};
-
-        function updatePaletteSelect() {
-            // Clear existing options
-            paletteSelect.innerHTML = '<option value="">Select Palette</option>';
-
-            for (const [paletteName] of Object.entries(paletteLookup)) {
-                const option = document.createElement('option');
-                option.value = paletteName;
-                option.textContent = paletteName;
-                paletteSelect.appendChild(option);
-            }
-
-            // Optionally select the first palette if available
-            if (paletteSelect.options.length > 1) {
-                paletteSelect.selectedIndex = 1;
-                applyPalette(paletteSelect.value);
-            }
-        }
-
-        function applyPalette(palette) {
-            if (!palette) return;
-            const colors = paletteLookup[palette];
-            if (colors) {
-                colorInputs.forEach((input, index) => {
-                    input.value = `#${colors[index]}`;
-                });
-                pixelColors[1] = colorInputs[0].value; // col1
-                pixelColors[2] = colorInputs[1].value; // col2
-                pixelColors[3] = colorInputs[2].value; // col3
-                pixelColors[4] = colorInputs[3].value; // col4
-                drawImage();
-                drawPlayfield(); // Update pixel canvas with new colors
-            }
-        }
-
-        function drawImage() {
-            const colors = colorInputs.map(input => input.value);
-
-            const sequence = [];
-            for (let i = 0; i < 48; i++) sequence.push(0);  // 48x col1
-            for (let i = 0; i < 48; i++) sequence.push(1);  // 48x col2
-            for (let i = 0; i < 48; i++) sequence.push(2);  // 48x col3
-            for (let i = 0; i < 48; i++) sequence.push(3);  // 48x col4
-
-            const imageSize = 64;
-            const gridSize = 8;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            for (let offset = 0; offset < 64; offset++) {
-                let startX = (offset % gridSize) * imageSize;
-                let startY = Math.floor(offset / gridSize) * imageSize;
-
-                for (let y = 0; y < imageSize; y++) {
-                    for (let x = 0; x < imageSize; x++) {
-                        let index = (x + y + offset) % sequence.length;
-                        ctx.fillStyle = colors[sequence[index]];
-                        ctx.fillRect(startX + x, startY + y, 1, 1);
-                    }
-                }
-            }
-        }
-
-        function downloadImage() {
-            const filename = filenameInput.value.trim();
-            const validFilename = filename.length > 0 ? `${filename}.png` : 'LUT.png';
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = validFilename;
-            link.click();
-        }
-
-        function drawPlayfield() {
-            const myCanvas = document.getElementById('myCanvas');
-            const ctxMyCanvas = myCanvas.getContext('2d');
-            const width = myCanvas.width;
-            const height = myCanvas.height;
-
-            const imageData = ctxMyCanvas.createImageData(width, height);
-
-            let y = 0;
-            pixelData.trim().split(';').forEach(row => {
-                if (y >= height) return; // Stop drawing if we exceed the canvas height
-                let x = 0;
-                row.trim().split(',').forEach(pixel => {
-                    const [value, count] = pixel.split('(');
-                    const numPixels = parseInt(count.replace(')', ''), 10);
-                    const color = pixelColors[value];
-                    for (let i = 0; i < numPixels; i++) {
-                        if (x + i < width) {
-                            const index = (y * width + x + i) * 4;
-                            const rgba = hexToRgba(color);
-                            imageData.data[index] = rgba.r;   // Red
-                            imageData.data[index + 1] = rgba.g; // Green
-                            imageData.data[index + 2] = rgba.b; // Blue
-                            imageData.data[index + 3] = rgba.a; // Alpha
-                        }
-                    }
-                    x += numPixels;
-                });
-                y++;
-            });
-
-            ctxMyCanvas.putImageData(imageData, 0, 0);
-        }
-
-        function hexToRgba(color) {
-            let r = 0, g = 0, b = 0, a = 255;
-            if (color) {
-                color = color.replace('#', '');
-                r = parseInt(color.substr(0, 2), 16);
-                g = parseInt(color.substr(2, 2), 16);
-                b = parseInt(color.substr(4, 2), 16);
-            }
-            return { r, g, b, a };
-        }
-
-        // Initialize
-        updatePaletteSelect();
-        drawImage();
-        drawPlayfield();
-
-        colorInputs.forEach((input) => {
-            input.addEventListener('change', () => {
-                pixelColors[1] = colorInputs[0].value; // col1
-                pixelColors[2] = colorInputs[1].value; // col2
-                pixelColors[3] = colorInputs[2].value; // col3
-                pixelColors[4] = colorInputs[3].value; // col4
-                drawImage();
-                drawPlayfield(); // Update pixel canvas when color changes
-            });
-        });
-
-        paletteSelect.addEventListener('change', (event) => {
-            applyPalette(event.target.value);
-        });
-
-        downloadBtn.addEventListener('click', downloadImage);
-    </script>
+    <script src="scripts.js"></script>
 </body>
 </html>

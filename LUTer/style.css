@@ -37,31 +37,42 @@ body {
 
 canvas {
     border: 1px solid white;
-    width: 432px;
-    height: 432px;
+    width: 200px;
+    height: 200px;
 }
 
 #myCanvas {
     border: 1px solid white;
     image-rendering: pixelated;
     will-change: transform;
-    width: 480px;
-    height: 432px;
+    width: 640px;
+    height: 576px;
 }
 
 .download-container {
     margin-top: 10px;
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.lut-controls, .overlay-controls {
+    display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.download-container input[type="text"] {
+.lut-controls input[type="text"] {
     padding: 5px;
     width: 200px;
     text-align: left;
 }
 
-.download-container button {
+button {
     padding: 5px;
+}
+
+#transparency-value {
+    width: 50px;
 }
