@@ -1,3 +1,4 @@
+// DOM Elements
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -16,10 +17,11 @@ const gridSelect = document.getElementById('grid-select');
 const transparencySlider = document.getElementById('transparency-slider');
 const transparencyValue = document.getElementById('transparency-value');
 const downloadGridBtn = document.getElementById('downloadgrid-btn');
+const overlayColorBase = document.getElementById('overlayColorBase');
 
 const pixelColors = {};
 let overlayImage = new Image();
-let overlayOpacity = 0.5;
+let overlayOpacity = 0;
 
 function updatePaletteSelect() {
     paletteSelect.innerHTML = '<option value="">Select Palette</option>';
@@ -35,6 +37,7 @@ function updatePaletteSelect() {
         paletteSelect.selectedIndex = 1;
         applyPalette(paletteSelect.value);
     }
+
 }
 
 function applyPalette(palette) {
@@ -48,6 +51,7 @@ function applyPalette(palette) {
         pixelColors[2] = colorInputs[1].value;
         pixelColors[3] = colorInputs[2].value;
         pixelColors[4] = colorInputs[3].value;
+        overlayColorBase.value = pixelColors[4];
         drawImage();
         drawPlayfield();
     }
@@ -157,29 +161,75 @@ function hexToRgba(color) {
     return { r, g, b, a };
 }
 
-function loadOverlayImage(imagePath) {
-    if (imagePath) {
-        overlayImage.src = `grids/${imagePath}`;  // Set the path to your grid images
-        overlayImage.onload = drawPlayfield;
-    } else {
-        overlayImage.src = '';
-        drawPlayfield(); // Redraw without overlay
+function setupDownloadButton(canvas) {
+    const downloadGridBtn = document.getElementById('downloadGridBtn');
+
+    if (!downloadGridBtn) {
+        console.error('Download button not found');
+        return; // Exit if button is not found
     }
+
+    // Remove any existing click event listeners
+    downloadGridBtn.removeEventListener('click', handleDownload);
+
+    // Add a new click event listener
+    downloadGridBtn.addEventListener('click', () => handleDownload(canvas));
 }
 
-transparencySlider.addEventListener('input', () => {
-    overlayOpacity = transparencySlider.value / 100;
-    drawPlayfield();
-    transparencyValue.value = transparencySlider.value + "%";
-});
+// Handle the download logic
+function handleDownload(canvas) {
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png'); // Generate a data URL with PNG format
+    link.download = 'Grid.png'; // Set the download filename
+    link.click(); // Trigger download
+}
 
-gridSelect.addEventListener('change', (event) => {
-    if (gridSelect.checked) {
-        loadOverlayImage("grid.png");
-    } else {
-        loadOverlayImage("");
+function loadOverlayImage() {
+    // Get the base color from overlayColorBase input element
+    let baseColor = overlayColorBase.value;
+    if (!/^#[0-9A-Fa-f]{6}$/.test(baseColor)) {
+        baseColor = '#FFFFFF'; // Default to white if baseColor is invalid
     }
-});
+
+    const tileSize = 1;  // Each tile is 1x1 pixels
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 640;
+    canvas.height = 576;
+
+    const tileValues = [
+        [163, 140, 118, 140],
+        [140, 112, 111, 112],
+        [118, 111, 110, 111],
+        [140, 112, 111, 112],
+    ];
+
+    // Function to convert a shade value to a color with transparency
+    function shadeColorWithTransparency(baseColor, shade) {
+        const r = parseInt(baseColor.slice(1, 3), 16);
+        const g = parseInt(baseColor.slice(3, 5), 16);
+        const b = parseInt(baseColor.slice(5, 7), 16);
+        const alpha = shade / 255; // Transparency based on shade value (0 is fully transparent, 1 is opaque)
+        return `rgba(${r}, ${g}, ${b}, ${1 - alpha})`; // Invert alpha for darker shades to be more transparent
+    }
+
+    // Create the repeating pattern with shades of the selected color
+    for (let y = 0; y < canvas.height; y += tileSize) {
+        for (let x = 0; x < canvas.width; x += tileSize) {
+            const value = tileValues[Math.floor(y / tileSize) % 4][Math.floor(x / tileSize) % 4];
+            ctx.fillStyle = shadeColorWithTransparency(baseColor, value);
+            ctx.fillRect(x, y, tileSize, tileSize);
+        }
+    }
+
+    // Set the generated canvas image to the overlay image
+    overlayImage.src = canvas.toDataURL();
+    overlayImage.onload = drawPlayfield;
+
+    // Setup download button
+    setupDownloadButton(canvas);
+}
 
 updatePaletteSelect();
 drawImage();
@@ -193,15 +243,33 @@ colorInputs.forEach((input) => {
         pixelColors[4] = colorInputs[3].value;
         drawImage();
         drawPlayfield();
+        overlayColorBase.value = pixelColors[4];
+        loadOverlayImage();
     });
 });
 
+// Event Listeners
+//----------------------
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize or call functions that depend on DOM elements
+    loadOverlayImage();
+});
+
+transparencySlider.addEventListener('input', () => {
+    overlayOpacity = transparencySlider.value / 100;
+    drawPlayfield();
+    transparencyValue.value = transparencySlider.value + "%";
+});
+
+overlayColorBase.onchange = function() {
+    const selectedColor = this.value;
+    loadOverlayImage();
+};
+
 paletteSelect.addEventListener('change', (event) => {
     applyPalette(event.target.value);
+    loadOverlayImage();
 });
 
 downloadBtn.addEventListener('click', downloadImage);
-
-downloadBtn.addEventListener('click', function() {
-
-});
