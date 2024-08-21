@@ -37,12 +37,11 @@
         </div>
         <div class="overlay-controls">
             <label for="grid-select">Overlay Grid:</label>
-            <input type="checkbox" id="grid-select">
-    
+            <input type="color" id="overlayColorBase" value="#ffffff">
             <label for="transparency-slider">Opacity:</label>
-            <input type="range" id="transparency-slider" min="0" max="100" value="50">
-            <input type="text" id="transparency-value" value="50%" maxlength="4" disabled>
-            <button id="downloadgrid-btn">Download Grid</button>
+            <input type="range" id="transparency-slider" min="0" max="100" value="0">
+            <input type="text" id="transparency-value" value="0%" maxlength="4" disabled>
+            <button id="downloadGridBtn">Download Grid</button>
         </div>
     </div>
     
@@ -50,6 +49,9 @@
         <canvas id="canvas" width="512" height="512"></canvas>
         <canvas id="myCanvas" width="1280" height="1152"></canvas>
     </div>
+
+    <img id="overlayImage">
+    
     <script src="data.js"></script>
     <script src="scripts.js"></script>
 </body>
