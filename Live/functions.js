@@ -1,4 +1,7 @@
 let intervalId;
+let frameNumber;
+frameNumber = 0;
+
 
 // Get some DOM Elements
 const slider = document.getElementById('slider');
@@ -74,25 +77,25 @@ function mapToNearestGrey(value) {
     return greyValues.reduce((prev, curr) => Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev);
 }
 
-const lookUpPixels = [1, 8, 12, 18, 27]; // Positions of pixels to check
+const lookUpPixels = [1, 8, 12, 17, 18]; // Positions of pixels to check
 const minoMap = {
     "33222": "L",
-    "33130": "J",
-    "33221": "Itop", // I vertical
-    "23111": "Imiddle",
-    "31212": "Ibottom",
-    "33111": "Ileft", // I horizontal
+    "33113": "J",
+    "33212": "Itop",
+    "23121": "Imiddle",
+    "31211": "Ibottom",
+    "33121": "Ileft",
     "31111": "Icenter",
-    "23221": "Iright",
-    "33033": "O",
-    "33113": "Z",
-    "33230": "S",
-    "33101": "T"
+    "23212": "Iright",
+    "33003": "O",
+    "33111": "Z",
+    "33223": "S",
+    "33110": "T"
 };
 
 // Extract specific pixel values from the 8x8 tile
 function extractPixelValues(pixels) {
-    const pixelValues = [1, 8, 12, 18, 27].map(index => {
+    const pixelValues = [1, 8, 12, 17, 18].map(index => {
         const idx = index * 4;
         const r = pixels[idx];
         const g = pixels[idx + 1];
@@ -115,8 +118,16 @@ function updateGridImages() {
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
 
+    frameNumber++;
+    if (frameNumber == 255) frameNumber = 0;
+
+    document.getElementById('frameCounter').innerHTML = "Frame: " + frameNumber.toString(16).toUpperCase().padStart(2, '0');
+
+
     // Draw the current video frame to the canvas
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Set image smoothing to false for pixel-perfect rendering
+    context.imageSmoothingEnabled = false; // Add this line
 
     // Grid dimensions
     const gridRows = 18;
