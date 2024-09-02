@@ -74,39 +74,39 @@ function mapToNearestGrey(value) {
     return greyValues.reduce((prev, curr) => Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev);
 }
 
-// Calculate the median color of the center 6x6 pixels in an 8x8 grid and convert to grayscale
-function calculateMedianGrey(pixels) {
-    const reds = [];
-    const greens = [];
-    const blues = [];
+const lookUpPixels = [1, 8, 12, 18, 27]; // Positions of pixels to check
+const minoMap = {
+    "33222": "L",
+    "33130": "J",
+    "33221": "Itop", // I vertical
+    "23111": "Imiddle",
+    "31212": "Ibottom",
+    "33111": "Ileft", // I horizontal
+    "31111": "Icenter",
+    "23221": "Iright",
+    "33033": "O",
+    "33113": "Z",
+    "33230": "S",
+    "33101": "T"
+};
 
-    // Extracting only the center 6x6 pixels from the 8x8 block
-    for (let row = 1; row <= 6; row++) { // Rows 1 to 6 (center rows)
-        for (let col = 1; col <= 6; col++) { // Columns 1 to 6 (center columns)
-            // Calculate index in the flattened array (4 values per pixel: RGBA)
-            const index = ((row + 1) * 8 + (col + 1)) * 4; // Offsetting to center
-            reds.push(pixels[index]);
-            greens.push(pixels[index + 1]);
-            blues.push(pixels[index + 2]);
-        }
-    }
+// Extract specific pixel values from the 8x8 tile
+function extractPixelValues(pixels) {
+    const pixelValues = [1, 8, 12, 18, 27].map(index => {
+        const idx = index * 4;
+        const r = pixels[idx];
+        const g = pixels[idx + 1];
+        const b = pixels[idx + 2];
+        const grey = Math.round((r + g + b) / 3);
+        return greyToValue[mapToNearestGrey(grey)] || 0; // Default to 0 if not mapped
+    });
+    
+    return pixelValues.join('');
+}
 
-    // Sort arrays and pick the median value
-    reds.sort((a, b) => a - b);
-    greens.sort((a, b) => a - b);
-    blues.sort((a, b) => a - b);
-
-    const mid = Math.floor(reds.length / 2);
-
-    const medianRed = reds[mid];
-    const medianGreen = greens[mid];
-    const medianBlue = blues[mid];
-
-    // Convert to greyscale using the formula (R + G + B) / 3
-    const greyValue = Math.round((medianRed + medianGreen + medianBlue) / 3);
-
-    // Map the greyscale value to the nearest predefined grey value
-    return mapToNearestGrey(greyValue);
+// Calculate and map pixel values to the tile type
+function determineTileType(pixelValues) {
+    return minoMap[pixelValues] || '0';
 }
 
 // Capture frame and update grid images and text area
@@ -138,20 +138,20 @@ function updateGridImages() {
 
             // Get pixel data for the current block (8x8 pixels)
             const imageData = context.getImageData(x, y, blockSize, blockSize);
-            const medianGrey = calculateMedianGrey(imageData.data);
+            const pixelValues = extractPixelValues(imageData.data);
+            const tileType = determineTileType(pixelValues);
 
-            // Get the corresponding display number and image for the median grey value
-            const displayValue = greyToValue[medianGrey];
-            const imageUrl = `${greyToValue[medianGrey]}.png`;
+            // Get the corresponding display number and image for the tile type
+            const imageUrl = `tiles/${tileType}.png`;
 
             // Create a visual representation of the block with image
             const block = document.createElement('div');
             block.className = 'grid-block';
-            block.style.backgroundImage = `url(${greyToValue[medianGrey]}.png)`; // Set the image as the background
+            block.style.backgroundImage = `url(${imageUrl})`; // Set the image as the background
             gridContainer.appendChild(block);
 
-            // Add grey value to array
-            greyValuesArray.push(displayValue);
+            // Add tile type to array
+            greyValuesArray.push(tileType);
         }
     }
 
