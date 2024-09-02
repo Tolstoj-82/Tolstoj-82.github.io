@@ -47,10 +47,12 @@ body {
 }
 
 video {
-    display: none; /* Hide the video element */
+    /*display: none; /* Hide the video element */
+    /*image-rendering: pixelated;*/
 }
 
 canvas {
     border: 1px solid black;
+    /*image-rendering: pixelated;*/
     /* display: none; /* Hide the canvas element if needed */
 }

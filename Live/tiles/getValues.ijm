@@ -5,7 +5,7 @@ for(i=0; i<ofile.length; i++){
 	if(endsWith(toLowerCase(ofile[i]), ".png")){
 		thisFile = ofile[i];
 		woEnding = replace(thisFile, ".png", "");
-		pixelVal = "" + woEnding + "=[";
+		pixelVal = "" + woEnding + ",";
 		open(dir + thisFile);
 		getDimensions(w, h, ch, sl, fr);
 		for(x=0; x<w; x++){
@@ -16,7 +16,7 @@ for(i=0; i<ofile.length; i++){
 		}
 		close();
 		len = lengthOf(pixelVal)-2;
-		pixelVal = substring(pixelVal, 0, len) + "]";
+		pixelVal = substring(pixelVal, 0, len);
 		print(pixelVal);
 	}
 }
