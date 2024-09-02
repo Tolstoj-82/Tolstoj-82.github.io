@@ -1,0 +1,56 @@
+body {
+    margin: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.container {
+    display: flex;
+    gap: 20px; /* Space between the grid and controls */
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(10, 32px); /* 10 x 18 */
+    grid-template-rows: repeat(18, 32px);
+    gap: 0;
+    justify-content: left;
+    border: 2px solid #000;
+    width: 320px; /* 10 x 32 px */
+    height: 576px; /* 18 x 32 px */
+}
+
+.grid-block {
+    width: 32px;
+    height: 32px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    image-rendering: pixelated;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Space between the controls elements */
+}
+
+#textArea {
+    width: 200px;
+    height: 300px;
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+
+video {
+    display: none; /* Hide the video element */
+}
+
+canvas {
+    border: 1px solid black;
+    /* display: none; /* Hide the canvas element if needed */
+}
