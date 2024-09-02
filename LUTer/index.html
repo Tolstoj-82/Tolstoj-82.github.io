@@ -41,7 +41,7 @@
             <label for="transparency-slider">Opacity:</label>
             <input type="range" id="transparency-slider" min="0" max="100" value="0">
             <input type="text" id="transparency-value" value="0%" maxlength="4" disabled>
-            <button id="downloadGridBtn">Download Grid</button>
+            <button id="downloadGridBtn" onclick="handleDownload()">Download Grid</button>
         </div>
     </div>
     
@@ -49,8 +49,6 @@
         <canvas id="canvas" width="512" height="512"></canvas>
         <canvas id="myCanvas" width="1280" height="1152"></canvas>
     </div>
-
-    <img id="overlayImage">
     
     <script src="data.js"></script>
     <script src="scripts.js"></script>

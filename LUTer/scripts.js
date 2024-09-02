@@ -1,7 +1,16 @@
-// DOM Elements
+//---------------------------------
+// (1) DOM Elements
+//---------------------------------
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-
+const paletteSelect = document.getElementById('palette-select');
+const filenameInput = document.getElementById('filename');
+const downloadBtn = document.getElementById('download-btn');
+const gridSelect = document.getElementById('grid-select');
+const transparencySlider = document.getElementById('transparency-slider');
+const transparencyValue = document.getElementById('transparency-value');
+const downloadGridBtn = document.getElementById('downloadgrid-btn');
+const overlayColorBase = document.getElementById('overlayColorBase');
 const colorInputs = [
     document.getElementById('col1'),
     document.getElementById('col2'),
@@ -9,20 +18,16 @@ const colorInputs = [
     document.getElementById('col4')
 ];
 
-const paletteSelect = document.getElementById('palette-select');
-const filenameInput = document.getElementById('filename');
-const downloadBtn = document.getElementById('download-btn');
-
-const gridSelect = document.getElementById('grid-select');
-const transparencySlider = document.getElementById('transparency-slider');
-const transparencyValue = document.getElementById('transparency-value');
-const downloadGridBtn = document.getElementById('downloadgrid-btn');
-const overlayColorBase = document.getElementById('overlayColorBase');
-
+//---------------------------------
+// (2) Global Variables
+//---------------------------------
 const pixelColors = {};
 let overlayImage = new Image();
 let overlayOpacity = 0;
 
+//---------------------------------
+// (3) Functions
+//---------------------------------
 function updatePaletteSelect() {
     paletteSelect.innerHTML = '<option value="">Select Palette</option>';
 
@@ -161,7 +166,7 @@ function hexToRgba(color) {
     return { r, g, b, a };
 }
 
-function setupDownloadButton(canvas) {
+/*function setupDownloadButton(canvas) {
     const downloadGridBtn = document.getElementById('downloadGridBtn');
 
     if (!downloadGridBtn) {
@@ -170,14 +175,15 @@ function setupDownloadButton(canvas) {
     }
 
     // Remove any existing click event listeners
-    downloadGridBtn.removeEventListener('click', handleDownload);
+    //downloadGridBtn.removeEventListener('click', handleDownload());
 
     // Add a new click event listener
-    downloadGridBtn.addEventListener('click', () => handleDownload(canvas));
-}
+    //downloadGridBtn.addEventListener('click', () => handleDownload(canvas));
+}*/
 
 // Handle the download logic
-function handleDownload(canvas) {
+function handleDownload() {
+    const canvas = document.getElementById('overlayImage');
     const link = document.createElement('a');
     link.href = canvas.toDataURL('image/png'); // Generate a data URL with PNG format
     link.download = 'Grid.png'; // Set the download filename
@@ -191,7 +197,7 @@ function loadOverlayImage() {
         baseColor = '#FFFFFF'; // Default to white if baseColor is invalid
     }
 
-    const tileSize = 1;  // Each tile is 1x1 pixels
+    const tileSize = 1;
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -228,12 +234,8 @@ function loadOverlayImage() {
     overlayImage.onload = drawPlayfield;
 
     // Setup download button
-    setupDownloadButton(canvas);
+    //setupDownloadButton(canvas);
 }
-
-updatePaletteSelect();
-drawImage();
-drawPlayfield();
 
 colorInputs.forEach((input) => {
     input.addEventListener('change', () => {
@@ -248,12 +250,15 @@ colorInputs.forEach((input) => {
     });
 });
 
-// Event Listeners
-//----------------------
-
+//---------------------------------
+// (4) Event Listeners
+//---------------------------------
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize or call functions that depend on DOM elements
     loadOverlayImage();
+    updatePaletteSelect();
+    drawImage();
+    drawPlayfield();
 });
 
 transparencySlider.addEventListener('input', () => {

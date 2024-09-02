@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GB Interceptor Image Grabber</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <div class="grid-container"></div>
+    <div class="controls">
+        <textarea id="textArea" readonly></textarea>
+        <p>
+            <input type="range" id="slider" min="1" max="30" value="10">
+            <span id="sliderValue">10 FPS</span>
+            <br>
+            <select id="cameraSelect" onchange="startWebcam()">
+                <option value="">Select Camera</option>
+            </select>
+            <br>
+            <video id="video" width="160" height="144" autoplay></video>
+            <canvas id="canvas" width="160" height="144"></canvas>
+        </p>
+    </div>
+</div>
+<script src="functions.js" async></script>
+</body>
+</html>
