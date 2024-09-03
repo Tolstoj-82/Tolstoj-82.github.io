@@ -16,12 +16,19 @@
             <input type="range" id="slider" min="1" max="30" value="10">
             <span id="sliderValue">10 FPS</span>
             <br>
+            Scheme: 
+            <select id="scheme" name="scheme" onchange="updateScheme()">
+                <option value="GB">GB</option>
+                <option value="NES">NES</option>
+            </select>
+            <br>
             <select id="cameraSelect" onchange="startWebcam()">
                 <option value="">Select Camera</option>
             </select>
             <br>
             <video id="video" width="160" height="144" autoplay></video>
-            <canvas id="canvas" width="160" height="144"></canvas>
+            <canvas id="canvas" width="1280" height="1152"></canvas>
+            <!--<canvas id="canvas" width="1280" height="1152"></canvas>-->
             <div id="frameCounter"></div>
         </p>
     </div>
