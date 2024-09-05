@@ -1,25 +1,34 @@
 let intervalId;
-let frameNumber;
-frameNumber = 0;
-scaleFactor = 8;
-scheme = "GB";
+let frameState = "";
+let recordingFrameNumber = 0; // Frame counter for recording
+let isRecording = false;
+let recordingData = [];
+let lastFrameContent = '';
+let frameStart = 0;
 
-// Get some DOM Elements
+const scaleFactor = 8;
+let scheme = "GB";
+
+// DOM Elements
 const slider = document.getElementById('slider');
 const sliderValue = document.getElementById('sliderValue');
-const gridContainer = document.querySelector('.grid-container');
+const gridContainer = document.getElementById('grid-container');
+const recordButton = document.getElementById('recordButton');
+const textArea = document.getElementById('textArea');
+const recordingTextArea = document.getElementById('recording'); // Updated to "recording"
+const cameraSelect = document.getElementById('cameraSelect');
+const videoElement = document.getElementById('video'); // Video element for webcam feed
 
-// let dynamically assign thresholds for the values 
+//---------------------------------------------------------------
+// FUNCTIONS
+//---------------------------------------------------------------
+
 function setGreyValues(values) {
-    // Ensure values are sorted and unique
     const sortedValues = Array.from(new Set(values)).sort((a, b) => a - b);
-
-    // Create a mapping based on sorted values
     const greyToValue = {};
     sortedValues.forEach((value, index) => {
         greyToValue[value] = sortedValues.length - 1 - index;
     });
-
     return {
         greyValues: sortedValues,
         greyToValue: greyToValue
@@ -28,71 +37,11 @@ function setGreyValues(values) {
 
 const { greyValues, greyToValue } = setGreyValues([32, 96, 160, 224]);
 
-function updateScheme() {
-    // Get the dropdown element
-    const dropdown = document.getElementById('scheme');
-    scheme = dropdown.value;
-    
-    // Update the background color based on the selected value
-    if (scheme === 'GB') {
-        gridContainer.style.backgroundColor = '#FFFFFF';
-    } else if (scheme === 'NES') {
-        gridContainer.style.backgroundColor = '#000000';
-    }
-}
-
-// Populate the camera selection dropdown
-async function getCameras() {
-    try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(device => device.kind === 'videoinput');
-        const cameraSelect = document.getElementById('cameraSelect');
-
-        // Populate the dropdown with available cameras
-        videoDevices.forEach((device, index) => {
-            const option = document.createElement('option');
-            option.value = device.deviceId;
-            option.text = device.label || `Camera ${index + 1}`;
-            cameraSelect.appendChild(option);
-        });
-
-        // If there are no devices, display a message
-        if (videoDevices.length === 0) {
-            const option = document.createElement('option');
-            option.text = 'No cameras found';
-            cameraSelect.appendChild(option);
-            cameraSelect.disabled = true;
-        }
-    } catch (error) {
-        console.error('Error fetching devices: ', error);
-    }
-}
-
-// Start the selected webcam
-async function startWebcam() {
-    const cameraSelect = document.getElementById('cameraSelect');
-    const selectedCameraId = cameraSelect.value;
-
-    if (!selectedCameraId) return;
-
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { deviceId: { exact: selectedCameraId } }
-        });
-        const video = document.getElementById('video');
-        video.srcObject = stream;
-    } catch (error) {
-        console.error('Error accessing webcam: ', error);
-    }
-}
-
-// Map a value to the nearest grey value
 function mapToNearestGrey(value) {
-    // Find the nearest grey value
     return greyValues.reduce((prev, curr) => Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev);
 }
 
-const lookUpPixels = [1,8,15,57,11,19,27,35]; // Positions of pixels to check
+const lookUpPixels = [1, 8, 15, 57, 11, 19, 27, 35]; // Positions of pixels to check
 const minoMap = {
     "33332222": "L",
     "33331300": "J",
@@ -108,144 +57,269 @@ const minoMap = {
     "33331011": "T"
 };
 
-// Extract specific pixel values from the 8x8 tile based on lookUpPixels
 function extractPixelValues(pixels) {
-    // Adjust the function to use lookUpPixels for specific positions within the tile
     const pixelValues = lookUpPixels.map(index => {
-        const idx = index * 4; // Each pixel has 4 values: RGBA
+        const idx = index * 4;
         const r = pixels[idx];
         const g = pixels[idx + 1];
         const b = pixels[idx + 2];
-        const grey = Math.round((r + g + b) / 3); // Calculate grey value
-        return greyToValue[mapToNearestGrey(grey)] || 0; // Map to nearest grey value or default to 0
+        const grey = Math.round((r + g + b) / 3);
+        return greyToValue[mapToNearestGrey(grey)] || 0;
     });
-    
     return pixelValues.join('');
 }
 
-// Calculate and map pixel values to the tile type
 function determineTileType(pixelValues) {
-    // Ensure pixelValues is a string
-    const pixelValuesStr = String(pixelValues);
-    return minoMap[pixelValuesStr] || '0';
+    return minoMap[String(pixelValues)] || '0';
 }
 
 function updateGridImages() {
-    const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
 
-    frameNumber++;
-    if (frameNumber == 255) frameNumber = 0;
+    // Ensure frameStateElement exists
+    const frameStateElement = document.getElementById('frameState');
+    if (frameStateElement) {
+        frameState = (frameState === "|") ? " " : "|";
+        frameStateElement.innerHTML = frameState;
+    } else {
+        console.error('Element with ID "frameState" not found.');
+    }
 
-    document.getElementById('frameCounter').innerHTML = "Frame: " + frameNumber.toString(16).toUpperCase().padStart(2, '0');
+    if (isRecording) {
+        recordingFrameNumber++; // Increment recording frame counter
+    }
 
-    // Draw the current video frame to the canvas
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
     context.imageSmoothingEnabled = false;
 
-    // Grid dimensions
     const gridRows = 18;
     const blockSize = 8;
 
-    // Container for grid blocks
-    const gridContainer = document.querySelector('.grid-container');
-    gridContainer.innerHTML = ''; // Clear previous grid blocks
+    gridContainer.innerHTML = '';
 
-    // Array to store grey values
+    // Change the background color based on the scheme
+    if (scheme === "GB") {
+        gridContainer.style.backgroundColor = 'white'; // Set background to white for "GB"
+    } else {
+        gridContainer.style.backgroundColor = 'black'; // Set background to black for other schemes
+    }
+
     let greyValuesArray = [];
-    let lastRowPixelValues = [];
 
-    // Iterate over the grid rows and the specific columns (3rd to 12th)
     for (let row = 0; row < gridRows; row++) {
         for (let col = 2; col < 12; col++) {
-            // Calculate the top-left corner of each relevant 8x8 area in the larger canvas
             const x = col * blockSize * scaleFactor;
             const y = row * blockSize * scaleFactor;
 
-            // Get pixel data for the current block
             const imageData = context.getImageData(x, y, blockSize * scaleFactor, blockSize * scaleFactor);
 
-            // Highlight and extract the grey values from the specific lookup pixels
             const relevantPixels = lookUpPixels.map(index => {
                 const pixelRow = Math.floor(index / blockSize);
                 const pixelCol = index % blockSize;
-                const px = pixelCol * scaleFactor + 4; // Adjust x coordinate
-                const py = pixelRow * scaleFactor + 4; // Adjust y coordinate
-            
+                const px = pixelCol * scaleFactor + 4;
+                const py = pixelRow * scaleFactor + 4;
+
                 const pixelIndex = ((py * (blockSize * scaleFactor)) + px) * 4;
                 const r = imageData.data[pixelIndex];
                 const g = imageData.data[pixelIndex + 1];
                 const b = imageData.data[pixelIndex + 2];
                 const grey = Math.round((r + g + b) / 3);
                 return grey;
-            });            
+            });
 
-            // Map the grey values to nearest defined thresholds and determine tile type
             const pixelValues = relevantPixels.map(grey => greyToValue[mapToNearestGrey(grey)] || 0);
             const pixelValuesStr = pixelValues.join('');
             const tileType = determineTileType(pixelValuesStr);
 
             const imageUrl = `tiles/${scheme}/${tileType}.png`;
 
-            // Create a visual representation of the block with image
             const block = document.createElement('div');
             block.className = 'grid-block';
             block.style.backgroundImage = `url(${imageUrl})`;
             gridContainer.appendChild(block);
 
             greyValuesArray.push(tileType);
-            /*
-            // Store pixel values for the last row
-            if (row === gridRows - 1) {
-                lastRowPixelValues.push(pixelValuesStr);
-            }*/
         }
     }
 
-    // Format grey values as comma-separated, breaking after every 10 values
     const formattedValues = greyValuesArray.reduce((acc, value, index) => {
         if (index > 0 && index % 10 === 0) acc += '\n';
-        
-        // this is ugly AF!
-        if(value == "Itop") value = "1";
-        if(value == "Icenter") value = "2";
-        if(value == "Ibottom") value = "3";
-        if(value == "Ileft") value = "4";
-        if(value == "Imiddle") value = "5";
-        if(value == "Iright") value = "6";
+
+        switch(value) {
+            case "Itop": value      = "1"; break;
+            case "Icenter": value   = "2"; break;
+            case "Ibottom": value   = "3"; break;
+            case "Ileft": value     = "4"; break;
+            case "Imiddle": value   = "5"; break;
+            case "Iright": value    = "6"; break;
+        }
 
         acc += value + ',';
         return acc;
     }, '').slice(0, -1);
 
-    const textArea = document.getElementById('textArea');
-    //textArea.value = `Last Row Pixel Values:\n${lastRowPixelValues.join('\n')}\n\nFormatted Grey Values:\n${formattedValues}`;
-    textArea.value = `${formattedValues}`;
+    if (textArea) {
+        textArea.value = formattedValues;
+    } else {
+        console.error('Textarea with ID "textArea" not found.');
+    }
+
+    if (isRecording) {
+        const currentFrameContent = formattedValues;
+
+        if (currentFrameContent !== lastFrameContent) {
+            if (recordingData.length > 0) {
+                recordingData[recordingData.length - 1].end = recordingFrameNumber - 1;
+            }
+
+            recordingData.push({
+                start: recordingFrameNumber,
+                end: recordingFrameNumber,
+                content: currentFrameContent
+            });
+
+            lastFrameContent = currentFrameContent;
+        } else {
+            recordingData[recordingData.length - 1].end = recordingFrameNumber;
+        }
+
+        saveRecording(); // Continuously update recording
+    }
 }
 
-// Function to dynamically adjust the interval
 function adjustInterval() {
-    // Clear the existing interval
-    clearInterval(intervalId);
-
-    // Get the slider value and calculate the new interval time
-    const intervalTime = 1000 / slider.value; // Example: dynamically adjust interval based on the slider value
-
-    // Set a new interval with the updated time
+    clearInterval(intervalId); // Clears the existing interval.
+    const intervalTime = 1000 / slider.value;
     intervalId = setInterval(updateGridImages, intervalTime);
-
-    sliderValue.innerHTML = `${slider.value} FPS`;
+    if (sliderValue) {
+        sliderValue.innerHTML = `${slider.value} FPS`;
+    } else {
+        console.error('Element with ID "sliderValue" not found.');
+    }
 }
 
-// Initial setup
-updateGridImages();
-adjustInterval();
+function toggleRecording() {
+    isRecording = !isRecording;
 
-// Add event listener to the slider to adjust the interval on change
-slider.addEventListener('input', () => {
-    adjustInterval(); // Adjust interval when slider changes
+    if (isRecording) {
+        recordingFrameNumber = 1; // Start the recording frame counter at 1
+        recordButton.textContent = 'Stop Recording';
+        recordingData = [];
+        frameStart = recordingFrameNumber;
+    } else {
+        recordButton.textContent = 'Start Recording';
+        saveRecording(); // Final save when stopping
+    }
+}
+
+// Function to normalize and flatten comma-separated content
+function normalizeContent(input) {
+    // Remove all whitespace and split by commas
+    const flattened = input.replace(/\s+/g, '').split(',');
+    return flattened.join('');
+}
+
+// Function to compress the normalized content
+function compressContent(content) {
+    let compressed = '';
+    let lastChar = '';
+    let count = 0;
+
+    for (const char of content) {
+        if (char === lastChar) {
+            count++;
+        } else {
+            if (lastChar) {
+                compressed += (count > 1 ? `${lastChar}(${count}),` : `${lastChar},`);
+            }
+            lastChar = char;
+            count = 1;
+        }
+    }
+
+    if (lastChar) {
+        compressed += (count > 1 ? `${lastChar}(${count}),` : `${lastChar},`);
+    }
+
+    // Remove trailing comma if there is one
+    if (compressed.endsWith(',')) {
+        compressed = compressed.slice(0, -1);
+    }
+
+    return compressed;
+}
+
+function saveRecording() {
+    const recordingText = recordingData.map(({ start, end, content }) => {
+        const compressedContent = compressContent(normalizeContent(content));
+        return start === end
+            ? `{frame#${start}}\n[${compressedContent}]`
+            : `{frames#${start}..#${end}}\n[${compressedContent}]`;
+    }).join('\n\n');
+
+    // Update the textarea with the compressed content
+    if (recordingTextArea) {
+        recordingTextArea.value = recordingText;
+    } else {
+        console.error('Textarea with ID "recording" not found.');
+    }
+    document.getElementById("recordingFrame").innerHTML = "Frame Nr: " + recordingFrameNumber;
+}
+
+async function getCameras() {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+        if (cameraSelect) {
+            cameraSelect.innerHTML = ''; // Clear previous options
+
+            videoDevices.forEach((device, index) => {
+                const option = document.createElement('option');
+                option.value = device.deviceId;
+                option.textContent = device.label || `Camera ${index + 1}`;
+                cameraSelect.appendChild(option);
+            });
+
+            // Ensure an empty option for "Select Camera"
+            const selectOption = document.createElement('option');
+            selectOption.value = '';
+            selectOption.textContent = 'Select Camera';
+            cameraSelect.insertBefore(selectOption, cameraSelect.firstChild);
+        } else {
+            console.error('Select element with ID "cameraSelect" not found.');
+        }
+    } catch (error) {
+        console.error('Error accessing media devices:', error);
+    }
+}
+
+async function startWebcam() {
+    const selectedDeviceId = cameraSelect.value;
+
+    if (selectedDeviceId) {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { deviceId: selectedDeviceId }
+            });
+
+            videoElement.srcObject = stream;
+        } catch (error) {
+            console.error('Error accessing webcam:', error);
+        }
+    }
+}
+
+recordButton.addEventListener('click', toggleRecording);
+slider.addEventListener('input', adjustInterval);
+window.addEventListener('load', async () => {
+    await getCameras();
+    adjustInterval(); // Set initial interval
 });
 
-// Load available cameras on page load
-window.onload = getCameras;
+// Event listener for scheme selection change
+schemeSelect.addEventListener('change', function () {
+    scheme = this.value; // Update the scheme variable to the selected value
+    updateGridImages(); // Optionally update the grid images immediately after changing the scheme
+});

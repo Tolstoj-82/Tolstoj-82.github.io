@@ -9,28 +9,37 @@
 </head>
 <body>
 <div class="container">
-    <div class="grid-container"></div>
-    <div class="controls">
-        <textarea id="textArea" readonly></textarea>
-        <p>
-            <input type="range" id="slider" min="1" max="30" value="10">
-            <span id="sliderValue">10 FPS</span>
+    <div class="left-column">
+        <div class="grid-container" id="grid-container"></div>
+    </div>
+    <div class="middle-column">
+        <div class="controls">
+            <textarea id="textArea" readonly></textarea>
+            <p>
+                <input type="range" id="slider" min="1" max="30" value="10">
+                <br>
+                <span id="sliderValue">10 FPS </span><span id="frameState" style="width: 20px;"></span>
+                <br><br>
+                Scheme: 
+                <select id="schemeSelect" name="schemeSelect">
+                    <option value="GB">GB</option>
+                    <option value="NES">NES</option>
+                    <option value="color">color</option>
+                </select>
             <br>
-            Scheme: 
-            <select id="scheme" name="scheme" onchange="updateScheme()">
-                <option value="GB">GB</option>
-                <option value="NES">NES</option>
-            </select>
-            <br>
-            <select id="cameraSelect" onchange="startWebcam()">
-                <option value="">Select Camera</option>
-            </select>
-            <br>
-            <video id="video" width="160" height="144" autoplay></video>
-            <canvas id="canvas" width="1280" height="1152"></canvas>
-            <!--<canvas id="canvas" width="1280" height="1152"></canvas>-->
-            <div id="frameCounter"></div>
-        </p>
+                <select id="cameraSelect" onchange="startWebcam()">
+                    <option value="">Select Camera</option>
+                </select>
+                <br>
+                <video id="video" width="160" height="144" autoplay></video>
+                <canvas id="canvas" width="1280" height="1152"></canvas>
+            </p>
+        </div>
+    </div>
+    <div class="right-column">
+        <textarea id="recording" readonly></textarea>
+        <br>
+        <button id="recordButton">Start Recording</button> <span id="recordingFrame" style="width: 20px;"></span>
     </div>
 </div>
 <script src="functions.js" async></script>
