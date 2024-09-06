@@ -1,3 +1,4 @@
+/* Apply the sans-serif font to the whole page */
 body {
     margin: 0;
     display: flex;
@@ -6,26 +7,27 @@ body {
     height: 100vh;
     padding: 20px;
     box-sizing: border-box;
+    font-family: 'Roboto', sans-serif; /* Set the Roboto font */
 }
 
 .container {
     display: flex;
-    gap: 20px; /* Space between columns */
+    gap: 20px;
 }
 
 .left-column {
-    width: 320px; /* Width for the grid */
+    width: 320px;
 }
 
 .middle-column {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Space between controls elements */
-    width: 200px; /* Reduced width for the controls and video */
+    gap: 10px;
+    width: 200px;
 }
 
 .right-column {
-    /*width: 200px; /* Width for the recording textarea */
+    /* Width for the recording textarea */
 }
 
 .grid-container {
@@ -50,12 +52,12 @@ body {
 .controls {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Space between controls elements */
+    gap: 10px;
 }
 
-#textArea {
+#minoMatrix {
     width: 180px;
-    height: 280px; /* Adjusted height */
+    height: 280px;
     font-family: monospace;
     white-space: pre-wrap;
 }
@@ -69,12 +71,39 @@ body {
 
 video {
     border: 1px solid black;
-    /*display: none; /* Hide the video element */
+    /*display: none;
     /*image-rendering: pixelated;*/
 }
 
 canvas {
-    /*image-rendering: pixelated;*/
-    display: none; /* Hide the canvas element if needed */
+    display: none;
     image-rendering: pixelated;
+}
+
+.toast-container {
+    position: fixed;
+    top: 20px;  /* Adjust as needed for spacing from the top */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.toast {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    animation: fadeInOut 4s forwards;
+    max-width: 90vw;  /* Ensure the toast doesn't exceed viewport width */
+    text-align: center;  /* Center text within the toast */
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-20px); }
+    10%, 90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
 }
