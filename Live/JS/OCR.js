@@ -1,3 +1,34 @@
+// the value a pixle can have is 0,1,2 or 3
+function extractPixelValues(pixels) {
+    const pixelValues = lookUpPixels.map(index => {
+        const idx = index * 4;
+        const r = pixels[idx];
+        const g = pixels[idx + 1];
+        const b = pixels[idx + 2];
+        const grey = Math.round((r + g + b) / 3);
+        return greyToValue[mapToNearestGrey(grey)] || 0;
+    });
+    return pixelValues.join('');
+}
+
+const { greyValues, greyToValue } = setGreyValues([32, 96, 160, 224]);
+
+function setGreyValues(values) {
+    const sortedValues = Array.from(new Set(values)).sort((a, b) => a - b);
+    const greyToValue = {};
+    sortedValues.forEach((value, index) => {
+        greyToValue[value] = sortedValues.length - 1 - index;
+    });
+    return {
+        greyValues: sortedValues,
+        greyToValue: greyToValue
+    };
+}
+
+function mapToNearestGrey(value) {
+    return greyValues.reduce((prev, curr) => Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev);
+}
+
 // The pixels of each 8x8 
 // tile are looked up
 
@@ -10,8 +41,6 @@
 // 48 49 50 51 52 53 54 55
 
 const lookUpPixels = [1, 8, 15, 57, 11, 19, 27, 35];
-
-// the value a pixle can have is 0,1,2 or 3
 
 // the lookup pixels in each tile are evaluated and
 // assigned a mino type if the values were correct 

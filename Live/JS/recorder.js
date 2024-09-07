@@ -73,21 +73,6 @@ function saveRecording() {
     document.getElementById("recordingFrame").innerHTML = "Frame Nr: " + recordingFrameNumber;
 }
 
-
-function showToast(message) {
-    const toastContainer = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-
-    toastContainer.appendChild(toast);
-
-    // Remove the toast after the animation completes
-    setTimeout(() => {
-        toast.remove();
-    }, 4000); // Matches the duration of the CSS animation
-}
-
 function cleanUpRecording() {
     const textarea = document.getElementById('recording');
     if (!textarea) {
@@ -100,18 +85,22 @@ function cleanUpRecording() {
 
     let startIndex = 0;
     let endIndex = blocks.length - 1;
-
+    let sub = 0;
     let hasRemovedBlocks = false;
 
     // Check and remove unnecessary frames from the beginning
-    if (blocks[startIndex].includes('[0(')) {
+    if (blocks[startIndex].includes('[0(180)]')) {
+        const match = blocks[startIndex].match(/\{frames?#(\d+)(..#(\d+))?\}/);
+        if (match) {
+            sub = parseInt(match[3] || match[1], 10); // Use m if it exists, otherwise use n
+        }
         blocks[startIndex] = null; // Mark for removal
         startIndex++;
         hasRemovedBlocks = true;
     }
 
     // Check and remove unnecessary frames from the end
-    if (blocks[endIndex] && blocks[endIndex].includes('[0(')) {
+    if (blocks[endIndex] && blocks[endIndex].includes('[0(180)]')) {
         blocks[endIndex] = null; // Mark for removal
         endIndex--;
         hasRemovedBlocks = true;
@@ -119,15 +108,28 @@ function cleanUpRecording() {
 
     // Adjust numbering if needed
     if (startIndex <= endIndex) {
-        let adjustedBlocks = blocks.slice(startIndex, endIndex + 1).map((block, index) => {
+        let adjustedBlocks = blocks.slice(startIndex, endIndex + 1).map(block => {
             if (block) {
-                return block.replace(/^\{frames#\d+..?#/, `{frames#${index + 1}..#`);
+                // Adjust headers by subtracting 'sub'
+                return block.replace(/\{frames?#(\d+)(..#(\d+))?\}/, (match, p1, p2, p3) => {
+                    let a = parseInt(p1, 10) - sub;
+                    if (p3 !== undefined) {
+                        let b = parseInt(p3, 10) - sub;
+                        // Correcting the structure: if a == b, use {frame#a}, else use {frames#a..#b}
+                        if (a === b) {
+                            return `{frame#${a}}`;
+                        } else {
+                            return `{frames#${a}..#${b}}`;
+                        }
+                    } else {
+                        return `{frame#${a}}`;
+                    }
+                });
             }
             return null;
         }).filter(block => block !== null);
-        
+
         recordingText = adjustedBlocks.join('\n\n');
-        
         textarea.value = recordingText.trim();
 
         if (hasRemovedBlocks) {

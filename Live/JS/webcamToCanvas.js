@@ -1,33 +1,3 @@
-function setGreyValues(values) {
-    const sortedValues = Array.from(new Set(values)).sort((a, b) => a - b);
-    const greyToValue = {};
-    sortedValues.forEach((value, index) => {
-        greyToValue[value] = sortedValues.length - 1 - index;
-    });
-    return {
-        greyValues: sortedValues,
-        greyToValue: greyToValue
-    };
-}
-
-const { greyValues, greyToValue } = setGreyValues([32, 96, 160, 224]);
-
-function mapToNearestGrey(value) {
-    return greyValues.reduce((prev, curr) => Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev);
-}
-
-function extractPixelValues(pixels) {
-    const pixelValues = lookUpPixels.map(index => {
-        const idx = index * 4;
-        const r = pixels[idx];
-        const g = pixels[idx + 1];
-        const b = pixels[idx + 2];
-        const grey = Math.round((r + g + b) / 3);
-        return greyToValue[mapToNearestGrey(grey)] || 0;
-    });
-    return pixelValues.join('');
-}
-
 async function getCameras() {
     try {
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -71,4 +41,3 @@ async function startWebcam() {
         }
     }
 }
-
