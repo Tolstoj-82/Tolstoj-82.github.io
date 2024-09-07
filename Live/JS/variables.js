@@ -16,6 +16,7 @@ const greyValuesArray = [32, 96, 160, 224];
 const slider = document.getElementById('slider');
 const sliderValue = document.getElementById('sliderValue');
 const gridContainer = document.getElementById('grid-container');
+const nextBoxContainer = document.getElementById('next-box');
 const recordButton = document.getElementById('recordButton');
 const minoMatrix = document.getElementById('minoMatrix');
 const recordingTextArea = document.getElementById('recording');

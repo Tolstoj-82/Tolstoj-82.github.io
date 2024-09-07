@@ -43,6 +43,36 @@ function processTile(row, col, blockSize, scaleFactor, tileClass, context, schem
     return tileType;
 }
 
+function updateNextBox(nextPiece) {
+    // Get the nextBoxMap from wherever it's defined or passed in
+    const nextBoxMap = {
+        "L" : [0, 0, 0, 0, "L", "L", "L", 0, "L", 0, 0, 0, 0, 0, 0, 0],
+        "J" : [0, 0, 0, 0, "J", "J", "J", 0, 0, 0, "J", 0, 0, 0, 0, 0],
+        "I" : [0, 0, 0, 0, "4", "5", "5", "6", 0, 0, 0, 0, 0, 0, 0, 0], 
+        "O" : [0, 0, 0, 0, 0, "O", "O", 0, 0, "O", "O", 0, 0, 0, 0, 0],
+        "Z" : [0, 0, 0, 0, "Z", "Z", 0, 0, 0, "Z", "Z", 0, 0, 0, 0, 0],
+        "S" : [0, 0, 0, 0, 0, "S", "S", 0, "S", "S", 0, 0, 0, 0, 0, 0],
+        "T" : [0, 0, 0, 0, "T", "T", "T", 0, 0, "T", 0, 0, 0, 0, 0, 0],
+    };
+
+    const box = document.querySelector('.next-box');
+    const tiles = nextBoxMap[nextPiece];
+    
+    // Clear any existing content
+    box.innerHTML = '';
+    
+    tiles.forEach(tile => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        
+        if (tile !== 0) {
+            cell.style.backgroundImage = `url('tiles/${scheme}/${tile}.png')`;
+            cell.style.backgroundSize = 'cover';
+        }
+        
+        box.appendChild(cell);
+    });
+}
 
 function updateRenderedPlayfield() {
     const canvas = document.getElementById('canvas');
@@ -69,6 +99,7 @@ function updateRenderedPlayfield() {
 
     // Set the background color based on the scheme
     gridContainer.style.backgroundColor = scheme === "GB" ? 'white' : 'black';
+    nextBoxContainer.style.backgroundColor = scheme === "GB" ? 'white' : 'black';
 
     let greyValuesArray = [];
 
@@ -90,9 +121,8 @@ function updateRenderedPlayfield() {
         if (parseInt(nextPiece) > 0) {
             nextPiece = "I";
         }
-        document.getElementById('nextPiece').innerHTML = 'Next: ' + nextPiece;
-    }else{
-        document.getElementById('nextPiece').innerHTML = 'Next:';
+
+        updateNextBox(nextPiece);
     }
 
     // Format the grey values array into a string with line breaks every 10 values
