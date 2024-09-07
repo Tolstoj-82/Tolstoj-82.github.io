@@ -20,3 +20,17 @@ const minoMatrix = document.getElementById('minoMatrix');
 const recordingTextArea = document.getElementById('recording');
 const cameraSelect = document.getElementById('cameraSelect');
 const videoElement = document.getElementById('video');
+
+function showToast(message) {
+    const toastContainer = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+
+    toastContainer.appendChild(toast);
+
+    // Remove the toast after the animation completes
+    setTimeout(() => {
+        toast.remove();
+    }, 4000); // Matches the duration of the CSS animation
+}
