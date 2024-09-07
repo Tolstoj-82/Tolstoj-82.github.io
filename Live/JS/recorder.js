@@ -63,15 +63,20 @@ function saveRecording() {
         for (let i = 1; i < recordingData.length; i++) {
             const { start, end, content } = recordingData[i];
             const compressedContent = compressContent(normalizeContent(content));
-            recordingText += `\n\n{frames#${recordingData[i - 1].end + 1}..#${end}}\n[${compressedContent}]`;
+            const prevEnd = recordingData[i - 1].end + 1;
+            if (prevEnd === end) {
+                recordingText += `\n\n{frame#${end}}\n[${compressedContent}]`;
+            } else {
+                recordingText += `\n\n{frames#${prevEnd}..#${end}}\n[${compressedContent}]`;
+            }
         }
     }
 
     // Update the textarea with the compressed content
-
     recordingTextArea.value = recordingText;
     document.getElementById("recordingFrame").innerHTML = "Frame Nr: " + recordingFrameNumber;
 }
+
 
 function cleanUpRecording() {
     const textarea = document.getElementById('recording');
