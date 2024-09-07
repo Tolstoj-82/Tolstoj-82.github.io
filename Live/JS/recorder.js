@@ -145,7 +145,7 @@ function cleanUpRecording() {
     } else {
         recordingText = '';
         textarea.value = recordingText;
-        showToast('No valid frames found.\nNothing was saved.');
+        showToast('No valid frames found.');
     }
 }
 

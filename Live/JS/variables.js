@@ -10,6 +10,7 @@ let lastFrameContent = '';
 let frameStart = 0;
 let scaleFactor = 8;
 let scheme = "GB";
+const greyValuesArray = [32, 96, 160, 224];
 
 // DOM Elements
 const slider = document.getElementById('slider');
@@ -25,12 +26,9 @@ function showToast(message) {
     const toastContainer = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = 'toast';
-    toast.textContent = message;
-
+    toast.innerHTML = message.replace(/\n/g, '<br>'); // \n = <br>
     toastContainer.appendChild(toast);
-
-    // Remove the toast after the animation completes
     setTimeout(() => {
         toast.remove();
-    }, 4000); // Matches the duration of the CSS animation
+    }, 4000);
 }
