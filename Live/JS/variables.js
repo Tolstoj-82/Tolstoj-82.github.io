@@ -11,6 +11,12 @@ let frameStart = 0;
 let scaleFactor = 8;
 let scheme = "GB";
 const greyValuesArray = [32, 96, 160, 224];
+const gridRows = 18;
+const blockSize = 8;
+
+const canvas = document.getElementById('canvas');
+const context = canvas.getContext('2d');
+
 
 // DOM Elements
 const slider = document.getElementById('slider');

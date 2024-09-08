@@ -5,8 +5,11 @@ function processTile(row, col, blockSize, scaleFactor, tileClass, context, schem
     // Get image data for the specific tile
     const imageData = context.getImageData(x, y, blockSize * scaleFactor, blockSize * scaleFactor);
 
+    // Choose the pixel lookup array based on tileClass
+    const pixelLookup = tileClass === "score" ? numberLookUpPixels : minoLookUpPixels;
+
     // Map the relevant pixels to grey values
-    const relevantPixels = minoLookUpPixels.map(index => {
+    const relevantPixels = pixelLookup.map(index => {
         const pixelRow = Math.floor(index / blockSize);
         const pixelCol = index % blockSize;
         const px = pixelCol * scaleFactor + 4;
@@ -25,7 +28,7 @@ function processTile(row, col, blockSize, scaleFactor, tileClass, context, schem
     const pixelValuesStr = pixelValues.join('');
 
     // Determine the tile type
-    const tileType = determineTileType(pixelValuesStr);
+    const tileType = determineTileType(pixelValuesStr, tileClass);
 
     if (tileClass === "playfield") {
         // Construct the image URL
@@ -42,6 +45,7 @@ function processTile(row, col, blockSize, scaleFactor, tileClass, context, schem
     }
     return tileType;
 }
+
 
 function updateNextBox(nextPiece) {
     // Define the nextBoxMap with pieces
@@ -77,10 +81,20 @@ function updateNextBox(nextPiece) {
     }
 }
 
-function updateRenderedPlayfield() {
-    const canvas = document.getElementById('canvas');
-    const context = canvas.getContext('2d');
+function calculateScore(digitCount) {
+    let score = 0;
+    for (let i = 0; i < digitCount; i++) {
+        let currentDigit = parseInt(processTile(3, 13 + i, blockSize, scaleFactor, "score", context, scheme, greyValuesArray));
+        if (isNaN(currentDigit)) currentDigit = 0;
+        score += Math.pow(10, digitCount - 1 - i) * currentDigit;
+    }
+    return score;
+}
 
+function updateRenderedPlayfield() {
+/*    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+*/
     // Ensure frameStateElement exists
     const frameStateElement = document.getElementById('frameState');
     frameState = (frameState === "&squf;") ? " " : "&squf;";
@@ -93,9 +107,6 @@ function updateRenderedPlayfield() {
     // Draw the current video frame onto the canvas
     context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
     context.imageSmoothingEnabled = false;
-
-    const gridRows = 18;
-    const blockSize = 8;
 
     // Clear the grid container before updating
     gridContainer.innerHTML = '';
@@ -113,7 +124,7 @@ function updateRenderedPlayfield() {
         }
     }
 
-    // Process tiles at (14, 17) and (14, 16) for next piece detection
+    // Process tiles for next piece detection
     nextBoxTile1 = processTile(14, 17, blockSize, scaleFactor, "nextBox", context, scheme, greyValuesArray);
     nextBoxTile2 = processTile(14, 16, blockSize, scaleFactor, "nextBox", context, scheme, greyValuesArray);
 
@@ -127,6 +138,18 @@ function updateRenderedPlayfield() {
 
         updateNextBox(nextPiece);
     }
+
+    // Process tiles for score
+    seventhDigit = processTile(3, 19, blockSize, scaleFactor, "score", context, scheme, greyValuesArray);
+    let currentScore = 0;
+    if (seventhDigit === "Empty") { // six digit display
+        currentScore = calculateScore(6);
+    } else { // seven digit display
+        currentScore = calculateScore(7);
+    }
+    
+    // Update the score div with the current score
+    document.getElementById("score").innerHTML = `Score: ${currentScore}`;
 
     // Format the grey values array into a string with line breaks every 10 values
     const formattedValues = greyValuesArray.reduce((acc, value, index) => {

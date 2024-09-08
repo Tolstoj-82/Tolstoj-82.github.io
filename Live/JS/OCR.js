@@ -1,16 +1,3 @@
-// the value a pixle can have is 0,1,2 or 3
-function extractPixelValues(pixels) {
-    const pixelValues = minoLookUpPixels.map(index => {
-        const idx = index * 4;
-        const r = pixels[idx];
-        const g = pixels[idx + 1];
-        const b = pixels[idx + 2];
-        const grey = Math.round((r + g + b) / 3);
-        return greyToValue[mapToNearestGrey(grey)] || 0;
-    });
-    return pixelValues.join('');
-}
-
 const { greyValues, greyToValue } = setGreyValues(greyValuesArray);
 
 function setGreyValues(values) {
@@ -32,7 +19,8 @@ function mapToNearestGrey(value) {
 // The pixels of each 8x8 
 // tile are looked up
 
-const minoLookUpPixels = [1, 8, 15, 57, 11, 19, 27, 35];
+const minoLookUpPixels      = [1,  8, 15, 57, 11, 19, 27, 35];
+const numberLookUpPixels    = [9, 10, 13, 17, 18, 20, 21, 22, 30, 49];
 
 // 00 01 02 03 04 05 06 07
 // 08 09 10 11 12 13 14 15
@@ -63,12 +51,31 @@ const minoMap = {
     "32131111": "5", // middle
     "32331112": "6", // right
 };
-/*
-const numbersLookUpPixels = [1, 8, 15, 57, 11, 19, 27, 35];
-const numbersMap = {
-}
-*/
 
-function determineTileType(pixelValues) {
-    return minoMap[String(pixelValues)] || '0';
+const numbersMap = {
+    "0333303330" : "0",
+    "0000330000" : "1",
+    "0333033333" : "2",
+    "3330033303" : "3",
+    "0333333000" : "4",
+    "3333300000" : "5",
+    "0333300000" : "6",
+    "3330003300" : "7",
+    "0333033300" : "8",
+    "0333033330" : "9",
+    // not a number. this is important to determine whether it is a
+    // 6 or 7 digit display
+    "0000000000" : "Empty"
+}
+
+
+function determineTileType(pixelValues, tileClass) {
+    const pixelValuesStr = String(pixelValues);
+
+    // Determine and return the tile type based on tileClass
+    if (tileClass === "score") {
+        return numbersMap[pixelValuesStr] || '0';
+    } else {
+        return minoMap[pixelValuesStr] || '0';
+    }
 }
