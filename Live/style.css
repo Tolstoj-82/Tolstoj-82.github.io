@@ -132,3 +132,8 @@ canvas {
 #recordingSliderDiv {
     white-space: nowrap;
 }
+
+.score {
+    font-family: 'Press Start 2P', cursive;
+    width: fit-content;
+}
