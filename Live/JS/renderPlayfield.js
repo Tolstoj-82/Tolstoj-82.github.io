@@ -44,15 +44,15 @@ function processTile(row, col, blockSize, scaleFactor, tileClass, context, schem
 }
 
 function updateNextBox(nextPiece) {
-    // Get the nextBoxMap from wherever it's defined or passed in
+    // Define the nextBoxMap with pieces
     const nextBoxMap = {
-        "L" : [0, 0, 0, 0, "L", "L", "L", 0, "L", 0, 0, 0, 0, 0, 0, 0],
-        "J" : [0, 0, 0, 0, "J", "J", "J", 0, 0, 0, "J", 0, 0, 0, 0, 0],
-        "I" : [0, 0, 0, 0, "4", "5", "5", "6", 0, 0, 0, 0, 0, 0, 0, 0], 
-        "O" : [0, 0, 0, 0, 0, "O", "O", 0, 0, "O", "O", 0, 0, 0, 0, 0],
-        "Z" : [0, 0, 0, 0, "Z", "Z", 0, 0, 0, "Z", "Z", 0, 0, 0, 0, 0],
-        "S" : [0, 0, 0, 0, 0, "S", "S", 0, "S", "S", 0, 0, 0, 0, 0, 0],
-        "T" : [0, 0, 0, 0, "T", "T", "T", 0, 0, "T", 0, 0, 0, 0, 0, 0],
+        "L" : ["L", "L", "L", 0, "L", 0, 0, 0],
+        "J" : ["J", "J", "J", 0, 0, 0, "J", 0],
+        "I" : ["4", "5", "5", "6", 0, 0, 0, 0], 
+        "O" : [0, "O", "O", 0, 0, "O", "O", 0],
+        "Z" : ["Z", "Z", 0, 0, 0, "Z", "Z", 0],
+        "S" : [0, "S", "S", 0, "S", "S", 0, 0],
+        "T" : ["T", "T", "T", 0, 0, "T", 0, 0],
     };
 
     const box = document.querySelector('.next-box');
@@ -60,18 +60,21 @@ function updateNextBox(nextPiece) {
     
     // Clear any existing content
     box.innerHTML = '';
-    
-    tiles.forEach(tile => {
+
+    // Loop through a 4x4 grid (16 cells)
+    for (let i = 0; i < 16; i++) {
         const cell = document.createElement('div');
         cell.classList.add('cell');
-        
-        if (tile !== 0) {
-            cell.style.backgroundImage = `url('tiles/${scheme}/${tile}.png')`;
+
+        // Skip the first row (first 4 tiles)
+        if (i >= 4 && tiles[i - 4] !== 0) {
+            // Start placing images from the 5th cell onward using the first tile in the array
+            cell.style.backgroundImage = `url('tiles/${scheme}/${tiles[i - 4]}.png')`;
             cell.style.backgroundSize = 'cover';
         }
-        
+
         box.appendChild(cell);
-    });
+    }
 }
 
 function updateRenderedPlayfield() {
@@ -101,7 +104,7 @@ function updateRenderedPlayfield() {
     gridContainer.style.backgroundColor = scheme === "GB" ? 'white' : 'black';
     nextBoxContainer.style.backgroundColor = scheme === "GB" ? 'white' : 'black';
 
-    let greyValuesArray = [];
+    //let greyValuesArray = [];
 
     // Loop through the rows and columns to process each tile
     for (let row = 0; row < gridRows; row++) {
