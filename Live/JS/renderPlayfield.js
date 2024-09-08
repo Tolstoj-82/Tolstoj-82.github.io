@@ -147,9 +147,9 @@ function updateRenderedPlayfield() {
     } else { // seven digit display
         currentScore = calculateScore(7);
     }
-    
+
     // Update the score div with the current score
-    document.getElementById("score").innerHTML = `Score: ${currentScore}`;
+    document.getElementById("score").innerHTML = `SCORE<br> ${currentScore}`;
 
     // Format the grey values array into a string with line breaks every 10 values
     const formattedValues = greyValuesArray.reduce((acc, value, index) => {
