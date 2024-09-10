@@ -19,7 +19,7 @@ body {
 
 video {
     object-fit: cover;
-    image-rendering: pixelated;
+    /*image-rendering: pixelated;*/
     border: 1px solid whitesmoke;
 }
 
