@@ -121,6 +121,7 @@ canvas {
 .inline-container {
     display: flex;
     align-items: center;
+    height: 20px;
 }
 
 #sliderValue,

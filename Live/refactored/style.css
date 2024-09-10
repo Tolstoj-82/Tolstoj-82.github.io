@@ -1,0 +1,28 @@
+@font-face {
+    font-family: 'Open Sans';
+    src: url('font/OpenSans-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    background-color: #2C2C2C;
+    font-family: 'Open Sans', sans-serif;
+    color: white;
+}
+
+.video-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+video {
+    object-fit: cover;
+    image-rendering: pixelated;
+    border: 1px solid whitesmoke;
+}
+
+/*#camera_feed {
+    display: none;
+}*/

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yobi Method</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+
+    </style>
+</head>
+<body>
+    <h1>Chose your Interceptor</h1>
+    <label for="device_selector">Select Interceptor:</label><br>
+    <select id="device_selector" onchange="startWebcam()">
+        <option value="">-</option>
+    </select>
+
+    <p class="video-container">
+        <video id="camera_feed" width="160" height="144" autoplay muted></video>
+    </p>
+
+    <script src="JS/cameras.js" async></script>
+</body>
+</html>
