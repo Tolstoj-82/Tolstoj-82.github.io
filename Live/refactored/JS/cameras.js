@@ -1,27 +1,20 @@
-const device_selector = document.getElementById('device_selector');
-const camera_feed = document.getElementById('camera_feed');
-let currentStream = null;
+// DOM Elements
+const device_selector   = document.getElementById('device_selector');
+const camera_feed       = document.getElementById('camera_feed');
 
-// Define constants for the tile and canvas dimensions
-const tileWidth = 8;
-const tileHeight = 8;
+// Variables
+let currentStream       = null;
+const tileWidth         = 8;
+const tileHeight        = 8;
+const canvasWidth       = 160;
+const canvasHeight      = 144;
+const tilesX            = canvasWidth / tileWidth; // 20 x 18 tiles
+const tilesY            = canvasHeight / tileHeight;
+let tileArray           = []; // tileArray[tileNr][pixelNr] (2D array)
 
-const canvasWidth = 160;
-const canvasHeight = 144;
-
-const tilesX = canvasWidth / tileWidth; // 20 tiles horizontally
-const tilesY = canvasHeight / tileHeight; // 18 tiles vertically
-
-let tileArray = []; // [tileNr][pixelNr]
-
-/*
-// Arrays containing tile indices to look at (example values)
-const nextBoxTiles = [10, 11];
-const scoreTiles = [17, 18];
-
-// Combine all tiles to look at into one set for easier processing
-const tilesToLookAt = new Set([...tilesToLookAt1, ...tilesToLookAt2, ...tilesToLookAt3]);
-*/
+//---------------------------------------------
+// FUNCTIONS
+//---------------------------------------------
 
 // Function to get connected video input devices (cameras)
 async function getConnectedDevices(type) {
@@ -61,20 +54,24 @@ function updateDeviceList(devices) {
 async function startWebcam() {
     const selectedDeviceId = device_selector.value;
     if (selectedDeviceId && navigator.mediaDevices.getUserMedia) {
+        
         // Stop the current stream if already running
         if (currentStream) {
             currentStream.getTracks().forEach(track => track.stop());
         }
 
         try {
+            
             // Get the video stream for the selected device
             currentStream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     deviceId: { exact: selectedDeviceId }
                 }
             });
+            
             // Set the video source to the camera feed
             camera_feed.srcObject = currentStream;
+            camera_feed.style.display = 'block';
 
             // Start processing video frames
             camera_feed.addEventListener('play', () => {
@@ -86,7 +83,8 @@ async function startWebcam() {
     }
 }
 
-// Function to get the closest grayscale index
+// Get the closest grayscale index
+// returns 0,1,2 or 3
 function getClosestColorIndex(value) {
     const grayscaleLevels = [32, 96, 160, 224];
     let closestIndex = 0;
@@ -103,7 +101,7 @@ function getClosestColorIndex(value) {
     return closestIndex;
 }
 
-// Function to process video frames and store pixel indices in a 2D array
+// Process video frames and store pixel indices in a 2D array
 function processVideoFrames() {
     if (camera_feed.paused || camera_feed.ended) {
         return;
@@ -127,36 +125,47 @@ function processVideoFrames() {
 
     // Convert the image to indexed colors and store only specific tiles in the tileArray
     for (let tileY = 0; tileY < tilesY; tileY++) {
+        
+        // Start processing from the 3rd column and end at the 13th column
         for (let tileX = 0; tileX < tilesX; tileX++) {
+            
             // Calculate the tile number
             const tileNumber = tileY * tilesX + tileX;
 
-            // Only process tiles that are in the specified arrays
-            //if (tilesToLookAt.has(tileNumber)) {
+            // columns 3 to 13 = playfield
+            if(tileX >= 2 && tileX < 12){
+                
+                // Process tiles in the specified range
                 let tileIndex = [];
                 for (let y = 0; y < tileHeight; y++) {
                     for (let x = 0; x < tileWidth; x++) {
                         const i = ((tileY * tileHeight + y) * canvasWidth + (tileX * tileWidth + x)) * 4;
-                        const r = data[i];     // Red
-                        const g = data[i + 1]; // Green
-                        const b = data[i + 2]; // Blue
-                        // Calculate the average (grayscale value)
-                        const avg = (r + g + b) / 3;
+                        const r = data[i];     // R
+                        const g = data[i + 1]; // G
+                        const b = data[i + 2]; // B
+                        const avg = (r + g + b) / 3; // greyscale
+                        
                         // Find the closest grayscale index
                         const index = getClosestColorIndex(avg);
+                        
                         // Store the index value in the tile index array
                         tileIndex.push(index);
                     }
                 }
+                
                 // Store the tile index array in the tileArray
                 tileArray.push(tileIndex);
-            //}
+            }
         }
     }
-
-    // Continue processing the next frame
-    requestAnimationFrame(processVideoFrames);
 }
+
+//---------------------------------------------
+// STARTS HERE
+//---------------------------------------------
+
+// Continue processing the next frame
+requestAnimationFrame(processVideoFrames);
 
 // Function to refresh the list of devices
 async function resetDevices() {
