@@ -1,8 +1,6 @@
 @font-face {
     font-family: 'Open Sans';
     src: url('font/OpenSans-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
 }
 
 body {
@@ -21,6 +19,46 @@ video {
     object-fit: cover;
     /*image-rendering: pixelated;*/
     border: 1px solid whitesmoke;
+}
+
+#color-container .col-val {
+    width: 32px;
+    height: 32px;
+    border: 2px solid red;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#color-container{
+    display: none;
+}
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.toast {
+    background-color: orange;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    animation: fadeInOut 4s forwards;
+    max-width: 90vw;
+    text-align: center;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-20px); }
+    10%, 90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
 }
 
 /*#camera_feed {

@@ -16,11 +16,23 @@
     <select id="device_selector" onchange="startWebcam()">
         <option value="">-</option>
     </select>
-
     <p class="video-container">
         <video id="camera_feed" width="160" height="144" autoplay muted style="display: none;"></video>
     </p>
 
+    <div id="color-container">
+        <button id="calibrate-button" onclick="calibrate()">Calibrate</button>
+        <div class="col-val" id="value0"></div>
+        <div class="col-val" id="value1"></div>
+        <div class="col-val" id="value2"></div>
+        <div class="col-val" id="value3"></div>
+    </div>
+    <br>
+
+    <textarea id="tileOutput" rows="10" cols="50"></textarea>
+
     <script src="JS/cameras.js" async></script>
+
+    <div id="toast-container" class="toast-container"></div>
 </body>
 </html>
