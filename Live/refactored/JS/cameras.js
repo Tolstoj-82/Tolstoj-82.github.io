@@ -313,7 +313,7 @@ function calibrate() {
     if (grayscaleArray.length !== 4) {
         addText = "";
         if(grayscaleArray.length == 1) addText = `Seems like there was no signal!`;
-        else if(grayscaleArray.length == 2 || grayscaleArray.length == 2) addText = `Your image had only ${grayscaleArray.length} shades. Calibrate again.`;
+        else if(grayscaleArray.length == 2 || grayscaleArray.length == 3) addText = `Your image had only ${grayscaleArray.length} shades. Calibrate again.`;
         else if(grayscaleArray.length > 4) addText = `There are too many shades. Turn off 'Frameblending' or chose another source.`;
         showToast(`The calibration failed.\n${addText}`);
     }else{
