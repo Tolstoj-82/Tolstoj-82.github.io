@@ -28,11 +28,15 @@
         <div class="col-val" id="value3"></div>
     </div>
     <br>
-
+    <div id="playfield-detected">No playfield!</div>
+    <br>
     <textarea id="tileOutput" rows="10" cols="50"></textarea>
 
+    <script src="JS/variables.js" async></script><!-- This first -->
+    <script src="JS/OCR.js" async></script>
     <script src="JS/cameras.js" async></script>
-
+    <script src="JS/calibrate.js" async></script>
+    <script src="JS/general.js" async></script><!-- This last -->
     <div id="toast-container" class="toast-container"></div>
 </body>
 </html>
