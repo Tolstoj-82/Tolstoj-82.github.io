@@ -1,6 +1,11 @@
+@font-face {
+	font-family: 'gb-font';
+	src: local('gb-font'), url('font/GB.woff') format('woff');
+}
+
 body {
     background-color: #2C2C2C;
-    font-family: 'Open Sans', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     color: white;
     margin: 0;
     padding: 0;
@@ -8,6 +13,13 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+}
+
+#score{
+    font-family: 'gb-font';
+    /*font-weight: normal;
+    font-style: normal;*/
+    font-size: 40px;
 }
 
 .container {
