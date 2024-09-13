@@ -33,19 +33,18 @@ function generatePlayfield() {
     }
 }
 
+// Function to update the scheme based on dropdown selection
+function updateScheme() {
+    const themeSelect = document.getElementById('themeSelect');
+    scheme = themeSelect.value;
+    const gridCells = document.querySelectorAll('.grid-cell');
+    gridCells.forEach(cell => {
+        cell.style.backgroundColor = scheme === 'GB' ? 'white' : 'black';
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('themeSelect').addEventListener('change', updateScheme);
-
-    // Function to update the scheme based on dropdown selection
-    function updateScheme() {
-        const themeSelect = document.getElementById('themeSelect');
-        scheme = themeSelect.value;
-        const gridCells = document.querySelectorAll('.grid-cell');
-        gridCells.forEach(cell => {
-            cell.style.backgroundColor = scheme === 'GB' ? 'white' : 'black';
-        });
-    }
-
 });
 
 // Call the function to fill the grid
