@@ -142,7 +142,11 @@ function populatePlayfield(array) {
     
     array.forEach((value, index) => {
         if (gridCells[index]) {
-            if(value != "0") gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${value}.png)`;
+            if (value != "0") {
+                gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${value}.png)`;
+            } else {
+                gridCells[index].style.backgroundImage = '';
+            }
         }
     });
 }
