@@ -73,12 +73,12 @@ function processVideoFrames() {
                         // Convert tileIndex array to string for map lookup
                         thisString = tileIndex.join('');
                         isPlayfield = map[thisString] || false;
-                        displayText = document.getElementById('playfield-detected').textContent;
+                        let displayElement = document.getElementById('playfield-detected');
                         if (isPlayfield) {
-                            displayText = "Playfield detected!";
+                            displayElement.textContent = "Playfield detected!";
                             playfieldVisible = true;
                         } else {
-                            displayText = "No playfield!";
+                            displayElement.textContent = "No playfield!";
                             playfieldVisible = false;
                         }
                     }
@@ -101,7 +101,8 @@ function processVideoFrames() {
         }
     }
 
-    if (calibrated) updateTextareaWithTileArray(tileArray);
+    //if (calibrated) updateTextareaWithTileArray(tileArray);
+    if (calibrated && playfieldVisible) populatePlayfield(tileArray);
     requestAnimationFrame(processVideoFrames);
 }
 
@@ -127,4 +128,19 @@ function updateTextareaWithTileArray(tileArray) { // only needed for debugging
         return `${tileContent}`;
     }).join('');
     document.getElementById('tileOutput').value = formattedTiles;
+}
+
+function populatePlayfield(array) {
+    if (!Array.isArray(array) || array.length !== 180) {
+        // console.error('Array must contain exactly 180 entries.');
+        return;
+    }
+
+    const gridCells = document.querySelectorAll('.grid-cell');
+
+    array.forEach((value, index) => {
+        if (gridCells[index]) {
+            gridCells[index].style.backgroundImage = `url(images/tiles/${value}.png)`;
+        }
+    });
 }

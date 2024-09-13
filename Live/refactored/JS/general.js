@@ -21,4 +21,18 @@ navigator.mediaDevices.addEventListener('devicechange', resetDevices);
 // Initial call to populate the device list
 resetDevices();
 
-//styleColorDivs(false);
+function generatePlayfield() {
+    const gridContainer = document.querySelector('.grid-container');
+    gridContainer.innerHTML = '';
+
+    // Fill the grid with 180 cells (10x18)
+    for (let i = 0; i < 180; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        cell.style.backgroundColor = '#FFF';
+        gridContainer.appendChild(cell);
+    }
+}
+
+// Call the function to fill the grid
+generatePlayfield();
