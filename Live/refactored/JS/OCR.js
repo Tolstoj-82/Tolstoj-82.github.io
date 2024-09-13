@@ -141,8 +141,8 @@ function populatePlayfield(array) {
     const gridCells = document.querySelectorAll('.grid-cell');
     
     array.forEach((value, index) => {
-        if (gridCells[index] && value != "0") {
-            gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${value}.png)`;
+        if (gridCells[index]) {
+            if(value != "0") gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${value}.png)`;
         }
     });
 }
