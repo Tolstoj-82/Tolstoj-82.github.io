@@ -2,6 +2,7 @@
 const device_selector   = document.getElementById('device_selector');
 const camera_feed       = document.getElementById('camera_feed');
 const color_container   = document.getElementById('color-container');
+const themeSelect       = document.getElementById('themeSelect');
 
 // Variables
 let currentStream       = null;

@@ -33,26 +33,17 @@ function generatePlayfield() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const themeSelect = document.getElementById('themeSelect');
+function updateScheme() {
+    scheme = themeSelect.value;
+    const gridCells = document.querySelectorAll('.grid-cell');
     
-    // Check if the elements exist
-    //if (themeSelect) {
-        themeSelect.addEventListener('change', updateScheme);
-    //} else {
-    //    console.error('Element with id "themeSelect" not found.');
-    //}
+    gridCells.forEach(cell => {
+        cell.style.backgroundColor = scheme === 'GB' ? 'white' : 'black';
+    });
+}
 
-    // Function to update the scheme based on dropdown selection
-    function updateScheme() {
-        scheme = themeSelect.value;
-        const gridCells = document.querySelectorAll('.grid-cell');
-        
-        gridCells.forEach(cell => {
-            cell.style.backgroundColor = scheme === 'GB' ? 'white' : 'black';
-        });
-    }
-});
+themeSelect.addEventListener('change', updateScheme);
+
 
 
 // Call the function to fill the grid
