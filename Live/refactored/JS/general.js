@@ -53,6 +53,8 @@ function updateScheme() {
     });
 
     // nextbox
+    const nextBox = document.getElementById('next-box');
+    nextBox.style.backgroundColor = scheme === 'GB' ? 'white' : 'black';
     const nextBoxCells = document.querySelectorAll('.next-box-cell');
     nextBoxCells.forEach(cell => {
         cell.style.backgroundColor = scheme === 'GB' ? 'white' : 'black';
