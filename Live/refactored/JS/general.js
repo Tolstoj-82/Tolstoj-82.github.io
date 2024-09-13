@@ -22,29 +22,45 @@ navigator.mediaDevices.addEventListener('devicechange', resetDevices);
 resetDevices();
 
 function generatePlayfield() {
+    // Fill the grid with 180 cells (10x18)
     const gridContainer = document.querySelector('.grid-container');
     gridContainer.innerHTML = '';
 
-    // Fill the grid with 180 cells (10x18)
     for (let i = 0; i < 180; i++) {
         const cell = document.createElement('div');
         cell.className = 'grid-cell';
         gridContainer.appendChild(cell);
     }
+
+    // Nextbox
+    const nextBox = document.querySelector('.next-box');
+    nextBox.innerHTML = '';
+
+    for (let i = 0; i < 16; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'next-box-cell';
+        nextBox.appendChild(cell);
+    }
 }
 
 function updateScheme() {
     scheme = themeSelect.value;
-    const gridCells = document.querySelectorAll('.grid-cell');
     
+    // playfield
+    const gridCells = document.querySelectorAll('.grid-cell');
     gridCells.forEach(cell => {
         cell.style.backgroundColor = scheme === 'GB' ? 'white' : 'black';
     });
+
+    // nextbox
+    const nextBoxCells = document.querySelectorAll('.next-box-cell');
+    nextBoxCells.forEach(cell => {
+        cell.style.backgroundColor = scheme === 'GB' ? 'white' : 'black';
+    });
+
 }
 
 themeSelect.addEventListener('change', updateScheme);
-
-
 
 // Call the function to fill the grid
 generatePlayfield();
