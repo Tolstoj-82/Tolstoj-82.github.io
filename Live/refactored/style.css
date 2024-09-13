@@ -39,6 +39,7 @@ body {
     width: 100%;
     aspect-ratio: 10 / 18;
     border: 1px solid white;
+    background-color: #fff;
 }
 
 .grid-cell {
