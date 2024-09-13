@@ -34,17 +34,26 @@ function generatePlayfield() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('themeSelect').addEventListener('change', updateScheme);
+    const themeSelect = document.getElementById('themeSelect');
+    
+    // Check if the elements exist
+    //if (themeSelect) {
+        themeSelect.addEventListener('change', updateScheme);
+    //} else {
+    //    console.error('Element with id "themeSelect" not found.');
+    //}
+
     // Function to update the scheme based on dropdown selection
     function updateScheme() {
-        const themeSelect = document.getElementById('themeSelect');
         scheme = themeSelect.value;
         const gridCells = document.querySelectorAll('.grid-cell');
+        
         gridCells.forEach(cell => {
             cell.style.backgroundColor = scheme === 'GB' ? 'white' : 'black';
         });
     }
 });
+
 
 // Call the function to fill the grid
 generatePlayfield();
