@@ -8,6 +8,7 @@ let currentStream       = null;
 let tileArray           = []; // tileArray[tileNr][pixelNr] (2D array)
 let calibrated          = false;
 let playfieldVisible    = false;
+let scheme              = 'GB';
 
 const tileWidth         = 8;
 const tileHeight        = 8;

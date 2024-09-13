@@ -76,9 +76,11 @@ function processVideoFrames() {
                         let displayElement = document.getElementById('playfield-detected');
                         if (isPlayfield) {
                             displayElement.textContent = "Playfield detected!";
+                            displayElement.style.color = "green";
                             playfieldVisible = true;
                         } else {
                             displayElement.textContent = "No playfield!";
+                            displayElement.style.color = "white";
                             playfieldVisible = false;
                         }
                     }
@@ -137,10 +139,10 @@ function populatePlayfield(array) {
     }
 
     const gridCells = document.querySelectorAll('.grid-cell');
-
+    
     array.forEach((value, index) => {
         if (gridCells[index]) {
-            gridCells[index].style.backgroundImage = `url(images/tiles/${value}.png)`;
+            gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${value}.png)`;
         }
     });
 }

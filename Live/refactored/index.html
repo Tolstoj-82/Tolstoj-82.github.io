@@ -11,7 +11,6 @@
     <div class="container">
         <!-- First Column -->
         <div class="left-column">
-            <h1>Choose your Interceptor</h1>
             <label for="device_selector">Select Interceptor:</label><br>
             <select id="device_selector" onchange="startWebcam()">
                 <option value="">-</option>
@@ -27,7 +26,12 @@
                 <div class="col-val" id="value3"></div>
             </div>
             <br>
-            <div id="playfield-detected">No playfield!</div>
+            Scheme<br>
+            <select id="themeSelect">
+                <option value="gb">Classic</option>
+                <option value="color">Colored</option>
+                <option value="nes">NES</option>
+            </select>
             <!--<br>
             <textarea id="tileOutput" rows="10" cols="50"></textarea>-->
         </div>
@@ -35,6 +39,9 @@
         <!-- Playfield -->
         <div class="middle-column">
             <div class="grid-container"></div>
+            <p>
+                <div id="playfield-detected">No playfield!</div>
+            </p>
         </div>
 
         <!-- Right Column -->
