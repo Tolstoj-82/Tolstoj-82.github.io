@@ -65,21 +65,20 @@ function processVideoFrames() {
                     const index = getClosestColorIndex(avg);
 
                     // Store the index value in the tile index array
-                    //if(tileType == "Playfield") tileIndex[i++] = index;
                     tileIndex[i++] = index;
                 });
                 
-                // tile [2,1] needs to be a wall
-                if(tileType == "Wall"){
+                if(tileType == "Wall"){ // if tile [2,1] is a wall we are on the playfield
                     if (Array.isArray(tileIndex) && tileIndex.length > 0) {
                         // Convert tileIndex array to string for map lookup
                         thisString = tileIndex.join('');
                         isPlayfield = map[thisString] || false;
+                        displayText = document.getElementById('playfield-detected').textContent;
                         if (isPlayfield) {
-                            document.getElementById('playfield-detected').textContent = "Playfield detected!";
+                            displayText = "Playfield detected!";
                             playfieldVisible = true;
                         } else {
-                            document.getElementById('playfield-detected').textContent = "No playfield!";
+                            displayText = "No playfield!";
                             playfieldVisible = false;
                         }
                     }
