@@ -17,11 +17,12 @@ function processVideoFrames() {
     const imageData = tempContext.getImageData(0, 0, canvasWidth, canvasHeight);
     const data = imageData.data;
 
-    let tileArray = [];
+    let tileArray       = [];
     let processThisTile = false;
-    let currentScore = "";
-    let currentLevel = "";
-    let currentLines = "";
+    let currentScore    = "";
+    let currentLevel    = "";
+    let currentLines    = "";
+    let nextPiece       = "";
 
     // Pixels as [0,1,2,3] --> tileArray
     for (let tileY = 0; tileY < tilesY; tileY++) {      
@@ -56,6 +57,11 @@ function processVideoFrames() {
                 processThisTile = true;
                 lookupPixels = numberLookUpPixels;
                 map = numbersMap;
+            }else if((tileX == 17 && tileY == 14) || (tileX == 16 && tileY == 15)){
+                tileType = "Nextbox";
+                processThisTile = true;
+                lookupPixels = minoLookUpPixels;
+                map = minoMap;
             }
 
             if(processThisTile){
@@ -123,6 +129,12 @@ function processVideoFrames() {
                         if(tileType == "Level") currentLevel += map[thisString];
                         if(tileType == "Lines") currentLines += map[thisString]; 
                     }
+                }else if(tileType == "Nextbox"){
+                    if (Array.isArray(tileIndex) && tileIndex.length > 0) {  
+                        thisString = tileIndex.join('');
+                        add = map[thisString];
+                        if (add !== undefined && add !== "")  nextPiece = add;
+                    }
                 }
             }
         }
@@ -134,10 +146,43 @@ function processVideoFrames() {
         scoreDiv.innerHTML = "<p>Score<br>" + parseInt(currentScore) + "</p>";
         scoreDiv.innerHTML += "<p>Level<br>" + parseInt(currentLevel) + "</p>";
         scoreDiv.innerHTML += "<p>Lines<br>" + parseInt(currentLines) + "</p>";
-
+        //console.log(nextPiece);
+        updateNextBox(nextPiece);
         populatePlayfield(tileArray);
     }
     requestAnimationFrame(processVideoFrames);
+}
+
+function updateNextBox(nextPiece) {
+    if(nextPiece.length != 1) return;
+
+    // Define the nextBoxMap with pieces
+    const nextBoxMap = {
+        "L" : ["L", "L", "L", 0, "L", 0, 0, 0],
+        "J" : ["J", "J", "J", 0, 0, 0, "J", 0],
+        "5" : ["4", "5", "5", "6", 0, 0, 0, 0], // 5 = I, because [4,5,5,6]
+        "O" : [0, "O", "O", 0, 0, "O", "O", 0],
+        "Z" : ["Z", "Z", 0, 0, 0, "Z", "Z", 0],
+        "S" : [0, "S", "S", 0, "S", "S", 0, 0],
+        "T" : ["T", "T", "T", 0, 0, "T", 0, 0],
+    };
+
+    const box = document.querySelector('.next-box');
+    const tiles = nextBoxMap[nextPiece];
+
+    // Loop through the next box cells
+    const cells = box.querySelectorAll('.next-box-cell');
+    for (let i = 0; i < 16; i++) {
+        const cell = cells[i];
+
+        // Skip the first row (first 4 tiles)
+        if (i >= 4 && tiles[i - 4] !== 0) {
+            cell.style.backgroundImage = `url(images/tiles/${scheme}/${tiles[i-4]}.png)`;
+            cell.style.backgroundSize = 'cover';
+        } else {
+            cell.style.backgroundImage = '';
+        }
+    }
 }
 
 // Get the closest greyscale and return 0,1,2 or 3
