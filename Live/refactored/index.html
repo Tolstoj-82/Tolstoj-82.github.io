@@ -6,37 +6,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yobi Method</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-
-    </style>
 </head>
 <body>
-    <h1>Chose your Interceptor</h1>
-    <label for="device_selector">Select Interceptor:</label><br>
-    <select id="device_selector" onchange="startWebcam()">
-        <option value="">-</option>
-    </select>
-    <p class="video-container">
-        <video id="camera_feed" width="160" height="144" autoplay muted style="display: none;"></video>
-    </p>
+    <div class="container">
+        <!-- First Column -->
+        <div class="left-column">
+            <h1>Choose your Interceptor</h1>
+            <label for="device_selector">Select Interceptor:</label><br>
+            <select id="device_selector" onchange="startWebcam()">
+                <option value="">-</option>
+            </select>
+            <p class="video-container">
+                <video id="camera_feed" width="160" height="144" autoplay muted style="display: none;"></video>
+            </p>
+            <div id="color-container">
+                <button id="calibrate-button" onclick="calibrate()">Calibrate</button>
+                <div class="col-val" id="value0"></div>
+                <div class="col-val" id="value1"></div>
+                <div class="col-val" id="value2"></div>
+                <div class="col-val" id="value3"></div>
+            </div>
+            <br>
+            <div id="playfield-detected">No playfield!</div>
+            <!--<br>
+            <textarea id="tileOutput" rows="10" cols="50"></textarea>-->
+        </div>
 
-    <div id="color-container">
-        <button id="calibrate-button" onclick="calibrate()">Calibrate</button>
-        <div class="col-val" id="value0"></div>
-        <div class="col-val" id="value1"></div>
-        <div class="col-val" id="value2"></div>
-        <div class="col-val" id="value3"></div>
+        <!-- Playfield -->
+        <div class="middle-column">
+            <div class="grid-container"></div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+        </div>
     </div>
-    <br>
-    <div id="playfield-detected">No playfield!</div>
-    <br>
-    <textarea id="tileOutput" rows="10" cols="50"></textarea>
 
-    <script src="JS/variables.js" async></script><!-- This first -->
+    <script src="JS/variables.js" async></script>
     <script src="JS/OCR.js" async></script>
     <script src="JS/cameras.js" async></script>
     <script src="JS/calibrate.js" async></script>
-    <script src="JS/general.js" async></script><!-- This last -->
+    <script src="JS/general.js" async></script>
     <div id="toast-container" class="toast-container"></div>
 </body>
 </html>
