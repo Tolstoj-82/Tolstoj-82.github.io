@@ -19,6 +19,9 @@ function processVideoFrames() {
 
     let tileArray = [];
     let processThisTile = false;
+    let currentScore = "";
+    let currentLevel = "";
+    let currentLines = "";
 
     // Pixels as [0,1,2,3] --> tileArray
     for (let tileY = 0; tileY < tilesY; tileY++) {      
@@ -29,18 +32,33 @@ function processVideoFrames() {
 
             // In game?
             if(tileX == 1 && tileY == 0){
+                tileType = "Wall";                             
                 processThisTile = true;
                 lookupPixels = wallLookupPixels;
                 map = wallMap;
-                tileType = "Wall";             
-            }else if (tileX >= 2 && tileX < 12) {
+            }else if(tileX >= 2 && tileX < 12){
+                tileType = "Playfield";
                 processThisTile = true;
                 lookupPixels = minoLookUpPixels;
                 map = minoMap;
-                tileType = "Playfield";
+            }else if(tileX >= 13 && tileX < 20 && tileY == 3){
+                tileType = "Score";
+                processThisTile = true;
+                lookupPixels = numberLookUpPixels;
+                map = numbersMap;
+            }else if(tileX >= 16 && tileX < 18 && tileY == 7){
+                tileType = "Level";
+                processThisTile = true;
+                lookupPixels = numberLookUpPixels;
+                map = numbersMap;
+            }else if(tileX >= 14 && tileX < 18 && tileY == 10){
+                tileType = "Lines";
+                processThisTile = true;
+                lookupPixels = numberLookUpPixels;
+                map = numbersMap;
             }
 
-            if (processThisTile) {
+            if(processThisTile){
                 // Ensure tileIndex is initialized as an array
                 const tileIndex = [];
                 let i = 0;
@@ -98,13 +116,27 @@ function processVideoFrames() {
                     } else {
                         tileArray.push('0'); // tile not found 
                     }
+                }else if(tileType == "Score" || tileType == "Level" || tileType == "Lines"){
+                    if (Array.isArray(tileIndex) && tileIndex.length > 0) {    
+                        thisString = tileIndex.join('');
+                        if(tileType == "Score") currentScore += map[thisString];
+                        if(tileType == "Level") currentLevel += map[thisString];
+                        if(tileType == "Lines") currentLines += map[thisString]; 
+                    }
                 }
             }
         }
     }
 
     //if (calibrated) updateTextareaWithTileArray(tileArray);
-    if (calibrated && playfieldVisible) populatePlayfield(tileArray);
+    if(calibrated && playfieldVisible){
+        const scoreDiv = document.getElementById("score");
+        scoreDiv.innerHTML = "<p>Score<br>" + parseInt(currentScore) + "</p>";
+        scoreDiv.innerHTML += "<p>Level<br>" + parseInt(currentLevel) + "</p>";
+        scoreDiv.innerHTML += "<p>Lines<br>" + parseInt(currentLines) + "</p>";
+
+        populatePlayfield(tileArray);
+    }
     requestAnimationFrame(processVideoFrames);
 }
 

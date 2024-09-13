@@ -79,5 +79,5 @@ const numbersMap = {
     "0333033330" : "9",
     // not a number. this is important to determine whether it is a
     // 6 or 7 digit display
-    "0000000000" : "Empty"
+    "0000000000" : ""
 }
