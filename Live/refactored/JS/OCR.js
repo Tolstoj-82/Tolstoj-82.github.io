@@ -109,7 +109,9 @@ function processVideoFrames() {
                     if (Array.isArray(tileIndex) && tileIndex.length > 0) {
                         // Convert tileIndex array to string for map lookup
                         thisString = tileIndex.join('');
-                        isPlayfield = map[thisString] || false;
+                        players = map[thisString] || 0;
+                        isPlayfield = false;
+                        if(players != 0) isPlayfield = true;
                         let displayElement = document.getElementById('playfield-detected');
                         if (isPlayfield) {
                             displayElement.textContent = "Playfield detected! (" + playfieldType + ")";
@@ -162,7 +164,8 @@ function processVideoFrames() {
     //if (calibrated) updateTextareaWithTileArray(tileArray);
     if(calibrated && playfieldVisible){
         if (currentLevel.includes("B-Type")) playfieldType = "B-Type";
-        else playfieldType = "A-Type";;
+        else playfieldType = "A-Type";
+        if(players == "2P") playfieldType = "2-Player";
         const scoreDiv = document.getElementById("score");
         scoreDiv.innerHTML = "";
         if(playfieldType == "A-Type"){
@@ -170,6 +173,8 @@ function processVideoFrames() {
             scoreDiv.innerHTML += "<p>Level<br>" + parseInt(currentLevel) + "</p>";
         }else if(playfieldType == "B-Type"){
             scoreDiv.innerHTML += "<p>Level<br>" + parseInt(currentLevel) + "</p>";
+            scoreDiv.innerHTML += "<p>High<br>" + parseInt(currentHigh) + "</p>";
+        }else if(playfieldType == "2-Player"){
             scoreDiv.innerHTML += "<p>High<br>" + parseInt(currentHigh) + "</p>";
         }
         scoreDiv.innerHTML += "<p>Lines<br>" + parseInt(currentLines) + "</p>";
