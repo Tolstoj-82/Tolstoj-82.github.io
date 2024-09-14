@@ -73,7 +73,12 @@ function updateNextBox(nextPiece) {
         // Skip the first row (first 4 tiles)
         if (i >= 4 && tiles[i - 4] !== 0) {
             // Start placing images from the 5th cell onward using the first tile in the array
-            cell.style.backgroundImage = `url('tiles/${scheme}/${tiles[i - 4]}.png')`;
+            if(scheme == "NES" && !isNaN(parseInt(currentLevel)) && parseInt(currentLevel) >= 0){
+                let lastDigit = parseInt(currentLevel) % 10; // Get the last digit
+                cell.style.backgroundImage = `url(images/tiles/${scheme}/${lastDigit}/${tiles[i-4]}.png)`;
+            }else{
+                cell.style.backgroundImage = `url(images/tiles/${scheme}/${tiles[i-4]}.png)`;
+            }  
             cell.style.backgroundSize = 'cover';
         }
 

@@ -147,13 +147,13 @@ function processVideoFrames() {
         scoreDiv.innerHTML += "<p>Level<br>" + parseInt(currentLevel) + "</p>";
         scoreDiv.innerHTML += "<p>Lines<br>" + parseInt(currentLines) + "</p>";
         //console.log(nextPiece);
-        updateNextBox(nextPiece);
-        populatePlayfield(tileArray);
+        updateNextBox(nextPiece, currentLevel);
+        populatePlayfield(tileArray, currentLevel);
     }
     requestAnimationFrame(processVideoFrames);
 }
 
-function updateNextBox(nextPiece) {
+function updateNextBox(nextPiece, currentLevel) {
     if(nextPiece.length != 1) return;
 
     // Define the nextBoxMap with pieces
@@ -177,7 +177,12 @@ function updateNextBox(nextPiece) {
 
         // Skip the first row (first 4 tiles)
         if (i >= 4 && tiles[i - 4] !== 0) {
-            cell.style.backgroundImage = `url(images/tiles/${scheme}/${tiles[i-4]}.png)`;
+            if(scheme == "NES" && !isNaN(parseInt(currentLevel)) && parseInt(currentLevel) >= 0){
+                let lastDigit = parseInt(currentLevel) % 10; // Get the last digit
+                cell.style.backgroundImage = `url(images/tiles/${scheme}/${lastDigit}/${tiles[i-4]}.png)`;
+            }else{
+                cell.style.backgroundImage = `url(images/tiles/${scheme}/${tiles[i-4]}.png)`;
+            }            
             cell.style.backgroundSize = 'cover';
         } else {
             cell.style.backgroundImage = '';
@@ -209,7 +214,7 @@ function updateTextareaWithTileArray(tileArray) { // only needed for debugging
     document.getElementById('tileOutput').value = formattedTiles;
 }
 
-function populatePlayfield(array) {
+function populatePlayfield(array, currentLevel) {
     if (!Array.isArray(array) || array.length !== 180) {
         // console.error('Array must contain exactly 180 entries.');
         return;
@@ -220,7 +225,13 @@ function populatePlayfield(array) {
     array.forEach((value, index) => {
         if (gridCells[index]) {
             if (value != "0") {
-                gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${value}.png)`;
+                //gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${value}.png)`;
+                if(scheme == "NES" && !isNaN(parseInt(currentLevel)) && parseInt(currentLevel) >= 0){
+                    let lastDigit = parseInt(currentLevel) % 10; // Get the last digit
+                    gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${lastDigit}/${value}.png)`;
+                }else{
+                    gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${value}.png)`;
+                }  
                 //console.log(scheme);
             } else {
                 gridCells[index].style.backgroundImage = '';
