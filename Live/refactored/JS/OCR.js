@@ -23,6 +23,7 @@ function processVideoFrames() {
     let currentLevel    = "";
     let currentLines    = "";
     let nextPiece       = "";
+    let currentHigh     = "";
 
     // Pixels as [0,1,2,3] --> tileArray
     for (let tileY = 0; tileY < tilesY; tileY++) {      
@@ -32,7 +33,9 @@ function processVideoFrames() {
             tileType = "";
 
             // In game?
-            if(tileX == 1 && tileY == 0){
+            // Wall & level number = black --> B-Type
+            // Gradient --> 2-player
+            if(tileX == 12 && tileY == 0){
                 tileType = "Wall";                             
                 processThisTile = true;
                 lookupPixels = wallLookupPixels;
@@ -43,12 +46,22 @@ function processVideoFrames() {
                 lookupPixels = minoLookUpPixels;
                 map = minoMap;
             }else if(tileX >= 13 && tileX < 20 && tileY == 3){
-                tileType = "Score";
+                tileType = "A-Score";
                 processThisTile = true;
                 lookupPixels = numberLookUpPixels;
                 map = numbersMap;
             }else if(tileX >= 16 && tileX < 18 && tileY == 7){
-                tileType = "Level";
+                tileType = "A-Level";
+                processThisTile = true;
+                lookupPixels = numberLookUpPixels;
+                map = numbersMap;
+            }else if(tileX == 16 && tileY == 5){
+                tileType = "B-High";
+                processThisTile = true;
+                lookupPixels = numberLookUpPixels;
+                map = numbersMap;
+            }else if(tileX == 16 && tileY == 2){
+                tileType = "B-Level";
                 processThisTile = true;
                 lookupPixels = numberLookUpPixels;
                 map = numbersMap;
@@ -57,7 +70,7 @@ function processVideoFrames() {
                 processThisTile = true;
                 lookupPixels = numberLookUpPixels;
                 map = numbersMap;
-            }else if((tileX == 17 && tileY == 14) || (tileX == 16 && tileY == 15)){
+            }else if(tileX == 16 && tileY == 14){ // pivot mino
                 tileType = "Nextbox";
                 processThisTile = true;
                 lookupPixels = minoLookUpPixels;
@@ -99,7 +112,7 @@ function processVideoFrames() {
                         isPlayfield = map[thisString] || false;
                         let displayElement = document.getElementById('playfield-detected');
                         if (isPlayfield) {
-                            displayElement.textContent = "Playfield detected!";
+                            displayElement.textContent = "Playfield detected! (" + playfieldType + ")";
                             displayElement.style.color = "green";
                             playfieldVisible = true;
                         } else {
@@ -122,18 +135,24 @@ function processVideoFrames() {
                     } else {
                         tileArray.push('0'); // tile not found 
                     }
-                }else if(tileType == "Score" || tileType == "Level" || tileType == "Lines"){
+                }else if(
+                    tileType == "A-Score" || 
+                    tileType == "A-Level" || 
+                    tileType == "Lines" ||
+                    tileType == "B-High" ||
+                    tileType == "B-Level" ||
+                    tileType == "Nextbox"
+                ){
                     if (Array.isArray(tileIndex) && tileIndex.length > 0) {    
                         thisString = tileIndex.join('');
-                        if(tileType == "Score") currentScore += map[thisString];
-                        if(tileType == "Level") currentLevel += map[thisString];
-                        if(tileType == "Lines") currentLines += map[thisString]; 
-                    }
-                }else if(tileType == "Nextbox"){
-                    if (Array.isArray(tileIndex) && tileIndex.length > 0) {  
-                        thisString = tileIndex.join('');
-                        add = map[thisString];
-                        if (add !== undefined && add !== "")  nextPiece = add;
+                        if(map[thisString] !== undefined){
+                            if(tileType == "A-Score") currentScore += map[thisString];
+                            if(tileType == "A-Level") currentLevel += map[thisString];
+                            if(tileType == "Lines") currentLines += map[thisString]; 
+                            if(tileType == "B-High") currentHigh += map[thisString];
+                            if(tileType == "B-Level") currentLevel += map[thisString];
+                            if(tileType == "Nextbox") nextPiece += map[thisString];
+                        }
                     }
                 }
             }
@@ -142,11 +161,18 @@ function processVideoFrames() {
 
     //if (calibrated) updateTextareaWithTileArray(tileArray);
     if(calibrated && playfieldVisible){
+        if (currentLevel.includes("B-Type")) playfieldType = "B-Type";
+        else playfieldType = "A-Type";;
         const scoreDiv = document.getElementById("score");
-        scoreDiv.innerHTML = "<p>Score<br>" + parseInt(currentScore) + "</p>";
-        scoreDiv.innerHTML += "<p>Level<br>" + parseInt(currentLevel) + "</p>";
+        scoreDiv.innerHTML = "";
+        if(playfieldType == "A-Type"){
+            scoreDiv.innerHTML += "<p>Score<br>" + parseInt(currentScore) + "</p>";
+            scoreDiv.innerHTML += "<p>Level<br>" + parseInt(currentLevel) + "</p>";
+        }else if(playfieldType == "B-Type"){
+            scoreDiv.innerHTML += "<p>Level<br>" + parseInt(currentLevel) + "</p>";
+            scoreDiv.innerHTML += "<p>High<br>" + parseInt(currentHigh) + "</p>";
+        }
         scoreDiv.innerHTML += "<p>Lines<br>" + parseInt(currentLines) + "</p>";
-        //console.log(nextPiece);
         updateNextBox(nextPiece, currentLevel);
         populatePlayfield(tileArray, currentLevel);
     }

@@ -10,6 +10,7 @@ let tileArray           = []; // tileArray[tileNr][pixelNr] (2D array)
 let calibrated          = false;
 let playfieldVisible    = false;
 let scheme              = 'GB';
+let playfieldType       = ""; // A-Type, B-Type, 2-Player
 
 const tileWidth         = 8;
 const tileHeight        = 8;
@@ -77,7 +78,6 @@ const numbersMap = {
     "3330003300" : "7",
     "0333033300" : "8",
     "0333033330" : "9",
-    // not a number. this is important to determine whether it is a
-    // 6 or 7 digit display
-    "0000000000" : ""
+    "0000000000" : "", // ignore white
+    "3333333333" : "B-Type" // if black 
 }
