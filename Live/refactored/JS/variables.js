@@ -64,7 +64,8 @@ const minoMap = {
 };
 
 const wallMap = {
-    "313333" : true
+    "313333" : "1P",
+    "103101" : "2P"
 }
 
 const numbersMap = {
