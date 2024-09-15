@@ -1,13 +1,16 @@
-function showToast(message) {
+function showToast(message, color = '') {
     const toastContainer = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = 'toast';
-    toast.innerHTML = message.replace(/\n/g, '<br>'); // \n = <br>
+    toast.innerHTML = message.replace(/\n/g, '<br>');
+    if (color === 'red') {
+        toast.style.backgroundColor = '#f8d7da';
+        toast.style.color = '#721c24';
+    }
     toastContainer.appendChild(toast);
-    setTimeout(() => {
-        toast.remove();
-    }, 4000);
+    setTimeout(() => {toast.remove();}, 4000);
 }
+
 
 // Function to refresh the list of devices
 async function resetDevices() {

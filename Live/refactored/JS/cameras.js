@@ -6,7 +6,7 @@ async function getConnectedDevices(type) {
         // Request permission to access video devices
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
     } catch (err) {
-        showToast(`Warning: could not open default capture device: /n${err.message}`);
+        showToast(`Warning: could not open default capture device:\n${err.message}`, "red");
     }
 
     // Filter devices by the specified type (e.g., 'videoinput' for cameras)
@@ -61,7 +61,7 @@ async function startWebcam() {
                 processVideoFrames();
             });
         } catch (err) {
-            showToast(`Error accessing camera: ${err}`);
+            showToast(`Error accessing camera:\n${err}`, "red");
         }
     }
 }
