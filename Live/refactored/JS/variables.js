@@ -26,6 +26,7 @@ const greyGBShades     = [0, 0, 0, 0];
 const minoLookUpPixels      = [1,  8, 15, 57, 11, 19, 27, 35];
 const numberLookUpPixels    = [9, 10, 13, 17, 18, 20, 21, 22, 30, 49];
 const wallLookupPixels      = [9, 10, 16, 17, 18, 19];
+const heightLookUpPixels    = [11, 12];
 
 // 00 01 02 03 04 05 06 07
 // 08 09 10 11 12 13 14 15
@@ -81,4 +82,9 @@ const numbersMap = {
     "0333033330" : "9",
     "0000000000" : "", // ignore white
     "3333333333" : "B-Type" // if black 
+}
+
+const heightMap = {
+    "00" : 0,
+    "22" : 1 // filled height
 }
