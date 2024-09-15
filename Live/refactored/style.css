@@ -73,10 +73,6 @@ body {
     image-rendering: pixelated;
 }
 
-.right-column {
-    /* Empty, ready for future content */
-}
-
 #color-container {
     display: flex;
     align-items: center;

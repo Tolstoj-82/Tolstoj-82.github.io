@@ -3,6 +3,7 @@ const device_selector   = document.getElementById('device_selector');
 const camera_feed       = document.getElementById('camera_feed');
 const color_container   = document.getElementById('color-container');
 const themeSelect       = document.getElementById('themeSelect');
+const errors            = document.getElementById('errors');
 
 // Variables
 let currentStream       = null;
@@ -23,13 +24,26 @@ const greyGBShades     = [0, 0, 0, 0];
 
 //---------------------------------------------------------------------------
 
+// Define the nextBoxMap with pieces
+const nextBoxMap = {
+    "L" : ["L", "L", "L", 0, "L", 0, 0, 0],
+    "J" : ["J", "J", "J", 0, 0, 0, "J", 0],
+    "5" : ["4", "5", "5", "6", 0, 0, 0, 0], // 5 = I, because [4,5,5,6]
+    "O" : [0, "O", "O", 0, 0, "O", "O", 0],
+    "Z" : ["Z", "Z", 0, 0, 0, "Z", "Z", 0],
+    "S" : [0, "S", "S", 0, "S", "S", 0, 0],
+    "T" : ["T", "T", "T", 0, 0, "T", 0, 0],
+};
+
+//---------------------------------------------------------------------------
+
 const minoLookUpPixels      = [1,  8, 15, 57, 11, 19, 27, 35];
 const numberLookUpPixels    = [9, 10, 13, 17, 18, 20, 21, 22, 30, 49];
 const wallLookupPixels      = [9, 10, 16, 17, 18, 19];
 const heightLookUpPixels    = [11, 12];
 
-// 00 01 02 03 04 05 06 07
-// 08 09 10 11 12 13 14 15
+//  0  1  2  3  4  5  6  7
+//  8  9 10 11 12 13 14 15
 // 16 17 18 19 20 21 22 23
 // 24 25 26 27 28 29 30 31
 // 32 33 34 35 36 37 38 39

@@ -105,6 +105,7 @@ function processVideoFrames() {
                 
                 if(tileType == "Wall"){ // if tile [2,1] is a wall we are on the playfield
                     if (Array.isArray(tileIndex) && tileIndex.length > 0) {
+                        
                         // Convert tileIndex array to string for map lookup
                         thisString = tileIndex.join('');
                         players = map[thisString] || 0;
@@ -185,17 +186,6 @@ function processVideoFrames() {
 
 function updateNextBox(nextPiece, currentLevel) {
     if(nextPiece.length != 1) return;
-
-    // Define the nextBoxMap with pieces
-    const nextBoxMap = {
-        "L" : ["L", "L", "L", 0, "L", 0, 0, 0],
-        "J" : ["J", "J", "J", 0, 0, 0, "J", 0],
-        "5" : ["4", "5", "5", "6", 0, 0, 0, 0], // 5 = I, because [4,5,5,6]
-        "O" : [0, "O", "O", 0, 0, "O", "O", 0],
-        "Z" : ["Z", "Z", 0, 0, 0, "Z", "Z", 0],
-        "S" : [0, "S", "S", 0, "S", "S", 0, 0],
-        "T" : ["T", "T", "T", 0, 0, "T", 0, 0],
-    };
 
     const box = document.querySelector('.next-box');
     const tiles = nextBoxMap[nextPiece];
