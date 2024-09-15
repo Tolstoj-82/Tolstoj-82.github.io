@@ -15,7 +15,7 @@ body {
     height: 100vh;
 }
 
-#score{
+.retroFont{
     font-family: 'gb-font';
     font-size: 40px;
 }
@@ -114,4 +114,8 @@ body {
     0% { opacity: 0; transform: translateY(-20px); }
     10%, 90% { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-20px); }
+}
+
+#device_selector, #themeSelect {
+    align-self: flex-start;
 }
