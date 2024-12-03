@@ -119,3 +119,12 @@ body {
 #device_selector, #themeSelect {
     align-self: flex-start;
 }
+
+a {
+    color: white;
+    text-decoration: none;
+}
+
+a:hover {
+    color: yellow;
+}
