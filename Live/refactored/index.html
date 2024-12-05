@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GB Interceptor grabber</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="plot.css">
 </head>
 <body>
     <div class="container">
@@ -54,11 +55,14 @@
         </div>
     </div>
 
+    <canvas id="scatterplot" width="600" height="400"></canvas>
+
     <script src="JS/variables.js" async></script>
     <script src="JS/OCR.js" async></script>
     <script src="JS/cameras.js" async></script>
     <script src="JS/calibrate.js" async></script>
     <script src="JS/general.js" async></script>
+    <script src="JS/plot.js"></script>
     <div id="toast-container" class="toast-container"></div>
 </body>
 </html>
