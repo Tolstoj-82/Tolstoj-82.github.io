@@ -13,11 +13,19 @@ const Y_MIN = 0;
 const Y_MAX = 1000000;
 
 const dotImage = new Image();
+const explosion = new Image(); // *
 dotImage.src = 'airplane.png';
+explosion.src = 'explosion.png'; // *
 
-let points = [{ x: MARGIN, y: HEIGHT - MARGIN }]; // Start at P0 = [0,0]
-
+let points = []; // Start with an empty array of points
+let currentSegment = []; // Points for the current game
+let segments = []; // List of all segments
 let lastNumbers = { score: 0, lines: 0 }; // Track previous numbers
+let lastTopouts = []; // Store the last points before reset // *
+
+// Colors for different segments
+const colors = ['blue', 'red', 'green', 'orange', 'purple'];
+let colorIndex = 0;
 
 // Draw axes
 function drawAxes() {
@@ -57,26 +65,52 @@ function scalePoint(lines, score) {
   return { x, y };
 }
 
-// Draw all points and connecting lines
+// Draw all segments and the current segment
 function drawPoints() {
   drawAxes();
 
-  ctx.beginPath();
-  ctx.strokeStyle = 'blue';
-  ctx.lineWidth = 1;
-  for (let i = 1; i < points.length; i++) {
-    ctx.moveTo(points[i - 1].x, points[i - 1].y);
-    ctx.lineTo(points[i].x, points[i].y);
+  segments.forEach((segment, index) => {
+    ctx.beginPath();
+    ctx.strokeStyle = colors[index % colors.length];
+    ctx.lineWidth = 1;
+    for (let i = 1; i < segment.length; i++) {
+      ctx.moveTo(segment[i - 1].x, segment[i - 1].y);
+      ctx.lineTo(segment[i].x, segment[i].y);
+    }
+    ctx.stroke();
+  });
+
+  // Draw the current segment
+  if (currentSegment.length > 1) {
+    ctx.beginPath();
+    ctx.strokeStyle = colors[colorIndex % colors.length];
+    ctx.lineWidth = 1;
+    for (let i = 1; i < currentSegment.length; i++) {
+      ctx.moveTo(currentSegment[i - 1].x, currentSegment[i - 1].y);
+      ctx.lineTo(currentSegment[i].x, currentSegment[i].y);
+    }
+    ctx.stroke();
   }
-  ctx.stroke();
+
+  // Draw the explosion image at last topouts
+  lastTopouts.forEach((point) => {
+    explosion.onload = () => {
+      ctx.drawImage(explosion, point.x - explosion.width / 2, point.y - explosion.height / 2);
+    };
+    if (explosion.complete) {
+      ctx.drawImage(explosion, point.x - explosion.width / 2, point.y - explosion.height / 2);
+    }
+  });
 
   // Draw the current point image
-  const currentPoint = points[points.length - 1];
-  dotImage.onload = () => {
-    ctx.drawImage(dotImage, currentPoint.x - dotImage.width / 2, currentPoint.y - dotImage.height / 2);
-  };
-  if (dotImage.complete) {
-    ctx.drawImage(dotImage, currentPoint.x - dotImage.width / 2, currentPoint.y - dotImage.height / 2);
+  if (currentSegment.length > 0) {
+    const currentPoint = currentSegment[currentSegment.length - 1];
+    dotImage.onload = () => {
+      ctx.drawImage(dotImage, currentPoint.x - dotImage.width / 2, currentPoint.y - dotImage.height / 2);
+    };
+    if (dotImage.complete) {
+      ctx.drawImage(dotImage, currentPoint.x - dotImage.width / 2, currentPoint.y - dotImage.height / 2);
+    }
   }
 }
 
@@ -93,19 +127,30 @@ function updatePoint() {
   for (let p of pElements) {
     const textContent = p.textContent.trim();
     if (textContent.includes('Score')) {
-      // Extract the number from the Score <p> element
       score = parseInt(textContent.replace(/[^\d]/g, ''), 10);
     } else if (textContent.includes('Lines')) {
-      // Extract the number from the Lines <p> element
       lines = parseInt(textContent.replace(/[^\d]/g, ''), 10);
     }
   }
+
+  // Detect game reset
+  if (lines === 0 && score === 0 && (lastNumbers.lines !== 0 || lastNumbers.score !== 0)) {
+    // Save the current segment and start a new one
+    if (currentSegment.length > 0) {
+      const lastPoint = currentSegment[currentSegment.length - 1]; // Track last point before reset
+      lastTopouts.push(lastPoint); // Save the last point before the reset // *
+      segments.push(currentSegment);
+      currentSegment = [];
+      colorIndex++;
+    }
+  }
+
   // Update only if numbers are different from the previous ones
   if (lines !== lastNumbers.lines || score !== lastNumbers.score) {
     lastNumbers = { score, lines };
 
     const scaledPoint = scalePoint(lines, score);
-    points.push(scaledPoint);
+    currentSegment.push(scaledPoint);
     drawPoints();
   }
 }
