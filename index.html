@@ -1,609 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>TREP - Tolstoj's ROM Editor Plus</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
-    <link rel="manifest" href="site.webmanifest">
-  </head>
-  <body>
-    <div class="container">
-      <div id="wrapper2" style="text-align: center;">
-        <h1>Other Projects</h1>
-        <p>
-          <a href="firmwarelabeller/index.html">GB Interceptor Re-labeller</a><br>
-          <a href="LUTer/index.html">GB Interceptor LUT tool (unfinished)</a><br>
-          <a href="music-Editor/index.html">ASM music editor (experimental, unfinished)</a><br>
-          <a href="Live/index.html">GB Interceptor OCR (experimental, unfinished)</a><br>
-          <a href="Live/refactored/index.html">GB Interceptor OCR 2 (refactored, experimental, unfinished)</a>
-        </p>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tolstoj's Workbench</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&display=swap');
+    </style>
+</head>
+<body>
 
-        <h1>TREP 0.95 beta</h1>
-        <h2>Henlo friens!</h2>
-        <label class="custom-file-input">
-          <input type="file" onchange="validateFile(event)">
-        </label><br>
-        Build: 2/13/2024
-      </div>
+  <div class="content">
+  <header>
+    <h1>Tolstoj's GBTris Workbench</h1>
+  </header>
 
-      <div id="loadingAnimation" style="display: none; text-align: center;">
-        <div class="loader"></div>
-        <h2>File is loading...</h2>
-      </div>
-      
-      <div id="wrapper" style="display: none;">
-
-        <b>Game Genie Code</b><br>
-        <input type="text" id="ggCode" placeholder="e.g. 145-F2E-C4E">
-        
-        Address: <input type="text" id="romAddr" class="four" maxlength="4" readonly>
-        Value: <input type="text" id="oldVal" class="two" maxlength="2" readonly> &rarr;
-        <input type="text" id="newVal" class="two" maxlength="2" readonly>
-        <button id="applyCode" onclick="applyCode(true)" disabled>Apply</button>
-        <hr>
-        <p>  
-          <!-- Input field for the search sequence -->
-          <b>Find a Sequence in the Code (Hex, comma-separated) </b><br>
-          <div id="hex-search-wrapper">
-            <div id="search-container">
-              <input type="text" id="searchAddressInput" />
-              <button onclick="searchSequenceInCode()">Search Code</button>
-            </div>
-          
-            <div id="slider-container">
-              <input type="range" id="slider" min="0" max="16" step="1" value="0" oninput="updateSliderValue()">
-              <div id="slider-value">Skip: 0</div>
-            </div>
-          </div>
-          <br>
-          <!-- Result div to display the output -->
-          <div id="searchResult">&nbsp;</div>
-          <br>
-        </p>
-        <hr>
-        <p>
-          <b>Jump to Address (Hex values)</b><br>
-          <input type="text" id="searchInput">
-          <button onclick="searchAndSelectCell()">Navigate to ROM Address</button>
-        </p>
-        <div class="table-wrapper">
-          <table id="hexViewer"></table>
+  <div class="container">
+    <main>
+      <section class="intro">
+        <img src="images/tolstoj.jpg" alt="Tolstoj">
+        <div class="text">
+          <p>Henlo friens! I'm <b>TOLSTOJ</b>. I've spent the last few years deepdiving into the inner working of Game Boy Tetris and its competitive scene, and now I’m sharing my knowledge with you.</p>
+          <p>On my journey I met a lot of cool and talented people who I will introduce in the future. At this point there are four people I'd like to give a shout out: Toni, Pascal, -JJ and Sebastian Staacks.</p> 
+          <p>Below you find a growing collection of tools and experiments I developed. There is a lot to find here: firmware re-labeling, a simple music, an OCR tool. Enjoy browsing!</p>
+          <p>Most of my work revolves around Dicon X's <a href="https://github.com/Staacks/gbinterceptor">GB Interceptor</a>, the GB Tetris' biggest and most important asset: a Game Boy capture card.</p>
+          <p>And yes, I do use AI to help me with my projects, and no, I don't think that's bad at all. Embrace the future!</p>
         </div>
-        <button class="accordion">
-          Game header data<span class="accordion-symbol">+</span>
-        </button>
-        <div class="panel">
-          
-          <table id="headerData">
-              <tr>
-                <td>Game Title</td>
-                <td id="gameTitle" contenteditable="true" onkeydown="handleGameTitleKeydown(event)" onblur="validateGameTitle(event)">&nbsp;</td>
-              </tr>
-              <tr>
-                  <td>CGB Flag</td>
-                  <td id="thisCgbFlag">&nbsp;</td>
-              </tr>
-              <tr>
-                <td>SGB Flag</td>
-                <td id="thisSgbFlag">&nbsp;</td>
-            </tr>
-              <tr>
-                  <td>Cartridge type</td>
-                  <td id="thisCartridgeType">&nbsp;</td>
-              </tr>
-              <tr>
-                  <td>ROM size</td>
-                  <td id="thisRomSize">&nbsp;</td>
-              </tr>
-              <tr>
-                  <td>RAM size</td>
-                  <td id="thisRamSize">&nbsp;</td>
-              </tr>
-              <tr>
-                  <td>Destination code</td>
-                  <td id="thisDestinationCode">&nbsp;</td>
-              </tr>
-              <tr>
-                  <td>Licensee</td>
-                  <td id="licenseeCode">&nbsp;</td>
-              </tr>
-            </table>
+      </section>
 
-          </div><br>
-          <div id="checksumContainer">
-            <b>Checksums</b>
-            <p><b>Header</b> <input type="text" id="headerChecksum" readonly> ($014D) | <b>Global</b> <input type="text" id="globalChecksum" readonly> ($014E, $014F)</p>
-          </div>
-        </p>
-        <p>
-          <input type="text" id="patchRomName"> .gb
-          <button onclick="createFileFromHexData()" id="createFileBtn" disabled>Save the ROM file</button>
-        </p>
-        <p>
-          <b>Log (newest on top)</b><br>
-          <textarea id="log" readonly></textarea>
-        </p>
-        <p>2023 & 2024 Tolstoj (TREP v0.95 beta)</p>
-        
-        <button id="openModalButton">&larr;</button>      
+      <h2>My Projects</h2>
+      <section class="grid">
 
-        <div id="modalOverlay">
-          <div id="modalContent">
-            <div id="modalHeader">
-            </div>
-            <div id="modalBody">
-                           
-              <!-- Tab container -->
-              <div class="tab-group">
-                <div class="tab-container">
-                  <div class="tab active" onclick="openTab(event, 'tab1')">GG Codes</div>
-                  <div class="tab" onclick="openTab(event, 'tab2')">BG Maps</div>
-                  <div class="tab" onclick="openTab(event, 'tab3')">Edit Tiles</div>
-                </div>
-              </div>    
-
-              <div class="content-container">
-                <div id="tab1" class="tab-content" style="display: block;">
-                  <h2>Game Genie codes</h2>
-                  <div class="toggle-switch">
-                    <input type="checkbox" id="autoApplyToggle">
-                    <label for="autoApplyToggle"></label>
-                    <span class="toggle-text">Apply codes automatically when clicked</span>
-                  </div>
-    
-                  <table id="t_codeList">
-                    <tr>
-                        <th id="t_desc">Description</th>
-                        <th id="t_auth">Author</th>
-                        <th id="t_code">Code(s)</th>
-                    </tr>
-                    <tr>
-                        <td>
-                          Uncap score<br>
-                          (Rollover after 999,999)
-                        </td>
-                        <td>Kirjava</td>
-                        <td><a href="#" class="copyLink">C91-78F-192</a></td>
-                    </tr>
-                    <tr>
-                        <td>Keep the stack displayed while paused</td>
-                        <td>Galoob</td>
-                        <td><a href="#" class="copyLink">CEC-30E-C45</a></td>
-                    </tr>
-                    <tr>
-                        <td>Keep the current and next pieces displayed while paused</td>
-                        <td>Galoob</td>
-                        <td><a href="#" class="copyLink">D9C-53E-D5D</a></td>
-                    </tr>
-                    <tr>
-                        <td>No Rocket</td>
-                        <td>nitro2k01</td>
-                        <td><a href="#" class="copyLink">18F-56E-6EA</a></td>
-                    </tr>
-                    <tr>
-                        <td>Ultra Fast Rocket</td>
-                        <td>nitro2k01</td>
-                        <td>
-                          <a href="#" class="copyLink">003-B9E-B3E</a> +<br>
-                          <a href="#" class="copyLink">003-54E-E69</a> +<br>
-                          <a href="#" class="copyLink">183-6AE-4CA</a> +<br>
-                          <a href="#" class="copyLink">003-82E-5D2</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Play the Rocket after each game</td>
-                        <td>nitro2k01</td>
-                        <td><a href="#" class="copyLink">18F-60E-2AA</a></td>
-                    </tr>
-                    <tr>
-                        <td>
-                          Only one piece type<br>
-                          <p>
-                            Orientation<br>
-                            <select id="pieceOri">
-                              <option value="0">North</option>
-                              <option value="1">East</option>
-                              <option value="2">South</option>
-                              <option value="3">West</option>
-                            </select>
-                            <p style="text-align: center;">
-                              <img src="images/n.png" height="250" id="orientationImage">
-                            </p>
-                          </p>
-                        </td>
-                        <td>Galoob<br> (Rotations Tolstoj)</td>
-                        <td>
-                          <a href="#" class="copyLink">000-63D-6E9</a> +<br> 
-                          <a href="#" class="copyLink">3E0-64D-5D0</a> + …<br>
-                          <p>choose one</p>
-                          L pieces<br>
-                          … <a href="#" class="copyLink pieceSpawn" id="p_L" data-north="0">000-65D-087</a><br>
-                          J pieces<br>
-                          … <a href="#" class="copyLink pieceSpawn" id="p_J" data-north="4">040-65D-087</a><br>
-                          I pieces<br>
-                          … <a href="#" class="copyLink pieceSpawn" id="p_I" data-north="8">080-65D-087</a><br>
-                          O pieces<br>
-                          … <a href="#" class="copyLink pieceSpawn" id="p_O" data-north="C">0C0-65D-087</a><br>
-                          Z pieces<br>
-                          … <a href="#" class="copyLink pieceSpawn" id="p_Z" data-north="0">100-65D-087</a><br>
-                          S pieces<br>
-                          … <a href="#" class="copyLink pieceSpawn" id="p_S" data-north="4">140-65D-087</a><br>
-                          T pieces<br>
-                          … <a href="#" class="copyLink pieceSpawn" id="p_T" data-north="8">180-65D-087</a><br>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Extended the level selection up to Level K (K=20)</td>
-                        <td>Ospin</td>
-                        <td>
-                          <p>
-                            A-Type<br>
-                            <a href="#" class="copyLink">145-F2E-C4E</a>
-                          </p>
-                          <p>
-                            B-Type<br>
-                            <a href="#" class="copyLink">146-AFE-C4E</a>
-                          </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Extend even further to previously unknown Levels L and M<br>
-                          (Replaces level K codes)</td>
-                        <td>Tolstoj</td>
-                        <td>
-                          <p>
-                            A-Type<br>
-                            <a href="#" class="copyLink">165-F2E-C4E</a> +
-                          </p>
-                          <p>
-                            B-Type<br>
-                            <a href="#" class="copyLink">166-AFE-C4E</a> +
-                          </p>
-                          <p>
-                            Add level L<br>
-                            <a href="#" class="copyLink">01B-1BE-6EE</a> +
-                          </p>
-                          <p>
-                            Add level M<br>
-                            <a href="#" class="copyLink">00B-1CE-E61</a>
-                          </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                          Any DAS
-                          <p>
-                            Left<br>
-                            <select id="leftDasDelay" class="hexSel">
-                              <option value="XX">-</option>
-                            </select> Delay<br>
-                            <select id="leftDasArr" class="hexSel">
-                              <option value="XX">-</option>
-                            </select> ARR<br>
-                          </p>
-                          <p>
-                            Right<br>
-                            <select id="rightDasDelay" class="hexSel">
-                              <option value="XX">-</option>
-                            </select> Delay<br>
-                            <select id="rightDasArr" class="hexSel">
-                              <option value="XX">-</option>
-                            </select> ARR
-                            <p>
-                              DAS can be set for left and right movement separately
-                            </p>
-                          </p>
-                        </td>
-                        <td>
-                          Ospin
-                        </td>
-                        <td>
-                          <p>
-                            Left DAS<br>
-                            <a href="#" class="copyLink inactive" id="l_leftDasDelay">XX5-18D-B36</a><br>
-                            <a href="#" class="copyLink inactive" id="l_leftDasArr">XX5-26D-C4E</a>
-                          </p>
-                          <p>
-                            Right DAS<br>
-                            <a href="#" class="copyLink inactive" id="l_rightDasDelay">XX5-4FD-B36</a><br>
-                            <a href="#" class="copyLink inactive" id="l_rightDasArr">XX5-5DD-C4E</a>
-                          </p>
-                          <p>
-                            *Original values<br>
-                            Delay = 23<br>
-                            ARR = 9<br>
-                            [frames]
-                          </p>
-                        </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        2-Player Speed
-                        <p>
-                          <select id="twoPlayerSpeed" class="level">
-                            <option value="01">--</option>
-                          </select>
-                        </p>
-                      </td>
-                      <td>PasZau <br>(and Tolstoj)</td>
-                      <td>
-                        <a href="#" class="copyLink inactive" id="l_twoPlayerSpeed">XX8-56F-E6E</a>
-                      </td>
-                    </tr>
-                    <tr>
-                        <td>Almost Any Value Messes Up The Music</td>
-                        <td>nensondubois</td>
-                        <td><a href="#" class="copyLink">22B-0F9-91A</a></td>
-                    </tr>
-                    <tr>
-                        <td>Always Get The Same Piece</td>
-                        <td>nensondubois</td>
-                        <td><a href="#" class="copyLink">FA0-66D-4C1</a></td>
-                    </tr>
-                    <tr>
-                        <td>Drop Pieces To Clear Line</td>
-                        <td>nolberto82</td>
-                        <td><a href="#" class="copyLink">001-5ED-3B5</a></td>
-                    </tr>
-                    <tr>
-                        <td>Game Over Music is crazy after the normal song ends</td>
-                        <td>nensondubois</td>
-                        <td><a href="#" class="copyLink">03C-199-E6A</a></td>
-                    </tr>
-                    <tr>
-                        <td>Glitched Graphics</td>
-                        <td>nensondubois</td>
-                        <td><a href="#" class="copyLink">044-0BF-F76</a></td>
-                    </tr>
-                    <tr>
-                        <td>Immunity from other player's Tetrises (2 Player)</td>
-                        <td>Galoob</td>
-                        <td><a href="#" class="copyLink">00C-83F-197</a></td>
-                    </tr>
-                    <tr>
-                        <td>Keep current and next pieces and stack displayed while paused</td>
-                        <td>terpsfan101</td>
-                        <td><a href="#" class="copyLink">18C-2EE-4CA</a></td>
-                    </tr>
-                    <tr>
-                        <td>Music B sounds different</td>
-                        <td>BigBossman</td>
-                        <td><a href="#" class="copyLink">30B-ED9</a></td>
-                    </tr>
-                    <tr>
-                      <td>Music Modifier</td>
-                      <td>nensondubois</td>
-                      <td>??A-239-915</td>
-                    </tr>
-                    <tr>
-                      <td>
-                        Need n cleared lines to finish game B<br>
-                        <p>
-                          <select id="nClearedLines" class="hexSel">
-                            <option value="19">-</option>
-                          </select>
-                        </p>
-                        <p>Really only reliable up to a value of XY</p>
-                      </td>
-                      <td>Galoob</td>
-                      <td>
-                        <a href="#" class="copyLink inactive" id="nClearedLinesCode">XXA-8BE-7FE</a>
-                        <p>
-                          *Original value = 25
-                        </p>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Music B sounds different</td>
-                      <td>BigBossman</td>
-                      <td><a href="#" class="copyLink">30B-ED9</a></td>
-                    </tr>
-                
-                    <tr>
-                      <td>Place blocks off the screen</td>
-                      <td>BigBossman</td>
-                      <td><a href="#" class="copyLink">A45-41D</a></td>
-                    </tr>
-                    <tr>
-                      <td>Press down To descend Tetriminos</td>
-                      <td>nensondubois</td>
-                      <td><a href="#" class="copyLink">000-AED-19E</a></td>
-                    </tr>
-                    <tr>
-                      <td>Replace OFF Music with any song</td>
-                      <td>nensondubois</td>
-                      <td>??5-20E-195</td>
-                    </tr>
-                    <tr>
-                      <td>Replaces A-TYPE with High Score Theme, B-TYPE with Game B Clear, C-TYPE with Title Music, and OFF with Game Over Music</td>
-                      <td>nensondubois</td>
-                      <td><a href="#" class="copyLink">1B5-1AE-B36</a></td>
-                    </tr>
-                    <tr>
-                      <td>Replaces A-TYPE with Russian Dance Song 1, BTYPE with Russian Dance 2, C-TYPE with Rocket Shootoff, and OFF with 2-Player Win Music</td>
-                      <td>nensondubois</td>
-                      <td><a href="#" class="copyLink">0E5-1AE-B36</a></td>
-                    </tr>
-                    <tr>
-                      <td>Skip Copyright Screen</td>
-                      <td>nensondubois</td>
-                      <td>
-                        <a href="#" class="copyLink">003-96F-E69</a>+<br>
-                        <a href="#" class="copyLink">013-98F-081</a>+<br>
-                        <a href="#" class="copyLink">FA3-72F-D5D</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Start at Rocket Shootoff Cutscene</td>
-                      <td>nensondubois</td>
-                      <td><a href="#" class="copyLink">263-8FF-7FE</a></td>
-                    </tr>
-                    <tr>
-                      <td>Start at VS Game Select</td>
-                      <td>nensondubois</td>
-                      <td><a href="#" class="copyLink">163-8FF-7FE</a></td>
-                    </tr>
-                    <tr>
-                      <td>When the other player gets a double or better, player with Game Genie gets 4 lines added to his screen (makes game more difficult for that player) (2 Player)</td>
-                      <td>Galoob</td>
-                      <td>
-                        <p>
-                          Double<br>
-                          <a href="#" class="copyLink">3EC-86F-2AA</a>
-                        </p>
-                        <p>
-                          Triple<br>
-                          <a href="#" class="copyLink">04C-87F-7F0</a>
-                        </p>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td colspan="3">
-                        <b>Change the Level Speeds (Gravity Table)</b><br>
-                        Code by Tetris.wiki
-                        <p>
-                          The values are in unit 1/G. This is how many frames it takes for a piece to drop one row.<br>
-                          e.g. 1G = 1 drop per frame, 1/5G = 1 drop every 5 frames.
-                        </p>
-                        <p>
-                          <!-- The gravity tables are populated here -->
-                          <div id="gravityTablesContainer"></div>
-                        </p>
-                      </td>
-                    </tr>
-                  </table>
-                </div>
-            
-                <div id="tab2" class="tab-content" style="display: none;">
-                  <h2>Edit Background Maps</h2>
-                  <p><b>Alter a Background Screen</b></p>
-                  <p>
-                    <select id="BGMapSelector"></select>
-                    <button id="getBGMap" onclick="getBGMap(document.getElementById('BGMapSelector').value, document.getElementById('BGMapSelector').options[document.getElementById('BGMapSelector').selectedIndex].text);">Edit Background Map</button>               
-                  </p>
-                  <p>
-                    Credits to Ospin: <a href="https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):ROM_map" target="_blank">ROM Map</a>
-                  </p>
-                </div>
-            
-                <div id="tab3" class="tab-content" style="display: none;">
-                  <h2>Tile Editor</h2>
-                  <div class="color-scheme-picker">
-                    <p class="color-scheme-container">
-                      <b>Color Palette</b>
-                      <select id="palette-dropdown"></select>
-                      <input type="color" id="color-picker-0" class="color-picker" value="#E0F8D0" onchange="updateColorPalette('.col0', this.value, this);" style="margin-right: 10px;">
-                      <input type="color" id="color-picker-1" class="color-picker" value="#88C070" onchange="updateColorPalette('.col1', this.value, this);" style="margin-right: 10px;">
-                      <input type="color" id="color-picker-2" class="color-picker" value="#346856" onchange="updateColorPalette('.col2', this.value, this);" style="margin-right: 10px;">
-                      <input type="color" id="color-picker-3" class="color-picker" value="#081820" onchange="updateColorPalette('.col3', this.value, this);">
-                    </p>
-                    <br>
-                  </div>
-                  <hr>
-                  <p>
-                    <div id="tileContainer"></div>
-                  </p>
-                </div>
-              </div>
-              
-
-            </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tile Editor (Modal) -->
-      <div id="tileModal" class="dialog-container" style="display: none;">
-          <div class="dialog-box" id="dialog-box">
-            <!--<div class="dialog-content">-->
-              <div class="tile-editor-text" id="tile-editor-text">Tile Editor</div>
-              <input type="range" id="pixelSizeSlider" min="4" max="30" value="5" />
-              <br>
-
-              <div class="color-selector-container">
-                <div class="clickable-div" id="c1"></div>
-                <div class="clickable-div" id="c2"></div>
-                <div class="clickable-div" id="c3"></div>
-                <div class="clickable-div" id="c4"></div>
-              </div>
-              <p>
-                <div class="button-group">
-                  <button id="saveButton" onclick="saveTilesAfterDrawing();">Save changes</button>
-                  <button id="discardButton" class="secondary" onclick="discardChangesOnTiles();">Discard changes</button>
-                  <div class="toggle-switch" id="tileBorderToggle">
-                    <input type="checkbox" id="tileBorders">
-                    <label for="tileBorders"></label>
-                    <span class="toggle-text">&nbsp;Tile Border</span>
-                  </div>
-                </div>
-              </p>
-              <div class="tile-container" id="tile-container"></div>
-          <!--</div>-->
-          </div>
-      </div>
-
-      <!-- Background Map Editor (Modal) -->  
-      <div id="BG-myModal" class="BG-modal">
-        <div class="BG-modal-content">   
-          <div class="BG-center-container">
-            <div class="BG-container">
-              <div class="BG-playfieldgrid">
-                <ol id="selectable"></ol>
-              </div>
-              <div class="BG-spacing">&nbsp;</div>
-              <div class="BG-vramgrid" id="BG-vramgrid"></div>
-            </div>    
-          </div>
-          <p>
-            <div class="button-group">
-              <button id="applyBGMap" onclick="saveBGMap()">Save Changes</button>
-              <button id="discardBGMap" onclick="closeBGModal()" class="secondary">Discard Changes</button>
-              <input type="text" id="BGMapStartAddress" disabled style="display: none;">
-              <div class="toggle-switch">
-                <input type="checkbox" id="addressesToggle">
-                <label for="addressesToggle"></label>
-                <span class="toggle-text">Images / VRAM Addresses</span>
-              </div>
-              <button id="saveBGMapAsBIN" onclick="downloadBGMapAsBin()" class="secondary">Download Background Map as .bin</button>
-            </div>
-          </p>
-        </div>
-      </div>
-    
-      <!-- TOAST MESSAGES -->
-      <div class="toast green" id="hexValueChanged">A value has been altered!</div>
-      <div class="toast red" id="wrongAddress">The address you provided does not exist in this ROM data.</div>
-      <div class="toast green" id="GLHF">** Good luck, have fun! **</div>
-      <div class="toast red" id="invalidGameTitle">The game title must have 16 LETTERS or less.</div>
-      <div class="toast green" id="gameTitleChanged">The game title was changed</div>
-      <div class="toast green" id="manuallySet">The code is ready to be applied</div>
-      <div class="toast green" id="tileSetSaved">A tile set has been saved!</div>
-
+    <div class="grid-item">
+      <img src="images/relabeller.png" alt="GB Interceptor Re-labeller">
+      <h3>GB Interceptor Re-labeller</h3>
+      <p>
+        Using multiple interceptors on one computer can be confusing. Especially if you try to chose the correct one from the label. This very simple tool let's you re-label the firmware for clear identification.
+      </p>
+      <a href="firmwarelabeller/index.html">Learn More</a>
     </div>
-    
-    <!-- JAVA SCRIPT FILES -->
-    <!-- OLD -->
-    <script src="hexeditor.js"></script>
-    <script src="tileEditor.js"></script>    
-    <script src="gamegenie.js"></script>
-    <script src="lookup.js"></script>
-    <script src="modal.js"></script>
-    <script src="backgroundEditor.js"></script>
 
-    <!-- NEW -->
-    <script src="ROM-Editor-Body/Address-Jumper.js"></script>
-    <script src="ROM-Editor-Body/Checksum-Display.js"></script>
-    <script src="ROM-Editor-Body/GG-Code-Applicator.js"></script>
-    <script src="ROM-Editor-Body/Header-Data-Editor.js"></script>
-    <script src="ROM-Editor-Body/Hex-ROM-Editor.js"></script>
-    <script src="ROM-Editor-Body/Log-Viewer.js"></script>
-    <script src="ROM-Editor-Body/Save-File-Option.js"></script>
-    <script src="ROM-Editor-Body/Sequence-Finder.js"></script>
+    <div class="grid-item">
+      <img src="images/LUTs.png" alt="GB Interceptor LUT tool">
+      <h3>GB Interceptor LUT Tool</h3>
+      <p>
+        Design custom LUTs for your GB Interceptor to use with software like OBS.
+      </p>
+      <a href="LUTer/index.html">Learn More</a>
+    </div>
 
-  </body>
+    <div class="grid-item">
+      <img src="images/OCR.png" alt="GB Interceptor OCR 2">
+      <h3>GB Interceptor OCR</h3>
+      <p>
+        Send your GB footage through OCR and let the computer do its magic.
+      </p>
+      <a href="Live/refactored/index.html">Learn More</a>
+    </div>
+
+    <div class="grid-item">
+      <img src="images/TREP.png" alt="TREP 0.95">
+      <h3>TREP 0.95</h3>
+      <p><b>T</b>olstoj's <b>R</b>OM <b>E</b>ditor <b>P</b>lus. Load a legally acquired GB Tetris ROM and edit it to your likings.<br>
+      <b>Info:</b> This tool is for demonstration purposes only. Don't use it for weird stuff, please!</p>
+      <a href="TREP/index.html">Learn More</a>
+    </div>
+
+    <div class="grid-item">
+      <img src="images/chris-and-triss.png" alt="Chris and Triss">
+      <h3>Chris &amp; Triss</h3>
+      <p>Under EuroChrisKA's lead, we created a Tetromino-based puzzler / block stacking game for the DMG Game Boy. Some people claim it closely resembles other classics - it's programed from scratch and its resemblance is a mere coincidence.</p>
+      <a href="ChrisAndTriss/index.html">Learn More</a>
+    </div>
+
+    <div class="grid-item">
+      <img src="images/music.png" alt="ASM music editor">
+      <h3>ASM Music Editor</h3>
+      <p>Experimental and unfinished music editor to use with GB ASM disassemblies. This one is absolutely unusable and makes annoying noises. I left it in nonetheless - might get back on the project at one point.</p>
+      <a href="music-Editor/index.html">Learn More</a>
+    </div>
+
+    <div class="grid-item">
+        <img src="images/2-player.png" alt="YT">
+        <h3>2-Player Reverse Engineering</h3>
+        <p>The legendary -JJ from Finland and I reverse-engineered the 2-player Game Boy Tetris' link cable protocol.</p>
+        <a href="TwoPlayer/index.html">Learn More</a>
+    </div>
+
+    <div class="grid-item">
+      <img src="images/ROM.png" alt="YT">
+      <h3>ROM Patches</h3>
+      <p>Find some interesting ROM patches made by Pascal and I.</p>
+      <a href="ROMHacks/index.html">Learn More</a>
+  </div>
+
+  <div class="grid-item">
+    <img src="images/collection.png" alt="YT">
+    <h3>My Tetris Collection</h3>
+    <p></p>
+    <a href="Collection/index.html">Learn More</a>
+  </div>
+
+  <div class="grid-item">
+    <img src="images/youtube.png" alt="YT">
+    <h3>My Youtube Channel</h3>
+    <p></p>
+    <a href="https://www.youtube.com/@tolstoj_">Learn More</a>
+  </div>
+  </section>
+
+  <h2>Other Peoples' Projects</h2>
+  <section class="grid">
+  <div class="grid-item">
+    <img src="images/online-2-player.png" alt="YT">
+    <h3>Toni's 2-Player Online Server</h3>
+    <p>Connect your Game Boy with a Link Cable to USB adapter and play GB Tetris online against someone. (Based on Stacksmashing's site)</p>
+    <a href="online-gb.tetris.yt">Learn More</a>
+  </div>
+
+  <div class="grid-item">
+    <img src="images/youtube.png" alt="YT">
+    <h3>Pascal's Site</h3>
+    <p></p>
+    <a href="https://www.youtube.com/@tolstoj_">Learn More</a>
+  </div>
+
+  <div class="grid-item">
+    <img src="images/pandocs.png" alt="YT">
+    <h3>Game Boy Pan Docs</h3>
+    <p>Most comprehensible documentation about the inner workings of the Game Boy.</p>
+    <a href="https://gbdev.io/pandocs/">Learn More</a>
+  </div>
+
+  </section>
+
+  <nav>
+    <h2>External Links</h2>
+      <a href="https://there.oughta.be/" target="_blank">There Oughta Be (Sebastians Staacks Blog)</a><br>
+      <a href="https://tinyurl.com/GB-Tetris" target="_blank">Game Boy Tetris Discord</a><br>
+      <a href="https://docs.google.com/spreadsheets/d/1PJZ50b5Y6RqHNW1PH5BFn-wvc7IPxu3m0JastDksMtQ/edit?gid=0#gid=0" target="_blank">Game Boy Tetris Leaderboards</a><br>
+      <a href="https://classictetris.eu/" target="_blank">CTEC (Classic Tetris European Championships)</a><br>
+      <a href="https://lieblings.be/dates.html" target="_blank">Lieblings Bern</a><br>
+      <a href="" target="_blank">CTG (Classic Tetromino-Games Germany e. V.)</a><br>
+  </nav>
+  <p>
+    <img src="images/CTEC Team GB 2022.png" class="fullwidth"><br>
+    <b>CTEC Game Boy Team 2023</b> aka "The Lads": Kirjava, Toni, BV, -JJ, Tolstoj, (Jacob) 
+
+  </p>
+</main>
+</div>
+</div>
+<script src="script.js"></script>
+</body>
 </html>
