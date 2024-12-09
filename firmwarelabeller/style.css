@@ -1,39 +1,39 @@
 /* style.css */
 body {
-    background-color: #2E2E2E; /* Dark grey background */
-    color: #FFFFFF; /* White font color */
-    font-family: Arial, sans-serif; /* Arial or similar font */
+    background-color: #2E2E2E;
+    color: #FFFFFF;
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 20px;
 }
 
 h1 {
-    color: #FFFFFF; /* White color for the header */
+    color: #FFFFFF;
     font-size: 2em;
     margin-bottom: 20px;
 }
 
 label {
-    color: #FFFFFF; /* White color for labels */
+    color: #FFFFFF;
     font-weight: bold;
 }
 
 input[type="file"] {
     margin-bottom: 15px;
-    color: #FFFFFF; /* White color for the file input text */
+    color: #FFFFFF;
 }
 
 input[type="text"] {
-    background-color: #3A3A3A; /* Slightly lighter grey for input background */
-    color: #FFFFFF; /* White font color for text inputs */
-    border: 1px solid #555555; /* Border to match dark theme */
+    background-color: #3A3A3A;
+    color: #FFFFFF;
+    border: 1px solid #555555;
     padding: 8px;
     width: 300px;
 }
 
 button {
-    background-color: #555555; /* Darker grey button background */
-    color: #FFFFFF; /* White font color */
+    background-color: #555555;
+    color: #FFFFFF;
     border: none;
     padding: 10px 15px;
     cursor: pointer;
@@ -41,21 +41,22 @@ button {
 }
 
 button:hover {
-    background-color: #777777; /* Slightly lighter grey on hover */
+    background-color: #777777;
 }
 
 select {
-    background-color: #3A3A3A; /* Dark grey for dropdown */
-    color: #FFFFFF; /* White font color for dropdown */
-    border: 1px solid #555555; /* Border to match dark theme */
+    background-color: #3A3A3A;
+    color: #FFFFFF;
+    border: 1px solid #555555;
     padding: 8px;
 }
 
 a {
-    color: #00BFFF; /* Light blue color for links */
+    color: #FFF;
     text-decoration: none;
 }
 
 a:hover {
-    text-decoration: underline; /* Underline on hover */
+    text-decoration: underline;
+    color: #00BFFF; 
 }
