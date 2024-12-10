@@ -1,0 +1,96 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #000;
+}
+
+#game-area {
+  display: flex;
+}
+
+#game-container {
+  display: grid;
+  grid-template-columns: repeat(10, 30px);
+  grid-template-rows: repeat(15, 30px);
+  gap: 0px;
+  position: relative;
+}
+
+
+#next-piece-board {
+  display: inline-grid;
+  grid-template-columns: repeat(4, 30px);
+  grid-template-rows: repeat(4, 30px);
+  gap: 0px;
+}
+
+.cell {
+  width: 30px;
+  height: 30px;
+}
+
+.dot{
+  background-image: url('dot.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.active {
+  background-image: url('mino.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.in-playboard {
+  background-image: url('mino.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.out-of-playboard {
+  background-image: url('mino.png');
+  background-size: cover;
+  background-position: center;
+}
+
+
+.belowField, .aboveField {
+  background-image: url('lower.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.left {
+  background-image: url('left.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.right {
+  background-image: url('right.png');
+  background-size: cover;
+  background-position: center;
+}
+
+#next-piece-board {
+  display: grid;
+  grid-template-columns: repeat(4, 30px);
+  grid-template-rows: repeat(4, 30px);
+  gap: 0px;
+  text-align: right;
+}
+
+.next-cell {
+  width: 30px;
+  height: 30px;
+  background-image: url('mino.png');
+  background-size: cover;
+  background-position: center;
+}
+
+#height-box{
+  height: 200px;
+}
