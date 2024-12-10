@@ -106,7 +106,7 @@ main {
     color: #666;
 }
 
-.grid-item a {
+.grid-item a.button {
     display: inline-block;
     margin-top: 10px;
     padding: 10px 15px;
@@ -117,22 +117,22 @@ main {
     transition: background-color 0.3s ease;
 }
 
-.grid-item a:hover {
+.grid-item a.button:hover {
     background-color: #666;
 }
 
-.grid-item a.normal {
-    all: unset; /* Reset all styles */
-    color: #0066cc; /* Apply the normal link color */
+/*.grid-item a.normal {
+    all: unset;
+    color: #0066cc;
     text-decoration: none;
     transition: transform 0.3s ease, font-weight 0.3s ease;
-    cursor: pointer; /* Ensure it looks clickable */
+    cursor: pointer;
 }
 
 .grid-item a.normal:hover {
     transform: scale(1.1);
     font-weight: bold;
-}
+}*/
 
 a {
     color: #0066cc;
