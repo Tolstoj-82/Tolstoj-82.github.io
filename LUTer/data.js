@@ -2,13 +2,13 @@ const paletteLookup = {
     "User Palettes": {
         "CTWC UK 2024 (Lucy)": ["18482B", "668235", "BDCF59", "DFEDA2"],
         "Realistic GB (Tolstoj)": ["0E0F02", "203828", "415625", "696C04"],
-        "Alecat 1": ["0D0100", "CE3B05", "F8C65F", "FFFFFF"],
-        "Alecat 2": ["5F1368", "E84499", "FFFCFF", "FFED8A"],
-        "Alecat 3": ["4B1D6B", "C32269", "FD6057", "FFC5A0"],
-        "Alecat 4": ["482075", "407BE1", "F8E168", "FF6871"],
-        "Alecat 5": ["000033", "AAB4D4", "B35DBD", "FFFFFF"],
-        "Alecat 6": ["2A2455", "8ECEFF", "FF9AF4", "FFFFFF"],
-        "Alecat 7": ["122D24", "294F39", "5A833B", "99B640"]
+        "Bright Super GB (Alecat)": ["0D0100", "CE3B05", "F8C65F", "FFFFFF"],
+        "Candy Carnival (Alecat)": ["5F1368", "E84499", "FFFCFF", "FFED8A"],
+        "Desert (Alecat)": ["4B1D6B", "C32269", "FD6057", "FFC5A0"],
+        "Pan Pride (Alecat)": ["482075", "407BE1", "F8E168", "FF6871"],
+        "Ace Pride (Alecat)": ["000033", "AAB4D4", "B35DBD", "FFFFFF"],
+        "Trans Pride (Alecat)": ["2A2455", "8ECEFF", "FF9AF4", "FFFFFF"],
+        "Bright GB (Alecat)": ["122D24", "294F39", "5A833B", "99B640"]
     },
     "GB Standard Palettes": {
         "MGB-001": ["080808", "585858", "A8A8A8", "F8F8F8"],
