@@ -63,6 +63,8 @@ const paletteLookup = {
         "Right": ["000000", "FF4200", "52FF00", "FFFFFF"],
         "Right+A": ["000000", "0063C5", "0BF3F1", "FFFFFF"],
         "Right+B": ["FFFFFF", "FFDE00", "008484", "000000"],
+    },
+    "GB Color Pokémon Palettes":{
         "Pokémon Red": ["000000", "943A3A", "FF8484", "FFFFFF"],
         "Pokémon Blue": ["000000", "0000FF", "63A5FF", "FFFFFF"],
         "Pokémon Green": ["000000", "0063C5", "7BFF31", "FFFFFF"],
