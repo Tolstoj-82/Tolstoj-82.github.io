@@ -9,14 +9,33 @@
             background-color: #333;
             color: #ffffff;
             font-family: Arial, sans-serif;
+
+            /* Center horizontally */
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            align-items: center; /* Horizontally center all elements */
+
+            margin: 0; /* Remove default margins */
         }
+
         h1 {
             font-size: 2rem;
-            margin: 0;
+            margin: 20px 0; /* Add spacing to avoid overlap */
         }
+
         h2 {
             font-size: 1.5rem;
-            margin: 10px 0 0;
+            margin: 10px 0; /* Add consistent spacing */
+        }
+
+        p {
+            text-align: center; /* Center-align text inside paragraphs */
+            margin: 10px 0; /* Add spacing for better layout */
+        }
+
+        img {
+            max-width: 100%; /* Ensure images scale responsively */
+            height: auto; /* Maintain aspect ratio */
         }
     </style>
 </head>
@@ -30,6 +49,19 @@
         <img src="images/after-signing.jpg" width="50%"><br>
         Alexey Pajitnov, Tolstoj, Henk Rogers
     </p>
-
+    <p>
+        <h2>Handhelds</h2>
+        <h2>Boardgames / Toys / Gadgets...</h2>
+        <h2>Nintendo Switch</h2>
+        <h2>DS / 3DS</h2>
+        <h2>Virtual Boy</h2>
+        <h2>N64</h2>
+        <h2>Famicom</h2>
+        <h2>NES</h2>
+        <h2>GB / GBC / GBA</h2>
+        <h2>Super NES / Super Famicom</h2>
+        <h2>Books</h2>
+        <h2>DVDs / CDs</h2>
+    </p>
 </body>
 </html>
