@@ -29,25 +29,43 @@ let overlayOpacity = 0;
 // (3) Functions
 //---------------------------------
 function updatePaletteSelect() {
-    paletteSelect.innerHTML = '<option value="">Select Palette</option>';
+    //paletteSelect.innerHTML = '<option value="">Select Palette</option>';
+    paletteSelect.innerHTML = '';
 
-    for (const [paletteName] of Object.entries(paletteLookup)) {
-        const option = document.createElement('option');
-        option.value = paletteName;
-        option.textContent = paletteName;
-        paletteSelect.appendChild(option);
+    for (const [section, palettes] of Object.entries(paletteLookup)) {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = section;
+
+        for (const [paletteName] of Object.entries(palettes)) {
+            const option = document.createElement('option');
+            option.value = paletteName;
+            option.textContent = paletteName;
+            optgroup.appendChild(option);
+        }
+
+        paletteSelect.appendChild(optgroup);
     }
 
-    if (paletteSelect.options.length > 1) {
-        paletteSelect.selectedIndex = 1;
-        applyPalette(paletteSelect.value);
+    // Automatically select the first palette in the first group
+    const firstOptgroup = paletteSelect.querySelector('optgroup');
+    if (firstOptgroup && firstOptgroup.firstElementChild) {
+        firstOptgroup.firstElementChild.selected = true;
+        applyPalette(firstOptgroup.firstElementChild.value);
     }
-
 }
 
-function applyPalette(palette) {
-    if (!palette) return;
-    const colors = paletteLookup[palette];
+
+function applyPalette(paletteName) {
+    if (!paletteName) return;
+
+    let colors = null;
+    for (const palettes of Object.values(paletteLookup)) {
+        if (paletteName in palettes) {
+            colors = palettes[paletteName];
+            break;
+        }
+    }
+
     if (colors) {
         colorInputs.forEach((input, index) => {
             input.value = `#${colors[index]}`;
@@ -166,21 +184,6 @@ function hexToRgba(color) {
     return { r, g, b, a };
 }
 
-/*function setupDownloadButton(canvas) {
-    const downloadGridBtn = document.getElementById('downloadGridBtn');
-
-    if (!downloadGridBtn) {
-        console.error('Download button not found');
-        return; // Exit if button is not found
-    }
-
-    // Remove any existing click event listeners
-    //downloadGridBtn.removeEventListener('click', handleDownload());
-
-    // Add a new click event listener
-    //downloadGridBtn.addEventListener('click', () => handleDownload(canvas));
-}*/
-
 // Handle the download logic
 function handleDownload() {
     const canvas = document.getElementById('overlayImage');
@@ -269,7 +272,9 @@ transparencySlider.addEventListener('input', () => {
 
 overlayColorBase.onchange = function() {
     const selectedColor = this.value;
+    pixelColors[4] = selectedColor; // Assign base overlay color
     loadOverlayImage();
+    drawPlayfield();
 };
 
 paletteSelect.addEventListener('change', (event) => {
