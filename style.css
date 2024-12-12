@@ -45,9 +45,10 @@ h2 {
     background-color: #4c795c;
     color: #fff;
     padding: 10px 15px;
-    margin-left, margin-bottom: 10px;
+    margin-bottom: 10px;
     width: 100%;
     box-sizing: border-box;
+    border-radius: 10px;
 }
 
 .container {
@@ -58,6 +59,38 @@ h2 {
 
 main {
     padding: 20px 0;
+}
+
+.image-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.image-container figure {
+    flex: 1 1 calc(50% - 20px);
+    margin: 0;
+}
+
+.image-container img {
+    width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.image-container figcaption {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+    text-align: left;
+}
+
+@media (max-width: 1000px) {
+    .image-container figure {
+        flex: 1 1 100%;
+    }
 }
 
 .intro {
