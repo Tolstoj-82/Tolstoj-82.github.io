@@ -5,9 +5,4 @@ document.addEventListener('scroll', function () {
     } else {
       header.classList.remove('small');
     }
-  });
-/*
-  document.querySelector('.hamburger-menu').addEventListener('click', function () {
-    const menu = document.querySelector('.dropdown-menu');
-    menu.classList.toggle('show');
-  });*/
+});
