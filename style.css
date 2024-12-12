@@ -24,6 +24,7 @@ header {
     padding: 20px 0;
     z-index: 1000;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 header.small {
@@ -38,6 +39,15 @@ header h1 {
 
 header.small h1 {
     font-size: 1.8rem;
+}
+
+h2 {
+    background-color: #4c795c;
+    color: #fff;
+    padding: 10px 15px;
+    margin-left, margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .container {
@@ -119,6 +129,14 @@ a.button {
 
 a.button:hover {
     background-color: #666;
+}
+
+a.button.secondary {
+    background-color: #0056b3;
+}
+
+a.button.secondary:hover {
+    background-color: #007bff;
 }
 
 a {

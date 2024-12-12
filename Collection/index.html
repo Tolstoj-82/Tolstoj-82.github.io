@@ -4,46 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My GB Collection</title>
+    <link rel="stylesheet" href="../style.css">
     <style>
-        body {
-            background-color: #333;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            margin: 0;
-        }
-
-        h1 {
-            font-size: 2rem;
-            margin: 20px 0;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            margin: 10px 0;
-        }
-
-        p {
-            text-align: center;
-            margin: 10px 0;
-        }
-
-        img {
-            max-width: 100%;
-            height: auto;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&display=swap');
     </style>
 </head>
 <body>
-    <h1>My Tetris Collection</h1>
-    <p>
-        <img src="images/signing.jpg" width="50%"><br>
-        Alexey Pajitnov, Tolstoj, Henk Rogers
-    </p>
+    <div class="content">
+        <header>
+          <h1>My Tetris Collection</h1>
+        </header>
+      
+        <div class="container">
+          <main>
     <p>
         <img src="images/after-signing.jpg" width="50%"><br>
         Alexey Pajitnov, Tolstoj, Henk Rogers
@@ -62,5 +35,13 @@
         <h2>Books</h2>
         <h2>DVDs / CDs</h2>
     </p>
+    <p>
+        <img src="images/signing.jpg" width="50%"><br>
+        Alexey Pajitnov, Tolstoj, Henk Rogers
+    </p>
+    </main>
+    </div>
+    </div>
+    <script src="../script.js"></script>
 </body>
 </html>
