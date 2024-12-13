@@ -73,6 +73,15 @@ h3 {
     max-width: calc(100% - 120px);
 }
 
+.citation {
+    font-style: italic;
+    font-size: 0.9em;
+    margin: 1em 0;
+    padding-left: 1em;
+    border-left: 3px solid #4c795c;
+    color: #4c795c;
+  }
+
 .container {
     max-width: 1000px;
     margin: auto;
