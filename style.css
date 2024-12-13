@@ -231,30 +231,31 @@ img.fullwidth {
     align-items: center;
   }
   
-  .logo {
+.logo {
     font-size: 1.5rem;
     font-weight: bold;
-  }
+}
 
-  hr {
+hr {
     border: 0;
     border-top: 2px dotted #274732;
     margin: 20px 0;
-  }
+}
 
-  .clickable {
+.clickable {
     display: inline-block;
     transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
     border: 2px solid transparent;
-  }
-  
-  .clickable:hover {
+}
+
+.clickable:hover {
     transform: translate(-2px, -2px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.6);
     border: 1px solid white;
-  }
+    cursor: pointer;
+}
 
-  .modal {
+.modal {
     position: fixed;
     z-index: 1000;
     top: 0;
@@ -265,10 +266,10 @@ img.fullwidth {
     display: none;
     justify-content: center;
     align-items: center;
-  }
-  
-  /* Modal content box */
-  .modal-content {
+}
+
+/* Modal content box */
+.modal-content {
     position: relative;
     width: 80vw;
     max-height: 80vh;
@@ -279,17 +280,17 @@ img.fullwidth {
     justify-content: center;
     align-items: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  }
-  
-  /* Image inside the modal */
-  .modal-content img {
+}
+
+/* Image inside the modal */
+.modal-content img {
     max-width: 60vw;
     max-height: 80vh;
     object-fit: contain;
-  }
-  
-  /* Close button */
-  .modal .close {
+}
+
+/* Close button */
+.modal .close {
     position: absolute;
     top: 10px;
     right: 15px;
@@ -297,4 +298,4 @@ img.fullwidth {
     color: #000;
     cursor: pointer;
     z-index: 10;
-  }
+}
