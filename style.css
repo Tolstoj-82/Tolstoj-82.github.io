@@ -242,41 +242,59 @@ img.fullwidth {
     margin: 20px 0;
   }
 
-  /*
-  .hamburger-menu {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
+  .clickable {
+    display: inline-block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+    border: 2px solid transparent;
   }
   
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: #444;
-    width: 200px;
+  .clickable:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.6);
+    border: 1px solid white;
+  }
+
+  .modal {
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
     display: none;
+    justify-content: center;
+    align-items: center;
   }
   
-  .dropdown-menu ul {
+  /* Modal content box */
+  .modal-content {
+    position: relative;
+    width: 80vw;
+    max-height: 80vh;
+    background: #FFF;
+    border-radius: 8px;
+    overflow: hidden;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   }
   
-  .dropdown-menu li a {
-    display: block;
-    padding: 10px;
-    color: white;
-    text-decoration: none;
-    border-bottom: 1px solid #555;
+  /* Image inside the modal */
+  .modal-content img {
+    max-width: 60vw;
+    max-height: 80vh;
+    object-fit: contain;
   }
   
-  .dropdown-menu li a:hover {
-    background-color: #555;
+  /* Close button */
+  .modal .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    color: #000;
+    cursor: pointer;
+    z-index: 10;
   }
-  
-  .dropdown-menu.show {
-    display: block;
-  }*/
