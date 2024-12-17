@@ -1,0 +1,101 @@
+  .stats-container {
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+  }
+
+  .table-container {
+    height: 80vh;
+    width: 100%;
+    max-width: 900px;
+    overflow-y: auto;
+    border: 2px solid #333;
+    margin: 20px;
+    padding: 0;
+    background-color: #FFF;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+  }
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  th, td {
+    border: 1px solid #575757;
+    padding: 8px;
+  }
+
+  th {
+    border: 0;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  /* Header row colors */
+  th.piece {
+    background-color: #4a148c; /* Purple */
+  }
+
+  th.group1 {
+    background-color: #00695c; /* Teal */
+  }
+
+  th.group2 {
+    background-color: #bf360c; /* Deep Orange */
+  }
+
+  th.group3 {
+    background-color: #1b5e20; /* Green */
+  }
+
+  th.group4 {
+    background-color: #0d47a1; /* Blue */
+  }
+
+  /* Row shading */
+  tr:nth-child(odd) {
+    background-color: #d8cee4; /* Light Purple */
+  }
+
+  tr:nth-child(even) {
+    background-color: #d0b3ed; /* Lighter Purple */
+  }
+
+  tr:nth-child(odd) td.group1 {
+    background-color: #e0f2f1; /* Teal Tint */
+  }
+
+  tr:nth-child(even) td.group1 {
+    background-color: #b2dfdb; /* Lighter Teal Tint */
+  }
+
+  tr:nth-child(odd) td.group2 {
+    background-color: #ffccbc; /* Deep Orange Tint */
+  }
+
+  tr:nth-child(even) td.group2 {
+    background-color: #ffab91; /* Lighter Deep Orange Tint */
+  }
+
+  tr:nth-child(odd) td.group3 {
+    background-color: #c8e6c9; /* Green Tint */
+  }
+
+  tr:nth-child(even) td.group3 {
+    background-color: #a5d6a7; /* Lighter Green Tint */
+  }
+
+  tr:nth-child(odd) td.group4 {
+    background-color: #bbdefb; /* Blue Tint */
+  }
+
+  tr:nth-child(even) td.group4 {
+    background-color: #90caf9; /* Lighter Blue Tint */
+  }
