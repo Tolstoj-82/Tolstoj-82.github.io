@@ -6,7 +6,7 @@
     <title>GB Tetris RNG</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="style.css">
-    <style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">    <style>
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&display=swap');
     </style>
 </head>
@@ -28,38 +28,61 @@
                 </ul>
                 These RNG algorithms closely resemble each other, but have subtly distinct features. We will delve into the algorithms one-by-one.
               </p>
-              <h2>DIV as the Source of Randomness</h2>
+              
+              <h2>Introduction</h2>
               The source of randomness in GB Tetris comes from the DIV register. This method is one of several options to introduce seemingly random numbers (pseudo random numbers). Typically, a computer is not capable of true randomness and given the same circumstances, the same random values would be generated. Human imperfection during game play, using the method here, leads to a value that seems random enough.<br>
-              <h3>The DIV register</h3>
+              
+              <h3>The DIV Register Generates "Random" Values</h3>
                 The <b>Divider register</b> (<code class="red">DIV</code>), is an 8-bit register in the Game Boys' hardware located at $FF04 in the I/O region of the memory map.
                 It auto-increments from <code>$00</code> to <code>$FF</code> (hex) or 0 to 255 (dec). Once $FF is reached, it reverts back to $00 creating an everlasting loop.
                 The register increments at approx 16.4 kHz on the DMG, which is approx. 4 times as fast as the fetch cycle of the CPU.<br>
                 Reading its value at any given point returns one of 256 "random" values ($00 - $FF).<br>
             
-              <h3>CPU Registers</h3>
-              <code class="red">a</code>, <code class="red">b</code>, <code class="red">c</code>, <code class="red">d</code>, <code class="red">e</code>, <code class="red">h</code> and <code class="red">l</code> are 8-bit hardware registers in the CPU that can store a byte (8-bit) each. The a register is the accumulator which is connected with the flags register <code>f</code>. d and e and h and l (high, low) can be combined to de and hl to act as 16-bit registers which covers the address space of the Game Boy but this is not relevant here.<br>
+              <h3>CPU Registers Can Store Values</h3>
+              <code class="red">a</code>, <code class="red">b</code>, <code class="red">c</code>, <code class="red">d</code>, <code class="red">e</code>, <code class="red">h</code> and <code class="red">l</code> are 8-bit hardware registers in the CPU that can store a byte (8-bit) each. The "a" register is the accumulator which is connected with the flags register <code>f</code>. d and e and h and l (high, low) can be combined to de and hl to act as 16-bit registers which covers the address space of the Game Boy but this is not relevant here.<br>
               The registers can be used to temporarily store data, very similar to RAM. Since the accumulator (a) can perform operations on its contained value, data need to be copied there regularly. Therefore a is not suited to store data.<br> 
-              <h2>1-Player Piece generation RNG</h2>
+
+              <h3>The Tetris Pieces and their Rotations</h3>
+              There are 7 pieces in GB Tetris (L,J,I,O,Z,S,T) that have 4 orientations (N,E,S,W) each. Even though the S, Z and I pieces seemingly toggle between 2 states and the O-piece only ever appear as a single state, all 4 orientations are actually in code - as duplicates.<br>
+              The N (north) orientation is also the spawning orientation.<br>
+              The numbering for the piece and its orientation start at $00 for L<sub>N</sub> and increments.<br>
+              <p>
+                The spawning pieces therefore appear with a gap of 4:<br>
+                $00, $04, $08, $0C, $10, $14 and $18.
+              </p>
+              <p><img src="images/nesw3.png" alt="Pieces and orientations" class="clickable" height="400"></p>
+
+              <h2>1-Player Piece Generation RNG</h2>
+              After counting some pieces, Henk Rogers (BPS) was under the impression that certain pieces appeared more often than others - especially also as floods (multiple of the same pieces consequtively). He brought in people from Nintendo to fix the issue over the weekend. The solution was implemented poorly - probably due to time constraints - but kind of does its job.<br>
+              The idea was to cross check the current piece with the next piece and the next-next piece to prevent floods. The way this was achieved does somewhat achieve its function but also introduces other, unwanted side effects that affect piece probabilities.<br>
+              <h3>Implementation in Javascript</h3>
+<pre><code class="language-javascript">h = 3;
+found = false;
+while (h > 0 && !found) {
+    div = rand (0,255);
+    d = 4*(div%7);
+    if (!c == (c | d | e)) found = true;
+    h--;
+}
+e = d;
+c = e;</code></pre>
+              The question arises, why make things complicated and not simply use <code>d = 4 * rand(0, 7);</code>? The answer of course is 8-bit, which GB ASM is based on.
+
               <h3>1) Get a Random Number ($00-$FF)</h3>
               At some point between the current piece locking to the floor until a new one spawning, the DIV is read. The timing of the DIV access is, among other circumstances, mostly affected by user inputs while the piece is falling.
+              
               <h3>2) Adjust for Spawning Pieces</h3>
-              There are 7 pieces in Tetris (L,J,I,O,Z,S,T) that have 4 orientations (N,E,S,W) each. Even though the S, Z and I pieces only ever use 2 states and the O-piece one single state, all 4 orientations are in code. In the case of S,Z and I, the S and W orientations are duplicates of N and E.<br>
-              The N (north) orientation is also the spawning orientation.<br>
-              The numbering for the piece and its orientation start at $00 for L<sub>N</sub>. 
-              Therefore, we need to transfer DIV to the values:<br>
-              $00, $04, $08, $0C, $10, $14 and $18.<br>
               <p>In modern programing this could be achieved by something like <code>4*(DIV%7)</code>, where % is the modulo function.<br>
               Since assembly can't do divisions or modulo natively, a routine that achieves this needed to be implemented, we call it "4 MOD 7".<br>
               Note that in case of a DIV value of $FF this lead to a cycle of 256. Also note that 256 is not divisible by 7 and therefore leaves a remainder, which gives a slight disadvantage to Z, S and T pieces.</p>
               <p><img src="images/4MOD7.png" alt="Modulo 7 routine" class="clickable" width="40%">
               <img src="images/after 4MOD7.png" alt="After 4 MOD 7" class="clickable" width="40%"></p>
-
+              
               <h3>3) The infamous "flood check"</h3>
-              After counting some pieces, Henk Rogers (BPS) was under the impression that certain pieces appeared more often than others - especially also as floods (multiple of the same pieces consequtively). He brought in people from Nintendo to fix the issue over the weekend. The solution was implemented poorly - probably due to time constraints - but kind of does its job.<br>
-              The idea was to cross check the current piece with the next piece and the next-next piece to prevent floods. The way this was achieved does somewhat achieve its function but also introduces other, unwanted side effects that affect piece probabilities.<br>
               we store the pieces as follows: c = current piece, e = next piece, d = next-next piece and apply the following check:<br>
               reject if <code>c==(c|d|e)</code>, where | is the symbol for the bitwise or operator.<br>
               this check is performed a max of 3 times and if it failed 3 times the 4th value is taken regardless.<br>
+              <p>&nbsp;</p>
               <div class="image-container">
                 <figure>
                     <img src="images/flood-check.png" class="clickable" alt="Flood check">
@@ -94,6 +117,7 @@
                         <th class="group3">d<sub>3</sub></th>
                         <th class="group3">Reject<sub>3</sub></th>
                         <th class="group4">DIV<sub>4</sub></th>
+                        <th class="group4">d<sub>4</sub></th>
                         <th class="piece">Piece</th>
                     </tr>
                   </thead>
@@ -106,7 +130,11 @@
       </div>
     <script src="../script.js"></script>
     <script src="script.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    
 
     <div id="imageModal" class="modal" style="display: none;">
         <div class="modal-content">
