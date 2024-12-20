@@ -29,14 +29,13 @@
                 These RNG algorithms closely resemble each other, but have subtly distinct features. We will delve into the algorithms one-by-one.
               </p>
               
-              <h2>Introduction</h2>
-              The source of randomness in GB Tetris comes from the DIV register. This method is one of several options to introduce seemingly random numbers (pseudo random numbers). Typically, a computer is not capable of true randomness and given the same circumstances, the same random values would be generated. Human imperfection during game play, using the method here, leads to a value that seems random enough.<br>
-              
+              <h2>Introduction</h2>              
               <h3>The DIV Register Generates "Random" Values</h3>
                 The <b>Divider register</b> (<code class="red">DIV</code>), is an 8-bit register in the Game Boys' hardware located at $FF04 in the I/O region of the memory map.
                 It auto-increments from <code>0x00</code> to <code>0xFF</code> (hex) or 0 to 255 (dec). Once $FF is reached, it reverts back to $00 creating an everlasting loop.
                 The register increments at approx 16.4 kHz on the DMG, which is approx. 4 times as fast as the fetch cycle of the CPU.<br>
                 Reading its value at any given point returns one of 256 "random" values.<br>
+                <p>The randomness in GB Tetris comes from the DIV register. This method is one of several options to introduce seemingly random numbers (pseudo random numbers). Typically, a computer is not capable of true randomness and given the same circumstances, the same random values would be generated. Human imperfection during game play, using the method here, leads to a value that seems random enough.</p>
               <hr>
               <h3>CPU Registers Can Store Values</h3>
               <div class="two-column-layout small">
@@ -79,7 +78,7 @@
               <div class="remark">
                 Note that this must have considered the Japan-exclusive 1.0 Version of the game. We describe the RNG of the more common revision A, also known as Version 1.1. The RNG portin of both versions is identical.
               </div>
-              <h3>Implementation in Javascript</h3>
+              <h3>Implementation in Pseudocode</h3>
 <pre><code class="language-javascript">h = 3;
 found = false;
 while (h >= 0 && !found) {
