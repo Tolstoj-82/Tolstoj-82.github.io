@@ -34,21 +34,24 @@
               
               <h3>The DIV Register Generates "Random" Values</h3>
                 The <b>Divider register</b> (<code class="red">DIV</code>), is an 8-bit register in the Game Boys' hardware located at $FF04 in the I/O region of the memory map.
-                It auto-increments from <code>$00</code> to <code>$FF</code> (hex) or 0 to 255 (dec). Once $FF is reached, it reverts back to $00 creating an everlasting loop.
+                It auto-increments from <code>0x00</code> to <code>0xFF</code> (hex) or 0 to 255 (dec). Once $FF is reached, it reverts back to $00 creating an everlasting loop.
                 The register increments at approx 16.4 kHz on the DMG, which is approx. 4 times as fast as the fetch cycle of the CPU.<br>
-                Reading its value at any given point returns one of 256 "random" values ($00 - $FF).<br>
-            
+                Reading its value at any given point returns one of 256 "random" values.<br>
+              <hr>
               <h3>CPU Registers Can Store Values</h3>
               <code class="red">a</code>, <code class="red">b</code>, <code class="red">c</code>, <code class="red">d</code>, <code class="red">e</code>, <code class="red">h</code> and <code class="red">l</code> are 8-bit hardware registers in the CPU that can store a byte (8-bit) each. The "a" register is the accumulator which is connected with the flags register <code>f</code>. d and e and h and l (high, low) can be combined to de and hl to act as 16-bit registers which covers the address space of the Game Boy but this is not relevant here.<br>
               The registers can be used to temporarily store data, very similar to RAM. Since the accumulator (a) can perform operations on its contained value, data need to be copied there regularly. Therefore a is not suited to store data.<br> 
-
+              <figure>
+                <img src="images/registers.png" class="clickable" alt="CPU Registers">
+              </figure>
+              <hr>
               <h3>The Tetris Pieces and their Rotations</h3>
               There are 7 pieces in GB Tetris (L,J,I,O,Z,S,T) that have 4 orientations (N,E,S,W) each. Even though the S, Z and I pieces seemingly toggle between 2 states and the O-piece only ever appear as a single state, all 4 orientations are actually in code - as duplicates.<br>
               The N (north) orientation is also the spawning orientation.<br>
               The numbering for the piece and its orientation start at $00 for L<sub>N</sub> and increments.<br>
               <p>
                 The spawning pieces therefore appear with a gap of 4:<br>
-                $00, $04, $08, $0C, $10, $14 and $18.
+                0x00, 0x04, 0x08, 0x0C, 0x10, 0x14 and 0x18.
               </p>
               <p><img src="images/nesw.png" alt="Pieces and orientations" class="clickable" height="400"></p>
 
@@ -68,7 +71,7 @@ e = d;
 c = e;</code></pre>
               The question arises, why make things complicated and not simply use <code>d = 4 * rand(0, 7);</code>? The answer of course is 8-bit, which GB ASM is based on.
 
-              <h3>1) Get a Random Number ($00-$FF)</h3>
+              <h3>1) Get a Random Number (0x00-0xFF)</h3>
               At some point between the current piece locking to the floor until a new one spawning, the DIV is read. The timing of the DIV access is, among other circumstances, mostly affected by user inputs while the piece is falling.
               
               <h3>2) Adjust for Spawning Pieces</h3>
@@ -86,9 +89,6 @@ c = e;</code></pre>
               <div class="image-container">
                 <figure>
                     <img src="images/flood-check.png" class="clickable" alt="Flood check">
-                </figure>
-                <figure>
-                    <img src="images/registers.png" class="clickable" alt="CPU Registers">
                 </figure>
               </div>
               <h3>Overview</h3>
