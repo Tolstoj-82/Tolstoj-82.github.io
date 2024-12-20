@@ -39,56 +39,212 @@
                 Reading its value at any given point returns one of 256 "random" values.<br>
               <hr>
               <h3>CPU Registers Can Store Values</h3>
-              <code class="red">a</code>, <code class="red">b</code>, <code class="red">c</code>, <code class="red">d</code>, <code class="red">e</code>, <code class="red">h</code> and <code class="red">l</code> are 8-bit hardware registers in the CPU that can store a byte (8-bit) each. The "a" register is the accumulator which is connected with the flags register <code>f</code>. d and e and h and l (high, low) can be combined to de and hl to act as 16-bit registers which covers the address space of the Game Boy but this is not relevant here.<br>
-              The registers can be used to temporarily store data, very similar to RAM. Since the accumulator (a) can perform operations on its contained value, data need to be copied there regularly. Therefore a is not suited to store data.<br> 
-              <p><img src="images/registers.png" class="clickable" width="30%" alt="CPU Registers"></p>
+              <div class="two-column-layout small">
+                <div>
+                  <img src="images/registers.png" class="clickable" width="30%" alt="CPU Registers">
+                </div>
+                <div>
+                  <code class="red">a</code>, <code class="red">b</code>, <code class="red">c</code>, <code class="red">d</code>, <code class="red">e</code>, <code class="red">h</code> and <code class="red">l</code> are 8-bit hardware registers in the CPU that can store a byte (8-bit) each. The "a" register is the accumulator which is connected with the flags register <code>f</code>. d and e and h and l (high, low) can be combined to de and hl to act as 16-bit registers which covers the address space of the Game Boy but this is not relevant here.<br>
+                  The registers can be used to temporarily store data, very similar to RAM. Since the accumulator (a) can perform operations on its contained value, data need to be copied there regularly. Therefore it is not suited to store data.
+                </div>
+              </div>
               <hr>
               <h3>The Tetris Pieces and their Rotations</h3>
-              There are 7 pieces in GB Tetris (L,J,I,O,Z,S,T) that have 4 orientations (N,E,S,W) each. Even though the S, Z and I pieces seemingly toggle between 2 states and the O-piece only ever appear as a single state, all 4 orientations are actually in code - as duplicates.<br>
-              The N (north) orientation is also the spawning orientation.<br>
-              The numbering for the piece and its orientation start at $00 for L<sub>N</sub> and increments.<br>
-              <p>
-                The spawning pieces therefore appear with a gap of 4:<br>
-                0x00, 0x04, 0x08, 0x0C, 0x10, 0x14 and 0x18.
-              </p>
-              <p><img src="images/nesw.png" alt="Pieces and orientations" class="clickable" height="500"></p>
-
+              <div class="two-column-layout small">
+                <div>
+                  <img src="images/nesw.png" alt="Pieces and orientations" class="clickable" height="500">
+                </div>
+                <div>
+                  There are 7 pieces in GB Tetris (L,J,I,O,Z,S,T) that have 4 orientations (N,E,S,W) each.
+                  <p>Even though the S, Z and I pieces seemingly toggle between 2 states and the O-piece only ever appears in a single state, all 4 orientations are actually in code - some as duplicates (blue background in figure).</p>
+                  <p>The N (north) orientation (orange background in figure) is also the spawning orientation.
+                  The numbering for the piece and its orientation start at $00 for L<sub>N</sub> and increments.<br>
+                  <p>
+                    The spawning pieces therefore appear with intervals of 4:<br>
+                    0x00, 0x04, 0x08, 0x0C, 0x10, 0x14 and 0x18.
+                  </p>
+                  <div class="remark">
+                    <b>The display and behavior of the fallig piece (current). </b>
+                    The falling pieces is inside a 4x4 "piece matrix" in the object layer (aka. sprite layer). The piece matrix contains a special cell at P(2/3) that controls the piece position during its descent. This cell also contains the pivot mino, which in GB Tetris was defined as the pieces' rotation axis.
+                    <p>Rotation of the piece is a mere exchange of one state to one of its two neighboring states (e.g. N&rarr;E or N&rarr;W). Rotation can only ever be performed if all of the pieces' minos of the next state are not occupied in the background. The background contains everything except for the displayed current piece and the next piece.<br>
+                    This very check on the background, is also the reason why certain spins work.</p>
+                  </div>
+                </div>
+              </div>
+              <hr>
               <h2>1-Player Piece Generation RNG</h2>
-              After counting some pieces, Henk Rogers (BPS) was under the impression that certain pieces appeared more often than others - especially also as floods (multiple of the same pieces consequtively). He brought in people from Nintendo to fix the issue over the weekend. The solution was implemented poorly - probably due to time constraints - but kind of does its job.<br>
-              The idea was to cross check the current piece with the next piece and the next-next piece to prevent floods. The way this was achieved does somewhat achieve its function but also introduces other, unwanted side effects that affect piece probabilities.<br>
+              Shortly before the games' release during the Mastering process, Henk Rogers (BPS) had the feeling that certain pieces appeared more often than others - especially also as floods (multiple of the same pieces consequtively). In a hurry, he brought in people from Nintendo to his office in Yokohama to fix the issue over the weekend.<br>
+              A solution was found and implemented. The fix, also known as the flood check, was implemented poorly - probably due to time constraints - it does its job but comes with unwanted side-effects that skew piece probabilities.<br>
+              The idea of the flood prevention was to cross check (1) the current piece with (2) the next piece and (3) the next-next piece to prevent floods. In an <a href="https://youtu.be/6YhkkyXydNI?t=335" target="_blank">interview with Ars Technica</a> Henk Rogers reffered to this incident as a "shit-show".
+              <div class="remark">
+                Note that this must have considered the Japan-exclusive 1.0 Version of the game. We describe the RNG of the more common revision A, also known as Version 1.1.
+              </div>
               <h3>Implementation in Javascript</h3>
 <pre><code class="language-javascript">h = 3;
 found = false;
-while (h > 0 && !found) {
+while (h >= 0 && !found) {
+    
+    // draw a random next-next piece
     div = rand (0,255);
     d = 4*(div%7);
-    if (!c == (c | d | e)) found = true;
+
+    // flood check
+    if (!c == (c | d | e)) {
+      found = true;
+    }
     h--;
 }
 e = d;
 c = e;</code></pre>
+
               The question arises, why make things complicated and not simply use <code>d = 4*rand(0,7);</code>? The answer of course is 8-bit, which GB ASM is based on.
+              <hr>
+              <h3>Implementation in ASM</h3>
+              <div class="two-column-layout">
+                <div>
+                  <img src="images/overview.png" alt="Overview" class="clickable">
+                </div>
+                <div>
+                  The Game Boy is an 8-bit system from the 1980's - programing was done in Assembly (ASM), which are instructions, so-called opcodes that directly communicate with the CPU. These instructions are stored as bytes in the ROM of the cartridge. ASM makes the code faster but also much longer than higher level languages such as C++ or Java.<br>
+                  There is no multiplication, division or modulo operation in the CPU of the Game Boy. Every operation higher than first degree operations (additions and subtractions) have to be implemented as loops.
+                  <p>
+                    The figure on shows a high level abstraction of the 1-player piece generation RNG.<br>
+                    The Boxes "4 MOD 7" and "Flood Check" will be explained as flow diagrams in the next sections.
+                  </p>
+                  <p>
+                    After a piece locks to the floor (stack or bottom) several routines are triggered, among these is the RNG for the next-next piece. Note that the current piece and the next piece are already known and shown on the screen.<br>
+                    After generating these pieces they need to be shifted:<br> 
+                    next &rarr; current / next-next &rarr; next.
+                  </p>
+                </div>
+              </div>
+              <hr>
+              <div class="two-column-layout">
+                <div>
+                  <img src="images/4MOD7.png" alt="Modulo 7 routine" class="clickable">
+                </div>
+                <div>
+                  <p><b>Get a Random Number (0x00-0xFF)</b></p>
+                  At some point between the current piece locking to the floor until a new one spawning, the DIV is read. The timing of the DIV access is, among other circumstances, mostly affected by user inputs while the piece is falling.    
+                  <p><b>Adjust the Number for Spawning Pieces</b></p>
+                  <p>In modern programing this could be achieved by something like <code>4*(DIV%7)</code>, where % is the modulo function.<br>
+                  Since assembly can't do divisions or modulo natively, a routine that achieves this needed to be implemented, we call it "4&nbsp;MOD&nbsp;7".<br>
+                  Note that in case of a DIV value of $FF this lead to a cycle of 256. Also note that 256 is not divisible by 7 and therefore leaves a remainder, which gives a slight disadvantage to Z, S and T pieces.</p>    
+                  </div>
+              </div>
+              <hr>
+              <div class="two-column-layout">
+                <div>
+                  <img src="images/flood-check.png" class="clickable" alt="Flood check">
+                </div>
+                <div>
+                  <p><b>The Infamous "Flood Check"</b></p>
+                  we store the pieces as follows:
+                  <ul>
+                    <li>c = current piece</li> 
+                    <li>e = next piece</li> 
+                    <li>d = next-next piece</li>
+                  </ul> 
+                  And we apply the following check:<br>
+                  reject if <code>c==(c|d|e)</code>, where | is the symbol for the bitwise or operator.<br>
+                  this check is performed a max of 3 times and if it failed 3 times the 4th value is taken regardless.<br>    
+                </div>
+              </div>
+              <hr>
+              <h3>Game Boy (LR35902) Assembly</h3>
+              <h4>1-Player Piece RNG (Starting Address in ROM = $2041)</h4>
+<pre><code class="language-gbassembly">  ; max 3 re-rolls
+  ld h, $03 
 
-              <h3>1) Get a Random Number (0x00-0xFF)</h3>
-              At some point between the current piece locking to the floor until a new one spawning, the DIV is read. The timing of the DIV access is, among other circumstances, mostly affected by user inputs while the piece is falling.
-              
-              <h3>2) Adjust for Spawning Pieces</h3>
-              <p>In modern programing this could be achieved by something like <code>4*(DIV%7)</code>, where % is the modulo function.<br>
-              Since assembly can't do divisions or modulo natively, a routine that achieves this needed to be implemented, we call it "4 MOD 7".<br>
-              Note that in case of a DIV value of $FF this lead to a cycle of 256. Also note that 256 is not divisible by 7 and therefore leaves a remainder, which gives a slight disadvantage to Z, S and T pieces.</p>
-              <p><img src="images/4MOD7.png" alt="Modulo 7 routine" class="clickable" width="40%">
-              <img src="images/after 4MOD7.png" alt="After 4 MOD 7" class="clickable" width="40%"></p>
-              
-              <h3>3) The infamous "flood check"</h3>
-              we store the pieces as follows: c = current piece, e = next piece, d = next-next piece and apply the following check:<br>
-              reject if <code>c==(c|d|e)</code>, where | is the symbol for the bitwise or operator.<br>
-              this check is performed a max of 3 times and if it failed 3 times the 4th value is taken regardless.<br>
-              <p>&nbsp;</p>
-              <p><img src="images/flood-check.png" class="clickable" width="40%" alt="Flood check"></p>
+.4MOD7:
+  ; get a random value from div ($00-$FF)...
+  ldh a, [DIV]
+  ld b, a
 
-              <h3>Overview</h3>
-              <p><img src="images/overview.png" alt="Overview" class="clickable" width="40%"></p>
-              <p>&nbsp;</p>
+.setAToZero:
+  ; ... and make it $00, $04, $08, $0c, $10, $14 or $18
+  xor a
+
+.nextB:
+  ; b-- / if b == 0 go to floodCheck
+  dec b
+  jr z, .floodCheck
+
+  ; add 4 then check if too big ($1c)
+  inc a
+  inc a
+  inc a
+  inc a
+  cp $1c
+  jr z, .setAToZero
+
+  jr .nextB
+
+.floodCheck:
+  ld d, a
+
+  ldh a, [RAM-next-next]
+  ld e, a
+  ; h--, until h = 0
+  dec h
+  jr z, .pieceChosen
+
+  ; check if c==(c|d|e)
+  or d
+  or c
+  ; remove rotation from current piece
+  ; $fc = %11111100 (mask the last 2 bits)
+  and $fc
+  cp c
+  jr z, .upToDIV
+
+.pieceChosen:
+  ; store next-next in RAM
+  ld a, d
+  ldh [RAM-next-next], a
+
+.skipDIV:
+...</code></pre>
+              <hr>
+              <h3>Let's go Binary</h3>
+              <div class="two-column-layout small">
+                <div>
+                  <img src="images/bitwise-explained.png" alt="Bitwise explained" class="clickable">
+                </div>
+                <div>
+                  The masking of the last 2 bits to remove the rotation (<code>and $fc</code>) shows, that in the spawning (north) orientation, the last two bits can be neglected. Additionally the first 3 bits are also 0 in all cases, we can simplify / truncate the binary of the pieces such that:<br>
+                  <p>L=<code>000</code>, J=<code>001</code>, I=<code>010</code>, O=<code>011</code>, Z=<code>100</code>, S=<code>101</code>, T=<code>110</code></p>
+                  This is not in violation of the flood check but makes it easier for us humans to work with.<br>
+                  <p>The flood check <code>c==(c|e|d)</code> naturally rejects the next-next piece if the current piece, the next piece and the next-next pieces are the same (<code>c==e==d</code>).<br>
+                    Apart from that wanted trait, many of the 243 combinations are also rejected as a by-product.<br>
+                </div>
+              </div>
+              <div class="remark">
+                Note that the last 2 (truncated) bits contain the rotation state:
+                <p>N=<code>00</code>, E=<code>01</code>, S=<code>10</code>, W=<code>11</code></p>
+                E.g.: O<sub>S</sub>=<code>01110</code><br>
+                <p>This truncation can also be seen as a division by 4, which could be achieved by bitshifting the value twice to the right.</p>
+              </div>
+              <div class="remark">
+                The unwanted effects of the flood check could have been mitigated if the pieces were assigned a value in the form of 2<sup>n</sup></p>
+                <p>E.g.: L=<code>000000</code>, J=<code>000001</code>, I=<code>000010</code>, O=<code>000100</code>, Z=<code>001000</code>, S=<code>010000</code>, T=<code>100000</code></p>
+                <p>In this case the same pieces, and only the same pieces would be rejected (most of the time).</p>
+                There would be only one problem with such an implementation: it is almost as boring as 7-bag.
+              </div>
+              <hr>
+              <h3>Implications on the Piece Probabilities</h3>
+              Theory and a reality could potentially deviate substantially since the DIV register is not independent from the CPU cycle. In the frame when the DIV is read, this in itself could lead to a non-uniform distribution of the values.<br>
+              <p>In order to investigate, both approaches were considered; a theoretical and a practical one.</p> 
+              <div class="two-column-layout small">
+                <div>
+                <img src="images/after 4MOD7.png" alt="After 4 MOD 7" class="clickable">
+                </div>
+                <div>
+                  &nbsp;
+                </div>
+              </div>
+              <hr>
+              <h3>Try it out Yourself</h3>
               <div class="stats-container">
                 <label for="rowCount">Generate Pieces </label>
                 <input type="number" id="rowCount" min="1" max="10000" value="1000">
@@ -127,8 +283,7 @@ c = e;</code></pre>
     <script src="script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="gb-assembly.js"></script>
     
 
     <div id="imageModal" class="modal" style="display: none;">
