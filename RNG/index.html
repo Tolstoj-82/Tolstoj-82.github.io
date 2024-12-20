@@ -41,7 +41,7 @@
               <h3>CPU Registers Can Store Values</h3>
               <code class="red">a</code>, <code class="red">b</code>, <code class="red">c</code>, <code class="red">d</code>, <code class="red">e</code>, <code class="red">h</code> and <code class="red">l</code> are 8-bit hardware registers in the CPU that can store a byte (8-bit) each. The "a" register is the accumulator which is connected with the flags register <code>f</code>. d and e and h and l (high, low) can be combined to de and hl to act as 16-bit registers which covers the address space of the Game Boy but this is not relevant here.<br>
               The registers can be used to temporarily store data, very similar to RAM. Since the accumulator (a) can perform operations on its contained value, data need to be copied there regularly. Therefore a is not suited to store data.<br> 
-              <p><img src="images/registers.png" class="clickable" alt="CPU Registers"></p>
+              <p><img src="images/registers.png" class="clickable" width="30%" alt="CPU Registers"></p>
               <hr>
               <h3>The Tetris Pieces and their Rotations</h3>
               There are 7 pieces in GB Tetris (L,J,I,O,Z,S,T) that have 4 orientations (N,E,S,W) each. Even though the S, Z and I pieces seemingly toggle between 2 states and the O-piece only ever appear as a single state, all 4 orientations are actually in code - as duplicates.<br>
@@ -67,7 +67,7 @@ while (h > 0 && !found) {
 }
 e = d;
 c = e;</code></pre>
-              The question arises, why make things complicated and not simply use <code>d = 4 * rand(0, 7);</code>? The answer of course is 8-bit, which GB ASM is based on.
+              The question arises, why make things complicated and not simply use <code>d = 4*rand(0,7);</code>? The answer of course is 8-bit, which GB ASM is based on.
 
               <h3>1) Get a Random Number (0x00-0xFF)</h3>
               At some point between the current piece locking to the floor until a new one spawning, the DIV is read. The timing of the DIV access is, among other circumstances, mostly affected by user inputs while the piece is falling.
