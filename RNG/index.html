@@ -41,9 +41,7 @@
               <h3>CPU Registers Can Store Values</h3>
               <code class="red">a</code>, <code class="red">b</code>, <code class="red">c</code>, <code class="red">d</code>, <code class="red">e</code>, <code class="red">h</code> and <code class="red">l</code> are 8-bit hardware registers in the CPU that can store a byte (8-bit) each. The "a" register is the accumulator which is connected with the flags register <code>f</code>. d and e and h and l (high, low) can be combined to de and hl to act as 16-bit registers which covers the address space of the Game Boy but this is not relevant here.<br>
               The registers can be used to temporarily store data, very similar to RAM. Since the accumulator (a) can perform operations on its contained value, data need to be copied there regularly. Therefore a is not suited to store data.<br> 
-              <figure>
-                <img src="images/registers.png" class="clickable" alt="CPU Registers">
-              </figure>
+              <p><img src="images/registers.png" class="clickable" alt="CPU Registers"></p>
               <hr>
               <h3>The Tetris Pieces and their Rotations</h3>
               There are 7 pieces in GB Tetris (L,J,I,O,Z,S,T) that have 4 orientations (N,E,S,W) each. Even though the S, Z and I pieces seemingly toggle between 2 states and the O-piece only ever appear as a single state, all 4 orientations are actually in code - as duplicates.<br>
@@ -53,7 +51,7 @@
                 The spawning pieces therefore appear with a gap of 4:<br>
                 0x00, 0x04, 0x08, 0x0C, 0x10, 0x14 and 0x18.
               </p>
-              <p><img src="images/nesw.png" alt="Pieces and orientations" class="clickable" height="400"></p>
+              <p><img src="images/nesw.png" alt="Pieces and orientations" class="clickable" height="500"></p>
 
               <h2>1-Player Piece Generation RNG</h2>
               After counting some pieces, Henk Rogers (BPS) was under the impression that certain pieces appeared more often than others - especially also as floods (multiple of the same pieces consequtively). He brought in people from Nintendo to fix the issue over the weekend. The solution was implemented poorly - probably due to time constraints - but kind of does its job.<br>
@@ -86,11 +84,8 @@ c = e;</code></pre>
               reject if <code>c==(c|d|e)</code>, where | is the symbol for the bitwise or operator.<br>
               this check is performed a max of 3 times and if it failed 3 times the 4th value is taken regardless.<br>
               <p>&nbsp;</p>
-              <div class="image-container">
-                <figure>
-                    <img src="images/flood-check.png" class="clickable" alt="Flood check">
-                </figure>
-              </div>
+              <p><img src="images/flood-check.png" class="clickable" width="40%" alt="Flood check"></p>
+
               <h3>Overview</h3>
               <p><img src="images/overview.png" alt="Overview" class="clickable" width="40%"></p>
               <p>&nbsp;</p>
