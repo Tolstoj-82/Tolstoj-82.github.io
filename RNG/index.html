@@ -75,9 +75,9 @@
               <h2>1-Player Piece Generation RNG</h2>
               Shortly before the games' release during the Mastering process, Henk Rogers (BPS) had the feeling that certain pieces appeared more often than others - especially also as floods (multiple of the same pieces consequtively). In a hurry, he brought in people from Nintendo to his office in Yokohama to fix the issue over the weekend.<br>
               A solution was found and implemented. The fix, also known as the flood check, was implemented poorly - probably due to time constraints - it does its job but comes with unwanted side-effects that skew piece probabilities.<br>
-              The idea of the flood prevention was to cross check (1) the current piece with (2) the next piece and (3) the next-next piece to prevent floods. In an <a href="https://youtu.be/6YhkkyXydNI?t=335" target="_blank">interview with Ars Technica</a> Henk Rogers reffered to this incident as a "shit-show".
+              The idea of the flood prevention was to cross check (1) the current piece with (2) the next piece and (3) the next-next piece to prevent floods. The story is usualy told by Rogers in a positive way but in an <a href="https://youtu.be/-TumVsm9aio?t=756" target="_blank">interview with Hawaiiverse</a> he reffered to this incident as a "bullshit story".
               <div class="remark">
-                Note that this must have considered the Japan-exclusive 1.0 Version of the game. We describe the RNG of the more common revision A, also known as Version 1.1.
+                Note that this must have considered the Japan-exclusive 1.0 Version of the game. We describe the RNG of the more common revision A, also known as Version 1.1. The RNG portin of both versions is identical.
               </div>
               <h3>Implementation in Javascript</h3>
 <pre><code class="language-javascript">h = 3;
@@ -112,7 +112,7 @@ c = e;</code></pre>
                     The Boxes "4 MOD 7" and "Flood Check" will be explained as flow diagrams in the next sections.
                   </p>
                   <p>
-                    After a piece locks to the floor (stack or bottom) several routines are triggered, among these is the RNG for the next-next piece. Note that the current piece and the next piece are already known and shown on the screen.<br>
+                    After a piece is placed several routines are triggered before the next piece is dealt, among these is the RNG for the next-next piece. Note that the current piece and the next piece are already known and shown on the screen.<br>
                     After generating these pieces they need to be shifted:<br> 
                     next &rarr; current / next-next &rarr; next.
                   </p>
@@ -129,8 +129,11 @@ c = e;</code></pre>
                   <p><b>Adjust the Number for Spawning Pieces</b></p>
                   <p>In modern programing this could be achieved by something like <code>4*(DIV%7)</code>, where % is the modulo function.<br>
                   Since assembly can't do divisions or modulo natively, a routine that achieves this needed to be implemented, we call it "4&nbsp;MOD&nbsp;7".<br>
-                  Note that in case of a DIV value of $FF this lead to a cycle of 256. Also note that 256 is not divisible by 7 and therefore leaves a remainder, which gives a slight disadvantage to Z, S and T pieces.</p>    
+                  <div class="remark">
+                    Note that in case of a DIV value of $FF this lead to a cycle of 256.<br>
+                    Also note that 256 is not divisible by 7 and therefore leaves a remainder, which gives a slight disadvantage to Z, S and T pieces.
                   </div>
+                </div>
               </div>
               <hr>
               <div class="two-column-layout">
@@ -152,8 +155,10 @@ c = e;</code></pre>
               </div>
               <hr>
               <h3>Game Boy (LR35902) Assembly</h3>
-              <h4>1-Player Piece RNG (Starting Address in ROM = $2041)</h4>
+              <h4>1-Player Piece RNG</h4>
+              <b>(Starting Address in ROM: $2041 in V 1.1 / $209c in V 1.0)</b>
 <pre><code class="language-gbassembly">  ; max 3 re-rolls
+.getNewDiv:
   ld h, $03 
 
 .4MOD7:
@@ -196,7 +201,7 @@ c = e;</code></pre>
   ; $fc = %11111100 (mask the last 2 bits)
   and $fc
   cp c
-  jr z, .upToDIV
+  jr z, .getNewDiv
 
 .pieceChosen:
   ; store next-next in RAM
