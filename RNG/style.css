@@ -5,7 +5,7 @@
   }
 
   .table-container {
-    height: 80vh;
+    height: 300px;
     width: 100%;
     max-width: 900px;
     overflow-y: auto;

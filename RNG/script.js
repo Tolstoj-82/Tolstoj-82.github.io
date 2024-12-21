@@ -134,3 +134,20 @@ document.getElementById('fillButton').addEventListener('click', function() {
         alert("Please enter a number between 1 and 10000.");
     }
 });
+
+const rows = document.querySelectorAll("table.normal#binary tbody tr");
+  
+rows.forEach(row => {
+  const binCell = row.querySelector("td:nth-child(3)"); // 3rd column
+  if (binCell) {
+    const content = binCell.textContent.trim();
+    if (content.length >= 5) {
+      // show the truncated 3 and last 2 digits in grey
+      const styledContent = 
+        `<span style="color: grey;">${content.slice(0, 3)}</span>` +
+        `${content.slice(3, -2)}` +
+        `<span style="color: grey;">${content.slice(-2)}</span>`;
+      binCell.innerHTML = styledContent; // Replace the cell's content
+    }
+  }
+});

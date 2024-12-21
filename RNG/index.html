@@ -18,7 +18,7 @@
         <div class="container">
             <main>
               <p><b>Pascal and Tolstoj 2024</b></p>
-              Introducing randomness in Tetris is crucial, especially for piece generation. Some sort of an RNG (random number generation) algorithm was needed. Since most games at the time didn't require randomness, and since the Game Boy was not necessarily designed with randomness in mind, the developers had to come up with a custom solution.<br>
+              Introducing randomness in Tetris, especially for piece generation, is crucial. Some sort of an RNG (random number generation) algorithm was needed. Since most games at the time didn't require randomness, and since the Game Boy was not necessarily designed with randomness in mind, the developers had to come up with a custom solution.<br>
               <p>GB Tetris uses distinct RNG algorithms for various tasks:
                 <ul>
                   <li>1-Player Piece generation (A-Type and B-Type)</li>
@@ -34,12 +34,12 @@
               <h2>Introduction</h2>
               <h3>The DIV Register Generates "Random" Values</h3>
                 The <b>Divider register</b> (<code class="red">DIV</code>), is an 8-bit register in the Game Boys' hardware located at $FF04 in the I/O region of the memory map.
-                It auto-increments from <code>0x00</code> to <code>0xFF</code> (hex) or 0 to 255 (dec). Once $FF is reached, it reverts back to $00 creating an everlasting loop.
+                It auto-increments from <code>0x00</code> to <code>0xFF</code> (hex). Once $FF is reached, it reverts back to $00 creating an everlasting loop.
                 The register increments at approx 16.4 kHz on the DMG, which is approx. 4 times as fast as the fetch cycle of the CPU.<br>
-                Reading its value at any given point returns one of 256 "random" values.<br>
+                <p>Reading its value at any given point returns one of 256 "random" values.</p>
                 <p>The randomness in GB Tetris comes from the DIV register. This method is one of several options to introduce seemingly random numbers (pseudo random numbers). Typically, a computer is not capable of true randomness and given the same circumstances, the same random values would be generated. Human imperfection during game play, using the method here, leads to a value that seems random enough.</p>
               <hr>
-              <h3>CPU Registers Can Store Values</h3>
+              <h3>CPU Registers To Store Values</h3>
               <div class="two-column-layout small">
                 <div>
                   <img src="images/registers.png" class="clickable" width="30%" alt="CPU Registers">
@@ -57,21 +57,22 @@
                 </div>
                 <div>
                   There are 7 pieces in GB Tetris (L,J,I,O,Z,S,T) that have 4 orientations (N,E,S,W) each.
-                  <p>Even though the S, Z and I pieces seemingly toggle between 2 states and the O-piece only ever appears in a single state, all 4 orientations are actually in code - some as duplicates (blue background in figure).</p>
+                  <p>Even though the S, Z and I pieces seemingly toggle between 2 orientations and the O-piece only ever appears in a single state, all 4 orientations are actually in code - some as duplicates (blue background in figure).</p>
                   <p>The N (north) orientation (orange background in figure) is also the spawning orientation.
                   The numbering for the piece and its orientation start at $00 for L<sub>N</sub> and increments.<br>
                   <p>
                     The spawning pieces therefore appear with intervals of 4:
-                  </p><p>
-                    0x00, 0x04, 0x08, 0x0C, 0x10, 0x14 and 0x18.
+                  </p>
+                  <p>
+                    <code>0x00</code>, <code>0x04</code>, <code>0x08</code>, <code>0x0C</code>, <code>0x10</code>, <code>0x14</code> and <code>0x18</code>.
                   </p>
                 </div>
               </div>
               <div class="remark">
                 <b>The display and behavior of the fallig piece (current). </b>
-                The falling pieces is inside a hypothetical 4x4 "piece matrix" in the object layer (aka. sprite layer). The piece matrix contains a special cell at P(2/3) that controls the piece position during its descent. This cell also contains the pivot mino, which in GB Tetris was defined as the pieces' rotation axis.
-                <p>Rotation of the piece is a mere exchange of one state to one of its two neighboring states (e.g. N&rarr;E or N&rarr;W). Rotation can only ever be performed if all of the pieces' minos of the next state are not occupied in the background. The background contains everything except for the displayed current piece and the next piece.<br>
-                This very check on the background, is also the reason why certain spins work.</p>
+                The falling pieces is inside a hypothetical 4x4 "piece matrix" in the object layer (aka. sprite layer) which is placed in the foreground. The piece matrix contains a special cell at P(2/3) that controls the piece position during its descent. This cell also contains the pivot mino, which in GB Tetris is defined as the pieces' rotation axis.
+                <p>Rotation of the piece is a mere exchange of one orientation to one of its two neighboring orientations (e.g. N&rarr;E or N&rarr;W). Rotation can only ever be performed if all of the pieces' minos of the rotated piece are not occupied in the background.<br>
+                This very check on the background, is also the reason why certain unintuitive spins work.</p>
               </div>
               <hr>
               <h2>1-Player Piece Generation RNG</h2>
@@ -82,6 +83,7 @@
                 Note that this must have considered the Japan-exclusive 1.0 Version of the game. We describe the RNG of the more common revision A, also known as Version 1.1. The RNG portin of both versions is identical.
               </div>
               <h3>Implementation in Pseudocode</h3>
+
 <pre><code class="language-javascript">h = 3;
 found = false;
 while (h >= 0 && !found) {
@@ -104,9 +106,6 @@ c = e;</code></pre>
               <h3>Implementation in ASM</h3>
               <div class="two-column-layout">
                 <div>
-                  <img src="images/overview.png" alt="Overview" class="clickable">
-                </div>
-                <div>
                   The Game Boy is an 8-bit system from the 1980's - programing was done in Assembly (ASM), which are instructions, so-called opcodes that directly communicate with the CPU. These instructions are stored as bytes in the ROM of the cartridge. ASM makes the code faster but also much longer than higher level languages such as C++ or Java.<br>
                   There is no multiplication, division or modulo operation in the CPU of the Game Boy. Every operation higher than first degree operations (additions and subtractions) have to be implemented as loops.
                   <p>
@@ -117,7 +116,10 @@ c = e;</code></pre>
                     After a piece is placed several routines are triggered before the next piece is dealt, among these is the RNG for the next-next piece. Note that the current piece and the next piece are already known and shown on the screen.<br>
                     After generating these pieces they need to be shifted:<br> 
                     next &rarr; current / next-next &rarr; next.
-                  </p>
+                  </p>                  
+                </div>
+                <div>
+                  <img src="images/overview.png" alt="Overview" class="clickable">
                 </div>
               </div>
               <hr>
@@ -151,7 +153,7 @@ c = e;</code></pre>
                     <li>d = next-next piece</li>
                   </ul> 
                   And we apply the following check:<br>
-                  reject if <code>c==(c|d|e)</code>, where | is the symbol for the bitwise or operator.<br>
+                  reject if <code>c==(c|e|d)</code>, where | is the symbol for the bitwise or operator.<br>
                   this check is performed a max of 3 times and if it failed 3 times the 4th value is taken regardless.<br>    
                 </div>
               </div>
@@ -159,6 +161,7 @@ c = e;</code></pre>
               <h3>Game Boy (LR35902) Assembly</h3>
               <h4>1-Player Piece RNG</h4>
               <b>(Starting Address in ROM: $2041 in V 1.1 / $209c in V 1.0)</b>
+
 <pre><code class="language-gbassembly">  ; max 3 re-rolls
 .getNewDiv:
   ld h, $03 
@@ -196,7 +199,7 @@ c = e;</code></pre>
   dec h
   jr z, .pieceChosen
 
-  ; check if c==(c|d|e)
+  ; check if c==(c|e|d)
   or d
   or c
   ; remove rotation from current piece
@@ -211,8 +214,9 @@ c = e;</code></pre>
   ldh [RAM-next-next], a
 
 ...</code></pre>
+
               <hr>
-              <h3>Let's go Binary</h3>
+              <h3>Let's go Binary to Better Make Sense of the Bitwise-OR</h3>
               <div class="two-column-layout small">
                 <div>
                   <table class="normal" id="binary">
@@ -295,7 +299,7 @@ c = e;</code></pre>
               Theory and a reality could potentially deviate substantially since the DIV register is not independent from the CPU cycle. In the frame when the DIV is read, this in itself could lead to a non-uniform distribution of the values.<br>
               <p>In order to investigate, both approaches were considered; a theoretical and a practical one.</p> 
               <hr>
-              <h4>A Theoretical approach</h4>
+              <h4>A Theoretical Approach</h4>
               <h5>1) The Effect of 4MOD7</h5>
               <div class="two-column-layout small">
                 <div>
@@ -317,7 +321,7 @@ c = e;</code></pre>
               </div>
               <h5>2) The Effect of the Flood Control</h5>
               <div class="remark">
-                By the nature of the bitwise or: "the more zeros the piece contains, the likelier it is being rejected."
+                By the nature of the bitwise-or the more zeros the piece contains, the likelier it is being rejected.
                 <table class="normal special" style="width: auto;">
                     <tr>
                       <td style="color: black;">1 zero</td>
@@ -339,53 +343,59 @@ c = e;</code></pre>
                     </tr>
                 </table>               
               </div>
-              If you apply the flood check to all combinations of 3 pieces, which is 7<sup>3</sup>=243 combinations, you get a total of 61 rejected combinations. The following numbers reflect this:
-              <table class="normal" style="width: auto;">
-                <thead>
-                  <tr>
-                    <th>Piece</th>
-                    <th>Rejected</th>
-                    <th>Rejection Rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>L</td>
-                    <td>19</td>
-                    <td>7.82%</td>
-                  </tr>
-                  <tr>
-                    <td>J</td>
-                    <td>10</td>
-                    <td>4.12%</td>
-                  </tr>
-                  <tr>
-                    <td>I</td>
-                    <td>10</td>
-                    <td>4.12%</td>
-                  </tr>
-                  <tr>
-                    <td>O</td>
-                    <td>4</td>
-                    <td>1.65%</td>
-                  </tr>
-                  <tr>
-                    <td>Z</td>
-                    <td>10</td>
-                    <td>4.12%</td>
-                  </tr>
-                  <tr>
-                    <td>S</td>
-                    <td>4</td>
-                    <td>1.65%</td>
-                  </tr>
-                  <tr>
-                    <td>T</td>
-                    <td>4</td>
-                    <td>1.65%</td>
-                  </tr>
-                </tbody>
-            </table> 
+              <div class="two-column-layout small">
+                <div>
+                  <table class="normal">
+                    <thead>
+                      <tr>
+                        <th>Piece</th>
+                        <th>Rejected</th>
+                        <th>Rejection Rate</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>L</td>
+                        <td>19</td>
+                        <td>7.82%</td>
+                      </tr>
+                      <tr>
+                        <td>J</td>
+                        <td>10</td>
+                        <td>4.12%</td>
+                      </tr>
+                      <tr>
+                        <td>I</td>
+                        <td>10</td>
+                        <td>4.12%</td>
+                      </tr>
+                      <tr>
+                        <td>O</td>
+                        <td>4</td>
+                        <td>1.65%</td>
+                      </tr>
+                      <tr>
+                        <td>Z</td>
+                        <td>10</td>
+                        <td>4.12%</td>
+                      </tr>
+                      <tr>
+                        <td>S</td>
+                        <td>4</td>
+                        <td>1.65%</td>
+                      </tr>
+                      <tr>
+                        <td>T</td>
+                        <td>4</td>
+                        <td>1.65%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>  
+                <div>
+                  If you apply the flood check to all combinations of 3 pieces, which is 7<sup>3</sup>=243 combinations, you get a total of 61 rejected combinations. The numbers in the table reflect this.
+                </div>
+              </div>
             <p>The probability is calculated as <code>(1-([Piece] rejected/243))*P([Piece])</code></p>
               <hr>
               <h3>Try it out Yourself</h3>
@@ -420,13 +430,28 @@ c = e;</code></pre>
                   </tbody>
                 </table>
               </div>
+              <hr>
+              <h4>A Practical Approach</h4>
+              <div class="two-column-layout small">
+                <div>
+                  <img src="images/Chris&Triss.png" alt="Chris and Triss Piece Count" class="clickable">
+                </div>
+                <div>
+                  <a href="../ChrisAndTriss/index.html" target="_blank">Chris & Triss</a> is a block stacking game that uses an RNG that is expected to yield identical piece probabilities as GB Tetris. At the end of a session, the number of dealt pieces are displayed, which facilitates the piece count. Apart from that, Chris & Triss offers useful modes, such as the ZEN-Mode where the level never changes. Like this, very long continuous games can be played and it can be evaluated, whether RNG is the same in different levels.
+                  <p>Playing the game from a cartridge on original hardware yielded the following percentages:</p>
+                </div>
+              </div>
+              
+              <hr class="short">
               <h4>Sources:</h4>
-              <ul> 
-                <li><a href="https://harddrop.com/wiki/Tetris_(Game_Boy)#Randomizer" target="_blank">https://harddrop.com/wiki/Tetris_(Game_Boy)#Randomizer</a></li>
-                <li><a href="https://babeheim.com/blog/2020-12-29-is-tetris-biased/" target="_blank">https://babeheim.com/blog/2020-12-29-is-tetris-biased/</a></li>
-                <li><a href="https://simon.lc/the-history-of-tetris-randomizers" target="_blank">https://simon.lc/the-history-of-tetris-randomizers</a></li>
-                <li><a href="https://tetrisconcept.net/threads/randomizer-theory.512/" target="_blank">https://tetrisconcept.net/threads/randomizer-theory.512/</a></li>
-              </ul>
+              <div class="references">
+                <ol> 
+                  <li><a href="https://harddrop.com/wiki/Tetris_(Game_Boy)#Randomizer" target="_blank">https://harddrop.com/wiki/Tetris_(Game_Boy)#Randomizer</a></li>
+                  <li><a href="https://babeheim.com/blog/2020-12-29-is-tetris-biased/" target="_blank">https://babeheim.com/blog/2020-12-29-is-tetris-biased/</a></li>
+                  <li><a href="https://simon.lc/the-history-of-tetris-randomizers" target="_blank">https://simon.lc/the-history-of-tetris-randomizers</a></li>
+                  <li><a href="https://tetrisconcept.net/threads/randomizer-theory.512/" target="_blank">https://tetrisconcept.net/threads/randomizer-theory.512/</a></li>
+                </ol>
+              </div>
             </main>
         </div>
       </div>
@@ -437,26 +462,6 @@ c = e;</code></pre>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
     <script src="gb-assembly.js"></script>
   
-    <script>
-      const rows = document.querySelectorAll("table.normal#binary tbody tr");
-  
-      rows.forEach(row => {
-        const binCell = row.querySelector("td:nth-child(3)"); // 3rd column
-        if (binCell) {
-          const content = binCell.textContent.trim();
-          if (content.length >= 5) {
-            // show the truncated 3 and last 2 digits in grey
-            const styledContent = 
-              `<span style="color: grey;">${content.slice(0, 3)}</span>` +
-              `${content.slice(3, -2)}` +
-              `<span style="color: grey;">${content.slice(-2)}</span>`;
-            binCell.innerHTML = styledContent; // Replace the cell's content
-          }
-        }
-      });
-
-    </script>
-
     <div id="imageModal" class="modal" style="display: none;">
         <div class="modal-content">
           <span class="close">&times;</span>
