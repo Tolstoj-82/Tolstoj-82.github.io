@@ -9,7 +9,7 @@ let lastRowNum = 0;
 let pieceCount = new Array(7);
 pieceCount.fill(0);
 
-const tbody = document.querySelector("tbody");
+const tbody = document.querySelector("#piece-generator tbody");
 
 function getDiv() {
     return Math.floor(Math.random() * 256);

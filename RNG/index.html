@@ -59,22 +59,23 @@
                   <p>The N (north) orientation (orange background in figure) is also the spawning orientation.
                   The numbering for the piece and its orientation start at $00 for L<sub>N</sub> and increments.<br>
                   <p>
-                    The spawning pieces therefore appear with intervals of 4:<br>
+                    The spawning pieces therefore appear with intervals of 4:
+                  </p><p>
                     0x00, 0x04, 0x08, 0x0C, 0x10, 0x14 and 0x18.
                   </p>
-                  <div class="remark">
-                    <b>The display and behavior of the fallig piece (current). </b>
-                    The falling pieces is inside a 4x4 "piece matrix" in the object layer (aka. sprite layer). The piece matrix contains a special cell at P(2/3) that controls the piece position during its descent. This cell also contains the pivot mino, which in GB Tetris was defined as the pieces' rotation axis.
-                    <p>Rotation of the piece is a mere exchange of one state to one of its two neighboring states (e.g. N&rarr;E or N&rarr;W). Rotation can only ever be performed if all of the pieces' minos of the next state are not occupied in the background. The background contains everything except for the displayed current piece and the next piece.<br>
-                    This very check on the background, is also the reason why certain spins work.</p>
-                  </div>
                 </div>
+              </div>
+              <div class="remark">
+                <b>The display and behavior of the fallig piece (current). </b>
+                The falling pieces is inside a 4x4 "piece matrix" in the object layer (aka. sprite layer). The piece matrix contains a special cell at P(2/3) that controls the piece position during its descent. This cell also contains the pivot mino, which in GB Tetris was defined as the pieces' rotation axis.
+                <p>Rotation of the piece is a mere exchange of one state to one of its two neighboring states (e.g. N&rarr;E or N&rarr;W). Rotation can only ever be performed if all of the pieces' minos of the next state are not occupied in the background. The background contains everything except for the displayed current piece and the next piece.<br>
+                This very check on the background, is also the reason why certain spins work.</p>
               </div>
               <hr>
               <h2>1-Player Piece Generation RNG</h2>
               Shortly before the games' release during the Mastering process, Henk Rogers (BPS) had the feeling that certain pieces appeared more often than others - especially also as floods (multiple of the same pieces consequtively). In a hurry, he brought in people from Nintendo to his office in Yokohama to fix the issue over the weekend.<br>
               A solution was found and implemented. The fix, also known as the flood check, was implemented poorly - probably due to time constraints - it does its job but comes with unwanted side-effects that skew piece probabilities.<br>
-              The idea of the flood prevention was to cross check (1) the current piece with (2) the next piece and (3) the next-next piece to prevent floods. The story is usualy told by Rogers in a positive way but in an <a href="https://youtu.be/-TumVsm9aio?t=756" target="_blank">interview with Hawaiiverse</a> he reffered to this incident as a "bullshit story".
+              The idea of the flood prevention was to cross check (1) the current piece with (2) the next piece and (3) the next-next piece to prevent floods. The story is usualy told by Rogers in a positive way but in an <a href="https://youtu.be/-TumVsm9aio?t=756" target="_blank">interview with Hawaiiverse</a> he reffered to this incident as "a bit of a bullshit story".
               <div class="remark">
                 Note that this must have considered the Japan-exclusive 1.0 Version of the game. We describe the RNG of the more common revision A, also known as Version 1.1. The RNG portin of both versions is identical.
               </div>
@@ -207,13 +208,65 @@ c = e;</code></pre>
   ld a, d
   ldh [RAM-next-next], a
 
-.skipDIV:
 ...</code></pre>
               <hr>
               <h3>Let's go Binary</h3>
               <div class="two-column-layout small">
                 <div>
-                  <img src="images/bitwise-explained.png" alt="Bitwise explained" class="clickable">
+                  <table class="normal">
+                    <thead>
+                      <tr>
+                        <th>Piece</th>
+                        <th>Hex</th>
+                        <th>Bin</th>
+                        <th>Bin<sub>Trunc</sub></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>L<sub>N</sub></td>
+                        <td>0x00</td>
+                        <td>00000000</td>
+                        <td>000</td>
+                      </tr>
+                      <tr>
+                        <td>J<sub>N</sub></td>
+                        <td>0x04</td>
+                        <td>00000100</td>
+                        <td>001</td>
+                      </tr>
+                      <tr>
+                        <td>I<sub>N</sub></td>
+                        <td>0x08</td>
+                        <td>00001000</td>
+                        <td>010</td>
+                      </tr>
+                      <tr>
+                        <td>O<sub>N</sub></td>
+                        <td>0x0C</td>
+                        <td>00001100</span></td>
+                        <td>011</td>
+                      </tr>
+                      <tr>
+                        <td>Z<sub>N</sub></td>
+                        <td>0x10</td>
+                        <td>00010000</td>
+                        <td>100</td>
+                      </tr>
+                      <tr>
+                        <td>S<sub>N</sub></td>
+                        <td>0x14</td>
+                        <td>00010100</span></td>
+                        <td>101</td>
+                      </tr>
+                      <tr>
+                        <td>T<sub>N</sub></td>
+                        <td>0x18</td>
+                        <td>00011000</td>
+                        <td>110</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
                 <div>
                   The masking of the last 2 bits to remove the rotation (<code>and $fc</code>) shows, that in the spawning (north) orientation, the last two bits can be neglected. Additionally the first 3 bits are also 0 in all cases, we can simplify / truncate the binary of the pieces such that:<br>
@@ -239,13 +292,50 @@ c = e;</code></pre>
               <h3>Implications on the Piece Probabilities</h3>
               Theory and a reality could potentially deviate substantially since the DIV register is not independent from the CPU cycle. In the frame when the DIV is read, this in itself could lead to a non-uniform distribution of the values.<br>
               <p>In order to investigate, both approaches were considered; a theoretical and a practical one.</p> 
+              <hr>
+              <h4>A Theoretical approach</h4>
               <div class="two-column-layout small">
                 <div>
                 <img src="images/after 4MOD7.png" alt="After 4 MOD 7" class="clickable">
                 </div>
                 <div>
+                  Due to the fact that the DIV returns 256 values but there are only 7 pieces, there is already a slight indifference in favor of certain pieces, namely L, J, I and O.<br>
+                  <p>
+                    This leads to the following probabilities:
+                  </p><p>
+                    <code>P(L)=P(J)=P(I)=P(O) = 14.45%</code>
+                  </p><p>
+                    <code>P(Z)=P(S)=P(T) = 14.06%</code>
+                  </p>
+                </div>
+              <div>
                   &nbsp;
                 </div>
+              </div>
+              <div class="remark">
+                By the nature of the bitwise or: "the more zeros the piece contains, the likelier it is being rejected."
+                <table class="normal special" style="width: auto;">
+                  
+                    <tr>
+                      <td style="color: black;">1 zero</td>
+                      <td style="background-color: #385723;">O</td>
+                      <td style="background-color: #C00000;">S</td>
+                      <td style="background-color: #C00000;">T</td>
+                    </tr>
+                    <tr>
+                      <td style="color: black;">2 zeros</td>
+                      <td style="background-color: #385723;">J</td>
+                      <td style="background-color: #385723;">I</td>
+                      <td style="background-color: #C00000;">Z</td>
+                    </tr>
+                    <tr>
+                      <td style="color: black;">3 zeros</td>
+                      <td style="background-color: #385723;">L</td>
+                      <td>&nbsp;</td>
+                      <td>&nbsp;</td>
+                    </tr>
+                  
+                </table>
               </div>
               <hr>
               <h3>Try it out Yourself</h3>
@@ -256,7 +346,7 @@ c = e;</code></pre>
                 <div id="totalRows"></div>
               </div>
               <div class="table-container">
-                <table>
+                <table id="piece-generator">
                   <thead>
                     <tr>
                         <th class="piece">#</th>
@@ -288,7 +378,26 @@ c = e;</code></pre>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
     <script src="gb-assembly.js"></script>
-    
+  
+    <script>
+      const rows = document.querySelectorAll("table.normal tbody tr");
+  
+      rows.forEach(row => {
+        const binCell = row.querySelector("td:nth-child(3)"); // 3rd column
+        if (binCell) {
+          const content = binCell.textContent.trim();
+          if (content.length >= 5) {
+            // show the truncated 3 and last 2 digits in grey
+            const styledContent = 
+              `<span style="color: grey;">${content.slice(0, 3)}</span>` +
+              `${content.slice(3, -2)}` +
+              `<span style="color: grey;">${content.slice(-2)}</span>`;
+            binCell.innerHTML = styledContent; // Replace the cell's content
+          }
+        }
+      });
+
+    </script>
 
     <div id="imageModal" class="modal" style="display: none;">
         <div class="modal-content">

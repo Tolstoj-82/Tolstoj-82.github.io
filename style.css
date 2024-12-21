@@ -8,6 +8,7 @@
 
 body {
     font-family: "Open Sans", serif;
+    font-size: 1.1rem;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -21,16 +22,14 @@ header {
     text-align: center;
     background-color: #274732;
     color: #fff;
-    /* padding: 20px 0; */
-    padding: 10px 0; /* */
-    height: 80px; /* */
+    padding: 10px 0;
+    height: 80px;
     z-index: 1000;
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
-    /* height: 120px; */
 }
 
 header img {
@@ -38,21 +37,12 @@ header img {
     margin-left: 10px;
 }
 
-/*header.small {
-    padding: 10px 0;
-    height: 80px;
-}*/
-
 header h1 {
     margin: 0;
-    /*font-size: 2.5rem;*/
-    font-size: 1.8rem; /* fdsjklsdfjfdslk */
+    font-size: 1.8rem;
     transition: font-size 0.3s ease;
 }
 
-/*header.small h1 {
-    font-size: 1.8rem;
-}*/
 
 header.small img {
     height: 1.8em;
@@ -133,11 +123,14 @@ main {
     margin: 0;
 }
 
+img {
+    border-radius: 10px;
+}
+
 .image-container img {
     width: 100%;
     height: auto;
     border: 1px solid #ddd;
-    border-radius: 5px;
 }
 
 .image-container figcaption {
@@ -409,3 +402,45 @@ code.block {
 code.red{
     background-color: #5d0000;
 }
+
+table.normal {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border: 2px solid #000;
+  }
+  
+  table.normal thead th {
+    font-size: 1.2em;
+    font-weight: bold;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+  }
+  
+  table.normal tbody tr:nth-child(odd) {
+    background-color: #c0c0c0;
+  }
+  
+  table.normal tbody tr:nth-child(even) {
+    background-color: white;
+  }
+  
+  table.normal tbody td:first-child {
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  table.normal tbody td {
+    font-family: monospace;
+    text-align: center;
+    padding: 8px;
+    border: 0;
+  }
+
+  table.normal.special tbody td{
+    border: 2px solid #FFF;
+    font-weight: bold;
+    color: #FFF;
+  }
