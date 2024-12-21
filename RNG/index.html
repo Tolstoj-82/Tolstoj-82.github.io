@@ -13,7 +13,7 @@
 <body>
     <div class="content">
         <header>
-            <h1>RNG in GB Tetris</h1>
+            <h1>A Deep Dive into the RNG of GB Tetris</h1>
         </header>
         <div class="container">
             <main>
@@ -28,8 +28,10 @@
                 </ul>
                 These RNG algorithms closely resemble each other, but have subtly distinct features. We will delve into the algorithms one-by-one.
               </p>
-              
-              <h2>Introduction</h2>              
+              <h2>Summary</h2>
+                Pieces in GB Tetris are not dealt with equal probabilities.<br>
+                If you want to deepdive into the topic continue reading.
+              <h2>Introduction</h2>
               <h3>The DIV Register Generates "Random" Values</h3>
                 The <b>Divider register</b> (<code class="red">DIV</code>), is an 8-bit register in the Game Boys' hardware located at $FF04 in the I/O region of the memory map.
                 It auto-increments from <code>0x00</code> to <code>0xFF</code> (hex) or 0 to 255 (dec). Once $FF is reached, it reverts back to $00 creating an everlasting loop.
@@ -67,7 +69,7 @@
               </div>
               <div class="remark">
                 <b>The display and behavior of the fallig piece (current). </b>
-                The falling pieces is inside a 4x4 "piece matrix" in the object layer (aka. sprite layer). The piece matrix contains a special cell at P(2/3) that controls the piece position during its descent. This cell also contains the pivot mino, which in GB Tetris was defined as the pieces' rotation axis.
+                The falling pieces is inside a hypothetical 4x4 "piece matrix" in the object layer (aka. sprite layer). The piece matrix contains a special cell at P(2/3) that controls the piece position during its descent. This cell also contains the pivot mino, which in GB Tetris was defined as the pieces' rotation axis.
                 <p>Rotation of the piece is a mere exchange of one state to one of its two neighboring states (e.g. N&rarr;E or N&rarr;W). Rotation can only ever be performed if all of the pieces' minos of the next state are not occupied in the background. The background contains everything except for the displayed current piece and the next piece.<br>
                 This very check on the background, is also the reason why certain spins work.</p>
               </div>
@@ -213,7 +215,7 @@ c = e;</code></pre>
               <h3>Let's go Binary</h3>
               <div class="two-column-layout small">
                 <div>
-                  <table class="normal">
+                  <table class="normal" id="binary">
                     <thead>
                       <tr>
                         <th>Piece</th>
@@ -294,6 +296,7 @@ c = e;</code></pre>
               <p>In order to investigate, both approaches were considered; a theoretical and a practical one.</p> 
               <hr>
               <h4>A Theoretical approach</h4>
+              <h5>1) The Effect of 4MOD7</h5>
               <div class="two-column-layout small">
                 <div>
                 <img src="images/after 4MOD7.png" alt="After 4 MOD 7" class="clickable">
@@ -303,19 +306,19 @@ c = e;</code></pre>
                   <p>
                     This leads to the following probabilities:
                   </p><p>
-                    <code>P(L)=P(J)=P(I)=P(O) = 14.45%</code>
+                    <code>P(L)=P(J)=P(I)=P(O) = 37/256 &cong; 14.45%</code>
                   </p><p>
-                    <code>P(Z)=P(S)=P(T) = 14.06%</code>
+                    <code>P(Z)=P(S)=P(T) = 36/256 &cong; 14.06%</code>
                   </p>
                 </div>
               <div>
                   &nbsp;
                 </div>
               </div>
+              <h5>2) The Effect of the Flood Control</h5>
               <div class="remark">
                 By the nature of the bitwise or: "the more zeros the piece contains, the likelier it is being rejected."
                 <table class="normal special" style="width: auto;">
-                  
                     <tr>
                       <td style="color: black;">1 zero</td>
                       <td style="background-color: #385723;">O</td>
@@ -334,9 +337,56 @@ c = e;</code></pre>
                       <td>&nbsp;</td>
                       <td>&nbsp;</td>
                     </tr>
-                  
-                </table>
+                </table>               
               </div>
+              If you apply the flood check to all combinations of 3 pieces, which is 7<sup>3</sup>=243 combinations, you get a total of 61 rejected combinations. The following numbers reflect this:
+              <table class="normal" style="width: auto;">
+                <thead>
+                  <tr>
+                    <th>Piece</th>
+                    <th>Rejected</th>
+                    <th>Rejection Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>L</td>
+                    <td>19</td>
+                    <td>7.82%</td>
+                  </tr>
+                  <tr>
+                    <td>J</td>
+                    <td>10</td>
+                    <td>4.12%</td>
+                  </tr>
+                  <tr>
+                    <td>I</td>
+                    <td>10</td>
+                    <td>4.12%</td>
+                  </tr>
+                  <tr>
+                    <td>O</td>
+                    <td>4</td>
+                    <td>1.65%</td>
+                  </tr>
+                  <tr>
+                    <td>Z</td>
+                    <td>10</td>
+                    <td>4.12%</td>
+                  </tr>
+                  <tr>
+                    <td>S</td>
+                    <td>4</td>
+                    <td>1.65%</td>
+                  </tr>
+                  <tr>
+                    <td>T</td>
+                    <td>4</td>
+                    <td>1.65%</td>
+                  </tr>
+                </tbody>
+            </table> 
+            <p>The probability is calculated as <code>(1-([Piece] rejected/243))*P([Piece])</code></p>
               <hr>
               <h3>Try it out Yourself</h3>
               <div class="stats-container">
@@ -370,9 +420,17 @@ c = e;</code></pre>
                   </tbody>
                 </table>
               </div>
+              <h4>Sources:</h4>
+              <ul> 
+                <li><a href="https://harddrop.com/wiki/Tetris_(Game_Boy)#Randomizer" target="_blank">https://harddrop.com/wiki/Tetris_(Game_Boy)#Randomizer</a></li>
+                <li><a href="https://babeheim.com/blog/2020-12-29-is-tetris-biased/" target="_blank">https://babeheim.com/blog/2020-12-29-is-tetris-biased/</a></li>
+                <li><a href="https://simon.lc/the-history-of-tetris-randomizers" target="_blank">https://simon.lc/the-history-of-tetris-randomizers</a></li>
+                <li><a href="https://tetrisconcept.net/threads/randomizer-theory.512/" target="_blank">https://tetrisconcept.net/threads/randomizer-theory.512/</a></li>
+              </ul>
             </main>
         </div>
       </div>
+
     <script src="../script.js"></script>
     <script src="script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
@@ -380,7 +438,7 @@ c = e;</code></pre>
     <script src="gb-assembly.js"></script>
   
     <script>
-      const rows = document.querySelectorAll("table.normal tbody tr");
+      const rows = document.querySelectorAll("table.normal#binary tbody tr");
   
       rows.forEach(row => {
         const binCell = row.querySelector("td:nth-child(3)"); // 3rd column
