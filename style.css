@@ -315,6 +315,11 @@ hr {
     margin: 20px 0;
 }
 
+hr.short {
+    margin-top: 50px;
+    width: 25%;
+}
+
 .clickable {
     display: inline-block;
     transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
@@ -408,39 +413,59 @@ table.normal {
     border-collapse: collapse;
     margin: 20px 0;
     border: 2px solid #000;
-  }
+}
   
-  table.normal thead th {
+table.normal thead th {
     font-size: 1.2em;
     font-weight: bold;
     background-color: #333;
     color: white;
     text-align: center;
     padding: 10px;
-  }
+}
   
-  table.normal tbody tr:nth-child(odd) {
+table.normal tbody tr:nth-child(odd) {
     background-color: #c0c0c0;
-  }
+}
   
-  table.normal tbody tr:nth-child(even) {
+table.normal tbody tr:nth-child(even) {
     background-color: white;
-  }
+}
   
-  table.normal tbody td:first-child {
+table.normal tbody td:first-child {
     font-weight: bold;
     text-align: center;
-  }
+}
   
-  table.normal tbody td {
+table.normal tbody td {
     font-family: monospace;
     text-align: center;
     padding: 8px;
     border: 0;
-  }
+}
 
-  table.normal.special tbody td{
+table.normal.special tbody td{
     border: 2px solid #FFF;
     font-weight: bold;
     color: #FFF;
-  }
+}
+
+/* References at the bottom of the page */
+.references ol {
+    list-style-type: none;
+    padding-left: 1.5em;
+    counter-reset: item;
+}
+
+.references li {
+    /*margin-bottom: 5px;*/
+    position: relative;
+    padding-left: 1.7em;
+}
+
+.references li::before {
+    content: "[" counter(item) "]";
+    counter-increment: item;
+    position: absolute;
+    left: 0;
+}
