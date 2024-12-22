@@ -7,7 +7,16 @@ socket.onopen = () => {
 
 socket.onmessage = (event) => {
     if(debugMode) console.log("Message received:", event.data);
-    receivedJson = event.data;
+    
+    const data = JSON.parse(event.data);
+    if (data.action === 'join') {
+        showToast(`Player ${data.player_id} joined your game.`);
+    } else if (data.action === 'send') {
+        showToast(`Message from Player ${data.player_id}: ${data.message}`);
+        receivedJson = data.field; // field
+    } else if (data.group_nr) {
+        showToast(`Your group number is ${data.group_nr}`);
+    }
 };
 
 socket.onerror = (error) => {
@@ -32,13 +41,18 @@ function jsonToArray(jsonString) {
     }
 }
   
-
 function submitString(tileArray){
-    const jsonString = JSON.stringify(tileArray, null, 2);
+    //const jsonString = JSON.stringify(tileArray, null, 2);
+    const sendJson = { field : tileArray, action : "send"}
 
     if (socket.readyState === WebSocket.OPEN) {
-        socket.send(jsonString);
+        socket.send(JSON.stringify(sendJson));
     } else {
         showToast("WebSocket is not open. Try again later.", "red")
     }
 }
+
+connectButton.addEventListener('click', () => {
+    groupNr = prompt('Enter group number:');
+    socket.send(JSON.stringify({ action: 'connect', group_nr: groupNr }));
+});

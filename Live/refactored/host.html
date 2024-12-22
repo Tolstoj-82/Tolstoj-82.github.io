@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GB Interceptor grabber</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="plot.css">
+</head>
+<body>
+    <div class="container">
+        <!-- First Column -->
+        <div class="left-column">
+            <a href="gb_interceptor_firmware_for_live.uf2" download="gb_interceptor_firmware_for_live.uf2">
+                &gt; Download Firmware here &lt;
+            </a><br>
+            <label for="device_selector">Select Interceptor:</label><br>
+            <select id="device_selector" onchange="startWebcam()">
+                <option value="">-</option>
+            </select>
+            <p class="video-container">
+                <video id="camera_feed" width="160" height="144" autoplay muted style="display: none;"></video>
+            </p>
+            <div id="color-container">
+                <button id="calibrate-button" onclick="calibrate()">Calibrate</button>
+                <div class="col-val" id="value0"></div>
+                <div class="col-val" id="value1"></div>
+                <div class="col-val" id="value2"></div>
+                <div class="col-val" id="value3"></div>
+            </div>
+            <br>
+            Scheme<br>
+            <select id="themeSelect">
+                <option value="GB">Classic</option>
+                <option value="color">Colored</option>
+                <option value="NES">NES</option>
+            </select>
+            <button id="startButton">Start Game</button>
+            <button id="disconnectButton">Disconnect</button>
+        </div>
+
+        <!-- Playfield -->
+        <div class="middle-column">
+            <div class="grid-container"></div>
+            <p>
+                <div id="playfield-detected">No playfield!</div>
+            </p>
+        </div>
+        <div class="right-column">
+        <!-- Right Column --> 
+            <div id="next" class="retroFont">Next</div>
+            <div class="next-box" id="next-box"></div>
+            <div id="score" class="retroFont"></div>
+            <div id="level" class="retroFont"></div>
+            <div id="lines" class="retroFont"></div>
+        </div>
+    </div>
+
+    <canvas id="scatterplot" width="600" height="400"></canvas>
+
+    <script src="JS/variables.js" async></script>
+    <script src="JS/OCR.js" async></script>
+    <script src="JS/cameras.js" async></script>
+    <script src="JS/calibrate.js" async></script>
+    <script src="JS/general.js" async></script>
+    <script src="JS/plot.js"></script>
+    <script src="JS/websocket-host.js"></script>
+    <div id="toast-container" class="toast-container"></div>
+</body>
+</html>
