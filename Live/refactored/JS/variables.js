@@ -1,3 +1,10 @@
+// Get the current URL
+let debugMode = false;
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.has('debugMode')) {
+    debugMode = true;
+}
+
 // DOM Elements
 const device_selector   = document.getElementById('device_selector');
 const camera_feed       = document.getElementById('camera_feed');
@@ -12,6 +19,8 @@ let calibrated          = false;
 let playfieldVisible    = false;
 let scheme              = 'GB';
 let playfieldType       = ""; // A-Type, B-Type, 2-Player
+let receivedJson        = "";
+
 
 const tileWidth         = 8;
 const tileHeight        = 8;
