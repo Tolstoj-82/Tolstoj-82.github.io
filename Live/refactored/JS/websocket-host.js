@@ -12,8 +12,9 @@ socket.onmessage = (event) => {
     if (data.action === 'join') {
         showToast(`Player ${data.player_id} joined your game.`);
     } else if (data.action === 'send') {
-        showToast(`Message from Player ${data.player_id}: ${data.message}`);
-        receivedJson = data.field; // field
+        showToast(`Message from Player ${data.player_id}: ${data.field}`);
+        //receivedJson = ; // field
+        populatePlayfield(data.field, "9");
     } else if (data.group_nr) {
         showToast(`Your group number is ${data.group_nr}`);
     }
