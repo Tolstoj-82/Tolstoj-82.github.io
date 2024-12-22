@@ -183,7 +183,7 @@ function processVideoFrames() {
         updateNextBox(nextPiece, level);
         jsonData = jsonToArray(receivedJson);
         //populatePlayfield(tileArray, level);
-        populatePlayfield(jsonData, level);
+        populatePlayfield(tileArray, level);
     }
 
     requestAnimationFrame(processVideoFrames);
