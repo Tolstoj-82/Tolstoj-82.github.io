@@ -41,9 +41,18 @@ function jsonToArray(jsonString) {
     }
 }
   
-function submitString(tileArray){
+function submitString(tileArray, score, level, high, lines, nextbox, playfieldType){
     //const jsonString = JSON.stringify(tileArray, null, 2);
-    const sendJson = { field : tileArray, action : "send"}
+    const sendJson = { 
+        field : tileArray, 
+        score : score,
+        level : level,
+        high : high,
+        lines : lines,
+        nextpiece : nextpiece,
+        playfieldType : playfieldType,
+        action : "send"
+    }
 
     if (socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify(sendJson));
