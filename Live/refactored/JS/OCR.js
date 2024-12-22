@@ -178,7 +178,6 @@ function processVideoFrames() {
     
         scoreDiv.innerHTML += `<p>Lines<br>${lines}</p>`;
         //websocket stuff
-        //updateTextareaWithTileArray(tileArray);
         submitString(
             tileArray,
             score,
@@ -188,7 +187,6 @@ function processVideoFrames() {
             nextPiece,
             playfieldType);
 
-        //jsonData = jsonToArray(receivedJson);
         updateNextBox(nextPiece, level);
         populatePlayfield(tileArray, level);
     }
@@ -237,11 +235,6 @@ function getClosestColorIndex(value) {
     closestIndex = Math.abs(3-closestIndex); 
     return closestIndex;
 }
-
-/*function updateTextareaWithTileArray(tileArray) {
-    const jsonTiles = JSON.stringify(tileArray, null, 2);
-    document.getElementById('tileOutput').value = jsonTiles;
-}*/
 
 function populatePlayfield(array, currentLevel) {
     if (!Array.isArray(array) || array.length !== 180) {

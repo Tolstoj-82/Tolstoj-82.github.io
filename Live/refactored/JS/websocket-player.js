@@ -1,4 +1,5 @@
 const socket = new WebSocket("wss://gameboytetr.is/websocket");
+let connectionEstablished = false;
 
 // WebSocket event handlers
 socket.onopen = () => {
@@ -9,13 +10,9 @@ socket.onmessage = (event) => {
     if(debugMode) console.log("Message received:", event.data);
     
     const data = JSON.parse(event.data);
-    if (data.action === 'join') {
-        showToast(`Player ${data.player_id} joined your game.`);
-    } else if (data.action === 'send') {
-        showToast(`Message from Player ${data.player_id}: ${data.message}`);
-        receivedJson = data.field; // field
-    } else if (data.group_nr) {
-        showToast(`Your group number is ${data.group_nr}`);
+    if (data.action == "name") {
+        showToast(`Your Player id is ${data.player_id}`);
+        connectionEstablished = true;
     }
 };
 
@@ -42,6 +39,9 @@ function jsonToArray(jsonString) {
 }
   
 function submitString(tileArray, score, level, high, lines, nextPiece, playfieldType){
+    
+    if(!connectionEstablished) return;
+
     const sendJson = { 
         field : tileArray, 
         score : score,
@@ -56,7 +56,8 @@ function submitString(tileArray, score, level, high, lines, nextPiece, playfield
     if (socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify(sendJson));
     } else {
-        showToast("WebSocket is not open. Try again later.", "red")
+        // PUT BACK IN!!!
+        // showToast("WebSocket is not open. Try again later.", "red")
     }
 }
 
