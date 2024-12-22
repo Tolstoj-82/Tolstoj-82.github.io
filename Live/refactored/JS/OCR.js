@@ -8,6 +8,7 @@ function processVideoFrames() {
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = canvasWidth;
     tempCanvas.height = canvasHeight;
+
     const tempContext = tempCanvas.getContext('2d');
 
     // Draw the current frame to the temporary canvas
@@ -180,13 +181,14 @@ function processVideoFrames() {
         //updateTextareaWithTileArray(tileArray);
         submitString(
             tileArray,
+            score,
             level,
             high,
             lines,
             nextPiece,
             playfieldType);
 
-        jsonData = jsonToArray(receivedJson);
+        //jsonData = jsonToArray(receivedJson);
         updateNextBox(nextPiece, level);
         populatePlayfield(tileArray, level);
     }

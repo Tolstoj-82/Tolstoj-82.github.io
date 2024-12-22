@@ -16,7 +16,7 @@ socket.onmessage = (event) => {
         level = data.level;
         high = data.high;
         lines = data.lines; 
-        nextpiece = data.nextpiece;
+        nextPiece = data.nextPiece;
         playfieldType = data.playfieldType;
 
         // drae the nextbox and playfiled
