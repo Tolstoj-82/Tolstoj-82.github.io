@@ -20,7 +20,8 @@ socket.onmessage = (event) => {
 
     } else if (data.group_nr) {
         gameNumberDiv = document.getElementById("gameNumber");
-        gameNumberDiv.innerHTML = `<p>${data.group_nr}</p>`;
+        gameNumberDiv.style.display = "block";
+        gameNumberDiv.innerHTML = `<p>Lobby:</p><p class="number">${data.group_nr}</p>`;
         showToast(`Your group number is ${data.group_nr}`);
     }
 };
