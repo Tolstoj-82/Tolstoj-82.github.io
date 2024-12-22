@@ -164,7 +164,7 @@ function processVideoFrames() {
         const high = parseInt(currentHigh);
         const lines = parseInt(currentLines);
     
-        showGameMetrics(playfieldType, score, level, high, opponentHeight);
+        showGameMetrics(playfieldType, score, level, high, opponentHeight, lines);
 
         //websocket stuff
         submitString(
@@ -185,6 +185,7 @@ function processVideoFrames() {
 
 function showGameMetrics(playfieldType, score, level, high, opponentHeight, lines){
     const scoreDiv = document.getElementById("score");
+    scoreDiv.innerHTML = "";
     // list the correct stats
     if (playfieldType === "A-Type") {
         scoreDiv.innerHTML += `<p>Score<br>${score}</p>`;
