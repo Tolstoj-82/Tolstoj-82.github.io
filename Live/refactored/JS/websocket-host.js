@@ -19,6 +19,8 @@ socket.onmessage = (event) => {
         showGameMetrics(data.playfieldType, data.score, data.level, data.high, "", data.lines);
 
     } else if (data.group_nr) {
+        gameNumberDiv = document.getElementById("gameNumber");
+        gameNumberDiv.innerHTML = `<p>${data.group_nr}</p>`;
         showToast(`Your group number is ${data.group_nr}`);
     }
 };
