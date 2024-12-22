@@ -149,12 +149,12 @@ function processVideoFrames() {
         }
     }
 
-    //if (calibrated) updateTextareaWithTileArray(tileArray);
+    //if (calibrated) 
     if (calibrated && playfieldVisible) {
         playfieldType = "A-Type";
         if (currentLevel.includes("B-Type")) playfieldType = "B-Type";
         if(players === "2P") playfieldType = "2-Player";
-    
+
         const scoreDiv = document.getElementById("score");
         scoreDiv.innerHTML = "";
     
@@ -176,9 +176,14 @@ function processVideoFrames() {
         }
     
         scoreDiv.innerHTML += `<p>Lines<br>${lines}</p>`;
-    
+        //websocket stuff
+        //updateTextareaWithTileArray(tileArray);
+        submitString(tileArray);
+
         updateNextBox(nextPiece, level);
-        populatePlayfield(tileArray, level);
+        jsonData = jsonToArray(receivedJson);
+        //populatePlayfield(tileArray, level);
+        populatePlayfield(jsonData, level);
     }
 
     requestAnimationFrame(processVideoFrames);
@@ -226,13 +231,10 @@ function getClosestColorIndex(value) {
     return closestIndex;
 }
 
-function updateTextareaWithTileArray(tileArray) { // only needed for debugging
-    const formattedTiles = tileArray.map((tile) => {
-        const tileContent = Array.isArray(tile) ? tile.join(', ') : tile;
-        return `${tileContent}`;
-    }).join('');
-    document.getElementById('tileOutput').value = formattedTiles;
-}
+/*function updateTextareaWithTileArray(tileArray) {
+    const jsonTiles = JSON.stringify(tileArray, null, 2);
+    document.getElementById('tileOutput').value = jsonTiles;
+}*/
 
 function populatePlayfield(array, currentLevel) {
     if (!Array.isArray(array) || array.length !== 180) {
@@ -245,14 +247,12 @@ function populatePlayfield(array, currentLevel) {
     array.forEach((value, index) => {
         if (gridCells[index]) {
             if (value != "0") {
-                //gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${value}.png)`;
                 if(scheme == "NES" && !isNaN(parseInt(currentLevel)) && parseInt(currentLevel) >= 0){
                     let lastDigit = parseInt(currentLevel) % 10; // Get the last digit
                     gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${lastDigit}/${value}.png)`;
                 }else{
                     gridCells[index].style.backgroundImage = `url(images/tiles/${scheme}/${value}.png)`;
                 }  
-                //console.log(scheme);
             } else {
                 gridCells[index].style.backgroundImage = '';
             }

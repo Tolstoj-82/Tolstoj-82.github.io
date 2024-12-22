@@ -445,7 +445,7 @@ table.normal tbody td {
 }
 
 table.normal.special tbody td{
-    border: 2px solid #FFF;
+    border: 2px solid #ffffff;
     font-weight: bold;
     color: #FFF;
 }

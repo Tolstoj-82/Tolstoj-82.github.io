@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Player</title>
+</head>
+<body>
+    <h1>Tetris Player</h1>
+    <div id="log"></div>
+    <button id="connectButton">Connect to Host</button>
+    <button id="sendButton">Send Message</button>
+    <script>
+        const log = document.getElementById('log');
+        const connectButton = document.getElementById('connectButton');
+        const sendButton = document.getElementById('sendButton');
+        const ws = new WebSocket('ws://localhost:8765');
+
+        let playerId = null;
+        let groupNr = null;
+
+        function addLog(message) {
+            const div = document.createElement('div');
+            div.textContent = message;
+            log.appendChild(div);
+        }
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.action === 'name') {
+                playerId = data.player_id;
+                addLog(`You are ${playerId}`);
+            } else if (data.action === 'send') {
+                addLog(`Message from Host: ${data.message}`);
+            }
+        };
+
+        ws.onerror = (event) => {
+          addLog(`Connection closed. Please reload!`)
+        }
+
+        ws.onclose = (event) => {
+          addLog(`Connection closed. Please reload!`)
+        }
+
+        connectButton.addEventListener('click', () => {
+            groupNr = prompt('Enter group number:');
+            ws.send(JSON.stringify({ action: 'connect', group_nr: groupNr }));
+        });
+
+        sendButton.addEventListener('click', () => {
+            const message = prompt('Enter message to send to host:');
+            if (groupNr && playerId) {
+                ws.send(JSON.stringify({ action: 'send', group_nr: groupNr, player_id: playerId, message }));
+            } else {
+                addLog('You must connect to a group first!');
+            }
+        });
+    </script>
+</body>
+</html>

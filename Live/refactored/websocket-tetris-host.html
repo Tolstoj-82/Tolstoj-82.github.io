@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Host</title>
+</head>
+<body>
+    <h1>Tetris Host</h1>
+    <div id="log"></div>
+    <button id="startButton">Start Game</button>
+    <button id="disconnectButton">Disconnect</button>
+    <script>
+        const log = document.getElementById('log');
+        const startButton = document.getElementById('startButton');
+        const disconnectButton = document.getElementById('disconnectButton');
+        const ws = new WebSocket('ws://localhost:8765');
+
+        function addLog(message) {
+            const div = document.createElement('div');
+            div.textContent = message;
+            log.appendChild(div);
+        }
+
+        ws.onerror = (event) => {
+          addLog(`Connection closed. Please reload!`)
+        }
+
+        ws.onclose = (event) => {
+          addLog(`Connection closed. Please reload!`)
+        }
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.action === 'join') {
+                addLog(`Player ${data.player_id} joined your game.`);
+            } else if (data.action === 'send') {
+                addLog(`Message from Player ${data.player_id}: ${data.message}`);
+            } else if (data.group_nr) {
+                addLog(`Your group number is ${data.group_nr}`);
+            }
+        };
+
+        startButton.addEventListener('click', () => {
+            ws.send(JSON.stringify({ action: 'start', name: 'host' }));
+        });
+
+        disconnectButton.addEventListener('click', () => {
+            ws.send(JSON.stringify({ action: 'disconnect', name: 'host' }));
+            ws.close();
+        });
+    </script>
+</body>
+</html>
