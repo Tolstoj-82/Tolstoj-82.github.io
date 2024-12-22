@@ -41,15 +41,14 @@ function jsonToArray(jsonString) {
     }
 }
   
-function submitString(tileArray, score, level, high, lines, nextbox, playfieldType){
-    //const jsonString = JSON.stringify(tileArray, null, 2);
+function submitString(tileArray, score, level, high, lines, nextPiece, playfieldType){
     const sendJson = { 
         field : tileArray, 
         score : score,
         level : level,
         high : high,
         lines : lines,
-        nextpiece : nextpiece,
+        nextPiece : nextPiece,
         playfieldType : playfieldType,
         action : "send"
     }
