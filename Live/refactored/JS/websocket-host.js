@@ -12,16 +12,11 @@ socket.onmessage = (event) => {
     if (data.action === 'join') {
         showToast(`Player ${data.player_id} joined your game.`);
     } else if (data.action === 'send') {
-        score = data.score; 
-        level = data.level;
-        high = data.high;
-        lines = data.lines; 
-        nextPiece = data.nextPiece;
-        playfieldType = data.playfieldType;
 
-        // drae the nextbox and playfiled
-        populatePlayfield(data.field, level);
-        updateNextBox(nextPiece, level);
+        // draw the nextbox and playfiled
+        populatePlayfield(data.field, data.level);
+        updateNextBox(data.nextPiece, data.level);
+        showGameMetrics(data.playfieldType, data.score, data.level, data.high, "", data.lines);
 
     } else if (data.group_nr) {
         showToast(`Your group number is ${data.group_nr}`);

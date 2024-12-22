@@ -164,19 +164,8 @@ function processVideoFrames() {
         const high = parseInt(currentHigh);
         const lines = parseInt(currentLines);
     
-        // list the correct stats
-        if (playfieldType === "A-Type") {
-            scoreDiv.innerHTML += `<p>Score<br>${score}</p>`;
-            scoreDiv.innerHTML += `<p>Level<br>${level}</p>`;
-        } else if (playfieldType === "B-Type") {
-            scoreDiv.innerHTML += `<p>Level<br>${level}</p>`;
-            scoreDiv.innerHTML += `<p>High<br>${high}</p>`;
-        } else if (playfieldType === "2-Player") {
-            scoreDiv.innerHTML += `<p>High<br>${high}</p>`;
-            scoreDiv.innerHTML += `<p>Opponent<br>${opponentHeight}</p>`;
-        }
-    
-        scoreDiv.innerHTML += `<p>Lines<br>${lines}</p>`;
+        showGameMetrics(playfieldType, score, level, high, opponentHeight);
+
         //websocket stuff
         submitString(
             tileArray,
@@ -192,6 +181,22 @@ function processVideoFrames() {
     }
 
     requestAnimationFrame(processVideoFrames);
+}
+
+function showGameMetrics(playfieldType, score, level, high, opponentHeight, lines){
+    // list the correct stats
+    if (playfieldType === "A-Type") {
+        scoreDiv.innerHTML += `<p>Score<br>${score}</p>`;
+        scoreDiv.innerHTML += `<p>Level<br>${level}</p>`;
+    } else if (playfieldType === "B-Type") {
+        scoreDiv.innerHTML += `<p>Level<br>${level}</p>`;
+        scoreDiv.innerHTML += `<p>High<br>${high}</p>`;
+    } else if (playfieldType === "2-Player") {
+        scoreDiv.innerHTML += `<p>High<br>${high}</p>`;
+        scoreDiv.innerHTML += `<p>Opponent<br>${opponentHeight}</p>`;
+    }
+
+    scoreDiv.innerHTML += `<p>Lines<br>${lines}</p>`;
 }
 
 function updateNextBox(nextPiece, currentLevel) {
