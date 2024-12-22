@@ -184,6 +184,7 @@ function processVideoFrames() {
 }
 
 function showGameMetrics(playfieldType, score, level, high, opponentHeight, lines){
+    const scoreDiv = document.getElementById("score");
     // list the correct stats
     if (playfieldType === "A-Type") {
         scoreDiv.innerHTML += `<p>Score<br>${score}</p>`;
