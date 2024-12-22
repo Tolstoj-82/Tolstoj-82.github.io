@@ -178,11 +178,16 @@ function processVideoFrames() {
         scoreDiv.innerHTML += `<p>Lines<br>${lines}</p>`;
         //websocket stuff
         //updateTextareaWithTileArray(tileArray);
-        submitString(tileArray);
+        submitString(
+            tileArray,
+            level,
+            high,
+            lines,
+            nextPiece,
+            playfieldType);
 
-        updateNextBox(nextPiece, level);
         jsonData = jsonToArray(receivedJson);
-        //populatePlayfield(tileArray, level);
+        updateNextBox(nextPiece, level);
         populatePlayfield(tileArray, level);
     }
 
