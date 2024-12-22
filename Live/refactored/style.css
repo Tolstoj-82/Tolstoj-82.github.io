@@ -15,6 +15,21 @@ body {
     height: 100vh;
 }
 
+#gameNumber{
+    width: 100%;
+    margin: auto;
+    text-align: center;
+    border: 2px solid white;
+    background-color: #777;
+    display: none;
+}
+
+#gameNumber .number{
+    font-weight: bold;
+    font-size: 2em;
+    margin-top: 0;
+}
+
 .retroFont{
     font-family: 'gb-font';
     font-size: 40px;

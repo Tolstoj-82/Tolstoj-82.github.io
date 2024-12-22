@@ -56,8 +56,7 @@ function submitString(tileArray, score, level, high, lines, nextPiece, playfield
     if (socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify(sendJson));
     } else {
-        // PUT BACK IN!!!
-        // showToast("WebSocket is not open. Try again later.", "red")
+         showToast("WebSocket is not open. Try again later.", "red")
     }
 }
 
