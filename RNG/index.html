@@ -29,8 +29,10 @@
                 These RNG algorithms closely resemble each other, but have subtly distinct features. We will delve into the algorithms one-by-one.
               </p>
               <h2>Summary</h2>
-                Pieces in GB Tetris are not dealt with equal probabilities.<br>
-                If you want to deepdive into the topic continue reading.
+              In GB Tetris, pieces are not dealt with equal probabilities due to a flawed "flood prevention algorithm" and, to a lesser extent, because the Game Boy generates 256 unique random numbers that must be assigned to the 7 pieces. While the flood prevention was intended to reduce repetitive patterns, its flawed logic introduces side effects that alter piece frequencies.
+              <p>
+                If this explanation was sufficient for you, great!<br>If you'd like a deep dive—and I do mean a deep, deep dive into the topic—keep reading.
+              </p>
               <h2>Introduction</h2>
               <h3>The DIV Register Generates "Random" Values</h3>
                 The <b>Divider register</b> (<code class="red">DIV</code>), is an 8-bit register in the Game Boys' hardware located at $FF04 in the I/O region of the memory map.
@@ -441,6 +443,65 @@ c = e;</code></pre>
                   <p>Playing the game from a cartridge on original hardware yielded the following percentages:</p>
                 </div>
               </div>
+<pre><code class="language-gbassembly">  
+.mainLoop:
+; random val in B
+  ldh  a, [rDIV]
+  ld   b, a
+
+.fromWasTileEmpty:
+  ld   a, TILE_PIECE_SQUARES_START
+
+.toDecRandom:
+  dec  b
+  jr   z, .afterChoosingEmptyOrPieceSquare
+
+; random val not 0 yet, jump every other loop
+  cp   TILE_PIECE_SQUARES_START
+  jr   nz, .fromWasTileEmpty
+
+; 1st, 3rd run etc - start with empty tile
+  ld   a, TILE_EMPTY
+  jr   .toDecRandom
+
+.afterChoosingEmptyOrPieceSquare:
+  cp   TILE_EMPTY
+  jr   z, .pickedEmpty
+
+; if not empty, actually choose one of the 8 tiles from it
+  ldh  a, [rDIV]
+  and  $07
+  or   TILE_PIECE_SQUARES_START
+  jr   .emptyOrActualPieceSquareChosen
+
+.pickedEmpty:
+  ldh  [hRandomSquareObstacleTileChosen], a
+
+.emptyOrActualPieceSquareChosen:
+; push square chosen
+  push af
+
+; if column equals $0b..
+  ld   a, l
+  and  $0f
+  cp   $0b
+  jr   nz, .popAFstoreChosenSquare
+
+; at column $0b, use chosen square if previous chosen was empty
+  ldh  a, [hRandomSquareObstacleTileChosen]
+  cp   TILE_EMPTY
+  jr   z, .popAFstoreChosenSquare
+
+; override square chosen with empty otherwise, so there is 1+ empty tiles per row
+  pop  af
+  ld   a, TILE_EMPTY
+  jr   .storeChosenSquare
+
+.popAFstoreChosenSquare:
+  pop  af
+
+.storeChosenSquare:
+</code></pre>
               
               <hr class="short">
               <h4>Sources:</h4>

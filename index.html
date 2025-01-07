@@ -18,7 +18,29 @@
   <div class="content">
   <header>
     <h1>Tolstoj's GBTris Workbench</h1>
+    <button class="menu-btn" aria-label="Toggle Menu">☰</button>
   </header>
+  <div class="menu-container">
+    <button class="close-btn" aria-label="Close Menu">✖</button>
+    <h3 class="center">My Projects</h3>
+    <ul class="menu">
+      <li><a href="Live/refactored/index.html">OCR</a></li>
+      <li><a href="firmwarelabeller/index.html">Re-labbeler</a></li>
+      <li><a href="LUTer/index.html">LUT Tool</a></li>
+      <li><a href="TREP/index.html">TREP</a></li>
+      <li><a href="music-Editor/index.html">ASM Music Editor</a></li>
+      <li><a href="genetic-engineering/index.html">Genetic Engineering</a></li>
+      <li><a href="ChrisAndTriss/index.html">Chris &amp; Triss</a></li>
+    </ul>
+    <h3 class="center">Other Things</h3>
+    <ul class="menu">
+      <li><a href="Tolstoj/index.html">About Me</a></li>
+      <li><a href="TwoPlayer/index.html">2-Player</a></li>
+      <li><a href="ROMHacks/index.html">ROM Patches</a></li>
+      <li><a href="Collection/index.html">My Tetris Collection</a></li>
+      <li><a href="RNG/index.html">RNG in GB Tetris</a></li>
+    </ul>
+  </div>  
 
   <div class="container">
     <main>
@@ -39,118 +61,171 @@
       <h2>My Projects</h2>
       <section class="grid">
 
-    <div class="grid-item">
-      <img src="images/relabeller.png" alt="GB Interceptor Re-labeller">
-      <h3>GB Interceptor Re-labeller</h3>
-      <p>
-        Using multiple interceptors on one computer can be confusing. Especially if you try to chose the correct one from the label. This very simple tool let's you re-label the firmware for clear identification.
-      </p>
-      <a href="firmwarelabeller/index.html" class="button">Learn More</a>
-    </div>
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="Live/refactored/index.html" class="grid-item-clickable">
+              <img src="images/OCR.png" alt="GB Interceptor OCR 2">
+              <h3>GB Interceptor Tetris OCR</h3>
+              <p>
+                Send your GB Tetris footage from the interceptor through OCR and let the computer do its magic.
+              </p>
+            </a>
+            <div class="grid-item-buttons">
+              <a href="https://www.youtube.com/watch?v=ET6S309U-8Q" class="button secondary" target="_blank">Explainer Video</a>
+            </div>
+          </div>
+        </div>
 
-    <div class="grid-item">
-      <img src="images/LUTs.png" alt="GB Interceptor LUT tool">
-      <h3>GB Interceptor LUT Tool</h3>
-      <p>
-        Stand out by using a custom color palette (LUTs = lookup table) for your GB Interceptor to use in software such as OBS.
-      </p>
-      <a href="https://www.youtube.com/watch?v=9h_nTtzD1bw" class="button secondary" target="_blank">Exlpainer Video</a><br>
-      <a href="LUTer/index.html" class="button">Learn More</a>
-    </div>
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="firmwarelabeller/index.html" class="grid-item-clickable">
+              <img src="images/relabeller.png" alt="GB Interceptor Re-labeller">
+              <h3>GB Interceptor Re-labeller</h3>
+              <p>
+                Using multiple interceptors on one computer can be confusing. Especially if you try to chose the correct one from the label. This very simple tool let's you re-label the firmware for clear identification.                
+              </p>
+            </a>
+          </div>
+        </div>
 
-    <div class="grid-item">
-      <img src="images/OCR.png" alt="GB Interceptor OCR 2">
-      <h3>GB Interceptor Tetris OCR</h3>
-      <p>
-        Send your GB Tetris footage from the interceptor through OCR and let the computer do its magic.
-      </p>
-      <a href="https://www.youtube.com/watch?v=ET6S309U-8Q" class="button secondary" target="_blank">Exlpainer Video</a><br>
-      <a href="Live/refactored/index.html" class="button">Learn More</a>
-    </div>
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="LUTer/index.html" class="grid-item-clickable">
+              <img src="images/LUTs.png" alt="GB Interceptor LUT tool">
+              <h3>GB Interceptor LUT Tool</h3>
+              <p>
+                Stand out by using a custom color palette (LUTs = lookup table) for your GB Interceptor to use in software such as OBS.                
+              </p>
+            </a>
+            <div class="grid-item-buttons">
+              <a href="https://www.youtube.com/watch?v=9h_nTtzD1bw" class="button secondary" target="_blank">Explainer Video</a>
+            </div>
+          </div>
+        </div>
 
-    <div class="grid-item">
-      <img src="images/TREP.png" alt="TREP 0.95">
-      <h3>TREP 0.95</h3>
-      <p><b>T</b>olstoj's <b>R</b>OM <b>E</b>ditor <b>P</b>lus. Load a legally acquired GB Tetris ROM and edit it to your likings.<br>
-      <b>Info:</b> This tool is for demonstration purposes only. Don't use it for weird stuff, please!</p>
-      <a href="https://www.youtube.com/watch?v=dNZec32Avxg" class="button secondary" target="_blank">Exlpainer Video</a><br>
-      <a href="TREP/index.html" class="button">Learn More</a>
-    </div>
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="TREP/index.html" class="grid-item-clickable">
+              <img src="images/TREP.png" alt="TREP 0.95">
+              <h3>TREP 0.95</h3>
+              <p><b>T</b>olstoj's <b>R</b>OM <b>E</b>ditor <b>P</b>lus. Load a legally acquired GB Tetris ROM and edit it to your likings.<br>
+              <b>Info:</b> This tool is for demonstration purposes only. Don't use it for weird stuff, please!</p>        
+            </a>
+            <div class="grid-item-buttons">
+              <a href="https://www.youtube.com/watch?v=dNZec32Avxg" class="button secondary" target="_blank">Explainer Video</a>
+            </div>
+          </div>
+        </div>
 
-    <div class="grid-item">
-      <img src="images/chris-and-triss.png" alt="Chris and Triss">
-      <h3>Chris &amp; Triss</h3>
-      <p>I created a Tetromino-based puzzler / block stacking game for the DMG Game Boy. It was done as a collaboration with EuroChrisKA. Some people claim it closely resembles other classics - its resemblance is a mere coincidence.</p>
-      <a href="ChrisAndTriss/index.html" class="button">Learn More</a>
-    </div>
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="ChrisAndTriss/index.html" class="grid-item-clickable">
+              <img src="images/chris-and-triss.png" alt="Chris and Triss">
+              <h3>Chris &amp; Triss</h3>
+              <p>I created a Tetromino-based puzzler / block stacking game for the DMG Game Boy. It was done as a collaboration with EuroChrisKA. Some people claim it closely resembles other classics - its resemblance is a mere coincidence.</p>        
+            </a>
+          </div>
+        </div>
 
-    <div class="grid-item">
-      <img src="images/music.png" alt="ASM music editor">
-      <h3>ASM Music Editor</h3>
-      <p>Experimental and unfinished music editor to use with GB ASM disassemblies. This one is absolutely unusable and makes annoying noises. I left it in nonetheless - might get back on the project at one point.</p>
-      <a href="music-Editor/index.html" class="button">Learn More</a>
-    </div>
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="music-Editor/index.html" class="grid-item-clickable">
+              <img src="images/music.png" alt="ASM music editor">
+              <h3>ASM Music Editor</h3>
+              <p>Experimental and unfinished music editor to use with GB ASM disassemblies. This one is absolutely unusable and makes annoying noises. I left it in nonetheless - might get back on the project at one point.</p>        
+            </a>
+          </div>
+        </div>
 
-    <div class="grid-item">
-      <img src="images/genetic-engineering.png" alt="YT">
-      <h3>Genetic Engineering</h3>
-      <p>According to <a href="https://vadim.oversigma.com/Tetris.htm" target="_blank">Vadim Gerasimov</a>, the then 16-years old prodigy who ported Tetris to the IBM, Alexey Pajitnov created a precursor game to Tetris on the Electronika-60, called Genetic Engineering.<br>
-        This is my attempt to recreate this game for a presentation.</p>
-      <a href="genetic-engineering/index.html" class="button">Learn More</a>
-    </div>
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="genetic-engineering/index.html" class="grid-item-clickable">
+              <img src="images/genetic-engineering.png" alt="YT">
+              <h3>Genetic Engineering</h3>
+              <p>According to Vadim Gerasimov, the then 16-years old prodigy who ported Tetris to the IBM, Alexey Pajitnov created a precursor game to Tetris on the Electronika-60, called Genetic Engineering.<br>
+                This is my attempt to recreate this game for a presentation.</p>
+            </a>
+            <div class="grid-item-buttons">
+              <a href="https://vadim.oversigma.com/Tetris.htm" class="button secondary" target="_blank">Vadim's Website</a>
+            </div>
+          </div>
+        </div>        
 
-    <div class="grid-item">
-        <img src="images/2-player.png" alt="YT">
-        <h3>2-Player Reverse Engineering</h3>
-        <p>The legendary -JJ from Finland and I reverse-engineered the 2-player Game Boy Tetris' link cable protocol.</p>
-        <a href="TwoPlayer/index.html" class="button">Learn More</a>
-    </div>
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="TwoPlayer/index.html" class="grid-item-clickable">
+              <img src="images/2-player.png" alt="YT">
+              <h3>2-Player Reverse Engineering</h3>
+              <p>The legendary -JJ from Finland and I reverse-engineered the 2-player Game Boy Tetris' link cable protocol.</p>
+            </a>
+          </div>
+        </div>
 
-    <div class="grid-item">
-      <img src="images/ROM.png" alt="YT">
-      <h3>ROM Patches</h3>
-      <p>Find some interesting ROM patches made by Pascal and I.</p>
-      <a href="ROMHacks/index.html" class="button">Learn More</a>
-  </div>
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="ROMHacks/index.html" class="grid-item-clickable">
+              <img src="images/ROM.png" alt="YT">
+              <h3>ROM Patches</h3>
+              <p>Find some interesting ROM patches made by Pascal and I.</p>
+            </a>
+          </div>
+        </div>
 
-  <div class="grid-item">
-    <img src="images/collection.png" alt="YT">
-    <h3>My Tetris Collection</h3>
-    <p></p>
-    <a href="Collection/index.html" class="button">Learn More</a>
-  </div>
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="Collection/index.html" class="grid-item-clickable">
+              <img src="images/collection.png" alt="YT">
+              <h3>My Tetris Collection</h3>
+              <p></p>
+            </a>
+          </div>
+        </div>
+        
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="https://www.youtube.com/@tolstoj_" class="grid-item-clickable">
+              <img src="images/youtube.png" alt="YT">
+              <h3>My Youtube Channel</h3>
+              <p></p>
+            </a>
+          </div>
+        </div> 
 
-  <div class="grid-item">
-    <img src="images/youtube.png" alt="YT">
-    <h3>My Youtube Channel</h3>
-    <p></p>
-    <a href="https://www.youtube.com/@tolstoj_" class="button">Learn More</a>
-  </div>
-  </section>
-  <hr>
-  <h2>Other Peoples' Projects</h2>
-  <section class="grid">
-  <div class="grid-item">
-    <img src="images/online-2-player.png" alt="YT">
-    <h3>Toni's 2-Player Online Server</h3>
-    <p>Connect your Game Boy with a Link Cable to USB adapter and play GB Tetris online against someone. (Based on Stacksmashing's site)</p>
-    <a href="http://online-gb.tetris.yt" class="button">Learn More</a>
-  </div>
+      </section>
+      <hr>
+      <h2>Other Peoples' Projects</h2>
+      <section class="grid">
+  
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="http://online-gb.tetris.yt" class="grid-item-clickable">
+              <img src="images/online-2-player.png" alt="Online 2 Player">
+              <h3>Toni's 2-Player Online Server</h3>
+              <p>Connect your Game Boy with a Link Cable to USB adapter and play GB Tetris online against someone. (Based on Stacksmashing's site)</p>          
+            </a>
+          </div>
+        </div> 
 
-  <div class="grid-item">
-    <img src="images/youtube.png" alt="YT">
-    <h3>Pascal's Site</h3>
-    <p></p>
-    <a href="https://www.youtube.com/@tolstoj_" class="button">Learn More</a>
-  </div>
-
-  <div class="grid-item">
-    <img src="images/pandocs.png" alt="YT">
-    <h3>Game Boy Pan Docs</h3>
-    <p>Most comprehensible documentation about the inner workings of the Game Boy.</p>
-    <a href="https://gbdev.io/pandocs/" class="button">Learn More</a>
-  </div>
-
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="http://online-gb.tetris.yt" class="grid-item-clickable">
+              <img src="images/youtube.png" alt="YT">
+              <h3>Pascal's Site</h3>
+              <p></p>
+            </a>
+          </div>
+        </div>
+        
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="https://gbdev.io/pandocs/" class="grid-item-clickable">
+              <img src="images/pandocs.png" alt="Pandocs">
+              <h3>Game Boy Pan Docs</h3>
+              <p>Most comprehensible documentation about the inner workings of the Game Boy.</p>
+            </a>
+          </div>
+        </div>
+        
   </section>
 
   <nav>
@@ -176,5 +251,35 @@
 </div>
 </div>
 <script src="script.js"></script>
+<script>
+  const menuBtn = document.querySelector('.menu-btn');
+  const closeBtn = document.querySelector('.close-btn');
+  const menuContainer = document.querySelector('.menu-container');
+
+  menuBtn.addEventListener('click', () => {
+    menuContainer.classList.add('active');
+  });
+
+  closeBtn.addEventListener('click', () => {
+    menuContainer.classList.remove('active');
+  });
+
+  // Close menu on clicking outside
+  document.addEventListener('click', (e) => {
+    if (
+      !menuBtn.contains(e.target) &&
+      !menuContainer.contains(e.target) &&
+      !closeBtn.contains(e.target)
+    ) {
+      menuContainer.classList.remove('active');
+    }
+  });
+</script>
+<div id="imageModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <img id="modalImage" alt="Modal Image">
+  </div>
+</div>
 </body>
 </html>
