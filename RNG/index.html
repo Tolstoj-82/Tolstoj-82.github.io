@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GB Tetris RNG</title>
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">    <style>
+    <link rel="stylesheet" href="../styles/general.css">
+    <link rel="stylesheet" href="../styles/header.css">
+    <link rel="stylesheet" href="../styles/layouts.css">
+    <link rel="stylesheet" href="../styles/modal.css">
+    <link rel="stylesheet" href="RNG-table.css">
+    <link rel="stylesheet" href="prism-okaidia.min.css">
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&display=swap');
     </style>
 </head>
@@ -15,7 +19,7 @@
         <header>
             <h1>A Deep Dive into the RNG of GB Tetris</h1>
         </header>
-        <div class="container">
+        <div class="page-content">
             <main>
               <p><b>Pascal and Tolstoj 2024</b></p>
               Introducing randomness in Tetris, especially for piece generation, is crucial. Some sort of an RNG (random number generation) algorithm was needed. Since most games at the time didn't require randomness, and since the Game Boy was not necessarily designed with randomness in mind, the developers had to come up with a custom solution.<br>
@@ -44,7 +48,7 @@
               <h3>CPU Registers To Store Values</h3>
               <div class="two-column-layout small">
                 <div>
-                  <img src="images/registers.png" class="clickable" width="30%" alt="CPU Registers">
+                  <img src="images/registers.png" class="clickable" alt="CPU Registers">
                 </div>
                 <div>
                   <code class="red">a</code>, <code class="red">b</code>, <code class="red">c</code>, <code class="red">d</code>, <code class="red">e</code>, <code class="red">h</code> and <code class="red">l</code> are 8-bit hardware registers in the CPU that can store a byte (8-bit) each. The "a" register is the accumulator which is connected with the flags register <code>f</code>. d and e and h and l (high, low) can be combined to de and hl to act as 16-bit registers which covers the address space of the Game Boy but this is not relevant here.<br>
@@ -78,9 +82,9 @@
               </div>
               <hr>
               <h2>1-Player Piece Generation RNG</h2>
-              Shortly before the games' release during the Mastering process, Henk Rogers (BPS) had the feeling that certain pieces appeared more often than others - especially also as floods (multiple of the same pieces consequtively). In a hurry, he brought in people from Nintendo to his office in Yokohama to fix the issue over the weekend.<br>
-              A solution was found and implemented. The fix, also known as the flood check, was implemented poorly - probably due to time constraints - it does its job but comes with unwanted side-effects that skew piece probabilities.<br>
-              The idea of the flood prevention was to cross check (1) the current piece with (2) the next piece and (3) the next-next piece to prevent floods. The story is usualy told by Rogers in a positive way but in an <a href="https://youtu.be/-TumVsm9aio?t=756" target="_blank">interview with Hawaiiverse</a> he reffered to this incident as "a bit of a bullshit story".
+              Shortly before the game's release during the mastering process, Henk Rogers (BPS) felt that certain pieces appeared more often than others—especially in consecutive floods of the same piece. In a hurry, he brought in people from Nintendo to his office in Yokohama to fix the issue over the weekend.<br>
+              A solution was found and implemented. The fix, known as the flood check, was implemented poorly—likely due to time constraints. It does its job but introduces unwanted side effects that skew piece probabilities.<br>
+              The idea behind the flood prevention was to cross-check (1) the current piece with (2) the next piece and (3) the next-next piece to prevent floods. While the story is usually told by Rogers in a positive light, in an <a href="https://youtu.be/-TumVsm9aio?t=756" target="_blank">interview with Hawaiiverse</a>  he referred to this incident as "a bit of a bullshit story."
               <div class="remark">
                 Note that this must have considered the Japan-exclusive 1.0 Version of the game. We describe the RNG of the more common revision A, also known as Version 1.1. The RNG portin of both versions is identical.
               </div>
@@ -519,8 +523,8 @@ c = e;</code></pre>
 
     <script src="../script.js"></script>
     <script src="script.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="prism.min.js"></script>
+    <script src="prism-javascript.min.js"></script>
     <script src="gb-assembly.js"></script>
   
     <div id="imageModal" class="modal" style="display: none;">

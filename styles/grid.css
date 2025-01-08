@@ -1,0 +1,70 @@
+/* General grid styles */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+/* Grid item styles */
+.grid-item {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.grid-item:hover {
+    transform: translateY(-5px);
+}
+
+/* Grid item wrapper */
+.grid-item-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Clickable area within grid item */
+.grid-item-clickable {
+    display: block;
+    flex-grow: 1;
+    text-decoration: none;
+    color: inherit;
+    padding: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.grid-item-clickable img {
+    max-width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border: 2px solid #c0c0c0;
+}
+
+.grid-item-clickable h3 {
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+.grid-item-clickable p {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Buttons within grid item */
+.grid-item-buttons {
+    padding: 15px;
+}
+
+/* Shared hover effects */
+.grid-item a:hover {
+    font-weight: normal;
+}
+
+/* Consolidated hover effects */
+.grid-item:hover a {
+    transform: translateY(-5px);
+    font-weight: normal;
+}
