@@ -16,9 +16,9 @@
             margin-top: 20px;
             display: inline-block;
             box-shadow: 10px 10px 20px 5px rgba(0, 0, 0, 0.5);
-            background-color: white; /* White placeholder background */
-            width: 256px; /* Default width (matches initial slider value) */
-            height: 256px; /* Default height (matches initial slider value) */
+            background-color: white;
+            width: 256px;
+            height: 256px;
         }
         #sliderValue {
             font-weight: bold;
@@ -44,6 +44,13 @@
             const qrCodeDiv = document.getElementById("qrCode");
             qrCodeDiv.style.width = sliderValue + "px";
             qrCodeDiv.style.height = sliderValue + "px";
+
+            // Resize the QR code image if it exists
+            const img = document.getElementById("qrImage");
+            if (img) {
+                img.style.width = sliderValue + "px";
+                img.style.height = sliderValue + "px";
+            }
         }
 
         function generateQRCode() {
