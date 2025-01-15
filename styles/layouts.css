@@ -36,7 +36,7 @@
     flex: 0 0 70%;
 }
 
-/* Responsive design for smaller screens */
+/* Responsive  */
 @media (max-width: 800px) {
     .two-column-layout {
         flex-direction: column;

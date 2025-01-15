@@ -99,10 +99,39 @@ header h1 {
 }
 
 .menu {
+    display: none; /* Initially hidden */
     list-style: none;
     padding: 0;
     margin: 0;
-    flex-grow: 1;
+}
+
+.menu.active {
+    display: block; /* Show menu when active */
+}
+
+.accordion {
+    cursor: pointer;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.accordion:hover {
+    background-color: #f1f1f1;
+}
+
+.arrow {
+    vertical-align: center;
+    /*font-size: 0.8rem;
+    transition: transform 0.3s ease;*/
+}
+
+.accordion.active .arrow {
+    transform: rotate(180deg); /* Rotate arrow when active */
 }
 
 .menu a {

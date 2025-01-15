@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: ghostwhite;
+        }
+        #qrCode {
+            margin-top: 20px;
+            display: inline-block;
+            box-shadow: 10px 10px 20px 5px rgba(0, 0, 0, 0.5);
+            background-color: white; /* White placeholder background */
+            width: 256px; /* Default width (matches initial slider value) */
+            height: 256px; /* Default height (matches initial slider value) */
+        }
+        #sliderValue {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Tolstoj's QR Code Generator</h1>
+    <input type="text" id="urlInput" placeholder="Enter URL" size="30" oninput="generateQRCode()">    
+    <span id="sliderValue">256</span>px
+    <input type="range" id="sizeSlider" min="100" max="1000" value="256" oninput="updateSliderValue()" onchange="generateQRCode()">
+    <button id="downloadBtn" style="display:none;" onclick="downloadQRCode()">Download</button>
+    <p>
+        <div id="qrCode"></div>
+    </p>
+    <script>
+        function updateSliderValue() {
+            const sliderValue = document.getElementById("sizeSlider").value;
+            document.getElementById("sliderValue").textContent = sliderValue;
+
+            // Update placeholder box size
+            const qrCodeDiv = document.getElementById("qrCode");
+            qrCodeDiv.style.width = sliderValue + "px";
+            qrCodeDiv.style.height = sliderValue + "px";
+        }
+
+        function generateQRCode() {
+            const url = document.getElementById("urlInput").value;
+            const size = document.getElementById("sizeSlider").value;
+            
+            if (!url.trim()) {
+                document.getElementById("qrCode").innerHTML = "";
+                document.getElementById("downloadBtn").style.display = "none";
+                return;
+            }
+
+            QRCode.toDataURL(url, { width: size, height: size }, function (err, url) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                const img = document.createElement("img");
+                img.src = url;
+                img.id = "qrImage";
+                img.style.width = size + "px";
+                img.style.height = size + "px";
+                document.getElementById("qrCode").innerHTML = ""; // Clear placeholder content
+                document.getElementById("qrCode").appendChild(img);
+                document.getElementById("downloadBtn").style.display = "inline";
+            });
+        }
+
+        function downloadQRCode() {
+            const img = document.getElementById("qrImage");
+            const link = document.createElement("a");
+            link.href = img.src;
+            link.download = "qr-code.png";
+            link.click();
+        }
+    </script>
+
+</body>
+</html>

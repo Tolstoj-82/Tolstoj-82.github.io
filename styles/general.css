@@ -252,7 +252,7 @@ table.normal thead th {
 }
   
 table.normal tbody tr:nth-child(odd) {
-    background-color: #c0c0c0;
+    background-color: #ececec;
 }
   
 table.normal tbody tr:nth-child(even) {
