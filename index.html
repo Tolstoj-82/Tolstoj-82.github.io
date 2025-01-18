@@ -27,7 +27,7 @@
   </header>
   <div class="menu-container">
     <button class="close-btn" aria-label="Close Menu">✖</button>
-    <h3 class="accordion">My Projects <span class="arrow"><img src="images/down-arrow-small.png"></span></h3>
+    <h3 class="accordion">My Projects <span class="arrow">+</span></h3>
     <ul class="menu">
         <li><a href="Live/refactored/index.html">OCR</a></li>
         <li><a href="firmwarelabeller/index.html">Re-labbeler</a></li>
@@ -37,7 +37,7 @@
         <li><a href="genetic-engineering/index.html">Genetic Engineering</a></li>
         <li><a href="ChrisAndTriss/index.html">Chris &amp; Triss</a></li>
     </ul>
-    <h3 class="accordion">Other Things <span class="arrow"><img src="images/down-arrow-small.png"></span></h3>
+    <h3 class="accordion">Other Things <span class="arrow">+</span></h3>
     <ul class="menu">
         <li><a href="Tolstoj/index.html">About Me</a></li>
         <li><a href="TwoPlayer/index.html">2-Player</a></li>
@@ -256,30 +256,6 @@
 </div>
 </div>
 <script src="script.js"></script>
-<script>
-  const menuBtn = document.querySelector('.menu-btn');
-  const closeBtn = document.querySelector('.close-btn');
-  const menuContainer = document.querySelector('.menu-container');
-
-  menuBtn.addEventListener('click', () => {
-    menuContainer.classList.add('active');
-  });
-
-  closeBtn.addEventListener('click', () => {
-    menuContainer.classList.remove('active');
-  });
-
-  // Close menu on clicking outside
-  document.addEventListener('click', (e) => {
-    if (
-      !menuBtn.contains(e.target) &&
-      !menuContainer.contains(e.target) &&
-      !closeBtn.contains(e.target)
-    ) {
-      menuContainer.classList.remove('active');
-    }
-  });
-</script>
 <div id="imageModal" class="modal" style="display: none;">
   <div class="modal-content">
     <span class="close">&times;</span>

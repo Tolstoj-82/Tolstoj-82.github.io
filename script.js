@@ -5,17 +5,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeModal = modal.querySelector('.close');
   const accordions = document.querySelectorAll('.accordion');
 
-  // Accordions
   accordions.forEach((accordion) => {
     accordion.addEventListener('click', () => {
-        const menu = accordion.nextElementSibling;
-
-        if (menu && menu.classList.contains('menu')) {
-            menu.classList.toggle('active');
-            accordion.classList.toggle('active');
+      const menu = accordion.nextElementSibling;
+  
+      if (menu && menu.classList.contains('menu')) {
+        menu.classList.toggle('active');
+        accordion.classList.toggle('active');
+  
+        // Toggle the + and - symbols
+        const arrow = accordion.querySelector('.arrow');
+        if (arrow) {
+          arrow.textContent = accordion.classList.contains('active') ? '-' : '+';
         }
+      }
     });
-  });
+  })
 
   // Attach click event to all clickable images
   images.forEach(image => {
@@ -41,4 +46,27 @@ document.addEventListener('DOMContentLoaded', () => {
   modalImage.addEventListener('click', () => {
     window.open(modalImage.src, '_blank'); // Open the image in a new tab
   });
+});
+
+const menuBtn = document.querySelector('.menu-btn');
+const closeBtn = document.querySelector('.close-btn');
+const menuContainer = document.querySelector('.menu-container');
+
+menuBtn.addEventListener('click', () => {
+  menuContainer.classList.add('active');
+});
+
+closeBtn.addEventListener('click', () => {
+  menuContainer.classList.remove('active');
+});
+
+// Close menu on clicking outside
+document.addEventListener('click', (e) => {
+  if (
+    !menuBtn.contains(e.target) &&
+    !menuContainer.contains(e.target) &&
+    !closeBtn.contains(e.target)
+  ) {
+    menuContainer.classList.remove('active');
+  }
 });
