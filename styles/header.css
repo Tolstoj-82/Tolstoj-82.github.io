@@ -1,154 +1,158 @@
 header {
-    position: sticky;
-    top: 0;
-    text-align: center;
-    background-color: #274732;
-    color: #fff;
-    height: 80px;
-    z-index: 1000;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 1rem;
+  position: sticky;
+  top: 0;
+  text-align: center;
+  background-color: #274732;
+  color: #fff;
+  height: 80px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
 }
 
 .header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 /* MENU */
 header h1 {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    margin: 0;
-    font-size: 1.8rem;
-    transition: font-size 0.3s ease;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 1.8rem;
+  transition: font-size 0.3s ease;
 }
 
 .menu-btn {
-    font-size: 24px;
-    cursor: pointer;
-    background: none;
-    border: none;
-    color: white;
-    margin-left: auto;
+  font-size: 24px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: white;
+  margin-left: auto;
 }
 
 .menu-container {
-    position: fixed;
-    top: 0;
-    right: 0;
-    height: 100%;
-    width: 250px;
-    background-color: #fff;
-    box-shadow: -4px 0 6px rgba(0, 0, 0, 0.1);
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
-    overflow-y: auto;
-    scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: #888 #f1f1f1;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 250px;
+  background-color: #fff;
+  box-shadow: -4px 0 6px rgba(0, 0, 0, 0.1);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  /*display: flex;
+  flex-direction: column;*/
+  display: block;
+  z-index: 1000;
+  overflow-y: auto;
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #888 #f1f1f1;
 }
 
 /* Custom scrollbar styles for Webkit browsers */
 .menu-container::-webkit-scrollbar {
-    width: 4px;
+  width: 4px;
 }
 
 .menu-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
+  background: #f1f1f1;
 }
 
 .menu-container::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
+  background: #888;
+  border-radius: 4px;
 }
 
 .menu-container::-webkit-scrollbar-thumb:hover {
-    background: #555;
+  background: #555;
 }
 
 .menu-container.active {
-    transform: translateX(0);
+  transform: translateX(0);
 }
 
 .close-btn {
-    align-self: flex-end;
-    font-size: 24px;
-    padding: 10px;
-    cursor: pointer;
-    color: #333;
-    background: none;
-    border: none;
+  /*align-self: flex-end;*/
+  width: 100%;
+  text-align: right;
+  font-size: 24px;
+  padding: 10px;
+  cursor: pointer;
+  color: #333;
+  background: none;
+  border: none;
 }
 
 .close-btn:hover {
-    color: #000;
+  color: #000;
 }
 
 .menu {
-    display: block;
-    max-height: 0;
-    overflow: hidden;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    transition: max-height 0.3s ease-out;
+  display: block;
+  max-height: 0;
+  /*overflow: auto;*/
+  overflow: hidden;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  transition: max-height 0.3s ease-out;
 }
 
 .menu.active {
-    max-height: 500px; /* maybe needs change! */
+  max-height: 500px;
 }
 
 .accordion {
-    cursor: pointer;
-    padding: 10px;
-    margin: 0;
-    background-color: #f9f9f9;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background-color 0.3s ease;
+  cursor: pointer;
+  padding: 10px;
+  margin: 0;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
 }
 
 .accordion:hover {
-    background-color: #f1f1f1;
+  background-color: #fff3d8;
 }
 
 .accordion.active {
-    background-color: #e0e0e0;
+  background-color: #ffebbf;
 }
 
 .arrow {
-    vertical-align: center;
-    transition: transform 0.3s ease;
+  vertical-align: center;
+  transition: transform 0.3s ease;
 }
 
 .accordion.active .arrow {
-    transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
 .menu a {
-    text-decoration: none;
-    color: #333;
-    display: block;
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
+  text-decoration: none;
+  color: #333;
+  display: block;
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
 }
 
 .menu a:hover {
-    background-color: #ddd;
+  background-color: #ddd;
 }
