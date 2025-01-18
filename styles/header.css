@@ -99,19 +99,23 @@ header h1 {
 }
 
 .menu {
-    display: none; /* Initially hidden */
+    display: block;
+    max-height: 0;
+    overflow: hidden;
     list-style: none;
     padding: 0;
     margin: 0;
+    transition: max-height 0.3s ease-out;
 }
 
 .menu.active {
-    display: block; /* Show menu when active */
+    max-height: 500px; /* maybe needs change! */
 }
 
 .accordion {
     cursor: pointer;
     padding: 10px;
+    margin: 0;
     background-color: #f9f9f9;
     border-bottom: 1px solid #ddd;
     display: flex;
@@ -124,14 +128,17 @@ header h1 {
     background-color: #f1f1f1;
 }
 
+.accordion.active {
+    background-color: #e0e0e0;
+}
+
 .arrow {
     vertical-align: center;
-    /*font-size: 0.8rem;
-    transition: transform 0.3s ease;*/
+    transition: transform 0.3s ease;
 }
 
 .accordion.active .arrow {
-    transform: rotate(180deg); /* Rotate arrow when active */
+    transform: rotate(180deg);
 }
 
 .menu a {
@@ -144,9 +151,4 @@ header h1 {
 
 .menu a:hover {
     background-color: #ddd;
-}
-
-header img {
-    height: 2.8em;
-    margin-left: 10px;
 }
