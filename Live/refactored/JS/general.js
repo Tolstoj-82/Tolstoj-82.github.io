@@ -7,10 +7,17 @@ function showToast(message, color = '') {
         toast.style.backgroundColor = '#f8d7da';
         toast.style.color = '#721c24';
     }
+    
     if (color === 'green') {
         toast.style.backgroundColor = '#34db7a';
         toast.style.color = '#04411d';
     }
+    
+    if (color === 'orange') {
+        toast.style.backgroundColor = '#ffe8cc';
+        toast.style.color = '#7a3e05';
+    }
+
 
     toastContainer.appendChild(toast);
     setTimeout(() => {toast.remove();}, 4000);

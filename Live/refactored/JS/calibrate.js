@@ -58,6 +58,9 @@ function calibrate() {
         styleColorDivs(true, forceCalibrate);
         calibrated = true;
         document.getElementById('calibrate-button').textContent = 'Re-calibrate';
+        
+        // only display the button if calibrated
+        document.getElementById('websocketConnectItems').style.display = 'block';
     }
 }
 
