@@ -175,7 +175,9 @@ function processVideoFrames() {
                 high,
                 lines,
                 nextPiece,
-                playfieldType);
+                playfieldType,
+                playerId
+            );
         }
         updateNextBox(nextPiece, level);
         populatePlayfield(tileArray, level);

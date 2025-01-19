@@ -1,3 +1,15 @@
+// Function to refresh the list of devices
+async function resetDevices() {
+    const devicesList = await getConnectedDevices('videoinput');
+    updateDeviceList(devicesList);
+}
+
+// Listen for changes in connected devices
+navigator.mediaDevices.addEventListener('devicechange', resetDevices);
+
+// Initial call to populate the device list
+resetDevices();
+
 // Function to get connected video input devices (cameras)
 async function getConnectedDevices(type) {
     let stream;
