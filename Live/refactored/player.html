@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GB Interceptor grabber</title>
+    <title>OCR - Player view</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="plot.css">
+    <!--<link rel="stylesheet" href="plot.css">-->
 </head>
 <body>
     <div class="container">
@@ -36,7 +36,15 @@
                 <option value="color">Colored</option>
                 <option value="NES">NES</option>
             </select>
-            <button id="connectButton">Connect to Host</button>
+            <div id="websocketConnectItems" style="display: none;">
+                <hr>
+                <h3>Connect to Websocket</h3>
+                <button id="connectButton">Connect to Host</button>
+                <p>
+                    Player name:<br>
+                    <input type="text" id="username" maxlength="20" placeholder="Enter your player name">
+                </p>
+            </div>
         </div>
 
         <!-- Playfield -->
@@ -56,14 +64,14 @@
         </div>
     </div>
 
-    <canvas id="scatterplot" width="600" height="400"></canvas>
+    <!--<canvas id="scatterplot" width="600" height="400"></canvas>-->
 
     <script src="JS/variables.js" async></script>
     <script src="JS/OCR.js" async></script>
     <script src="JS/cameras.js" async></script>
     <script src="JS/calibrate.js" async></script>
     <script src="JS/general.js" async></script>
-    <script src="JS/plot.js"></script>
+    <!--<script src="JS/plot.js"></script>-->
     <script src="JS/websocket-player.js"></script>
     <div id="toast-container" class="toast-container"></div>
 </body>

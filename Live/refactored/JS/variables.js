@@ -20,6 +20,7 @@ let playfieldVisible    = false;
 let scheme              = 'GB';
 let playfieldType       = ""; // A-Type, B-Type, 2-Player
 let receivedJson        = "";
+let webSocketConnected  = false;
 
 
 const tileWidth         = 8;

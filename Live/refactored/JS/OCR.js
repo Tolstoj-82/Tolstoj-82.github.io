@@ -167,15 +167,16 @@ function processVideoFrames() {
         showGameMetrics(playfieldType, score, level, high, opponentHeight, lines);
 
         //websocket stuff
-        submitString(
-            tileArray,
-            score,
-            level,
-            high,
-            lines,
-            nextPiece,
-            playfieldType);
-
+        if(webSocketConnected){
+            submitString(
+                tileArray,
+                score,
+                level,
+                high,
+                lines,
+                nextPiece,
+                playfieldType);
+        }
         updateNextBox(nextPiece, level);
         populatePlayfield(tileArray, level);
     }
