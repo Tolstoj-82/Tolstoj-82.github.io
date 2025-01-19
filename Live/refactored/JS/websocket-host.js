@@ -1,38 +1,47 @@
-const socket = new WebSocket("wss://gameboytetr.is/websocket");
+let socket = null;
+let addPlayer1Button = document.getElementById('addPlayer1');
+let player1Id = document.getElementById('player1Id');
 
-// WebSocket event handlers
-socket.onopen = () => {
-    showToast("WebSocket connection opened.", "green");
-};
+function connectWebSocket() {
+    socket = new WebSocket("wss://gameboytetr.is/websocket");
 
-socket.onmessage = (event) => {
-    if(debugMode) console.log("Message received:", event.data);
+    // WebSocket event handlers
+    socket.onopen = () => {
+        showToast("WebSocket connection opened.", "green");
+        socket.send(JSON.stringify({ action: 'start_host'}));
+    };
     
-    const data = JSON.parse(event.data);
-    if (data.action === 'join') {
-        showToast(`Player ${data.player_id} joined your game.`);
-    } else if (data.action === 'send') {
-
-        // draw the nextbox and playfiled
-        populatePlayfield(data.field, data.level);
-        updateNextBox(data.nextPiece, data.level);
-        showGameMetrics(data.playfieldType, data.score, data.level, data.high, "", data.lines);
-
-    } else if (data.group_nr) {
-        gameNumberDiv = document.getElementById("gameNumber");
-        gameNumberDiv.style.display = "block";
-        gameNumberDiv.innerHTML = `<p>Lobby:</p><p class="number">${data.group_nr}</p>`;
-        showToast(`Your group number is ${data.group_nr}`);
-    }
-};
-
-socket.onerror = (error) => {
-    showToast("WebSocket Error:" + error, "red")
-};
-
-socket.onclose = () => {
-    if(debugMode) console.log("WebSocket connection closed.");
-};
+    socket.onmessage = (event) => {
+        console.log("Message received:", event.data);
+        const data = JSON.parse(event.data);
+        if (data.action === 'nope') {
+            showToast("Player does not exist.", "red");
+        } else if(data.action === 'added') {
+            showToast(`Yo ${data.name} joined your game.`);
+        } else if (data.action === 'send') {
+    
+            // draw the nextbox and playfiled
+            populatePlayfield(data.field, data.level);
+            updateNextBox(data.nextPiece, data.level);
+            showGameMetrics(data.playfieldType, data.score, data.level, data.high, "", data.lines);
+    
+        } else if (data.action === 'started') {
+            gameNumberDiv = document.getElementById("gameNumber");
+            gameNumberDiv.style.display = "block";
+            gameNumberDiv.innerHTML = `<p>Lobby:</p><p class="number">${data.host_id}</p>`;
+            showToast(`Your group number is ${data.host_id}`);
+        }
+    };
+    
+    socket.onerror = (error) => {
+        showToast("WebSocket Error:" + error, "red")
+    };
+    
+    socket.onclose = () => {
+        if(debugMode) console.log("WebSocket connection closed.");
+    };
+    
+}
 
 function jsonToArray(jsonString) {
     try {
@@ -60,10 +69,14 @@ function submitString(tileArray){
 }
 
 startButton.addEventListener('click', () => {
-    socket.send(JSON.stringify({ action: 'start', name: 'host' }));
+    connectWebSocket();
 });
 
 disconnectButton.addEventListener('click', () => {
     socket.send(JSON.stringify({ action: 'disconnect', name: 'host' }));
     socket.close();
+});
+
+addPlayer1Button.addEventListener('click', () => {
+    socket.send(JSON.stringify({ action: 'add_player', player_id: player1Id.value }));
 });

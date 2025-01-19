@@ -23,19 +23,6 @@ function showToast(message, color = '') {
     setTimeout(() => {toast.remove();}, 4000);
 }
 
-
-// Function to refresh the list of devices
-async function resetDevices() {
-    const devicesList = await getConnectedDevices('videoinput');
-    updateDeviceList(devicesList);
-}
-
-// Listen for changes in connected devices
-navigator.mediaDevices.addEventListener('devicechange', resetDevices);
-
-// Initial call to populate the device list
-resetDevices();
-
 function generatePlayfield() {
     // Fill the grid with 180 cells (10x18)
     const gridContainer = document.querySelector('.grid-container');

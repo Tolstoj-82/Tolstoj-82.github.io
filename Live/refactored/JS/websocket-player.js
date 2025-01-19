@@ -2,31 +2,36 @@ let socket = null;
 let connectionEstablished = false;
 
 // Function to establish WebSocket connection
-function connectWebSocket(groupNr) {
+function connectWebSocket() {
     socket = new WebSocket("wss://gameboytetr.is/websocket");
 
     // WebSocket event handlers
     socket.onopen = () => {
         showToast("WebSocket connection opened.", "green");
-        socket.send(JSON.stringify({ action: 'connect', group_nr: groupNr }));
+        playerName = document.getElementById('username').value;
+        socket.send(JSON.stringify({ action: 'connect_player', name: playerName }));
+        webSocketConnected = true;
     };
 
     socket.onmessage = (event) => {
         if (debugMode) console.log("Message received:", event.data);
         
         const data = JSON.parse(event.data);
-        if (data.action == "name") {
+        if (data.action === 'connected') {
             showToast(`Your Player ID is ${data.player_id}`);
+            document.getElementById('playerId').innerHTML = data.player_id;
             connectionEstablished = true;
         }
     };
 
     socket.onerror = (error) => {
         showToast("WebSocket Error: " + error, "red");
+        webSocketConnected = false;
     };
 
     socket.onclose = () => {
         if (debugMode) console.log("WebSocket connection closed.");
+        webSocketConnected = false;
     };
 }
 
@@ -43,20 +48,17 @@ connectButton.addEventListener('click', () => {
         return;
     }
 
-    const groupNr = prompt('Enter group number:');
-    if (groupNr) {
-        connectWebSocket(groupNr);
-    } else {
-        showToast("Connection canceled: Group number is required.", "red");
-    }
+    connectWebSocket();
 });
 
 // Modified submitString function
-function submitString(tileArray, score, level, high, lines, nextPiece, playfieldType) {
+function submitString(tileArray, score, level, high, lines, nextPiece, playfieldType, playerId) {
     if (!connectionEstablished) {
         showToast("Connection not established. Please connect first.", "red");
         return;
     }
+    
+    playerId = document.getElementById('playerId').innerHTML;
 
     const sendJson = { 
         field: tileArray, 
@@ -66,14 +68,13 @@ function submitString(tileArray, score, level, high, lines, nextPiece, playfield
         lines: lines,
         nextPiece: nextPiece,
         playfieldType: playfieldType,
+        player_id: playerId,
         action: "send"
     };
 
     if (socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify(sendJson));
-        webSocketConnected = true;
     } else {
         showToast("WebSocket is not open. Try again later.", "red");
-        webSocketConnected = false;
     }
 }

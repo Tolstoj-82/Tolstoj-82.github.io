@@ -12,7 +12,7 @@
     <div class="container">
         <!-- First Column -->
         <div class="left-column">
-            <a href="gb_interceptor_firmware_for_live.uf2" download="gb_interceptor_firmware_for_live.uf2">
+            <!--<a href="gb_interceptor_firmware_for_live.uf2" download="gb_interceptor_firmware_for_live.uf2">
                 &gt; Download Firmware here &lt;
             </a><br>
             <label for="device_selector">Select Interceptor:</label><br>
@@ -29,7 +29,7 @@
                 <div class="col-val" id="value2"></div>
                 <div class="col-val" id="value3"></div>
             </div>
-            <br>
+            <br>-->
             Scheme<br>
             <select id="themeSelect">
                 <option value="GB">Classic</option>
@@ -37,13 +37,18 @@
                 <option value="NES">NES</option>
             </select>
             <button id="startButton">Start Game</button>
-            <button id="disconnectButton">Disconnect</button>
+            <button id="disconnectButton" style="display: none;">Disconnect</button>
+            <input type="text" id="player1Id">
+            <button id="addPlayer1">Add Player</button>
             <div id="gameNumber"></div>
         </div>
 
         <!-- Playfield -->
         <div class="middle-column">
-            <div class="grid-container"></div>
+            <div class="grid-container" id="player1"></div>
+            <!--<div class="grid-container" id="player2"></div>
+            <div class="grid-container" id="player3"></div>
+            <div class="grid-container" id="player4"></div>-->
             <p>
                 <div id="playfield-detected">No playfield!</div>
             </p>
@@ -58,14 +63,14 @@
         </div>
     </div>
 
-    <canvas id="scatterplot" width="600" height="400"></canvas>
+    <!--<canvas id="scatterplot" width="600" height="400"></canvas>-->
 
     <script src="JS/variables.js" async></script>
     <script src="JS/OCR.js" async></script>
-    <script src="JS/cameras.js" async></script>
-    <script src="JS/calibrate.js" async></script>
+    <!--<script src="JS/cameras.js" async></script>
+    <script src="JS/calibrate.js" async></script>-->
     <script src="JS/general.js" async></script>
-    <script src="JS/plot.js"></script>
+    <!--<script src="JS/plot.js"></script>-->
     <script src="JS/websocket-host.js"></script>
     <div id="toast-container" class="toast-container"></div>
 </body>
