@@ -11,21 +11,72 @@
     <link rel="stylesheet" href="../styles/modal.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&display=swap');
-        td, th{
-            border: 1px solid black;
+
+        table {
+            /*margin: auto;*/
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
             text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4c795c;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .column {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px;
+            border: 1px solid black;
+            text-align: center;
+        }
+
+        @media (max-width: 300px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+        img{
+            max-width: 100%;
         }
     </style>
 </head>
 <body>
     <div class="content">
         <header>
-            <h1>My Game Boy Tetris<sup>&trade;</sup> Collection</h1>
+            <h1>Game Boy Tetris Game Paks</h1>
         </header>
         <div class="page-content">
             <main>
                 <h2>Introduction</h2>
-                <p>Nintendo Tetris for the Game Boy was released in 1989 in Japan and later that year in the USA. Europe and the rest of the world had to wait until 1990.<br>
+                <p>Nintendo Tetris for the Game Boy was released in 1989 in Japan (June 14th) and later that year (July 31st) in the USA . Europe and the rest of the world had to wait until September 28, 1990.<br>
+                As a reference, the Berlin Wall was torned down November 9th, 1989.<br>
+                Tetris for the Game Boy was produced between 1989 and at least until the end of 1997.<br>
                 The rights to Tetris for handhelds were secured through Henk Rogers through its company (Bullet-Proof-Software, BPS) and the Russian agency of import and export of electronic goods Elorg to Nintendo. This chain of licensing is part of probably the most extreme cases of “licensing wars” for videogames which in this time was pretty common practice. The chain ELORG&rarr;BPS&rarr;Nintendo can be seen on the legal texts on the box, the manual, the cart label and in game.<br>
                 Tetris in its essence is a very simple game that fits neatly in a single ROM bank (32kb) and did not require sRAM to save data on its cart (what a shame really). On the other hand, it was supposed to act as a flagship to showcase the Game Boys range of functions with the addition of a 2-player link functionality via Link cable.<br>
                 On a low level, Game Boy Tetris, consisting of 3 modes: A-Type (marathon), B-Type (downstack survival) and the 2-Player mode via link cable.<br>
@@ -37,16 +88,385 @@
                 Yet, most parts of the East, meaning countries formerly led under communistic rule, were still not considered by Nintendo. That’s why many eastern European countries did only experience gaming through exotic hardware or clone consoles. This is a topic for another time.<br>
                 When distributing games to foreign markets, Nintendo often had to rely on domestic distributors. These could be managed by their own (e.g. Nintendo of Europe) or independent distributors (e.g. Bienengräber or Playtronic). Sometimes the governments of countries regulated the distribution themselves (e.g. Mainland China or Korea). China being the most extreme case where components were domestically produced instead of receiving parts from Nintendo. Parts were mostly imported from Japan (Nintendo of Japan).<br>
                 Some distributions had overlapping markets, e.g. NOE, FRG, FAH, EUR… but I’m getting ahead of myself.</p>
-                
-                <h3>Earlier 3-lined texts</h3>
+
+                <h2>"Tetris" in different languages</h2>
+                <p>
+                    First, we have to talk about Tetris in different writing systems.<br>
+
                     <table>
                         <tr>
+                            <th>Name</th>
+                            <th>Language</th>
+                            <th>Writing System</th>
+                        </tr>
+                        <tr>
+                            <td><strong>ТЕТРИС</strong> or <strong>Тетрис</strong></td>
+                            <td>Russian</td>
+                            <td>Cyrillic</td>
+                        </tr>
+                        <tr>
+                            <td><strong>テトリス</strong> *</td>
+                            <td>Japanese</td>
+                            <td>Katakana</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ТETRIS</strong> or <strong>Tetris</strong></td>
+                            <td>International</td>
+                            <td>Latin</td>
+                        </tr>
+                        <tr>
+                            <td><strong>俄罗斯方块</strong> **</td>
+                            <td>Chinese</td>
+                            <td>Simplified Chinese</td>
+                        </tr>
+                        <tr>
+                            <td><strong>俄羅斯方塊</strong> **</td>
+                            <td>Chinese</td>
+                            <td>Traditional Chinese</td>
+                        </tr>
+                    </table>
+                </p>
+                
+                <p>
+                    * Pronounciation: "Tetorisu" (Hepburn)<br>
+                    ** Translated: "Russian Blocks"
+                </p>
+                <p>
+                    俄罗斯 or 俄羅斯 = Russia<br>
+                    方块 or 方塊 = blocks (or tiles)<br>
+                </p>
+                <p>
+                    Pronounciations:
+                    <ul>
+                        <li>É luósī fāngkuài (Mandarin)</li>
+                        <li>Ngòh lòh sī fōng faai (Cantonese)</li>
+                    </ul>
+
+                </p>
+                <div class="remark">
+                    <strong>Side note:</strong> there is no official logo for the Chinese writing.
+                </div>
+
+                <h2>The Game Boy Tetris Logos</h2>
+
+                <h3>The Bullet-Proof Style Logo</h3>
+                <p>
+                    Bullet-Proof-Software was Henk Rogers software company that existed since 1983. Before the Game Boy (and the NES) versions, they released at least 2 Tetris variants. Both of these versions had the same logo, which uses the <strong>Futura Black</strong> font face. This logo-type continued to be used on countless other versions, mostly in Japan.<br>
+                </p>
+                <img src="images/Bullet-Proof-Style-Logo.png">
+                <p>
+                    <ol>
+                        <li>Logo from the BPS Tetris (1988)</li>
+                        <li>In-game logo Game Boy Tetris (tile-based)</li>
+                        <li>In-game logo NES Tetris (tile-based)</li>
+                        <li>Logo on the Japanese cart label</li>
+                        <li>Logo on the Japanese box</li>
+                        <li>Japanese logo on the Japanese box</li>
+                    </ol>                  
+                </p>
+                <p>
+                    Note that the logos in 4 and 5 resemble more closely the in-game logo from the NES version rather than the original font face (Futura Black)... Interesting!<br>
+                </p>
+                <p>
+                    The logo is often subdivided into 4 vertical colors which mostly follow a yellow to orange gradient.
+                </p>
+                <p>
+                    <strong>Fun fact</strong> the yellow to orange gradient on a blue background seems to be a common corporate identity for Henk Rogers various companies / ventures.
+                </p>
+                <h3>The NOA Style Logo</h3>
+                <p>
+                    A new logo was created for the American / International market. This logo is found on the labels, other than the Japanes ones, and the box art. The artwork is completely shared with the NES version.
+                </p>   
+
+                <h2>The general label types (Japan vs. International)</h2>
+                <p>Every game collector can confirm, that when it comes to Nintendo, Japanese and international labels, box art etc. are in general different - Game Boy Tetris is no exception. There are various reasons for this. The general building blocks are the following:
+                </p>
+                <h3>The International Labels</h3>
+                <img src="images/Intl-Label.PNG">
+                <p>&nbsp;</p>
+                
+                <h3>The Japanese Labels</h3>
+                <img src="images/JAP-Label.PNG">
+                <p>&nbsp;</p>       
+
+                <h2>Dummy Text</h2>
+                <p>
+                    I call this the dummy text because it was supposed to signal to the user to insert the cart such that the label facing outwards.<br>
+                    No one ever read that, and no kid understood the meaning of it... ever!<br>
+                </p>
+                <p>
+                    <b>Fun fact:</b> The word "Herausragend" in German has two meanings:
+                    <ol>
+                        <li>Outside-facing</li>
+                        <li>Outstanding</li>
+                    </ol>
+                    I never understood what should be so outstanding to this side - which I also thought concerned the right side of the cart because it was written on the right strip. 
+                </p>
+                
+                <table>
+                    <tr>
+                        <th>Label</th>
+                        <th>Language</th>
+                        <th>Translation</th>
+                    </tr>
+                    <tr>
+                        <td><strong>THIS SIDE OUT</strong></td>
+                        <td>English</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HERAUSRAGENDE SEITE</strong></td>
+                        <td>German</td>
+                        <td>Outside-facing side</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ESTE LADO PARA FORA</strong></td>
+                        <td>Brazilian Portuguese</td>
+                        <td>This side (for) outside</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CE CÔTÉ À L’EXTÉRIEUR</strong><br>or<br><strong>CE COTE A L'EXTERIEUR</strong></td>
+                        <td>French</td>
+                        <td>This side at the outside</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ESTE LADO HACIA AFUERA</strong></td>
+                        <td>Spanish</td>
+                        <td>This side towards outside</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LATO ESTERNO</strong></td>
+                        <td>Italian</td>
+                        <td>Outer side</td>
+                    </tr>
+                    <tr>
+                        <td><strong>此面向外</strong></td>
+                        <td>Simplified Chinese</td>
+                        <td>This side outwards</td>
+                    </tr>
+                    <tr>
+                        <td><strong>표면</strong></td>
+                        <td>Korean</td>
+                        <td>Surface</td>
+                    </tr>
+                    <tr>
+                        <td><strong>本側向外</strong></td>
+                        <td>Traditional Chinese</td>
+                        <td>This side faces outward</td>
+                    </tr>
+                    </table>
+                    <p>
+                        For multilingual regions, e.g. FAH, EUR, CAN, labels are written in more than one language.
+                    </p>
+                
+                <h2>Manufacturing Origin</h2>
+                <p>
+                    <table>
+                        <tr>
+                            <th>Text</th>
+                            <th>Language</th>
+                        </tr>
+                        <tr>
+                            <td><strong>MADE IN JAPAN</strong></td>
+                            <td>English</td>
+                        </tr>
+                        <tr>
+                            <td>
+                            <strong>FABRIQUÉ AU JAPON</strong><br>
+                                or<br>
+                            <strong>FABRIQUE AU JAPON</strong><br>
+                                or<br>
+                            <strong>FAIT AU JAPON</strong>
+                            </td>
+                            <td>French</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FABBRICATO IN GIAPPONE</strong></td>
+                            <td>Italian</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MADE IN CHINA</strong></td>
+                            <td>English</td>
+                        </tr>
+                        <tr>
+                            <td><strong>中国制造</strong> (Made in China)</td>
+                            <td>Chinese</td>
+                        </tr>
+                    </table>
+                </p>
+
+                <h2>The Nintendo Code</h2>
+                <p>The code on Game Boy games is mostly found on the left strip. And follows the form:</p>
+                <table>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>Code</th>
+                        <th>Example</th>
+                    </tr>
+                    <tr>
+                        <th>International</th>
+                        <td>[Platform]-[GameID]-[Region]{-[Revision]}</td>
+                        <td>DMG-TR-NOE-1</td>
+                    </tr>
+                    <tr>
+                        <th>Japan</th>
+                        <td>[Platform]-[GameID]{-[Revision]}</td>
+                        <td>DMG-TRA</td>
+                    </tr>
+                    <tr>
+                        <th>Mainland China</th>
+                        <td>[Platform]-[Region][GameID]</td>
+                        <td>DMG-104CHN</td>
+                    </tr>
+                </table>
+                <div class="remark">
+                    Brackets Definition:
+                    <ul>
+                        <li>[ ] – Content (variable).</li>
+                        <li>{ } – Optional elements that may or may not be included.</li>
+                    </ul>
+                </div>
+                <h3>Platform</h3>
+                    Each Nintendo platform has an identifier. Game Boy has the following:<br>
+                    <ul>
+                        <li><b>DMG</b>: Dot Matrix Game, which is the code name for the first Game Boy (the brick).</li>
+                        <li><b>CGB</b>: Color Game Boy</li>
+                        <li><b>AGB</b>: Advanced Game Boy</li>
+                    </ul>
+                    <strong>Side note: </strong>DMG-labelled games are mainly games for the first iteration of Game Boys (DMG-01, Game Boy Pocket, Game Boy Light). These consoles had no color support. As an Exception the code DMG was also used on dual-carts that had DMG and color support, depending on the platform they were inserted.<br>
+                    Tetris was released on the DMG.<br>
+                    Sidenote: Tetris DX is somewhat close, but due to its physics, very different from Tetris. Tetris DX is a dual cart.
+                <h3>GameID</h3>
+                    Each official game is listed with a unique identifier (usually 2-5 letters). This identifier in most cases is derived from the game title and its origin can be reconstructed. Since Japan lack the location part of the code, and the GameID can be different. The exception is China, where numbers are used instead of letters. 
+                    <ul>
+                        <li><strong>TR</strong> (International)</li>
+                        <li><strong>TRA</strong> (Japan)</li>
+                        <li><strong>104</strong> (China)</li>
+                    </ul>
+                </p>
+                <p>
+                    <h3>Region</h3> (Not present on Japanese games)<br>
+                    Distribution regions have special 3-digit region codes. The Tetris-specific list can be found later.<br>
+                    <p>
+                        Nintendo is extremely secrative, when it comes to their codings. Finding out about their system is mostly due to community efforts that reverse-engineered the logic.<br>
+                        In the case of the codes and their meanings, we have a very good idea but it must be stated that these are conclusions.<br>
+                        The list contains all found regional codes and revisions. Even though, we are confident that the list is complete, there is still a chance for it to be incomplete.
+                    </p>
+        
+                    <table>
+                        <tr>
+                            <th><strong>Region</th>
+                            <th>Name (Suspected)</th>
+                        </tr>
+                        <tr>
+                            <td><strong>USA</strong></td>
+                            <td>United States of America</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CAN</strong></td>
+                            <td>Canada</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FAH</strong></td>
+                            <td>France And Holland</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SCN</strong></td>
+                            <td>Scandinavia</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AUS</strong></td>
+                            <td>Australia</td>
+                        </tr>
+                        <tr>
+                            <td><strong>UKV</strong></td>
+                            <td>United Kingdom Version</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NOE</strong></td>
+                            <td>Nintendo Of Europe</td>
+                        </tr>
+                        <tr>
+                            <td><strong>KOR</strong></td>
+                            <td>Korea</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ESP</strong></td>
+                            <td>Spain (España)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FRG</strong></td>
+                            <td>Federal Republic of Germany</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ITA</strong></td>
+                            <td>Italy</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HKG</strong></td>
+                            <td>Hong Kong</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ASI</strong></td>
+                            <td>Asian Markets (likely Southeast Asia)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ROC</strong></td>
+                            <td>Republic Of China (Taiwan)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GPS</strong></td>
+                            <td>Greece, Portugal, Spain</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EUR</strong></td>
+                            <td>(Continental) Europe</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CHN</strong></td>
+                            <td>(Mainland) China</td>
+                        </tr>
+                    </table>
+                    <p>
+                        No regional code exist for:
+                        <ul>
+                            <li>Japan</li>
+                            <li>Brazil</li>
+                        </ul>
+                    </p>
+                </p>
+                <p>
+                    <h3>Revision</h3>
+                    The revisions in Game Boy Tetris did not affect the game (ROM) at all but only the label art. We will talk about revisions in more detail later.<br>
+                    There is at least one revision type that is not immediately apparent from the label. We will discuss these later. For several regions there are revisions with numbers 1 and 2.
+                </p>
+                
+                <h2>Player Indicator Icon</h2>
+                <img src="images/multiplayer_new.png">
+                <p>
+                    Only the international carts have text in the player indicator icon. There exist multiple text variants. An important distinction is in the length of the bottom text. Carts with labels that have 2-lined texts in the bottom will be distinguished from the ones that have 3-lined texts in the bottom text. The reason for this distinction will become clear in a bit.<br>
+                    We add the letter A to the Nintendo Code, if the bottom text consitst of 2 lines.
+                </p>
+                <p>
+                    E.g. we distinguish:
+                    <ul>
+                        <li>DMG-TR-FRG (3-lined text)</li>
+                        <li>DMG-TR-FRG-A (2-lined text)</li>
+                    </ul>  
+                </p>
+                <h3>3-lined texts</h3>
+                    <table>
+                        <tr>
+                            <th>&nbsp;</th>
                             <th>International</th>
                             <th>Germany</th>
                             <th>International 2</th>
                             <th>Canada</th>
                         </tr>
                         <tr>
+                            <th>
+                                Top Text
+                            </th>
                             <td>
                                 ORIGINAL
                             </td>
@@ -54,46 +474,54 @@
                                 ORIGINAL
                             </td>
                             <td>
-                                OFFICIAL   
+                                OFFICIAL
                             </td>
                             <td>
                                 OFFICIAL<br>
-                                OFFICIAL  
+                                OFFICIAL
                             </td>
                         </tr>
                         <tr>
+                            <th>
+                                Bottom Text
+                            </th>
                             <td>
                                 GAME BOY<br>
                                 VIDEO LINK<br>
-                                GAME PAK                      
+                                GAME PAK
                             </td>
                             <td>
                                 GAME BOY<br>
                                 VIDEO LINK-<br>
-                                DIALOG-SPIEL                   
+                                DIALOG-SPIEL
                             </td>
                             <td>
                                 GAME BOY<br>
                                 VIDEO LINK<br>
-                                GAME PAK                   
+                                GAME PAK
                             </td>
                             <td>
                                 GAME LINK<br>
                                 GAME PAK<br>
-                                LOGICIEL                   
+                                LOGICIEL
                             </td>
                         </tr>
                     </table>
 
-                    <h3>Later 2-lined texts</h3>
+                    <h3>2-lined texts (A)</h3>
                     <table>
                         <tr>
+                            <th>&nbsp;</th>
                             <th>International</th>
                             <th>Germany</th>
                             <th>International 2</th>
                             <th>Canada</th>
+                            <th>Canada 2</th>
                         </tr>
                         <tr>
+                            <th>
+                                Top Text
+                            </th>
                             <td>
                                 ORIGINAL
                             </td>
@@ -101,49 +529,85 @@
                                 ORIGINAL
                             </td>
                             <td>
-                                OFFICIAL   
+                                OFFICIAL
                             </td>
                             <td>
                                 OFFICIAL<br>
-                                OFFICIAL  
+                                OFFICIAL
+                            </td>
+                            <td>
+                                OFFICIAL<br>
+                                OFFICIEL
                             </td>
                         </tr>
                         <tr>
+                            <th>
+                                Bottom Text
+                            </th>
                             <td>
                                 VIDEO LINK<br>
-                                GAME PAK                      
+                                GAME PAK
                             </td>
                             <td>
                                 GAME LINK-<br>
-                                DIALOG-SPIEL                   
+                                DIALOG-SPIEL
                             </td>
                             <td>
                                 GAME LINK<br>
-                                GAME PAK                   
+                                GAME PAK
                             </td>
                             <td>
                                 GAME LINK<br>
-                                GAME PAK                 
+                                GAME PAK
+                            </td>
+                            <td>
+                                VIDEO LINK<br>
+                                GAME PAK 
                             </td>
                         </tr>
-                    </table>
-                <h3>A Canada-exclusive 2-lined text</h3>
-                <table>
-                    <tr>
-                        <td>
-                            OFFICIAL<br>
-                            OFFICIEL
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            VIDEO LINK<br>
-                            GAME PAK                 
-                        </td>
-                    </tr>
-                </table>    
-
+                    </table>   
                 </p>
+
+                <h2>Prototype Cart (1989)</h2>
+                <p>
+                    Only one Tetris prototype cart surfaced by now. The contained ROM file is identical to the ROM found on ealier Japanese releases, also known as v1.0 or the Minuet Version.<br>
+                </p>
+                <img src="images/Proto-Cart.png" style="max-width: 300px">
+                <img src="images/Proto-Cart-Back.png" style="max-width: 300px">
+                <p>Image Source: https://hiddenpalace.org/Tetris_(Jun_14,_1989_prototype)</p>
+
+                <h2>Nintendo Power Cart (2001)</h2>
+                <img src="images/Nintendo-Power-Cart.jpg" style="max-width: 300px">
+                <img src="images/Nintendo-Power-Cart-pcb-front.jpg" style="max-width: 300px">
+                <img src="images/Nintendo-Power-Cart-pcb-back.jpg" style="max-width: 300px">
+                <img src="images/Nintendo-Power-Flash-Writer.jpg">
+                <p>Photo Credit: Original photo: Zero Noun on Flickr Modified by Gazebo with cropping of the photo and removal of the thumbnail (IFD1) EXIF metadata. - Super Famicom Flash Writer.</p>
+
+                <h2>Japanese Carts</h2>
+                <p></p>
+
+                <h2>Chinese Carts</h2>
+                <p>
+                    Mainland China was the only market that took production in their own hands. This becomes apparent by the arguably worse quality of the materials, distinct PCBs and chips and is notable by "MADE IN CHINA".<br>
+                    In China, Tetris goes by the name Russian Blocks (translated).<br>
+                </p>
+                <p>
+                    <strong>俄罗斯方块</strong> (Simplified Chinese)<br>
+                    <strong>俄羅斯方塊</strong> (Traditional Chinese)<br>
+                </p>
+                <p>
+                    <strong>俄罗斯</strong> or <strong>俄羅斯</strong> (Éluósī) = Russia<br>
+                    <strong>方块</strong> or <strong>方塊</strong> (fāngkuài) = blocks or tiles
+                </p>
+                <h3>For China Only Carts (FCO)</h3>
+                <p>
+                    There are 2 sets of Chinese carts: International carts and FCO (For China Only) carts. The latter ones indicate that the product is intended for exclusive use within China.<br>
+                    <strong>中国地区专用</strong> (Simplified Chinese)<br>
+                    Translation = For use in China region
+                </p>
+                <h3>4-in-1 Carts</h3>
+                <h3>Mani</h3>
+
                 <p><img src="carts/small_Minuet-05.jpg"></p>
                 <p><img src="carts/small_Minuet-09.jpg"></p>
                 <p><img src="carts/small_Minuet-20.jpg"></p>
