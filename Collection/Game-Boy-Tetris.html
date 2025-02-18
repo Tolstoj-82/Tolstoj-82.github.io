@@ -64,6 +64,11 @@
         img{
             max-width: 100%;
         }
+
+        .check::before {
+            content: "✔";
+            color: green;
+        }
     </style>
 </head>
 <body>
@@ -271,7 +276,7 @@
                         <tr>
                             <th>&nbsp;</th>
                             <th>Logo Type</th>
-                            <th>Background Color</th>
+                            <th>Font Color</th>
                             <th>Letter outlines</th>
                             <th>Drop Shadow</th>
                             <th>Background Art</th>
@@ -637,11 +642,15 @@
                         </ul>
                     </p>
                 </p>
-                <p>
+                
                 <hr>
                 <h3>Revision</h3>
-                    The revisions in Game Boy Tetris did not affect the game (ROM) at all but only the label art. We will talk about revisions in more detail later.<br>
-                    There is at least one revision type that is not immediately apparent from the label. We will discuss these later. For several regions there are revisions with numbers 1 and 2.
+                <p>    
+                    The revisions in the Nintendo code of Game Boy Tetris does not concern differences in the game (ROM) but rather only differences in the label art. We will talk about revisions in more detail later.<br>
+                    There is at least one label revision type that is not immediately apparent from the Nintendo code. We will discuss these later.
+                </p>
+                <p>
+                    For several regions there are label revisions with numbers 1 and 2.
                 </p>
                 
                 <h2>Player Indicator Icon</h2>
@@ -779,9 +788,9 @@
                         <li>they underline authenticity</li>
                         <li>a letter after the number indicates a ROM revision</li>
                     </ul>
-                    Since in Japan ROM version 1.0 (Minuet version) was released, version 1.1 is regarded as revision A.
+                    In 1989, and exclusive to Japan, carts containing ROM version 1.0 (aka. Minuet version) were released. Version 1.1 was later released in Japan and the world. In terms of the imprint, this is regarded as revision A.
                 </p>
-                <h3>Confirmed Imprints</h3>
+                <h3>Suspected and Confirmed Imprints</h3>
                 <table>
                     <tr>
                         <th>v1.0</th>
@@ -794,12 +803,12 @@
                         <td>00</td>
                         <td style="border-right: 1px solid black;">-</td>
                         <td>00A</td>
-                        <td><span style="color: green;">✔</span></td>
-                        <td><span style="color: green;">✔</span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
                     </tr>
                     <tr>
                         <td>05</td>
-                        <td style="border-right: 1px solid black;"><span style="color: green;">✔</span></td>
+                        <td style="border-right: 1px solid black;"><span class="check"></span></td>
                         <td>05A</td>
                         <td>-</td>
                         <td>-</td>
@@ -808,12 +817,12 @@
                         <td>07</td>
                         <td style="border-right: 1px solid black;">-</td>
                         <td>07A</td>
-                        <td><span style="color: green;">✔</span></td>
+                        <td><span class="check"></span></td>
                         <td>-</td>
                     </tr>
                     <tr>
                         <td>09</td>
-                        <td style="border-right: 1px solid black;"><span style="color: green;">✔</span></td>
+                        <td style="border-right: 1px solid black;"><span class="check"></span></td>
                         <td>09A</td>
                         <td>-</td>
                         <td>-</td>
@@ -834,24 +843,24 @@
                     </tr>
                     <tr>
                         <td>20</td>
-                        <td style="border-right: 1px solid black;"><span style="color: green;">✔</span></td>
+                        <td style="border-right: 1px solid black;"><span class="check"></span></td>
                         <td>20A</td>
                         <td>-</td>
-                        <td><span style="color: green;">✔</span></td>
+                        <td><span class="check"></span></td>
                     </tr>
                     <tr>
                         <td>22</td>
-                        <td style="border-right: 1px solid black;"><span style="color: green;">✔</span>*</td>
+                        <td style="border-right: 1px solid black;"><span class="check"></span>*</td>
                         <td>22A</td>
-                        <td><span style="color: green;">✔</span></td>
-                        <td><span style="color: green;">✔</span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
                     </tr>
                     <tr>
                         <td>23</td>
-                        <td style="border-right: 1px solid black;"><span style="color: green;">✔</span></td>
+                        <td style="border-right: 1px solid black;"><span class="check"></span></td>
                         <td>23A</td>
                         <td>-</td>
-                        <td><span style="color: green;">✔</span></td>
+                        <td><span class="check"></span></td>
                     </tr>                    
                     <tr>
                         <td>28</td>
@@ -868,7 +877,85 @@
                         <td>-</td>
                     </tr>
                 </table>
+                <p>
+                    *As far as we know, the cart with imprint 22 is the only minuet version that has the same label artwork as the Japanese version 1.1.<br>
+                    It is very well possible that there are other minuet versions that have the updated label.
+                </p>
+                <hr>
+                <h3>How to Spot the Minuet Version</h3>
+                <b>The right way!</b>
+                <p>
+                    Collectors and interested people were always aware that in Japan, there was an older version of Tetris with a different, somewhat eeiry soundtrack for Music selection A-Type. This melody is now simply known as the Minuet. Hirokazu Tanaka is credited for it's composition.<br>
+                    <div class="remark">
+                        <strong>Sidenote</strong>: I'm currently also working on an in-depth article about the differences beteen the Minuet version and its successor, the vastly more common version 1.1.
+                    </div>
+                    Only during the last couple of years it became widely known that these mysterious carts from overseas exist and might be hidden gold nuggets.<br>
+                    Initial estimates stated that as little as 10,000 units could have been produced. This number was adjusted upwards over the years. Many sources still state the number 25,000. I'm pretty confident that this number is a vast underestimation of the real production volume.<br>
+                    People slowly became aware that such carts exist and started hunting for them. Ways to easily recognize these carts were made public and people started to order Japanese carts in bulk.<br>
+                    A somewhat viral video in particular by Elliot from The Retro Future by the name "<a href="https://www.youtube.com/watch?v=gF0TcQnmynw" target="_blank">A&nbsp;Version&nbsp;of&nbsp;Tetris&nbsp;You've&nbsp;NEVER&nbsp;Heard&nbsp;of!</a>" and the subequent video <a href="https://www.youtube.com/watch?v=mnwM0NDcTZo" target="_blank">I&nbsp;bought&nbsp;100&nbsp;copies&nbsp;of&nbsp;Tetris</a> led people to believe that there is a vast scarcity of said carts. In the latter video Elliot ordered a huge amount of carts and none of these contained the Minuet version. People in the comments pointed out that this lot might have been from a person who themself were looking for these carts and sold the left over.<br>
+                    In Japan people became aware that Westeners were eager to get their hands on such a cart and prices quickly went up. However, more and more carts surfaced and slowly but surely the hype started to settle a bit. Don't get me wrong, it's still a sought-after item, but the big hype and the enourmous prices went down for the most part.
+                </p>
+            
+                <p>
 
+                </p>
+
+                <h2>PCBs</h2>
+
+                <p>
+                    Tetris fits neatly in 32kb of ROM space without the need of an MBC (memory bank controller) or sRAM functionality on the PCB.<br>
+                    Which makes the cart as simple as can be. Earlier iterations of the game used the AAA Boards - these are boards with a single ROM chip and a resistor. They came in 3 iterations. Conviniently named 01, 02 and 03.<br>
+                </p>
+                <p>    
+                    <strong>Example:</strong> DMG-AAA-02
+                </p>
+                <p>
+                    When bigger games came along, the AAA boards became less and less important and a new, way cheaper single-chip board was introduced.<br>
+                    This new board by the name AAAC S came untypically with a globtop ROM chip, which is way cheaper to produce. Functionally the board is identical.<br>
+                    As far as I'm aware, Tetris is one of the only, if not the only game that used these boards.
+                <p>    
+                    <strong>Example:</strong> AAAC S
+                </p>
+                <p>
+                    Ironically boards containing globtop ROM chips are usually a tell tale sign that the board is not genuine. The exeptions are the AAAC S and the BBAC S boards.
+                </p>
+
+                <h3>DMG-AAA-[XX] Boards</h3>
+                <img src="images/DMG-AAA.png">
+                <p></p>
+
+                <h3>AAAC S Boards</h3>
+                <img src="images/AAAC-S.png">
+                <p></p>
+                
+                <div class="remark">
+                    Sidenote: It is very well possible, that there are Tetris variants out there with board type DMG-AAA-10.
+                </div>
+
+                <hr>
+                <h3>ROM Chip and Production Data</h3>
+                <img src="images/Production-Data.png">
+                <p>Regular ROM chips provide perfect surfaces to print information on it. Globtops can not be written on - therefore on AAAC S boards, the relevant info is directly written onto the PCB in the right-upper corner.</p>
+                <p>
+                    Coded in this section is 
+                    <ul>
+                        <li>the Japanese Nintendo Code (because "Made in Japan")
+                            <ul>
+                                <li><strong>DMG-TRA-0</strong>: Minuet, aka. v1.0</li>
+                                <li><strong>DMG-TRA-1</strong>: Revision A, aka. v1.1</li>
+                            </ul>
+                        </li>
+                        <li>basic information about the chip</li>
+                        <li>the production date / week
+                            <ul>
+                                <li>2-digit year</li>
+                                <li>2-digit calendar week (01-52)</li>
+                                <li>additional unknown information</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                </p>
                 <h2>Prototype Cart (1989)</h2>
                 <p>
                     Only one Tetris prototype cart surfaced by now. The contained ROM file is identical to the ROM found on ealier Japanese releases, also known as v1.0 or the Minuet Version.<br>
