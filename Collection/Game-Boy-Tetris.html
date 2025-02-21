@@ -41,6 +41,45 @@
             background-color: #ffffff;
         }
 
+        .subhead {
+            font-weight: bold;
+            text-align: center;
+            background-color: #7ba88b;
+            color: #ffffff;
+        }
+
+        .equal-cols-table {
+            border-collapse: collapse;
+        }
+
+        .equal-cols-table th:nth-child(2), /* Early */
+        .equal-cols-table th:nth-child(3), /* Late */
+        .equal-cols-table th:nth-child(4), /* Code-1 */
+        .equal-cols-table th:nth-child(5)  /* Code-2 */ {
+            width: auto; /* Automatically adjust */
+            white-space: nowrap;
+        }
+        
+        /*.equal-cols-table td:nth-child(1),*/
+        .equal-cols-table td:nth-child(2), /* Early */
+        .equal-cols-table td:nth-child(3), /* Late */
+        .equal-cols-table td:nth-child(4), /* Code-1 */
+        .equal-cols-table td:nth-child(5)  /* Code-2 */ {
+            text-align: center;
+            margin: auto;
+            /*border-left: 2px dotted #7ba88b;*/
+            border-right: 1px dashed #7ba88b;
+        }
+
+        .equal-cols-table td:nth-child(1){
+            font-weight: bold;
+            border-right: 1px dashed #7ba88b;
+        }
+
+        .equal-cols-table th, 
+        .equal-cols-table td {
+            padding: 8px;
+        }
 
         .container {
             display: flex;
@@ -61,6 +100,7 @@
                 flex-direction: column;
             }
         }
+        
         img{
             max-width: 100%;
         }
@@ -75,6 +115,18 @@
     <div class="content">
         <header>
             <h1>Game Boy Tetris Game Paks</h1>
+            <button class="menu-btn" id="hamburger-icon" aria-label="Toggle Menu">☰</button>
+        <div class="menu-container">
+          <button class="close-btn" id="close-icon" aria-label="Close Menu">✖</button>
+          <h3 class="accordion">Boxes <span class="arrow">+</span></h3>
+          <ul class="menu">
+              <li><a href="Live/refactored/index.html">OCR</a></li>
+          </ul>
+          <h3 class="accordion">Labels <span class="arrow">+</span></h3>
+          <ul class="menu">
+              <li><a href="Tolstoj/index.html">About Me</a></li>
+          </ul>
+        </div>
         </header>
         <div class="page-content">
             <main>
@@ -139,7 +191,7 @@
                 
                 <h2>How many Game Boy Tetris Variants are there?</h2>
                 <p>
-                    This very much depends on what you would define as a variant.
+                    This very much depends on what you would define as a "variant".
                 </p>
                 <p>
                     It is widely accepted that each different Nintendo code constitutes a variant.
@@ -151,12 +203,256 @@
                     But apart from this distinctions, further separations can be made - some are more legit than others:<br>
                     <ul>
                         <li>ROM differences with the same label (Japanese v1.0 vs v1.1)</li>
+                        <li>Label revisions</li>
+                        <li>PCB revisions</li>
                         <li>China: FCO carts vs. regular carts (for China only)</li>
-                        <li>Early and late revisions with the same Nintendo code</li>
+                        <li>Early and late label revisions (minor changes) with the same Nintendo code</li>
                         <li>Different imprints</li>
                         <li>Minor differences such as missing dashes, legal annotations etc.</li>
                     </ul>
+                </p>
+                <p>
+                    The fact that revisions of the PCB, boxes, label or the ROM revision were many times quite well coorinated but not perfectly coordinated. This is why you can find transition carts that might already have a revised label but still the PCB typically found in carts with the predecessor label. Depending of the duration of the transition phase, such carts can be difficult to be identified or to be found. Additionally, it makes the exact identifiacation difficult because over the years certain things might have been swapped / exchanged.
+                </p>
+                <table class="equal-cols-table">
+                    <tr>
+                        <th>Code</th>
+                        <th>Early</th>
+                        <th>Late</th>
+                        <th>[Code]-1</th>
+                        <th>[Code]-2</th>
+                        <th>Region</th>
+                    </tr>
+                    <tr>
+                        <td>DMG-TRA</td>
+                        <td><span class="check"></span>*</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Japan</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="subhead">North America</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-USA</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>USA</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-CAN</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>Canada</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="subhead">Europe</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-FRG</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Germany</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-FAH</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>France &amp; Holland</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-UKV</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>United Kingdom</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-ITA</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Italy</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-NOE</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Europe, Germany</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-SCN</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Scandinavia</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-GPS</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Greece, Portugal, Spain</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-ESP</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Spain</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-EUR</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Europe</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="subhead">Asia</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-ASI</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>South-East Asia</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-ROC</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Taiwan</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-HKG</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Hong Kong</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-KOR</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Korea</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="subhead">Oceania</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-AUS</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Australia</td>
+                    </tr>
+                </table>
 
+                <p>
+                    *This is the Japan exclusive v1.0, also known as the Minuet version.
+                </p>
+                <p>
+                    Early and late have the same code, but the late versions have a revised label, that can be identified by the 2 lines of text in the lower part of the player indicator icon - the earlier ones had 3 lines. In most, but not all cases they also have the later PCB type (AAAC-S).
+                </p>
+                <p>
+                    The identified PCB types are: 
+                    <ul>
+                        <li><strong>Chip</strong>: AAA-01, AAA-02, AAA-03</li>
+                        <li><strong>Globtop</strong>: AAAC-S</li>
+                    </ul>
+                </p>
+                <hr>
+
+                <h3>Special Variants</h3>
+                <p>
+                    These are officially released versions of Tetris.
+                </p>
+                <table>
+                    <tr>
+                        <th colspan="3" class="subhead">South America, Brazil</th>
+                    </tr>
+                    <tr>
+                        <th>Code</th>
+                        <th>Variant 1</th>
+                        <th>Variant 2</th>
+                    </tr>                    
+                    <tr>
+                        <td><strong>No Code</strong></td>
+                        <td>Grey Cart</td>
+                        <td>Yellow Cart</td>
+                    </tr>                    
+                </table>
+                <p>
+                    As all Nintendo products, the Brazilian Tetris was distributed through the company Playtronic. The label is quite different (no code, different quality). Each Playtrinic cart has 2 additional stickers on the back side:
+                    <ol>
+                        <li>Nintendo, Playtronic authenticity label</li>
+                        <li>Serial Number</li>
+                    </ol>
+                </p>
+                <p>
+                    The Yellow Playtronic cart is by far the most sought-after cart of them all - it is so incredibly rare that not many are found in the wild. There are hundrets of search abos on Ebay containing "Yellow Tetris", "Yellow Playtronic Tetris" etc. It was a Brazilian exclusive release that was bundled only with the yellow "Play It Loud"-series Game Boy (Playtronic).
+                </p>
+                
+                <table>
+                    <tr>
+                        <th colspan="4" class="subhead">Mainland China</th>
+                    </tr>
+                    <tr>
+                        <th>Code</th>
+                        <th>International</th>
+                        <th>For China Only</th>
+                        <th>Swapped strips</th>
+                    </tr>                    
+                    <tr>
+                        <td><strong>DMG-104 CHN</strong></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DMG-601 CHN</strong></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                    </tr>                   
+                </table>
+                <p>
+                    China carts are Made in China. They follow a completely different coding consisting of numbers instead of letters for the game. Also there is no second dash in the code.
+                </p>
+                <p>
+                    The utilized PCBs are also very different and were produced by MANI.
+                </p>
+
+
+                <hr>
+                <h3>How many VERSIONS are there?</h3>
+                <p>
+                    The short answer is <strong>2</strong>: There is the v1.0 (Minuet) version and all the other ones are version 1.1.
                 </p>
 
                 <h2>Tetris in Different Languages</h2>
@@ -1507,6 +1803,13 @@
             </main>
         </div>
     </div>
+    <script src="../script.js"></script>
+    <div id="imageModal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <img id="modalImage" alt="Modal Image">
+        </div>
+      </div>
     </body>
 </html>
 
