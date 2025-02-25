@@ -84,23 +84,48 @@
         .container {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 5px;
+            justify-content: flex-start;
+            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
-        .column {
-            flex: 1;
-            min-width: 150px;
-            padding: 10px;
-            border: 1px solid black;
+        .item {
+            display: flex;
+            flex-direction: column;
             text-align: center;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: fit-content;
+            min-width: max-content;
         }
 
-        @media (max-width: 300px) {
-            .container {
-                flex-direction: column;
-            }
+        .title {
+            background-color: #4c795c;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            white-space: nowrap;
         }
-        
+
+        .upper {
+            background-color: #ddd;
+            color: #333;
+            padding: 10px;
+            white-space: nowrap;
+        }
+
+        .lower {
+            background-color: #ffffff;
+            color: #333;
+            padding: 10px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         img{
             max-width: 100%;
         }
@@ -159,7 +184,29 @@
                     <p><strong>Disclaimer: </strong><i>GAME BOY is a trademark of Nintendo. Tetris is a registered trademark of The Tetris Company. This text is an independent work and is not affiliated with or endorsed by Nintendo or The Tetris Company.</i></p>
                 </div>
                 </p>
-
+                <h2>Definitions</h2>
+                <p>
+                    In order to make sure, we're on the same page we'll have to agree on a common use of language.
+                </p>
+                <p>
+                    First off, Tetris is a "World" release. This means there are no regional differences in-game: a Japanese version has no Japanese symbols, and a French release has no French menus. While translated versions have been identified, they are ROM patches by the community and were not officially released by Nintendo.
+                </p>
+                <p>
+                    <ul>
+                        <li><strong>Version</strong>: Software version with distinct features.</li>
+                        <li><strong>Revision</strong>: Software update that fixes bugs, improves functionality, or makes minor changes. These are often not advertised, but they can be identified (e.g. "Rev A").</li>
+                        <li><strong>Variant</strong>: Physical differences that don’t change the software itself. (e.g. label variant)</li>           
+                        <ul>
+                            <li><strong>Sub-Variant</strong>: Unexpected combination of parts, e.g during a transition phase (e.g. earlier PCB with updated label) or differences due to faulty production.</li>
+                        </ul>
+                        <li><strong>Iteration</strong>: Any progressive change in a game’s development or production. It can apply to prototypes, different builds during development, or even multiple retail versions over time.</li>
+                        <li><strong>Localization</strong>: A version of the game adapted for a different region, sometimes with translated text, altered graphics, or censorship.</li>
+                        <li><strong>Hardware Revision</strong>: A change in the circuit board design of a game cartridge, which may affect hardware compatibility or reliability but not the game itself.</li>
+                    </ul>
+                <p>
+                    Tetris has two versions: v1.0 and v1.1. Sometimes, v1.1 is referred to revision A. The two terms are not always strictly defined.
+                </p>
+                </p>
                 <h2>How many Game Boy Tetris Variants are there?</h2>
                 <p>
                     As far as we know the simple answer could be: <strong>44</strong>. But it very much depends on what you would define as a variant.
@@ -188,10 +235,10 @@
                 <table class="equal-cols-table">
                     <tr>
                         <th>Code</th>
-                        <th>Early</th>
-                        <th>Late</th>
-                        <th>[Code]-1</th>
-                        <th>[Code]-2</th>
+                        <th>e</th>
+                        <th>l</th>
+                        <th>-1</th>
+                        <th>-2</th>
                         <th>Region</th>
                     </tr>
                     <tr>
@@ -348,7 +395,7 @@
                     *This is the Japan exclusive v1.0, also known as the Minuet version.
                 </p>
                 <p>
-                    Variants labelled with early and late have the same Nintendo code each, but the late versions have a revised label, that can be identified by the 2 lines of text in the lower part of the player indicator icon - the earlier ones had 3 lines. In most, but not all cases they also have the later PCB type (AAAC-S).
+                    Variants labelled with e = early and l = late share the same Nintendo code. The late versions, however, has a revised label, that can be identified by a 2-lined text in the lower part of the player indicator icon - the earlier ones had 3 lines. In most, but not all cases they also have the later PCB type (AAAC-S).
                 </p>
                 <p>
                     The identified PCB types are: 
@@ -940,46 +987,44 @@
                     As pretty much always, there are exceptions to this rule. In Game Boy Tetris, however, this rule is holds pretty solid.<br>
                 </p>
                 <img src="images/Seal-of-quality.png" style="max-width: 600px;">
-                <table>
-                    <tr>
-                        <th>Top row</th>
-                        <td>
-                            Original
-                        </td>
-                        <td>
-                            Official
-                        </td>
-                        <td>
-                            Official / Officiel
-                        </td>
-                        <td>
-                            Original
-                        </td>
-                        <td>
-                            Official
-                        </td>
-                    </tr>
-                    <th>Bottom row(s)</th>
-                    <td>
-                        Seal of Quality
-                    </td>
-                    <td>
-                        Selo de Qualdade
-                    </td>
-                    <td>
-                        Seal of Quality<br>
-                        Sceau de qualité
-                    </td>
-                    <td>
-                        Qualitäts-<br>
-                        Siegel
-                    </td>
-                    <td>
-                        Seal of Quality
-                    </td>
-                    <tr>
-                    </tr>
-                </table>
+                
+                <div class="container">
+                    <div class="item">
+                        <div class="title">International</div>
+                        <div class="upper">Original</div>
+                        <div class="lower">Seal of Quality</div>
+                    </div>
+                    
+                    <div class="item">
+                        <div class="title">Germany</div>
+                        <div class="upper">Original</div>
+                        <div class="lower">
+                            Qualitäts-<br>
+                            Siegel
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="title">Brazil</div>
+                        <div class="upper">Official</div>
+                        <div class="lower">Selo de Qualdade</div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Canada</div>
+                        <div class="upper">Official / Officiel</div>
+                        <div class="lower">
+                            Seal of Quality<br>
+                            Sceau de qualité
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">International 2</div>
+                        <div class="upper">Official</div>
+                        <div class="lower">Seal of Quality</div>
+                    </div>
+                </div>
 
                 <h2>The Nintendo Code</h2>
                 <p>The code on Game Boy games is mostly found on the left strip. And follows the form:</p>
@@ -1160,119 +1205,99 @@
                         <li>DMG-TR-FRG-A (2-lined text)</li>
                     </ul>  
                 </p>
-                <h3>3-lined texts</h3>
-                    <table>
-                        <tr>
-                            <th>&nbsp;</th>
-                            <th>International</th>
-                            <th>Germany</th>
-                            <th>International 2</th>
-                            <th>Canada</th>
-                        </tr>
-                        <tr>
-                            <th>
-                                Top Text
-                            </th>
-                            <td>
-                                ORIGINAL
-                            </td>
-                            <td>
-                                ORIGINAL
-                            </td>
-                            <td>
-                                OFFICIAL
-                            </td>
-                            <td>
-                                OFFICIAL<br>
-                                OFFICIAL
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                Bottom Text
-                            </th>
-                            <td>
-                                GAME BOY<br>
-                                VIDEO LINK<br>
-                                GAME PAK
-                            </td>
-                            <td>
-                                GAME BOY<br>
-                                VIDEO LINK-<br>
-                                DIALOG-SPIEL
-                            </td>
-                            <td>
-                                GAME BOY<br>
-                                VIDEO LINK<br>
-                                GAME PAK
-                            </td>
-                            <td>
-                                GAME LINK<br>
-                                GAME PAK<br>
-                                LOGICIEL
-                            </td>
-                        </tr>
-                    </table>
+                
+                <h3>3-Lined Texts (Earlier Carts)</h3>
 
-                    <h3>2-lined texts (A)</h3>
-                    <table>
-                        <tr>
-                            <th>&nbsp;</th>
-                            <th>International</th>
-                            <th>Germany</th>
-                            <th>International 2</th>
-                            <th>Canada</th>
-                            <th>Canada 2</th>
-                        </tr>
-                        <tr>
-                            <th>
-                                Top Text
-                            </th>
-                            <td>
-                                ORIGINAL
-                            </td>
-                            <td>
-                                ORIGINAL
-                            </td>
-                            <td>
-                                OFFICIAL
-                            </td>
-                            <td>
-                                OFFICIAL<br>
-                                OFFICIAL
-                            </td>
-                            <td>
-                                OFFICIAL<br>
-                                OFFICIEL
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                Bottom Text
-                            </th>
-                            <td>
-                                VIDEO LINK<br>
-                                GAME PAK
-                            </td>
-                            <td>
-                                GAME LINK-<br>
-                                DIALOG-SPIEL
-                            </td>
-                            <td>
-                                GAME LINK<br>
-                                GAME PAK
-                            </td>
-                            <td>
-                                GAME LINK<br>
-                                GAME PAK
-                            </td>
-                            <td>
-                                VIDEO LINK<br>
-                                GAME PAK 
-                            </td>
-                        </tr>
-                    </table>   
-                </p>
+                  <div class="container">
+                    <div class="item">
+                        <div class="title">International</div>
+                        <div class="upper">ORIGINAL</div>
+                        <div class="lower">
+                            GAME&nbsp;BOY<br>
+                            VIDEO&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Germany</div>
+                        <div class="upper">ORIGINAL</div>
+                        <div class="lower">
+                            GAME&nbsp;BOY<br>
+                            VIDEO&nbsp;LINK-<br>
+                            DIALOG-SPIEL
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">International 2</div>
+                        <div class="upper">OFFICIAL</div>
+                        <div class="lower">
+                            GAME&nbsp;BOY<br>
+                            VIDEO&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Canada</div>
+                        <div class="upper">OFFICIAL<br>OFFICIAL</div>
+                        <div class="lower">
+                            GAME&nbsp;LINK<br>
+                            GAME&nbsp;PAK<br>
+                            LOGICIEL
+                        </div>
+                    </div>
+                </div>
+
+                <h3>2-Lined Texts (Later Carts)</h3>
+
+                <div class="container">
+                    <div class="item">
+                        <div class="title">International</div>
+                        <div class="upper">ORIGINAL</div>
+                        <div class="lower">
+                            VIDEO&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Germany</div>
+                        <div class="upper">ORIGINAL</div>
+                        <div class="lower">
+                            GAME&nbsp;LINK-<br>
+                            DIALOG-SPIEL
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">International 2</div>
+                        <div class="upper">OFFICIAL</div>
+                        <div class="lower">
+                            GAME&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Canada</div>
+                        <div class="upper">OFFICIAL<br>OFFICIAL</div>
+                        <div class="lower">
+                            GAME&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Canada 2</div>
+                        <div class="upper">OFFICIAL<br>OFFICIEL</div>
+                        <div class="lower">
+                            VIDEO&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                </div>
 
                 <h2>The Imprint</h2>
                 <p>
@@ -1290,63 +1315,49 @@
                 <table>
                     <tr>
                         <th>v1.0</th>
-                        <th style="border-right: 1px solid black;">JP</th>
+                        <th style="border-right: 1px dashed black;">JP</th>
                         <th>v1.1</th>
                         <th>JP</th>
                         <th>Int</th>
                     </tr>
                     <tr>
                         <td>00</td>
-                        <td style="border-right: 1px solid black;">-</td>
+                        <td style="border-right: 1px dashed black;">-</td>
                         <td>00A</td>
                         <td><span class="check"></span></td>
                         <td><span class="check"></span></td>
                     </tr>
                     <tr>
                         <td>05</td>
-                        <td style="border-right: 1px solid black;"><span class="check"></span></td>
+                        <td style="border-right: 1px dashed black;"><span class="check"></span></td>
                         <td>05A</td>
                         <td>-</td>
                         <td>-</td>
                     </tr>
                     <tr>
                         <td>07</td>
-                        <td style="border-right: 1px solid black;">-</td>
+                        <td style="border-right: 1px dashed black;">-</td>
                         <td>07A</td>
                         <td><span class="check"></span></td>
                         <td>-</td>
                     </tr>
                     <tr>
                         <td>09</td>
-                        <td style="border-right: 1px solid black;"><span class="check"></span></td>
+                        <td style="border-right: 1px dashed black;"><span class="check"></span></td>
                         <td>09A</td>
                         <td>-</td>
                         <td>-</td>
                     </tr>
                     <tr>
-                        <td>11</td>
-                        <td style="border-right: 1px solid black;">-</td>
-                        <td>11A</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
-                    <tr>
-                        <td>12</td>
-                        <td style="border-right: 1px solid black;">-</td>
-                        <td>12A</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
-                    <tr>
                         <td>20</td>
-                        <td style="border-right: 1px solid black;"><span class="check"></span></td>
+                        <td style="border-right: 1px dashed black;"><span class="check"></span></td>
                         <td>20A</td>
                         <td>-</td>
                         <td><span class="check"></span></td>
                     </tr>
                     <tr>
                         <td>22</td>
-                        <td style="border-right: 1px solid black;"><span class="check"></span>*</td>
+                        <td style="border-right: 1px dashed black;"><span class="check"></span>*</td>
                         <td>22A</td>
                         <td><span class="check"></span></td>
                         <td><span class="check"></span></td>
@@ -1358,20 +1369,6 @@
                         <td><span class="check"></span></td>
                         <td><span class="check"></span></td>
                     </tr>                    
-                    <tr>
-                        <td>28</td>
-                        <td style="border-right: 1px solid black;">-</td>
-                        <td>28A</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
-                    <tr>
-                        <td>34</td>
-                        <td style="border-right: 1px solid black;">-</td>
-                        <td>34A</td>
-                        <td>-</td>
-                        <td>-</td>
-                    </tr>
                 </table>
                 <p>
                     *As far as we know, the cart with imprint 22 is the only Minuet version that has the same artwork on the label as the Japanese version 1.1.<br>
@@ -1400,7 +1397,7 @@
                 </p>
             
                 <p>
-
+                    The only reliable indicator whether a Japanese cart is a Minuet, is the imprint.
                 </p>
 
                 <h2>PCBs</h2>
@@ -1501,14 +1498,16 @@
                 <p>
                     Only one Tetris prototype cart surfaced by now. The contained ROM file is identical to the ROM found on ealier Japanese releases, also known as v1.0 or the Minuet Version.<br>
                 </p>
-                <img src="images/Proto-Cart.png" style="max-width: 300px">
-                <img src="images/Proto-Cart-Back.png" style="max-width: 300px">
+                <img src="images/Prototype.png">
+                <!--<img src="images/Proto-Cart.png">
+                <img src="images/Proto-Cart-Back.png">-->
                 <p>Image Source: https://hiddenpalace.org/Tetris_(Jun_14,_1989_prototype)</p>
 
                 <h2>Nintendo Power Cart (2001)</h2>
-                <img src="images/Nintendo-Power-Cart.jpg" style="max-width: 300px">
-                <img src="images/Nintendo-Power-Cart-pcb-front.jpg" style="max-width: 300px">
-                <img src="images/Nintendo-Power-Cart-pcb-back.jpg" style="max-width: 300px">
+                <img src="images/Nintendo-Power-Cart-all.png">
+                <!--<img src="images/Nintendo-Power-Cart.jpg">
+                <img src="images/Nintendo-Power-Cart-pcb-front.jpg">
+                <img src="images/Nintendo-Power-Cart-pcb-back.jpg">-->
                 <img src="images/Nintendo-Power-Flash-Writer.jpg">
                 <p>
                     Photo Credit: Original photo: Zero Noun on Flickr Modified by Gazebo with cropping of the photo and removal of the thumbnail (IFD1) EXIF metadata. - Super Famicom Flash Writer.
@@ -1650,20 +1649,77 @@
                 <p><img src="carts/small__A7_0994.jpg"></p>
                 <p><img src="carts/small__A7_0996.jpg"></p>
 -->
-                <h2>GAME BOY Tetris 1989</h2>
-                <h3>Minuet Version (v1.0) - DMG-TRA</h3>
-                The "Minuet Version", owing its name for the distinct A-Type minuet melody, is a precursor to the regular Game Boy Tetris that was later released in the only ever revision, also known as Revision 1, or v1.0.<br>
-                Earlier estimates that there were only ever 10,000 units released, have long been debunked. Still, it's a rather rare version of Tetris.<br>
-                There are quite a few differences from v1.0 to 1.1 which I will list later in another chapter.<br>
-                It is believed that there only exist carts with imprints 05, 09, 20, 22 and 23. Where imprint 22 might be special.<br>
-                <img src="images/small/small_All-Minuet.png"><br>
-                The ROM chip of the minuet has the imprint DMG-TRA-0.<br>
-                <h3>Japanese Versions (v1.1)</h3>
-                Japanese carts typically have different artwork than the international ones. For an untrained eye, the Japanese versions 1.1 might look like the 1.0.<br>
-                <img src="images/small/small_All-DMG-TRA.png"><br>
-                <img src="images/small/small_DMG-TRA-A.png"><br>
-                The introduction of globtop PCBs: It is believed that the production volume overwhelmed most manufactured. PCB production had to be outsourced and in some cases globtop ROM chips were used. These are way cheaper than regular ROM chips and are usually an indicator that a game is not original. Tetris is here an exception - globtop PCBs are genuine.
-                <img src="images/small/small_DMG-TRA-1.png"><br>
+                <h2>All Known Variants in Detail</h2>
+                <h3>Japanese Variants</h3>
+                <b>Minuet Version (v1.0) - DMG-TRA</b>
+                <p>
+                    The "Minuet Version", owing its name for the distinct A-Type minuet melody, is a precursor to the regular Game Boy Tetris that was later released in the only ever revision, also known as Revision A, or v1.0.<br>
+                    Earlier estimates that there were only ever 10,000 units released, have long been debunked. Still, it's a rather rare version of Tetris.<br>
+                    There are quite a few in-game differences from v1.0 to 1.1 which I will list in another chapter.<br>
+                    It is believed that there only exist carts with imprints 05, 09, 20, 22 and 23. Where imprint 22 might be special.<br>
+                    <img src="images/Carts/DMG-TRA0.png"><br>
+                    <img src="images/small/small_All-Minuet.png"><br>
+                    The ROM chip of the minuet has the imprint DMG-TRA-0.<br>
+                </p>
+                <b>DMG-TRA (Revision A, v1.1)</b>
+                <p>
+                    Japanese carts typically have different artwork than the international ones. For an untrained eye, the Japanese versions 1.1 might look like the 1.0.<br>
+                    <img src="images/small/small_All-DMG-TRA.png"><br>
+                    <img src="images/small/small_DMG-TRA-A.png"><br>
+                    The introduction of globtop PCBs: It is believed that the production volume overwhelmed most manufactured. PCB production had to be outsourced and in some cases globtop ROM chips were used. These are way cheaper than regular ROM chips and are usually an indicator that a game is not original. Tetris is here an exception - globtop PCBs are genuine.
+                    <img src="images/small/small_DMG-TRA-1.png"><br>
+                </p>
+                <hr>
+
+                <h3>USA Variants</h3>
+                <p>
+                    After Japan, the USA was the first country to receive Tetris for the Game Boy. It launched as a packing title with the Game Boy in 1989. The early variant is the only cart that has "Made in Japan" not in one of the strips but on the bottom of the artwork. This is similar to the placement on the Japanese carts. At least all launch titles had it also at the bottom of the artwork, rather than on the left strip.
+                	
+JP: April 21, 1989
+NA: July 31, 1989
+EU: September 28, 1990
+KR: May 2, 1991
+ZA: 1992
+YU: c. 1994
+BR: April 14, 1994
+PL: October 6, 1994
+
+https://datassette.org/revistas/nintendo-world
+                </p>
+                <p>
+                    <img src="images/USA-early-and-late-Made-in-Japan.png">
+                </p>
+                <p>
+                    The Early variant has some sub-variants, most notably the three DMG-AAA PCB iterations:
+                    <ul>
+                        <li><strong>DMG-AAA-01</strong>: This is the earliest iteration that is mostly found on the Japanese 1.0</li>
+                        <li><strong>DMG-AAA-02</strong>: This iteration only existed for a very short time</li>
+                        <li><strong>DMG-AAA-03</strong>: This consits the majority of PCB iteration of this type</li>
+                    </ul>
+                    Other subvariants are the carts with missing dashes. It is very likely, that this just occured during a short period, where the black ink ran out. 
+                </p>
+                
+                <hr>
+                <h3>Canadian Variants</h3>
+                <hr>
+
+                <h3>Western German Variants</h3>
+                <h3>German Variants (NOE)</h3>
+                <h3>France and Holland Variants</h3>
+                <h3>United Kingdom Variants</h3>
+                <h3>Italian Variants</h3>
+                <h3>Scandinavian Variants</h3>
+                <h3>Greece, Portugal, Spain Variants</h3>
+                <h3>Spanish Variants</h3>
+                <h3>Europe Variants</h3>
+                <h3>East-Asian Variant</h3>
+                <h3>Taiwan Variant</h3>
+                <h3>Hong-Kong Variant</h3>
+                <h3>Korean Variant</h3>
+                <h3>Australian Variant</h3>
+                <h3>Brazilian Variants</h3>
+                <h3>Mainland Chinese Variants</h3>
+
 
                 <h3>Chinese carts (DMG-104CHN)</h3>
                 Chinese carts are also typically different in many ways. Their game identifier part of the code consists of numbers rather than letters - Tetris is "104" in china and "TR" in the rest of the world. They were produced in China instead of Japan. These are usually marked with a "Made in China" instead of the typical "Made in Japan".<br>
@@ -1728,8 +1784,8 @@
                 <img src="images/small/small_DMG-TR-NOE.png"><br>
                 <img src="images/small/small_DMG-TR-NOE-1.png"><br>
 
-                <img src="images/small/small_A7_0771.png"><br>
-                <img src="images/small/small_All-Chris-and-Triss.png"><br>
+                <!--<img src="images/small/small_A7_0771.png"><br>
+                <img src="images/small/small_All-Chris-and-Triss.png"><br>-->
                 
                 
                 
@@ -1743,7 +1799,7 @@
                 <img src="images/small/small_All-DMG-TR-UKV.png"><br>
 
                 
-                <img src="images/small/small_All-From-Below-Pocket.png"><br>
+                <!--<img src="images/small/small_All-From-Below-Pocket.png"><br>
                 <img src="images/small/small_All-Lukris.png"><br>
                 <img src="images/small/small_All-Magical-Tetris-Challenge.png"><br>
                 <img src="images/small/small_All-Petris.png"><br>
@@ -1759,7 +1815,7 @@
                 <img src="images/small/small_BreakThru.png"><br>
                 <img src="images/small/small_Chromatic-Tetris-Proto2.png"><br>
                 <img src="images/small/small_Collection.png"><br>
-                <img src="images/small/small_Comp-Carts.png"><br>
+                <img src="images/small/small_Comp-Carts.png"><br>-->
                 
 
 
@@ -1786,7 +1842,7 @@
                 <img src="images/small/small_DMG-TR-UKV.png"><br>
 
 
-                <img src="images/small/small_Duplicates-DMG-TR.png"><br>
+                <!--<img src="images/small/small_Duplicates-DMG-TR.png"><br>
                 <img src="images/small/small_From-Below-Pocket.png"><br>
                 <img src="images/small/small_Hatris.png"><br>
                 <img src="images/small/small_Magical-Tetris-Challenge-INTL.png"><br>
@@ -1826,7 +1882,7 @@
                 <p><img src="carts/small_CTEC-23-Runner-Up-Gold.jpg"></p>
                 <p><img src="carts/small_CTEC-23-Winner-Gold.jpg"></p>
                 <p><img src="carts/small_CTEC-GB-2023-Q.jpg"></p>
-                <p><img src="carts/small_CTEC-Runner-up-Green.jpg"></p>
+                <p><img src="carts/small_CTEC-Runner-up-Green.jpg"></p>-->
 
             </main>
         </div>
