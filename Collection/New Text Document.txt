@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Collection</title>
+    <link rel="stylesheet" href="../styles/general.css">
+    <link rel="stylesheet" href="../styles/grid.css">
+    <link rel="stylesheet" href="../styles/header.css">
+    <link rel="stylesheet" href="../styles/layouts.css">
+    <link rel="stylesheet" href="../styles/modal.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&display=swap');
+
+        table {
+            /*margin: auto;*/
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4c795c;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .subhead {
+            font-weight: bold;
+            text-align: center;
+            background-color: #7ba88b;
+            color: #ffffff;
+        }
+
+        .equal-cols-table {
+            border-collapse: collapse;
+        }
+
+        .equal-cols-table th:nth-child(2), /* Early */
+        .equal-cols-table th:nth-child(3), /* Late */
+        .equal-cols-table th:nth-child(4), /* Code-1 */
+        .equal-cols-table th:nth-child(5)  /* Code-2 */ {
+            width: auto; /* Automatically adjust */
+            white-space: nowrap;
+        }
+        
+        /*.equal-cols-table td:nth-child(1),*/
+        .equal-cols-table td:nth-child(2), /* Early */
+        .equal-cols-table td:nth-child(3), /* Late */
+        .equal-cols-table td:nth-child(4), /* Code-1 */
+        .equal-cols-table td:nth-child(5)  /* Code-2 */ {
+            text-align: center;
+            margin: auto;
+            /*border-left: 2px dotted #7ba88b;*/
+            border-right: 1px dashed #7ba88b;
+        }
+
+        .equal-cols-table td:nth-child(1){
+            font-weight: bold;
+            border-right: 1px dashed #7ba88b;
+        }
+
+        .equal-cols-table th, 
+        .equal-cols-table td {
+            padding: 8px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: flex-start;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .item {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: fit-content;
+            min-width: max-content;
+        }
+
+        .title {
+            background-color: #4c795c;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            white-space: nowrap;
+        }
+
+        .upper {
+            background-color: #ddd;
+            color: #333;
+            padding: 10px;
+            white-space: nowrap;
+        }
+
+        .lower {
+            background-color: #ffffff;
+            color: #333;
+            padding: 10px;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        img{
+            max-width: 100%;
+        }
+
+        .check::before {
+            content: "✔";
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <header>
+            <h1>All known Game Boy Tetris Variants</h1>
+            <button class="menu-btn" id="hamburger-icon" aria-label="Toggle Menu">☰</button>
+        <div class="menu-container">
+          <button class="close-btn" id="close-icon" aria-label="Close Menu">✖</button>
+          <h3 class="accordion">Boxes <span class="arrow">+</span></h3>
+          <ul class="menu">
+              <li><a href="Live/refactored/index.html">OCR</a></li>
+          </ul>
+          <h3 class="accordion">Labels <span class="arrow">+</span></h3>
+          <ul class="menu">
+              <li><a href="Tolstoj/index.html">About Me</a></li>
+          </ul>
+        </div>
+        </header>
+        <div class="page-content">
+            <main>
+                <h3>Author: Tolstoj (2025)</h3>
+                <h2>Credit</h2>
+                <p>
+                    A lot of groundwork has been done by the community, mostly JVOSS in this thread: <a href="https://www.videogamesage.com/forums/topic/5368-somewhat-complete-list-of-game-boydmg-tetris-variants">Somewhat&nbsp;Complete&nbsp;list&nbsp;of&nbsp;Game&nbsp;Boy(DMG)&nbsp;Tetris&nbsp;Variants.</a>
+                </p>
+                <p>
+                    The groundwork for this, in turn, was done by someone unknown who initialized the work of distinguishing Tetris variants. 
+                </p>
+                <p>
+                In order to help me getting some carts for my collection I would like to thank the following people:
+                <ul>
+                    <li>My Sisters Lydia and Ruth for many, many carts</li>
+                    <li>-JJ (Finland) for the Scandinavian carts</li>
+                    <li>Arden (Italy) for the Italian carts</li>
+                    <li>Yelena (Austria, Spain) and Almio for the Spanish carts</li>
+                </ul>
+                <p>
+                    In addition, I would like to thank Tobias (<a href="https://retrogameworld.ch/" target="_blank">Retrogameworld</a>) for letting me open his carts.
+                </p>
+                <div class="remark">This article is part of a long-term project of mine with the goal of writing a compendium / book about all things Game&nbsp;Boy&nbsp;Tetris. It is meant to be in the public domain but I will aim to make it into a printed book without claiming any right to generate much money from it.
+                    <p>
+                        <strong>If you would like to contribute, find mistakes or have clarification, feel free to contact me and in case your contributions find the way into the text you will be listed as an author.</strong>
+                    </p>
+                    <p>
+                        However, at the moment I lack the means of providing any form of monitary compensation for it.
+                    </p>
+                    <p><strong>Disclaimer: </strong><i>GAME BOY is a trademark of Nintendo. Tetris is a registered trademark of The Tetris Company. This text is an independent work and is not affiliated with or endorsed by Nintendo or The Tetris Company.</i></p>
+                </div>
+                </p>
+                <h2>Definitions</h2>
+                <p>
+                    In order to make sure, we're on the same page we'll have to agree on a common use of language.
+                </p>
+                <p>
+                    First off, Tetris is a "World" release. This means there are no regional differences in-game: a Japanese version has no Japanese symbols, and a French release has no French menus. While translated versions have been identified, they are ROM patches by the community and were not officially released by Nintendo.
+                </p>
+                <p>
+                    <ul>
+                        <li><strong>Version</strong>: Software version with distinct features.</li>
+                        <li><strong>Revision</strong>: Software update that fixes bugs, improves functionality, or makes minor changes. These are often not advertised, but they can be identified (e.g. "Rev A").</li>
+                        <li><strong>Variant</strong>: Physical differences that don’t change the software itself. (e.g. label variant)</li>           
+                        <ul>
+                            <li><strong>Sub-Variant</strong>: Unexpected combination of parts, e.g during a transition phase (e.g. earlier PCB with updated label) or differences due to faulty production.</li>
+                        </ul>
+                        <li><strong>Iteration</strong>: Any progressive change in a game’s development or production. It can apply to prototypes, different builds during development, or even multiple retail versions over time.</li>
+                        <li><strong>Localization</strong>: A version of the game adapted for a different region, sometimes with translated text, altered graphics, or censorship.</li>
+                        <li><strong>Hardware Revision</strong>: A change in the circuit board design of a game cartridge, which may affect hardware compatibility or reliability but not the game itself.</li>
+                    </ul>
+                <p>
+                    Tetris has two versions: v1.0 and v1.1. Sometimes, v1.1 is referred to revision A. The two terms are not always strictly defined.
+                </p>
+                </p>
+                <h2>How many Game Boy Tetris Variants are there?</h2>
+                <p>
+                    As far as we know the simple answer could be: <strong>44</strong>. But it very much depends on what you would define as a variant.
+                </p>
+                <p>
+                    Let's start simple: It is widely accepted that each different Nintendo code constitutes a variant.
+                </p>
+                <p>
+                    E.g. DMG-TR-NOE &ne; DMG-TR-NOE-1
+                </p>
+                <p>
+                    But apart from this distinctions, further separations can be made - some are more plausible than others:<br>
+                    <ul>
+                        <li>ROM differences with the same label (Japanese v1.0 vs v1.1)</li>
+                        <li>Label revisions</li>
+                        <li>PCB revisions</li>
+                        <li>China: FCO carts vs. regular carts (for China only)</li>
+                        <li>Early and late label revisions (minor changes) with the same Nintendo code</li>
+                        <li>Different imprints</li>
+                        <li>Minor differences such as missing dashes, legal annotations etc.</li>
+                    </ul>
+                </p>
+                <p>
+                    The fact that revisions of the PCB, boxes, label or the ROM revision were many times quite well coorinated but not perfectly, is why you can find "transition" carts / combinations that might already have a revised label but still the PCB typically found in carts with the predecessor label. Depending of the duration of the transition phase, such carts can be difficult to be identified or to be found. Additionally, it makes the exact identifiacation difficult because over the years certain things might have been swapped / exchanged.
+                </p>
+                <table class="equal-cols-table">
+                    <tr>
+                        <th>Code</th>
+                        <th>e</th>
+                        <th>l</th>
+                        <th>-1</th>
+                        <th>-2</th>
+                        <th>Region</th>
+                    </tr>
+                    <tr>
+                        <td>DMG-TRA</td>
+                        <td style="background-color: #ffe798"><span class="check"></span>*</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Japan</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="subhead">North America</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-USA</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>USA</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-CAN</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>Canada</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="subhead">Europe</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-FRG</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Germany</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-FAH</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>France &amp; Holland</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-UKV</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>United Kingdom</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-ITA</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Italy</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-NOE</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Europe, Germany</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-SCN</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Scandinavia</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-GPS</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Greece, Portugal, Spain</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-ESP</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Spain</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-EUR</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Europe</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="subhead">Asia</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-ASI</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>South-East Asia</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-ROC</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Taiwan</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-HKG</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Hong Kong</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-KOR</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>Korea</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="subhead">Oceania</td>
+                    </tr>
+                    <tr>
+                        <td>DMG-TR-AUS</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                        <td>Australia</td>
+                    </tr>
+                </table>
+
+                <p>
+                    *This is the Japan exclusive v1.0, also known as the Minuet version.
+                </p>
+                <p>
+                    Variants labelled with e = early and l = late share the same Nintendo code. The late versions, however, has a revised label, that can be identified by a 2-lined text in the lower part of the player indicator icon - the earlier ones had 3 lines. In most, but not all cases they also have the later PCB type (AAAC-S).
+                </p>
+                <p>
+                    The identified PCB types are: 
+                    <ul>
+                        <li><strong>Chip</strong>: AAA-01, AAA-02, AAA-03</li>
+                        <li><strong>Globtop</strong>: AAAC-S</li>
+                    </ul>
+                </p>
+                <hr>
+
+                <h3>Special Variants</h3>
+                <p>
+                    These are officially released versions of Tetris.
+                </p>
+                <table>
+                    <tr>
+                        <th colspan="3" class="subhead">South America, Brazil</th>
+                    </tr>
+                    <tr>
+                        <th>Code</th>
+                        <th>Variant 1</th>
+                        <th>Variant 2</th>
+                    </tr>                    
+                    <tr>
+                        <td><strong>No Code</strong></td>
+                        <td>Grey Cart</td>
+                        <td>Yellow Cart</td>
+                    </tr>                    
+                </table>
+                <p>
+                    As with all Nintendo products in Brazil, Game Boy Tetris was distributed through the company Playtronic. The label on these versions are quite different (no code, different quality, no imprinted number). Each Playtronic cart has 2 additional stickers on the back side:
+                    <ol>
+                        <li>Nintendo, Playtronic authenticity label</li>
+                        <li>Serial Number</li>
+                    </ol>
+                </p>
+                <p>
+                    The yellow Playtronic cart is the holy grail of Game Boy Tetris. It is by far the most sought-after cart of them all - it is so incredibly rare that not many are found in the wild. There are hundrets of saved searches with E-Mail notifications set on Ebay containing "Yellow Tetris", "Yellow Playtronic Tetris" or similar terms. Should a cart surface there, it would probably be gone within minutes / seconds. The yellow cart was a Brazilian exclusive release that was bundled with the yellow "Play It Loud"-series Playtronic Game Boy.
+                </p>
+                
+                <table>
+                    <tr>
+                        <th colspan="4" class="subhead">Mainland China</th>
+                    </tr>
+                    <tr>
+                        <th>Code</th>
+                        <th>International</th>
+                        <th>For China Only</th>
+                        <th>Swapped strips</th>
+                    </tr>                    
+                    <tr>
+                        <td><strong>DMG-104 CHN</strong></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DMG-601 CHN</strong></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                    </tr>                   
+                </table>
+                <p>
+                    China carts are Made in China. They follow a completely different coding consisting of numbers instead of letters for the game. Also there is no second dash in the code.
+                </p>
+                <p>
+                    The utilized PCBs are also very different and were produced by MANI.
+                </p>
+
+
+                <hr>
+                <h3>How many VERSIONS are there?</h3>
+                <p>
+                    The short answer is <strong>2</strong>: There is the v1.0 (Minuet) version and all the other ones are version 1.1.
+                </p>
+
+                <h2>Introduction</h2>
+                <p>
+                    <img src="images/My-Game-Boy-Tetris-Collection.JPG">
+                </p>
+                <p>My insane  Game Boy Tetris Collection</p>
+                <p>
+                    Tetris was programmed in Soviet Russia in 1985 (officially 1984) by Alexey Pajitnov (Алексей Пажитнов). He called his game Tetris. The name is supposedly a combination of 2 words: Tetra, Greek for 4 and the suffix -is comes from Tennis, Alexey's favorite sport.
+                </p>
+                <p>
+                    The whole licensing chaos caused by various actors brough Tetris to Western Europe and the USA. Tetris was then brought to Japan by Henk Rogers via his company BPS and later he also secured the rights to consoles and handheld for Nintendo, which started distribution in Japan and expanded shortly after in the USA and the rest of the world.
+                </p>
+                <p>
+                    Nintendo Tetris for the Game Boy was released in 1989 in Japan (June 14th) and later that year (July 31st) in the USA. Europe and the rest of the world had to wait until September 28, 1990. Some regions might had to wait until as late as 1996.
+                </p>
+                <p>
+                    As a reference, the Berlin Wall was torned down November 9th, 1989 which places the major initial releases in this very influencial time frame.
+                </p> 
+                <p>
+                    Tetris for the Game Boy was produced between 1989 and at least until the end of 1997 and was later officially distributed by other means e.g. for the Nintendo Power carts to write to re-writeable carts in Kiosks, the Nintendo DS or the Nintendo Switch (NSO sevice).
+                </p>
+                <p>
+                    The rights to Tetris for handhelds were secured by Henk Rogers through its company (Bullet-Proof-Software, BPS) and the Russian agency of import and export of electronic goods ELORG (Electronorgtechnica) to Nintendo. This chain of licensing is part of probably the most extreme cases of “licensing wars” for videogames which in this time was pretty common practice. The chain ELORG&rarr;BPS&rarr;Nintendo can be seen on the legal texts on the box, the manual, the cart label and in game.
+                </p>
+                <p>
+                    Many business decisions in the late 1980’s and early 1990’s were influenced by the newly lifted divide of the East (communistic) and the West (capitalistic). This divide was known as the “cold war” and Tetris with its origins in Soviet Russia was right in the middle of all of its chaos.
+                </p>
+                <p>
+                    Distributing goods worldwide back then must have been a huge hassle. Rules, regulations and laws in different regions made it difficult, or sometimes even impossible to serve their markets in a unified way. Nintendo being an infamous juggernaut, was no stranger to worldwide distributions of goods such as consoles and games.
+                </p>
+                <p>
+                    Yet, most parts of the East, reffering to countries previously led under communistic rule, were still not considered by Nintendo. That’s why many eastern European countries did only experience gaming through exotic hardware or clone consoles. This is a topic for another time.
+                </p>
+                <p>
+                  When distributing games to foreign markets, Nintendo often had to rely on domestic distributors. These could be managed by their own (e.g. Nintendo of Europe) or independent distributors (e.g. Bienengräber or Playtronic). Sometimes the governments of countries regulated the distribution themselves (e.g. Mainland China or Korea). China being the most extreme case where components were domestically produced instead of receiving parts from Nintendo. Parts were mostly imported from Japan (Nintendo of Japan).
+                </p>
+                <p>
+                    Some distributions had overlapping markets, e.g. NOE, FRG, FAH, EUR… but I’m getting ahead of myself.
+                </p>
+
+                <p>
+                    Tetris in its essence is a very simple game that fits neatly in a single ROM bank (32kb) and did not require sRAM to save data on its cart (what a shame really) or an MBC (memory bank controller) chip to manage ROM bank switching to the adress space of the Game Boy. On the other hand, it was supposed to act as a flagship to showcase the devices range of functions with the addition of a 2-player link functionality via Link cable.
+                </p>
+                <p>
+                    On a low level, Game Boy Tetris, consisting of 3 modes: A-Type (marathon), B-Type (downstack survival) and the 2-Player mode via link cable.
+                </p>
+                <p>
+                    There exist 2 different ROM variants: Version 1.0 was exclusive to Japan as the very first batch. This version contains some minor bugs, a typo (Bullet Proof instead of Bullet-Proof), and a completely overhauled level advancement system among some other minor differences. Arguably, the most influential choice was to change the A-Type melody from a Minuet to the now legendary tune of Korobeiniki, well, Nintendo’s version of the traditional Russian folklore song.
+                </p>
+                <p>
+                    Version 1.1 was released in Japan as well as the rest of the world, which makes up the vast majority of carts in circulation. Later revisions did not affect the game play but mostly external properties, such as the label, the PCB, the ROM chip or the plastic shell.
+                </p>
+                <p>
+                    We’ll delve into these differences by examining the known regional releases and revisions one-by-one by investigating all differences on the carts.
+                </p>
+
+
+                <h2>Tetris in Different Languages</h2>
+
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Language</th>
+                        <th>Writing System</th>
+                    </tr>
+                    <tr>
+                        <td><strong>ТЕТРИС</strong><br>or<br><strong>Тетрис</strong></td>
+                        <td>Russian</td>
+                        <td>Cyrillic</td>
+                    </tr>
+                    <tr>
+                        <td><strong>テトリス</strong></td>
+                        <td>Japanese</td>
+                        <td>Katakana</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ТETRIS</strong><br>or<br><strong>Tetris</strong></td>
+                        <td>International</td>
+                        <td>Latin</td>
+                    </tr>
+                    <tr>
+                        <td><strong>俄罗斯方块</strong></td>
+                        <td>Chinese</td>
+                        <td>Simplified Chinese</td>
+                    </tr>
+                    <tr>
+                        <td><strong>俄羅斯方塊</strong></td>
+                        <td>Chinese</td>
+                        <td>Traditional Chinese</td>
+                    </tr>
+                </table>
+                
+                <p>
+                    <hr>
+                    <strong>Russian</strong>
+                    <p>
+                        The cyrillic alphabeth shares a great portion with the latin alphabeth.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>RU</th>
+                                <th style="border-right: 1px solid black;">LAT</th>
+                                <th>ru</th>
+                                <th>lat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Т</td>
+                                <td style="border-right: 1px solid black;">T</td>
+                                <td>т</td>
+                                <td>t</td>
+                            </tr>
+                            <tr>
+                                <td>Е</td>
+                                <td style="border-right: 1px solid black;">E</td>
+                                <td>е</td>
+                                <td>e</td>
+                            </tr>
+                            <tr>
+                                <td>Р</td>
+                                <td style="border-right: 1px solid black;">R</td>
+                                <td>р</td>
+                                <td>r</td>
+                            </tr>
+                            <tr>
+                                <td>И</td>
+                                <td style="border-right: 1px solid black;">I</td>
+                                <td>и</td>
+                                <td>i</td>
+                            </tr>
+                            <tr>
+                                <td>С</td>
+                                <td style="border-right: 1px solid black;">S</td>
+                                <td>с</td>
+                                <td>s</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </p>
+                <ul>
+                    <li><strong>Capital letters:</strong> RU = Russian / LAT = Latin</li>
+                    <li><strong>Lower letters:</strong> ru = Russian / lat = latin</li>
+                </ul>
+                <p>
+                    <hr>
+                    <strong>Japan</strong>
+                </p>
+                <p>
+                    Pronounciation:<br>
+                    <ul>
+                        <li>Tetorisu (Hepburn)</li>
+                    </ul>
+                    テ (Te), ト (To), リ (Ri), ス (Su) &rarr; Te-to-ri-su
+                </p>
+                <p>
+                    <hr>
+                    <strong>China</strong>
+                </p>
+                <p> 
+                    Translation: "Russian Blocks"<br>
+                    <ul>
+                        <li>俄罗斯 or 俄羅斯 = Russia</li>
+                        <li>方块 or 方塊 = blocks (or tiles)</li>
+                    </ul>
+                </p>
+                <p>
+                    Pronounciations:
+                    <ul>
+                        <li>Éluósī fāngkuài (Mandarin)</li>
+                        <li>Ngòh lòh sī fōng faai (Cantonese)</li>
+                    </ul>
+                    <hr>
+                </p>
+                <div class="remark">
+                    <strong>Side note:</strong> there is no official logo for the Chinese writing.
+                </div>
+
+                <h2>Boxart</h2>
+                <p>
+                    In Europe and the USA, Game Boy Tetris was a boxing title for the Game Boy. Therefore, many games did not come in their own box but were rather bundled with the Game Boy in its box.<br>
+                    I will admit, I'm not an expert on boxes and the information provided here might not be fully accurate nor complete.
+                </p>
+                <img src="images/Boxes.png">
+                
+                <h3>Japanese Boxes</h3>
+                <p>
+                    The smaller, Japanese boxes had at least 3 revisions whose differences can be found on the backside. Note that the box revision 1a was done during the Minuets lifespan. That's why Minuet can be found in both early box types.
+                </p>
+                <p>
+                    <img src="images/Japanese-Small-Boxes.png">
+                    <ul>
+                        <li>Layout 1a, BULLET PROOF SOFTWARE</li>
+                        <li>Layout 1b, BULLET-PROOF SOFTWARE</li>
+                        <li>Layout 2, The Tetris Company</li>
+                    </ul>
+                </p>
+                <p>
+                    Interestingly, all of the boxes share the same bar code: T4902370500950<br>
+                </p>
+                <p>
+                    Another thing to note is the change of Pajitnovs last name. Since there is not always a one to one mapping from cyrillic letters to latin letters, certain assumptions have to made, mostly based on phonetics. Initially his last name was written as PAZHITNOV and later as Pajitnov. 
+                </p>
+
+                <h3>International Boxes</h3>
+                <p>
+                    International boxes came in various languages such as English, German or French.
+                </p>
+                <hr>
+                <p>
+                    <strong>Twin Pack</strong>
+                </p>
+                <p>
+                    There is a special Twin-Pack box, where Tetris and Tetris 2 were sold together. I find it quite ironic that this original box shows the 1-player indicator instead of the 2-player indicator on the Tetris side (left).
+                </p>
+                <p> 
+                    <img src="images/twin-pack.png">
+                </p>
+
+                <h2>The Game Boy Tetris Logos</h2>
+
+                <h3>The Bullet-Proof Style Logo</h3>
+                <p>
+                    Even though Nintendo produced Game Boy Tetris, Bullet-Proof-Software convinced Nintendo to use their Tetris logo, at least for the Japanese Market, as well as in-game on both: The Game Boy and the NES version. Bullet-Proof Software was Henk Rogers company that existed since 1983. Before the Game Boy (and the NES) versions, they released at least 2 Tetris variants. Both of these versions had the same logo, which uses the <strong>Futura Black</strong> font face. This logo-type continued to be used on countless other versions.
+                </p>
+                <div class="remark">
+                    <strong>Side note:</strong><br>
+                    The later, very well-known "Tetris Melody" was used before in earlier BPS releases. This Tetris melody is the A-Type melody on v1.1 and is based on the traditional Russian folk song Korobeiniki (aka Korobushka).
+                    <p>
+                        Which means that not only did Henk Rogers convince Nintendo to use his logo, but also later the melody - what a great idea in hinsight! But quite frankly, Nintendo owed him big time for securing the the rights.<br>
+                    </p>
+                    <p>
+                        The Korobeiniki as used in the Game Boy version, is culturally deeply connected to Tetris in the minds of people.
+                    </p>
+                    <p>
+                        The story is very similar to the melody of Super Mario World for the SNES. In this case the melody from the song "Green Green" first entered Japan and was then caught up by the composer and a rendition was used in game.<br> 
+                        The original Korobeiniki is in parts quite different to the Tetris Melody. But in 1962, long before Tetris, the Korobeiniki was adapted:<br>
+                    </p>
+                    <table>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>Super Mario World (SNES)</th>
+                            <th>Tetris</th>
+                        </tr>
+                        <tr>
+                            <th>Original song</th>
+                            <td><a href="https://www.youtube.com/watch?v=PfxgbsXeTdE" target="_blank">Green Green</a></td>
+                            <td><a href="https://www.youtube.com/watch?v=yHqiPqDvMDs" target="_blank">Коробейники</a></td> 
+                        </tr>
+                        <tr>
+                            <th>Japanese transcription</th>
+                            <td><a href="https://www.youtube.com/watch?v=_rUdUj8ch58" target="_blank">グリーン・グリーン</a></td>
+                            <td><a href="https://www.youtube.com/watch?v=fGcUQhL3BRo" target="_blank">コロブチカ (フォークダンス)</a></td>
+                            
+                        </tr>
+                        <tr>
+                            <th>In-game rendition</th>
+                            <td><a href="https://www.youtube.com/watch?v=tAaGKo4XVvM" target="_blank">Super Mario World Theme</a></td>
+                            <td><a href="https://www.youtube.com/watch?v=z3ZiVn5L9vM" target="_blank">Game Boy Tetris A-Type melody (v1.1)</a></td>
+
+                        </tr>
+                    </table>
+                    <p>
+                        It is likely no conincidence that this rendition very closely resembles the Tetris melody - moreso than the original Korobeiniki.
+                    </p>
+                </div>
+                <img src="images/Bullet-Proof-Style-Logo.png">
+                <p>
+                    <ol>
+                        <li>Logo from the BPS Tetris (1988)</li>
+                        <li>In-game logo Game Boy Tetris (tile-based)</li>
+                        <li>In-game logo NES Tetris (tile-based)</li>
+                        <li>Logo on the Japanese cart label</li>
+                        <li>Logo on the Japanese box</li>
+                        <li>Japanese logo on the Japanese box</li>
+                    </ol>                  
+                </p>
+                <p>
+                    Note that the logos in 4 and 5 resemble more closely the in-game logo from the NES version rather than the original font face (Futura Black)... Interesting!<br>
+                </p>
+                <p>
+                    The logo is often subdivided into 4 vertical colors which mostly follow a yellow to orange gradient.
+                </p>
+                <div class="remark">
+                    <strong>Fun fact:</strong> The yellow to orange gradient on a blue background seems to be a common corporate identity for Henk Rogers various companies / ventures.
+                </div>
+                <h3>The International Style Logo</h3>
+                <p>
+                    A new logo was created for the American / International market. This logo is found on the labels, other than the Japanese ones, and the box art. The artwork (box and label) is shared with the NES version.
+                </p>
+                <img src="images/Boxart-NES-Game-Boy.png">
+
+                <h2>The Label Types</h2>
+                <p>
+                    Every game collector can confirm, that when it comes to Nintendo, Japanese and international artwork is in general different - Game Boy Tetris is no exception. There are various reasons for this. The general building blocks are the following:
+                </p>
+
+                <h3>The Japanese Labels</h3>
+                <img src="images/JAP-Label.PNG">
+                <p>
+                    The division into an upper strip and artwork is not a fixed rule but rather a deliberate choice by the graphic designers and, potentially, the marketing team.<br>
+                    While on other games, the label typically includes most of these elements, their exact positioning was somewhat flexible. This variation is more pronounced in Japanese cartridges compared to their international counterparts.
+                </p> 
+
+                <h3>The International Labels</h3>
+                <img src="images/Intl-Label.PNG">
+                <p>&nbsp;</p>      
+
+                <p>
+                    <strong>Low Contrast and High Contrast Label Revisions</strong>
+                </p>
+                <img src="images/label-revisions.png">
+                <p>Ignore the other elements on the label.</p>
+                <p>The artwork was basically overhauled while staying as true to the previous label as possible.</p>
+                <ul>
+                    <li>A: Solid color &rarr; gradient</li>
+                    <li>B: Dark outlines &rarr; bright outlines</li>
+                    <li>C: Drop shadow added</li>
+                    <li>D: Regions darkened or brightened</li>
+                    <li>E: Brighter lines</li>
+                    <li>F: Dark outlines removed</li>
+                    <li>G: Stars re-drawn</li>
+                    <li>H: Background elements moved upwards</li>
+                </ul>      
+                <p>
+                    The coloring in the T-blocks in the stack for example have been shaded differently. They went from a radial gradient to a linear gradient. This indicates that the coloring likely has been done from scratch.
+                </p>
+
+                <p>
+                    In order to give the artwork more contrast, and therefore make the elements more distinguishable, some measures were taken over time. Most notably the letter outlines.
+                </p>
+                <img src="images/NOA-Style-Logo.png">
+                <p>
+                    <strong>Identifiers</strong><br>
+                    <ul>
+                        <li>Green: Stars</li>
+                        <li>Yellow: Falling Tetrominos</li>
+                    </ul>
+                </p>
+                <table>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>Logo Type</th>
+                        <th>Font Color</th>
+                        <th>Letter outlines</th>
+                        <th>Drop Shadow</th>
+                        <th>Background Art</th>
+                    </tr>
+                    <tr>
+                        <th>1</th>
+                        <td>s1</td>
+                        <td>Solid</td>
+                        <td>No</td>
+                        <td>No</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <th>2</th>
+                        <td>s2</td>
+                        <td>Solid</td>
+                        <td>No</td>
+                        <td>No</td>
+                        <td>2</td>
+                    </tr>
+                    <tr>
+                        <th>3</th>
+                        <td>i</td>
+                        <td>Gradient</td>
+                        <td>No</td>
+                        <td>Yes</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <th>4</th>
+                        <td>o1</td>
+                        <td>Gradient</td>
+                        <td>White</td>
+                        <td>Yes</td>
+                        <td>3</td>
+                    </tr>
+                    <tr>
+                        <th>5</th>
+                        <td>o2</td>
+                        <td>Gradient</td>
+                        <td>Yellow</td>
+                        <td>Yes</td>
+                        <td>4</td>
+                    </tr>
+                </table>                  
+                <p>
+                    Logo Type: s = solid letter color, i = intermediate, o = outlined letters
+                </p>
+                <p>
+                    Very intersting is that s2 seems to be even a newer label revision than the outlined ones and seems only been used in the DMG-TR-EUR version which might be released as late as 1997. 
+                </p>
+
+                <h2>This Side Out Text</h2>
+                <p>
+                    I call this the dummy text because it was supposed to signal to the user to insert the cart such that the label facing outwards.<br>
+                    No one ever read that, and no kid understood the meaning of it... ever!<br>
+                </p>
+                <p>
+                    <b>Fun fact:</b> The word "Herausragend" in German has two meanings:
+                    <ol>
+                        <li>Outside-facing</li>
+                        <li>Outstanding</li>
+                    </ol>
+                    I never understood what should be so outstanding to this side - which I also thought concerned the right side of the cart because it was written on the right strip. 
+                </p>
+                
+                <table>
+                    <tr>
+                        <th>Label</th>
+                        <th>Language</th>
+                        <th>Translation</th>
+                    </tr>
+                    <tr>
+                        <td><strong>THIS SIDE OUT</strong></td>
+                        <td>English</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HERAUSRAGENDE SEITE</strong></td>
+                        <td>German</td>
+                        <td>Outside-facing side</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ESTE LADO PARA FORA</strong></td>
+                        <td>Brazilian Portuguese</td>
+                        <td>This side (for) outside</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CE CÔTÉ À L’EXTÉRIEUR</strong><br>or<br><strong>CE COTE A L'EXTERIEUR</strong></td>
+                        <td>French</td>
+                        <td>This side at the outside</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ESTE LADO HACIA AFUERA</strong></td>
+                        <td>Spanish</td>
+                        <td>This side towards outside</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LATO ESTERNO</strong></td>
+                        <td>Italian</td>
+                        <td>Outer side</td>
+                    </tr>
+                    <tr>
+                        <td><strong>此面向外</strong></td>
+                        <td>Simplified Chinese</td>
+                        <td>This side outwards</td>
+                    </tr>
+                    <tr>
+                        <td><strong>표면</strong></td>
+                        <td>Korean</td>
+                        <td>Surface</td>
+                    </tr>
+                    <tr>
+                        <td><strong>本側向外</strong></td>
+                        <td>Traditional Chinese</td>
+                        <td>This side faces outward</td>
+                    </tr>
+                    </table>
+                    <p>
+                        For multilingual regions, e.g. FAH, EUR, CAN, labels are written in more than one language.
+                    </p>
+                
+                <h2>Manufacturing Origin</h2>
+                <p>The parts for almost all carts were manufactured in Japan. The exception in China, who took production in their own hands.</p>
+                <table>
+                    <tr>
+                        <th>Text</th>
+                        <th>Language</th>
+                    </tr>
+                    <tr>
+                        <td><strong>MADE IN JAPAN</strong></td>
+                        <td>English</td>
+                    </tr>
+                    <tr>
+                        <td>
+                        <strong>FABRIQUÉ AU JAPON</strong><br>
+                            or<br>
+                        <strong>FABRIQUE AU JAPON</strong><br>
+                            or<br>
+                        <strong>FAIT AU JAPON</strong>
+                        </td>
+                        <td>French</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FABBRICATO IN GIAPPONE</strong></td>
+                        <td>Italian</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MADE IN CHINA</strong></td>
+                        <td>English</td>
+                    </tr>
+                    <tr>
+                        <td><strong>中国制造</strong> (Made in China)</td>
+                        <td>Chinese</td>
+                    </tr>
+                </table>
+               
+                <h2>Nintendo Seal of Quality</h2>
+                <p>The Seal of Quality is a proof, that the game was endorsed by Nintendo.<br>
+                    The general rule for the Seal of Quality is as follows.<br>
+                    <ul>
+                        <li>Missing label: Japanese cart</li> 
+                        <li>Oval: USA or Canada</li>
+                        <li>Round: Anywhere else</li>
+                    </ul>
+                </p>
+                <p>
+                    As pretty much always, there are exceptions to this rule. In Game Boy Tetris, however, this rule is holds pretty solid.<br>
+                </p>
+                <img src="images/Seal-of-quality.png" style="max-width: 600px;">
+                
+                <div class="container">
+                    <div class="item">
+                        <div class="title">International</div>
+                        <div class="upper">Original</div>
+                        <div class="lower">Seal of Quality</div>
+                    </div>
+                    
+                    <div class="item">
+                        <div class="title">Germany</div>
+                        <div class="upper">Original</div>
+                        <div class="lower">
+                            Qualitäts-<br>
+                            Siegel
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div class="title">Brazil</div>
+                        <div class="upper">Official</div>
+                        <div class="lower">Selo de Qualdade</div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Canada</div>
+                        <div class="upper">Official / Officiel</div>
+                        <div class="lower">
+                            Seal of Quality<br>
+                            Sceau de qualité
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">International 2</div>
+                        <div class="upper">Official</div>
+                        <div class="lower">Seal of Quality</div>
+                    </div>
+                </div>
+
+                <h2>The Nintendo Code</h2>
+                <p>The code on Game Boy games is mostly found on the left strip. And follows the form:</p>
+                <table>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>Code</th>
+                        <th>Example</th>
+                    </tr>
+                    <tr>
+                        <th>International</th>
+                        <td>[Platform]-[GameID]-[Region]{-[Label Revision]}</td>
+                        <td>DMG-TR-NOE-1</td>
+                    </tr>
+                    <tr>
+                        <th>Japan</th>
+                        <td>[Platform]-[GameID]{-[Label Revision]}</td>
+                        <td>DMG-TRA</td>
+                    </tr>
+                    <tr>
+                        <th>Mainland China</th>
+                        <td>[Platform]-[Region][GameID]</td>
+                        <td>DMG-104CHN</td>
+                    </tr>
+                </table>
+                <div class="remark">
+                    Brackets Definition:
+                    <ul>
+                        <li>[ ] – Content (variable).</li>
+                        <li>{ } – Optional elements that may or may not be included.</li>
+                    </ul>
+                </div>
+                <p>
+                    Note that later Japenes releases did have a regional code, which is JPN. It is very well possible, that early games that were produced and distributed in Japan did not have the regional identifier.
+                </p>
+                <h3>Platform</h3>
+                    Each Nintendo platform has an identifier. Game Boy has the following:<br>
+                    <ul>
+                        <li><b>DMG</b>: Dot Matrix Game, which is the code name for the first Game Boy (the brick).</li>
+                        <li><b>CGB</b>: Color Game Boy</li>
+                        <li><b>AGB</b>: Advanced Game Boy</li>
+                    </ul>
+                    <strong>Side note: </strong>DMG-labelled games are mainly games for the first iteration of Game Boys (DMG-01, Game Boy Pocket, Game Boy Light). These consoles had no color support. As an Exception the code DMG was also used on dual-carts that had DMG and color support, depending on the platform they were inserted.<br>
+                    Tetris was released on the DMG.<br>
+                    Sidenote: Tetris DX is somewhat close, but due to its physics, very different from Tetris. Tetris DX is a dual cart.
+                <hr>
+                <h3>GameID</h3>
+                    Each official game is listed with a unique identifier (usually 2-5 letters). This identifier in most cases is derived from the game title and its origin can be reconstructed. Since Japan lacks the location part of the code, and the GameID can be different. The exception is China, where numbers are used instead of letters. 
+                    <ul>
+                        <li><strong>TR</strong> (International)</li>
+                        <li><strong>TRA</strong> (Japan)</li>
+                        <li><strong>104</strong> (China)</li>
+                    </ul>
+                </p>
+                <p>
+                <hr>
+                <h3>Region</h3> (Not present on Japanese games)<br>
+                    Distribution regions have special 3-digit region codes. The Tetris-specific list can be found later.<br>
+                    <p>
+                        Nintendo is extremely secrative, when it comes to their codings. Finding out about their system is mostly due to community efforts that reverse-engineered the logic.
+                    </p>
+                    <p>
+                        In the case of the codes and their meanings, we have a very good idea but it must be stated that these are conclusions.
+                        The list contains all found regional codes and revisions for Tetris. There are further identified region-codes that are not found on Tetris carts. Even though, we are confident that the list is complete, there is still a chance for it to be incomplete.
+                    </p>
+        
+                    <table>
+                        <tr>
+                            <th><strong>Region</th>
+                            <th>Name (Suspected)</th>
+                        </tr>
+                        <tr>
+                            <td><strong>USA</strong></td>
+                            <td>United States of America</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CAN</strong></td>
+                            <td>Canada</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FAH</strong></td>
+                            <td>France And Holland</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SCN</strong></td>
+                            <td>Scandinavia</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AUS</strong></td>
+                            <td>Australia</td>
+                        </tr>
+                        <tr>
+                            <td><strong>UKV</strong></td>
+                            <td>United Kingdom Version</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NOE</strong></td>
+                            <td>Nintendo Of Europe</td>
+                        </tr>
+                        <tr>
+                            <td><strong>KOR</strong></td>
+                            <td>Korea</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ESP</strong></td>
+                            <td>Spain (España)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FRG</strong></td>
+                            <td>Federal Republic of Germany</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ITA</strong></td>
+                            <td>Italy</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HKG</strong></td>
+                            <td>Hong Kong</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ASI</strong></td>
+                            <td>Asian Markets (likely Southeast Asia)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ROC</strong></td>
+                            <td>Republic Of China (Taiwan)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GPS</strong></td>
+                            <td>Greece, Portugal, Spain</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EUR</strong></td>
+                            <td>(Continental) Europe</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CHN</strong></td>
+                            <td>(Mainland) China</td>
+                        </tr>
+                    </table>
+                    <p>
+                        No regional code exist for:
+                        <ul>
+                            <li>Japan</li>
+                            <li>Brazil</li>
+                        </ul>
+                    </p>
+                </p>
+                
+                <hr>
+                <h3>Label Revisions</h3>
+                <p>    
+                    The revisions in the Nintendo code of Game Boy Tetris does not concern differences in the game (ROM) but rather only differences in the label art. We will talk about revisions in more detail later.<br>
+                    There is at least one label revision type that is not immediately apparent from the Nintendo code. We will discuss these later.
+                </p>
+                <p>
+                    For several regions there are label revisions with numbers 1 and 2.
+                </p>
+                <hr>
+                <h3>The Curious Case of Missing Dashes on Early USA Versions</h3>
+                <p>Some early USA versions have faded or missing dashes. This can be either a worn-out dash, one missing dash or both missing dashes.</p>
+                <p>While some collecters regard these as separate versions, many speculate that the origin is likely due to a faulty printing process where the black ink was slowly fading. Nevertheless, not a bad thing to own them.</p>
+                <img src="images/no-dashes-new.png">
+                <p>
+                    The image above strongly supports the depletion / fading theory. (Image credits: fading and one dash: Pichaco)
+                </p>
+
+                <h2>Player Indicator Icon</h2>
+                <img src="images/multiplayer_new.png" style="max-width: 600px;">
+                <p>
+                    Only the international carts have text in the player indicator icon. There exist multiple text variants. An important distinction is in the length of the bottom text. Carts with labels that have 2-lined texts in the bottom will be distinguished from the ones that have 3-lined texts in the bottom text. The reason for this distinction will become clear in a bit.<br>
+                    We add the letter A to the Nintendo Code, if the bottom text consitst of 2 lines.
+                </p>
+                <p>
+                    E.g. we distinguish:
+                    <ul>
+                        <li>DMG-TR-FRG (3-lined text)</li>
+                        <li>DMG-TR-FRG-A (2-lined text)</li>
+                    </ul>  
+                </p>
+                
+                <h3>3-Lined Texts (Earlier Carts)</h3>
+
+                  <div class="container">
+                    <div class="item">
+                        <div class="title">International</div>
+                        <div class="upper">ORIGINAL</div>
+                        <div class="lower">
+                            GAME&nbsp;BOY<br>
+                            VIDEO&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Germany</div>
+                        <div class="upper">ORIGINAL</div>
+                        <div class="lower">
+                            GAME&nbsp;BOY<br>
+                            VIDEO&nbsp;LINK-<br>
+                            DIALOG-SPIEL
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">International 2</div>
+                        <div class="upper">OFFICIAL</div>
+                        <div class="lower">
+                            GAME&nbsp;BOY<br>
+                            VIDEO&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Canada</div>
+                        <div class="upper">OFFICIAL<br>OFFICIAL</div>
+                        <div class="lower">
+                            GAME&nbsp;LINK<br>
+                            GAME&nbsp;PAK<br>
+                            LOGICIEL
+                        </div>
+                    </div>
+                </div>
+
+                <h3>2-Lined Texts (Later Carts)</h3>
+
+                <div class="container">
+                    <div class="item">
+                        <div class="title">International</div>
+                        <div class="upper">ORIGINAL</div>
+                        <div class="lower">
+                            VIDEO&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Germany</div>
+                        <div class="upper">ORIGINAL</div>
+                        <div class="lower">
+                            GAME&nbsp;LINK-<br>
+                            DIALOG-SPIEL
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">International 2</div>
+                        <div class="upper">OFFICIAL</div>
+                        <div class="lower">
+                            GAME&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Canada</div>
+                        <div class="upper">OFFICIAL<br>OFFICIAL</div>
+                        <div class="lower">
+                            GAME&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                
+                    <div class="item">
+                        <div class="title">Canada 2</div>
+                        <div class="upper">OFFICIAL<br>OFFICIEL</div>
+                        <div class="lower">
+                            VIDEO&nbsp;LINK<br>
+                            GAME&nbsp;PAK
+                        </div>
+                    </div>
+                </div>
+
+                <h2>The Imprint</h2>
+                <p>
+                    It is not clear what these imprints stand for exactly. Several theories are present, mostly revolve around factories, production lines or places.
+                </p>
+                <p>
+                    What is known:
+                    <ul>
+                        <li>They underline authenticity</li>
+                        <li>A letter after the number indicates a ROM revision</li>
+                    </ul>
+                    In 1989, and exclusive to Japan, carts containing ROM version 1.0 (aka. Minuet version) were released. Version 1.1 was later released in Japan and the world. In terms of the imprint, this is regarded as revision A.
+                </p>
+                <h3>Suspected and Confirmed Imprints</h3>
+                <table>
+                    <tr>
+                        <th>v1.0</th>
+                        <th style="border-right: 1px dashed black;">JP</th>
+                        <th>v1.1</th>
+                        <th>JP</th>
+                        <th>Int</th>
+                    </tr>
+                    <tr>
+                        <td>00</td>
+                        <td style="border-right: 1px dashed black;">-</td>
+                        <td>00A</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                    </tr>
+                    <tr>
+                        <td>05</td>
+                        <td style="border-right: 1px dashed black;"><span class="check"></span></td>
+                        <td>05A</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>07</td>
+                        <td style="border-right: 1px dashed black;">-</td>
+                        <td>07A</td>
+                        <td><span class="check"></span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>09</td>
+                        <td style="border-right: 1px dashed black;"><span class="check"></span></td>
+                        <td>09A</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>20</td>
+                        <td style="border-right: 1px dashed black;"><span class="check"></span></td>
+                        <td>20A</td>
+                        <td>-</td>
+                        <td><span class="check"></span></td>
+                    </tr>
+                    <tr>
+                        <td>22</td>
+                        <td style="border-right: 1px dashed black;"><span class="check"></span>*</td>
+                        <td>22A</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                    </tr>
+                    <tr>
+                        <td>23</td>
+                        <td style="border-right: 1px solid black;"><span class="check"></span></td>
+                        <td>23A</td>
+                        <td><span class="check"></span></td>
+                        <td><span class="check"></span></td>
+                    </tr>                    
+                </table>
+                <p>
+                    *As far as we know, the cart with imprint 22 is the only Minuet version that has the same artwork on the label as the Japanese version 1.1.<br>
+                    It is very well possible that there are other Minuet versions that have the updated label.
+                </p>
+                <p>
+                    <img src="images/A-Imprints.png">
+                </p>
+                <p>
+                    I counted the imprints found on my cartridges - excluding the Minuet carts (n = 46). I found that the vast majority of imprints are of type 23A and 22A.<br>
+                </p>
+
+                <hr>
+                <h3>How to Spot the Minuet Version</h3>
+                <b>The right way!</b>
+                <p>
+                    Collectors and interested people were always aware that in Japan, there was an older version of Tetris with a different, somewhat eeiry soundtrack for Music selection A-Type. This melody is now simply known as the Minuet. Hirokazu Tanaka is credited for it's composition.<br>
+                    <div class="remark">
+                        <strong>Sidenote</strong>: I'm currently also working on an in-depth article about the differences beteen the Minuet version and its successor, the vastly more common version 1.1.
+                    </div>
+                    Only during the last couple of years it became widely known that these mysterious carts from overseas exist and might be hidden gold nuggets.<br>
+                    Initial estimates stated that as little as 10,000 units could have been produced. This number was adjusted upwards over the years. Many sources still state the number 25,000. I'm pretty confident that this number is a vast underestimation of the real production volume.<br>
+                    People slowly became aware that such carts exist and started hunting for them. Ways to easily recognize these carts were made public and people started to order Japanese carts in bulk.<br>
+                    A somewhat viral video in particular by Elliot from The Retro Future by the name "<a href="https://www.youtube.com/watch?v=gF0TcQnmynw" target="_blank">A&nbsp;Version&nbsp;of&nbsp;Tetris&nbsp;You've&nbsp;NEVER&nbsp;Heard&nbsp;of!</a>" and the subequent video <a href="https://www.youtube.com/watch?v=mnwM0NDcTZo" target="_blank">I&nbsp;bought&nbsp;100&nbsp;copies&nbsp;of&nbsp;Tetris</a> led people to believe that there is a vast scarcity of said carts. In the latter video Elliot ordered a huge amount of carts and none of these contained the Minuet version. People in the comments pointed out that this lot might have been from a person who themself were looking for these carts and sold the left over.<br>
+                    In Japan people became aware that Westeners were eager to get their hands on such a cart and prices quickly went up. However, more and more carts surfaced and slowly but surely the hype started to settle a bit. Don't get me wrong, it's still a sought-after item, but the big hype and the enourmous prices went down for the most part.
+                </p>
+            
+                <p>
+                    The only reliable indicator whether a Japanese cart is a Minuet, is the imprint.
+                </p>
+
+                <h2>PCBs</h2>
+
+                <p>
+                    Tetris fits neatly into 32KB of ROM space without the need of an MBC (memory bank controller) or sRAM. This makes the cart as simple as can be. Earlier iterations of the game used the AAA Boards - these are boards with a single ROM chip and a resistor. They came in 3 iterations. Conviniently named 01, 02 and 03.<br>
+                </p>
+                <p>    
+                    <strong>Example:</strong> DMG-AAA-02
+                </p>
+                <p>
+                    When bigger games came along, the AAA boards became less and less important and a new, way cheaper single-chip board was introduced.<br>
+                    This new board by the name AAAC-S came untypically with a globtop ROM chip, which is way cheaper to produce. Functionally the board is identical.<br>
+                    As far as I'm aware, Tetris is one of the only, if not the only game that used these boards.
+                <p>    
+                    <strong>Example:</strong> AAAC-S
+                </p>
+                <p>
+                    Ironically boards containing globtop ROM chips are usually a tell tale sign that the board is not genuine. The exeptions are the AAAC-S and the BBAC S boards.
+                </p>
+
+                <h3>DMG-AAA-[XX] Boards</h3>
+                <img src="images/DMG-AAA.png">
+                <p></p>
+
+                <h3>AAAC-S Boards</h3>
+                <img src="images/AAAC-S.png">
+                <p></p>
+                
+                <div class="remark">
+                    Sidenote: It is very well possible, that there are Tetris variants out there with board type DMG-AAA-10.
+                </div>
+
+                <hr>
+                <h3>ROM Chip and Production Data</h3>
+                <img src="images/Production-Data.png">
+                <p>Regular ROM chips provide perfect surfaces to print information on it. Globtops can not be written on - therefore on AAAC-S boards, the relevant info is directly written onto the PCB in the right-upper corner.</p>
+                <p>
+                    Coded in this section is 
+                    <ul>
+                        <li>the Japanese Nintendo Code (because "Made in Japan")
+                            <ul>
+                                <li><strong>DMG-TRA-0</strong>: Minuet, aka. v1.0</li>
+                                <li><strong>DMG-TRA-1</strong>: Revision A, aka. v1.1</li>
+                            </ul>
+                        </li>
+                        <li>basic information about the chip</li>
+                        <li>the production date / week (2 digits each)
+                            <ul>
+                                <li>year</li>
+                                <li>calendar week (01-52)</li>
+                                <li>unknown digit (letter D or E or number)</li>
+                            </ul>
+                        </li>
+                    </ul>  
+                </p>
+
+                <h2>The Plastic Parts (Front / Back)</h2>
+                <p>
+                    Each cart consists of a back and front half, made of plastic. The front half has the label sticked onto and the back contains the manufacturing origin of the plastic parts.
+                </p>
+                <p>
+                    As stated previously, all parts were manufactured in Japan and shipped to the distribution centers. Except for the Chinese parts, that were made in China. Therefore, we can find:
+                    <ul>
+                        <li>MADE IN JAPAN</li>
+                        <li>MADE IN CHINA</li>
+                    </ul>
+                </p>
+                <p>
+                    Below the origin declaration, the inscription PAT. PENDING can be seen. This signals that a Patent has been filed but not been registered.
+                </p>
+                
+                <h3>Back- and Front Numbers</h3>
+                <p>
+                    Each plastic part contains an identifier. F for front and B for back followed by a dash and a number.
+                </p>
+                <p>
+                    e.g. F-15 / B-31
+                </p>
+                <p>
+                    The numbers span from 1 to 60 and front and back are independently joined. They don't seem to have any further function.
+                </p>
+                <p>
+                    The range 1-60 leads me to believe that these parts were punched in arrays of maybe 10&cross;6 and were then collected in containers and brought to the assembly workers who then randomly picked a front and a back, added the PCB, a sticker and screwed the carts together and put them in the protection cover. There really seems to be no more to it than that. The numbers are very evenly distributed and show no combinatory patterns. I guess the number on faulty parts could indicate which of the spots in the array might exhibit a problem and needs replacement.
+                </p>
+                <p>
+                    One observation however I made, was one single number that did not follow the pattern. This was found on an DMG-TR-EUR cart and was:
+                </p>
+                <p>
+                    F-16-1
+                </p>
+                <p>
+                    <img src="images/Plastics.png">
+                </p>
+                <p>The plastic parts were produced in a process called injection molding.</p>
+
+                <h2>Prototype Cart (1989)</h2>
+                <p>
+                    Only one Tetris prototype cart surfaced by now. The contained ROM file is identical to the ROM found on ealier Japanese releases, also known as v1.0 or the Minuet Version.<br>
+                </p>
+                <img src="images/Prototype.png">
+                <!--<img src="images/Proto-Cart.png">
+                <img src="images/Proto-Cart-Back.png">-->
+                <p>Image Source: https://hiddenpalace.org/Tetris_(Jun_14,_1989_prototype)</p>
+
+                <h2>Nintendo Power Cart (2001)</h2>
+                <img src="images/Nintendo-Power-Cart-all.png">
+                <!--<img src="images/Nintendo-Power-Cart.jpg">
+                <img src="images/Nintendo-Power-Cart-pcb-front.jpg">
+                <img src="images/Nintendo-Power-Cart-pcb-back.jpg">-->
+                <img src="images/Nintendo-Power-Flash-Writer.jpg">
+                <p>
+                    Photo Credit: Original photo: Zero Noun on Flickr Modified by Gazebo with cropping of the photo and removal of the thumbnail (IFD1) EXIF metadata. - Super Famicom Flash Writer.
+                </p>
+                <p>
+                    Very noteworthy is the fact that these re-writable carts were produced in Taiwan.
+                </p>
+<!--
+                <h2>Japanese Carts</h2>
+                <p></p>
+
+                <h2>Chinese Carts</h2>
+                <p>
+                    Mainland China was the only market that took production in their own hands. This becomes apparent by the arguably worse quality of the materials, distinct PCBs and chips and is notable by "MADE IN CHINA".<br>
+                    In China, Tetris goes by the name Russian Blocks (translated).<br>
+                </p>
+                <p>
+                    <strong>俄罗斯方块</strong> (Simplified Chinese)<br>
+                    <strong>俄羅斯方塊</strong> (Traditional Chinese)<br>
+                </p>
+                <p>
+                    <strong>俄罗斯</strong> or <strong>俄羅斯</strong> (Éluósī) = Russia<br>
+                    <strong>方块</strong> or <strong>方塊</strong> (fāngkuài) = blocks or tiles
+                </p>
+                <h3>For China Only Carts (FCO)</h3>
+                <p>
+                    There are 2 sets of Chinese carts: International carts and FCO (For China Only) carts. The latter ones indicate that the product is intended for exclusive use within China.<br>
+                    <strong>中国地区专用</strong> (Simplified Chinese)<br>
+                    Translation = For use in China region
+                </p>
+                <h3>4-in-1 Carts</h3>
+                <h3>Mani</h3>
+
+                <p><img src="carts/small_Minuet-05.jpg"></p>
+                <p><img src="carts/small_Minuet-09.jpg"></p>
+                <p><img src="carts/small_Minuet-20.jpg"></p>
+                <p><img src="carts/small_Minuet-23-nr2.jpg"></p>
+                <p><img src="carts/small_Minuet-23.jpg"></p>
+
+                <p><img src="carts/small_DMG-104CHN-FCO.jpg"></p>
+                <p><img src="carts/small_DMG-104CHN.jpg"></p>
+                <p><img src="carts/small_DMG-601CHN-FCO.jpg"></p>
+                <p><img src="carts/small_DMG-601CHN-USD.jpg"></p>
+                <p><img src="carts/small_DMG-601CHN.jpg"></p>
+                <p><img src="carts/small_DMG-TR-ASI.jpg"></p>
+                <p><img src="carts/small_DMG-TR-AUS-1.jpg"></p>
+                <p><img src="carts/small_DMG-TR-AUS-rev-nr2.jpg"></p>
+                <p><img src="carts/small_DMG-TR-AUS-rev.jpg"></p>
+                <p><img src="carts/small_DMG-TR-AUS.jpg"></p>
+                <p><img src="carts/small_DMG-TR-BRZ-GR.jpg"></p>
+                <p><img src="carts/small_DMG-TR-CAN-1.jpg"></p>
+                <p><img src="carts/small_DMG-TR-CAN-2-nr2.jpg"></p>
+                <p><img src="carts/small_DMG-TR-CAN-2.jpg"></p>
+                <p><img src="carts/small_DMG-TR-CAN-rev.jpg"></p>
+                <p><img src="carts/small_DMG-TR-CAN.jpg"></p>
+                <p><img src="carts/small_DMG-TR-ESP-1.jpg"></p>
+                <p><img src="carts/small_DMG-TR-ESP.jpg"></p>
+                <p><img src="carts/small_DMG-TR-EUR-fakelabel.jpg"></p>
+                <p><img src="carts/small_DMG-TR-EUR.jpg"></p>
+                <p><img src="carts/small_DMG-TR-FAH-nr2.jpg"></p>
+                <p><img src="carts/small_DMG-TR-FAH-rev.jpg"></p>
+                <p><img src="carts/small_DMG-TR-FAH.jpg"></p>
+                <p><img src="carts/small_DMG-TR-FRG-1.jpg"></p>
+                <p><img src="carts/small_DMG-TR-FRG-nr2.jpg"></p>
+                <p><img src="carts/small_DMG-TR-FRG-nr3.jpg"></p>
+                <p><img src="carts/small_DMG-TR-FRG-rev.jpg"></p>
+                <p><img src="carts/small_DMG-TR-FRG.jpg"></p>
+                <p><img src="carts/small_DMG-TR-GPS.jpg"></p>
+                <p><img src="carts/small_DMG-TR-HKG-nr2.jpg"></p>
+                <p><img src="carts/small_DMG-TR-HKG.jpg"></p>
+                <p><img src="carts/small_DMG-TR-ITA-rev.jpg"></p>
+                <p><img src="carts/small_DMG-TR-ITA.jpg"></p>
+                <p><img src="carts/small_DMG-TR-KOR.jpg"></p>
+                <p><img src="carts/small_DMG-TR-NOE-1-nr2.jpg"></p>
+                <p><img src="carts/small_DMG-TR-NOE-1.jpg"></p>
+                <p><img src="carts/small_DMG-TR-NOE-rev.jpg"></p>
+                <p><img src="carts/small_DMG-TR-NOE.jpg"></p>
+                <p><img src="carts/small_DMG-TR-ROC.jpg"></p>
+                <p><img src="carts/small_DMG-TR-SCN-1.jpg"></p>
+                <p><img src="carts/small_DMG-TR-SCN-rev.jpg"></p>
+                <p><img src="carts/small_DMG-TR-SCN.jpg"></p>
+                <p><img src="carts/small_DMG-TR-UKV-rev-nr2.jpg"></p>
+                <p><img src="carts/small_DMG-TR-UKV-rev.jpg"></p>
+                <p><img src="carts/small_DMG-TR-UKV.jpg"></p>
+                <p><img src="carts/small_DMG-TR-USA-1-nr2.jpg"></p>
+                <p><img src="carts/small_DMG-TR-USA-1.jpg"></p>
+                <p><img src="carts/small_DMG-TR-USA-2.jpg"></p>
+                <p><img src="carts/small_DMG-TR-USA-nodash.jpg"></p>
+                <p><img src="carts/small_DMG-TR-USA-rev.jpg"></p>
+                <p><img src="carts/small_DMG-TR-USA.jpg"></p>
+                <p><img src="carts/small_DMG-TRA-rev.jpg"></p>
+                <p><img src="carts/small_DMG-TRA.jpg"></p>
+                <p><img src="carts/small_GBTESH.jpg"></p>
+                <p><img src="carts/small_label-09.jpg"></p>
+                <p><img src="carts/small_label-20-nr2.jpg"></p>
+                <p><img src="carts/small_label-20.jpg"></p>
+                <p><img src="carts/small_label-23.jpg"></p>
+                <p><img src="carts/small_LUKRIS.jpg"></p>
+
+                <p><img src="carts/small_Tetris-Blast-USA.jpg"></p>
+                <p><img src="carts/small_Tetris-DX-EUR.jpg"></p>
+                <p><img src="carts/small__A7_0955.jpg"></p>
+                <p><img src="carts/small__A7_0956.jpg"></p>
+                <p><img src="carts/small__A7_0957.jpg"></p>
+                <p><img src="carts/small__A7_0958.jpg"></p>
+                <p><img src="carts/small__A7_0959.jpg"></p>
+                <p><img src="carts/small__A7_0960.jpg"></p>
+                <p><img src="carts/small__A7_0961.jpg"></p>
+                <p><img src="carts/small__A7_0962.jpg"></p>
+                <p><img src="carts/small__A7_0963.jpg"></p>
+                <p><img src="carts/small__A7_0964.jpg"></p>
+                <p><img src="carts/small__A7_0965.jpg"></p>
+                <p><img src="carts/small__A7_0966.jpg"></p>
+                <p><img src="carts/small__A7_0967.jpg"></p>
+                <p><img src="carts/small__A7_0968.jpg"></p>
+                <p><img src="carts/small__A7_0969.jpg"></p>
+                <p><img src="carts/small__A7_0970.jpg"></p>
+                <p><img src="carts/small__A7_0971.jpg"></p>
+                <p><img src="carts/small__A7_0972.jpg"></p>
+                <p><img src="carts/small__A7_0973.jpg"></p>
+                <p><img src="carts/small__A7_0975.jpg"></p>
+                <p><img src="carts/small__A7_0976.jpg"></p>
+                <p><img src="carts/small__A7_0977.jpg"></p>
+                <p><img src="carts/small__A7_0978.jpg"></p>
+                <p><img src="carts/small__A7_0979.jpg"></p>
+                <p><img src="carts/small__A7_0980.jpg"></p>
+                <p><img src="carts/small__A7_0981.jpg"></p>
+                <p><img src="carts/small__A7_0982.jpg"></p>
+                <p><img src="carts/small__A7_0983.jpg"></p>
+                <p><img src="carts/small__A7_0984.jpg"></p>
+                <p><img src="carts/small__A7_0985.jpg"></p>
+                <p><img src="carts/small__A7_0986.jpg"></p>
+                <p><img src="carts/small__A7_0987.jpg"></p>
+                <p><img src="carts/small__A7_0988.jpg"></p>
+                <p><img src="carts/small__A7_0989.jpg"></p>
+                <p><img src="carts/small__A7_0991.jpg"></p>
+                <p><img src="carts/small__A7_0992.jpg"></p>
+                <p><img src="carts/small__A7_0993.jpg"></p>
+                <p><img src="carts/small__A7_0994.jpg"></p>
+                <p><img src="carts/small__A7_0996.jpg"></p>
+-->
+                <h2>All Known Variants in Detail</h2>
+                <h3>Japanese Variants</h3>
+                <b>Minuet Version (v1.0) - DMG-TRA</b>
+                <p>
+                    The "Minuet Version", owing its name for the distinct A-Type minuet melody, is a precursor to the regular Game Boy Tetris that was later released in the only ever revision, also known as Revision A, or v1.0.<br>
+                    Earlier estimates that there were only ever 10,000 units released, have long been debunked. Still, it's a rather rare version of Tetris.<br>
+                    There are quite a few in-game differences from v1.0 to 1.1 which I will list in another chapter.<br>
+                    It is believed that there only exist carts with imprints 05, 09, 20, 22 and 23. Where imprint 22 might be special.<br>
+                    <img src="images/Carts/DMG-TRA0.png"><br>
+                    <img src="images/small/small_All-Minuet.png"><br>
+                    The ROM chip of the minuet has the imprint DMG-TRA-0.<br>
+                </p>
+                <b>DMG-TRA (Revision A, v1.1)</b>
+                <p>
+                    Japanese carts typically have different artwork than the international ones. For an untrained eye, the Japanese versions 1.1 might look like the 1.0.<br>
+                    <img src="images/small/small_All-DMG-TRA.png"><br>
+                    <img src="images/small/small_DMG-TRA-A.png"><br>
+                    The introduction of globtop PCBs: It is believed that the production volume overwhelmed most manufactured. PCB production had to be outsourced and in some cases globtop ROM chips were used. These are way cheaper than regular ROM chips and are usually an indicator that a game is not original. Tetris is here an exception - globtop PCBs are genuine.
+                    <img src="images/small/small_DMG-TRA-1.png"><br>
+                </p>
+                <hr>
+
+                <h3>USA Variants</h3>
+                <p>
+                    After Japan, the USA was the first country to receive Tetris for the Game Boy. It launched as a packing title with the Game Boy in 1989. The early variant is the only cart that has "Made in Japan" not in one of the strips but on the bottom of the artwork. This is similar to the placement on the Japanese carts. At least all launch titles had it also at the bottom of the artwork, rather than on the left strip.
+                	
+JP: April 21, 1989
+NA: July 31, 1989
+EU: September 28, 1990
+KR: May 2, 1991
+ZA: 1992
+YU: c. 1994
+BR: April 14, 1994
+PL: October 6, 1994
+
+https://datassette.org/revistas/nintendo-world
+                </p>
+                <p>
+                    <img src="images/USA-early-and-late-Made-in-Japan.png">
+                </p>
+                <p>
+                    The Early variant has some sub-variants, most notably the three DMG-AAA PCB iterations:
+                    <ul>
+                        <li><strong>DMG-AAA-01</strong>: This is the earliest iteration that is mostly found on the Japanese 1.0</li>
+                        <li><strong>DMG-AAA-02</strong>: This iteration only existed for a very short time</li>
+                        <li><strong>DMG-AAA-03</strong>: This consits the majority of PCB iteration of this type</li>
+                    </ul>
+                    Other subvariants are the carts with missing dashes. It is very likely, that this just occured during a short period, where the black ink ran out. 
+                </p>
+                
+                <hr>
+                <h3>Canadian Variants</h3>
+                <hr>
+
+                <h3>Western German Variants</h3>
+                <h3>German Variants (NOE)</h3>
+                <h3>France and Holland Variants</h3>
+                <h3>United Kingdom Variants</h3>
+                <h3>Italian Variants</h3>
+                <h3>Scandinavian Variants</h3>
+                <h3>Greece, Portugal, Spain Variants</h3>
+                <h3>Spanish Variants</h3>
+                <h3>Europe Variants</h3>
+                <h3>East-Asian Variant</h3>
+                <h3>Taiwan Variant</h3>
+                <h3>Hong-Kong Variant</h3>
+                <h3>Korean Variant</h3>
+                <h3>Australian Variant</h3>
+                <h3>Brazilian Variants</h3>
+                <h3>Mainland Chinese Variants</h3>
+
+
+                <h3>Chinese carts (DMG-104CHN)</h3>
+                Chinese carts are also typically different in many ways. Their game identifier part of the code consists of numbers rather than letters - Tetris is "104" in china and "TR" in the rest of the world. They were produced in China instead of Japan. These are usually marked with a "Made in China" instead of the typical "Made in Japan".<br>
+                The manufactoring process was also different, the plastic as well as the PCBs are distinct - manufactored by MANI. The plastic of the Chinese carts is typically way more prone to yellowing and the carts have more issues being recognized during the boot process.<br>
+                Chinese carts can come in 2 variants: for the international market and "For China Only" (FCO). FCO carts only contain chinese symbols and the other ones contain both Chinese and Latin symbols.<br>
+                <img src="images/small/small_All-DMG-104CHN.png"><br>
+                <img src="images/small/small_DMG-104CHN-FCO.png"><br>
+                <img src="images/small/small_DMG-104CHN.png"><br>
+
+                <h3>Chinese 4-in-1 (DMG-601CHN)</h3>
+                These carts are special. In China there is a collection of 4-in-1 carts, that each contain 4 games rather than just one. These are the only official carts that have more than one game on them.<br>
+                <img src="images/small/small_All-DMG-601CHN.png"><br>
+                <img src="images/small/small_DMG-601CHN-FCO.png"><br>
+                <img src="images/small/small_DMG-601CHN-rev.png"><br>
+                <img src="images/small/small_DMG-601CHN.png"><br>
+
+                <h3>Region Of China (DMG-TR-ROC)</h3>
+                I would like to know more about the ROC cart, quite honestly. It also seems to be a chinese cart but follows the international standard with the letters and the artwork.<br>
+                <img src="images/small/small_DMG-TR-ROC.png"><br>
+
+                <h3>Hong Kong (DMG-TR-HGK)</h3>
+                Hong Kong was at the time under British rule and therefore follows the international, rather than the Chinese standard. These carts are Made in Japan.<br>  
+                <img src="images/small/small_DMG-TR-HKG.png"><br>
+
+                <h3>Korea (DMG-TR-KOR)</h3>
+                Korea too has a very interesting history concerning licensing agreements. A lot of consoles were sold differently using different manufacturers as in other countries. The Korean Game Boy for example differs a bit from the other Game Boys - it's sometimes called the KOMBOY.<br>
+                <img src="images/small/small_DMG-TR-KOR.png"><br>
+
+                <h3>South-East Asia (DMG-TR-ASI)</h3>
+                <img src="images/small/small_DMG-TR-ASI.png"><br>
+
+                <h3>U.S.A Versions (DMG-TR-USA)</h3>
+                Canada and the USA are usually the only markets that use oval seal of quality rather than the round ones. There are some exception to this but it is in general a good indicator to find US and Canadian carts.<br> 
+                <img src="images/small/small_All-DMG-TR-USA.png"><br>
+                <img src="images/small/small_DMG-TR-USA-no-dash.png"><br>
+                <img src="images/small/small_DMG-TR-USA-rev.png"><br>
+                <img src="images/small/small_DMG-TR-USA.png"><br>
+                <img src="images/small/small_DMG-TR-USA-1.png"><br>
+                <img src="images/small/small_DMG-TR-USA-2.png"><br>
+
+                <h3>Canadian Versions (DMG-TR-CAN)</h3>
+                Canadian carts are also quite distinct. Since canada is partially English and partially French, both languages can be found on the labels.<br>
+                <img src="images/small/small_All-DMG-TR-CAN.png"><br>
+                <img src="images/small/small_DMG-TR-CAN-rev.png"><br>
+                <img src="images/small/small_DMG-TR-CAN.png"><br>
+                <img src="images/small/small_DMG-TR-CAN-1.png"><br>
+                <img src="images/small/small_DMG-TR-CAN-2.png"><br>
+
+                <h3>Australian Versions (DMG-TR-AUS)</h3>
+                <img src="images/small/small_All-DMG-AUS.png"><br>
+                <img src="images/small/small_DMG-TR-AUS-1.png"><br>
+                <img src="images/small/small_DMG-TR-AUS-rev.png"><br>
+                <img src="images/small/small_DMG-TR-AUS.png"><br>
+
+                <h3>European Versions (DMG-TR-EUR and DMG-TR-NOE)</h3>
+                NOE stands for "Nintendo of Europe" and is situated in Germany where most NOE carts can be found.<br>
+                <img src="images/small/small_All-DMG-TR-EUR.png"><br>
+                <img src="images/small/small_DMG-TR-EUR.png"><br>
+
+                <img src="images/small/small_All-DMG-TR-NOE.png"><br>
+                <img src="images/small/small_DMG-TR-NOE-rev.png"><br>
+                <img src="images/small/small_DMG-TR-NOE.png"><br>
+                <img src="images/small/small_DMG-TR-NOE-1.png"><br>
+
+                <!--<img src="images/small/small_A7_0771.png"><br>
+                <img src="images/small/small_All-Chris-and-Triss.png"><br>-->
+                
+                
+                
+                <img src="images/small/small_All-DMG-TR-ESP.png"><br>
+                
+                <img src="images/small/small_All-DMG-TR-FAH.png"><br>
+                <img src="images/small/small_All-DMG-TR-FRG.png"><br>
+                <img src="images/small/small_All-DMG-TR-ITA.png"><br>
+                
+                <img src="images/small/small_All-DMG-TR-SCN.png"><br>
+                <img src="images/small/small_All-DMG-TR-UKV.png"><br>
+
+                
+                <!--<img src="images/small/small_All-From-Below-Pocket.png"><br>
+                <img src="images/small/small_All-Lukris.png"><br>
+                <img src="images/small/small_All-Magical-Tetris-Challenge.png"><br>
+                <img src="images/small/small_All-Petris.png"><br>
+                <img src="images/small/small_All-Rosy-Retrospection.png"><br>
+                <img src="images/small/small_All-Spectrum-Holobyte.png"><br>
+                <img src="images/small/small_All-Tetris-Attack.png"><br>
+                <img src="images/small/small_All-Tetris-Blast-not-DX.png"><br>
+                <img src="images/small/small_All-Tetris-Blast.png"><br>
+                <img src="images/small/small_All-Tetris-DX.png"><br>
+                <img src="images/small/small_All-Tetris-Flash.png"><br>
+                <img src="images/small/small_All-Tetris-Plus.png"><br>
+                <img src="images/small/small_All-Yoshis-Cookie-Dr-Mario.png"><br>
+                <img src="images/small/small_BreakThru.png"><br>
+                <img src="images/small/small_Chromatic-Tetris-Proto2.png"><br>
+                <img src="images/small/small_Collection.png"><br>
+                <img src="images/small/small_Comp-Carts.png"><br>-->
+                
+
+
+                <img src="images/small/small_DMG-TR-BRZ-grey-back.png"><br>
+                <img src="images/small/small_DMG-TR-BRZ-grey.png"><br>
+                <img src="images/small/small_DMG-TR-ESP-1.png"><br>
+                <img src="images/small/small_DMG-TR-ESP.png"><br>
+                
+                <img src="images/small/small_DMG-TR-FAH-rev.png"><br>
+                <img src="images/small/small_DMG-TR-FAH.png"><br>
+                <img src="images/small/small_DMG-TR-FGR-rev.png"><br>
+                <img src="images/small/small_DMG-TR-FRG-1.png"><br>
+                <img src="images/small/small_DMG-TR-FRG.png"><br>
+                
+                <img src="images/small/small_DMG-TR-ITA-rev.png"><br>
+                <img src="images/small/small_DMG-TR-ITA.png"><br>
+                
+
+                
+                <img src="images/small/small_DMG-TR-SCN-1.png"><br>
+                <img src="images/small/small_DMG-TR-SCN-rev.png"><br>
+                <img src="images/small/small_DMG-TR-SCN.png"><br>
+                <img src="images/small/small_DMG-TR-UKV-rev.png"><br>
+                <img src="images/small/small_DMG-TR-UKV.png"><br>
+
+
+                <!--<img src="images/small/small_Duplicates-DMG-TR.png"><br>
+                <img src="images/small/small_From-Below-Pocket.png"><br>
+                <img src="images/small/small_Hatris.png"><br>
+                <img src="images/small/small_Magical-Tetris-Challenge-INTL.png"><br>
+                <img src="images/small/small_Magical-Tetris-Challenge-JP.png"><br>
+                <img src="images/small/small_Super-Bombliss-DX.png"><br>
+                <img src="images/small/small_Super-Bombliss-JP.png"><br>
+                <img src="images/small/small_Tetris-Attack-INTL.png"><br>
+                <img src="images/small/small_Tetris-Attack-JP.png"><br>
+                <img src="images/small/small_Tetris-Blast_INTL.png"><br>
+                <img src="images/small/small_Tetris-Blast_JP-1.png"><br>
+                <img src="images/small/small_Tetris-DX-EUR.png"><br>
+                <img src="images/small/small_Tetris-DX-JP.png"><br>
+                <img src="images/small/small_Tetris-Flash-INTL.png"><br>
+                <img src="images/small/small_Tetris-Flash-JP.png"><br>
+                <img src="images/small/small_Tetris-Plus-INTL.png"><br>
+                <img src="images/small/small_Tetris-Plus-JP.png"><br>
+                <img src="images/small/small_WildSnake.png"><br>
+                <img src="images/small/small_Winner-Proto.png"><br>
+                <img src="images/small/small_Wordtris.png"><br>
+                <p><img src="carts/small_A7_01003.jpg"></p>
+
+                <p><img src="carts/small_A7_01005.jpg"></p>
+                <p><img src="carts/small_A7_01007.jpg"></p>
+                <p><img src="carts/small_A7_01011.jpg"></p>
+                <p><img src="carts/small_A7_01012.jpg"></p>
+                <p><img src="carts/small_A7_01013.jpg"></p>
+                <p><img src="carts/small_A7_01014.jpg"></p>
+                <p><img src="carts/small_A7_01015.jpg"></p>
+                <p><img src="carts/small_A7_01016.jpg"></p>
+                <p><img src="carts/small_A7_01017.jpg"></p>
+                <p><img src="carts/small_A7_01018.jpg"></p>
+                <p><img src="carts/small_A7_01019.jpg"></p>
+                <p><img src="carts/small_A7_01020.jpg"></p>
+                <p><img src="carts/small_Chri-and_Triss_final.jpg"></p>
+                <p><img src="carts/small_Chromatic-Proto.jpg" width="600"></p>
+                <p><img src="carts/small_CTEC-23-Qual-Proto-Grey.jpg"></p>
+                <p><img src="carts/small_CTEC-23-Runner-Up-Gold.jpg"></p>
+                <p><img src="carts/small_CTEC-23-Winner-Gold.jpg"></p>
+                <p><img src="carts/small_CTEC-GB-2023-Q.jpg"></p>
+                <p><img src="carts/small_CTEC-Runner-up-Green.jpg"></p>-->
+
+            </main>
+        </div>
+    </div>
+    <script src="../script.js"></script>
+    <div id="imageModal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <img id="modalImage" alt="Modal Image">
+        </div>
+      </div>
+    </body>
+</html>
+
+    
