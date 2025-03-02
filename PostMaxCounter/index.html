@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Boy Tetris Post Max Score Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            flex: 1;
+            width: 100%;
+        }
+
+        .left {
+            width: 50%;
+            overflow-y: scroll;
+            padding: 10px;
+            order: 0;
+            max-height: 100dvh;
+        }
+
+        .right {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            order: 1;
+        }
+
+        .right-top, .right-bottom {
+            flex: 1;
+        }
+
+        .right-top, .right-bottom, .top {
+            border-top: 1px solid #9b9b9b;
+            border-left: 1px solid #9b9b9b;
+            border-right: 1px solid #9b9b9b;
+            padding: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            position: sticky;
+            top: 0;
+            background-color: #ddd;
+            z-index: 1; /* header stays on top */
+        }
+
+        th {
+            text-align: left;
+            padding: 5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        td {
+            padding: 5px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #pieChart{
+            max-height: 30dvh;
+        }
+
+        #clearCounts{
+            display: none;
+        }
+
+        p, #lastKnown{
+            margin-bottom: 20px;
+        }
+
+        /* Responsive: Stack left below right */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .left {
+                width: 100%;
+                order: 2;
+            }
+
+            .right {
+                width: 100%;
+                
+            }
+
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="left">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Lines</th>
+                        <th>Score</th>
+                        <th>Line Clear</th>
+                        <th>Score Added</th>
+                    </tr>
+                </thead>
+                <tbody id="scoreTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="right">
+            <div class="top">
+                <div id="lastKnown">
+                    <label>Last Known Score: <input type="number" id="lastScore" value="" min="0" max="999000"></label>
+                    <label>Last Known Lines: <input type="number" id="lastLines" value="" min="0" max="1200"></label>    
+                </div>
+                <div id="clearCounts"></div>
+            </div>
+
+            <div class="right-top">
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="right-bottom">
+                <canvas id="scatterPlot"></canvas>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        var level;
+        let scoreInput = document.getElementById("lastScore");
+        let linesInput = document.getElementById("lastLines");
+        let pieChart, scatterPlot;
+        let score = 0, lines = 0;
+        let history = [{ lines, score, lineClear: "", added: 0 }];
+        let clearCounts = { Single: 0, Double: 0, Triple: 0, Tetris: 0 };
+        let eventListenersActive = false;
+        
+        function updateValidity() {
+            let scoreValid = scoreInput.value >= 0 && scoreInput.value <= 999999;
+            let linesValid = linesInput.value >= 0 && linesInput.value <= 9999;
+            
+            if (scoreValid && scoreInput.value != "") {
+                scoreInput.style.backgroundColor = '#b3e6b3'; // Green for valid score
+            } else {
+                scoreInput.style.backgroundColor = '#ffcccc'; // Light red for invalid score
+            }
+
+            if (linesValid && linesInput.value != "") {
+                linesInput.style.backgroundColor = '#b3e6b3'; // Green for valid lines
+            } else {
+                linesInput.style.backgroundColor = '#ffcccc'; // Light red for invalid lines
+            }
+
+            if(scoreValid && linesValid && scoreInput.value != "" && linesInput.value != ""){
+                initializeStuff();
+            }
+        }
+
+        // tab behavior
+        lastScore.addEventListener("keydown", function(e) {
+            if (e.key === "Tab" && e.shiftKey === false) {
+                e.preventDefault();
+                lastLines.focus();
+            }
+        });
+
+        lastLines.addEventListener("keydown", function(e) {
+            if (e.key === "Tab" && e.shiftKey === false) {
+                e.preventDefault();
+                lastScore.focus();
+            }
+        });
+
+        function handleKeydown(event) {
+    if (["1", "2", "3", "4"].includes(event.key)) {
+        let clearType = { "1": "Single", "2": "Double", "3": "Triple", "4": "Tetris" }[event.key];
+        let baseValues = { Single: 40, Double: 100, Triple: 300, Tetris: 1200 };
+        let addLines = { Single: 1, Double: 2, Triple: 3, Tetris: 4 };
+
+        // Ensure level never exceeds 20
+        level = Math.min(Math.floor(lines / 10), 20);
+
+        let newLines = lines + addLines[clearType];
+        let addedScore = baseValues[clearType] * (level + 1);
+        score += addedScore;
+        lines = newLines;
+
+        // Increment the count of the line clears
+        clearCounts[clearType]++;
+
+        console.log(clearCounts);
+
+        history.push({ lines, score, lineClear: clearType, added: addedScore });
+        updateTable();
+        updateCharts();
+
+    } else if (event.key === "Backspace" && history.length > 1) {
+        // Remove the last entry from history
+        let lastEntry = history.pop();
+
+        // Remove the line clear type from clearCounts
+        clearCounts[lastEntry.lineClear]--;
+
+        // Revert the score and lines to the last valid state
+        let prevEntry = history[history.length - 1];
+        score = prevEntry.score;
+        lines = prevEntry.lines;
+
+        console.log(clearCounts);
+
+        updateTable();
+        updateCharts();
+    }
+}
+
+        function updateTable() {
+            let tbody = document.getElementById("scoreTableBody");
+            tbody.innerHTML = "";
+            history.forEach(entry => {
+                let row = `<tr>
+                            <td>${entry.lines}</td>
+                            <td>${entry.score.toLocaleString()}</td>
+                            <td>${entry.lineClear}</td>
+                            <td>${entry.added.toLocaleString()}</td>
+                        </tr>`;
+                tbody.innerHTML += row;
+            });
+            document.querySelector(".left").scrollTop = document.querySelector(".left").scrollHeight;
+        }
+
+        function updateCharts() {
+            
+            pieChart.data.datasets[0].data = Object.values(clearCounts);
+            pieChart.update();
+            
+            scatterPlot.data.datasets[0].data = history.map(entry => ({ x: entry.lines, y: entry.score }));
+            scatterPlot.update();
+            
+            if(level == undefined) level = Math.min(Math.floor(lines / 10), 20);
+
+            document.getElementById("clearCounts").innerHTML = `
+            <p>
+                <span style="color: #1f77b4;">Singles</span>: ${clearCounts.Single}, 
+                <span style="color: #ff7f0e;">Doubles</span>: ${clearCounts.Double}, 
+                <span style="color: #2ca02c;">Triples</span>: ${clearCounts.Triple}, 
+                <span style="color: #d62728;">Tetrises</span>: ${clearCounts.Tetris}
+            </p>
+            <p> 
+                <b>LINES</b>: ${lines.toLocaleString()}, <b>SCORE</b>: ${score.toLocaleString()}, <b>LEVEL</b>: ${level}
+            </p>`;
+        }
+
+        pieChart = new Chart(document.getElementById("pieChart"), {
+            type: 'pie',
+            data: {
+                labels: ["Single", "Double", "Triple", "Tetris"],
+                datasets: [{
+                    data: [0, 0, 0, 0],
+                    backgroundColor: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"],
+                    borderColor: "#aaa",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                let value = context.raw || 0;
+                                return `${label}: ${value}`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        scatterPlot = new Chart(document.getElementById("scatterPlot"), {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: "Score Progress",
+                    data: history,
+                    borderColor: "#1f77b4",
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: false,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: {
+                            display: true,
+                            text: 'Lines'
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Score'
+                        }
+                    }
+                }
+            }
+        });
+
+        scoreInput.addEventListener("blur", updateValidity);
+        linesInput.addEventListener("blur", updateValidity);
+
+        function initializeStuff(){
+            if (scoreInput.style.backgroundColor === "rgb(179, 230, 179)" && linesInput.style.backgroundColor === "rgb(179, 230, 179)") {
+                score = parseInt(scoreInput.value) || 0;
+                lines = parseInt(linesInput.value) || 0;
+                history = [{ lines, score, lineClear: "", added: 0 }];
+                updateTable();
+                updateCharts();
+                document.addEventListener("keydown", handleKeydown);
+            } else {
+                alert("Please enter valid values for score and lines.");
+            }
+
+            document.getElementById('clearCounts').style.display = 'block';
+            document.getElementById('lastScore').disabled = true;
+            document.getElementById('lastLines').disabled = true;
+            //document.getElementById('lastKnown').style.display = 'none';
+            
+        }
+    </script>
+</body>
+</html>
