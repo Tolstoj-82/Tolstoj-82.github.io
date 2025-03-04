@@ -193,8 +193,8 @@
                 </p>
                 <p>
                     <ul>
-                        <li><strong>Version / Revision</strong>: Software version with distinct features.</li>
-                        <li><strong></strong>: Software update that fixes bugs, improves functionality, or makes minor changes. These are often not advertised, but they can be identified (e.g. "Rev A").</li>
+                        <li><strong>Version</strong>: Software version with distinct features.</li>
+                        <li><strong>Revision</strong>: Software update that fixes bugs, improves functionality, or makes minor changes. These are often not advertised, but they can be identified (e.g. "Rev A").</li>
                         <li><strong>Variant</strong>: Physical differences that don’t change the software itself. (e.g. label variant)</li>           
                         <ul>
                             <li><strong>Sub-Variant</strong>: Unexpected combination of parts, e.g during a transition phase (e.g. earlier PCB with updated label) or differences due to faulty production.</li>
@@ -203,11 +203,17 @@
                         <li><strong>Localization</strong>: A version of the game adapted for a different region, sometimes with translated text, altered graphics, or censorship.</li>
                         <li><strong>Hardware Revision</strong>: A change in the circuit board design of a game cartridge, which may affect hardware compatibility or reliability but not the game itself.</li>
                     </ul>
-                <p>
-                    Tetris has two versions: v1.0 and v1.1. Sometimes, v1.1 is referred to revision A. The two terms are not always strictly defined.
-                </p>
                 </p>
                 <h2>How many Game Boy Tetris Variants are there?</h2>
+                <p>
+                    Let's first answer the following question:
+                </p>
+                <div class="remark">
+                    <h3>How many Versions / Revisions are there?</h3>
+                    <p>
+                        Versions, meaning Software versions. The short answer is <strong>2</strong>: There is the v1.0 (Minuet version) and all the other ones are version 1.1. Sometimes v1.1 is described as Revision A or Revision 1. Looking at the amount of changes, I would strongly argue that this is a full version and not a revision.
+                    </p>
+                </div>
                 <p>
                     As far as we know the simple answer could be: <strong>44</strong>. But it very much depends on what you would define as a variant.
                 </p>
@@ -466,19 +472,38 @@
                     The utilized PCBs are also very different and were produced by MANI.
                 </p>
 
-
-                <hr>
-                <h3>How many VERSIONS are there?</h3>
-                <p>
-                    The short answer is <strong>2</strong>: There is the v1.0 (Minuet) version and all the other ones are version 1.1.
-                </p>
-
                 <h2>Introduction</h2>
                 <p>
+                    The Game Boy cart (Game Pak) is held in place by a gamebit-style screw. When unscrewed, the carts can be separated into 3 parts:
+                </p>
+                <ul>
+                    <li>the front shell</li>
+                    <li>the back shell</li>
+                    <li>and the PCB (printed circuit board)</li>
+                </ul>
+                <p>
+                    The front and back shell are the grey (or yellow) plastic parts.
+                </p>
+                <p>
+                    The front shell has the game label attached to it and on top it reads «Nintendo GAME BOYTM». The back shell has the production site e.g. «Made in Japan» and «Pat. Pend.», Indicating that a patent has been filed but is awaiting proof. On the inside there is an F for front, and a B for back followed by a hyphen and a numberranging from 1 to 60 – e.g. F-12 or B-60. In an assembled cart, the front and back numbers are independent and show no pattern. Depending on the PCB version, it either contins a ROM chip or a globtop. The chip is an EPROM that contains the game data (32 KB, a single ROM bank). The production of the chip is independent from the PCB production, where the ROM chip is added. In the case of the globtop type ROM chip, the situation is a bit different.
+                </p>
+                <p>
+                    So, we have production sites and dates that might differ for:
+                </p>
+                <ul>
+                    <li>the ROM chip</li>
+                    <li>the PCB</li>
+                    <li>the front and back shell</li>
+                    <li>the printed label</li>
+                </ul>
+                <p>
+                    Further, there is the final assembly step of the carts. In an ideal world, the production site and date would be identical, for at least PCB, shells and the printed label. We believe the assembled carts were then shipped to the distributors, e.g. subsidiaries. In reality the ROM chips could have been produced somewhere, flashed with the software in another place and shipped to the place, where the PCB was produced. The assembled PCB could have been shipped further to the site of final assembly. From there it could be shipped to the regional distributers and from there to the subsidiaries that distributed the carts to the final selling point, e.g. game shops for sale.
+                </p>
+                    <!--<p>
                     <img src="images/My-Game-Boy-Tetris-Collection.JPG">
                 </p>
                 <p>My insane  Game Boy Tetris Collection</p>
-                <p>
+                <p>-->
                     Tetris was programmed in Soviet Russia in 1985 (officially 1984) by Alexey Pajitnov (Алексей Пажитнов). He called his game Tetris. The name is supposedly a combination of 2 words: Tetra, Greek for 4 and the suffix -is comes from Tennis, Alexey's favorite sport.
                 </p>
                 <p>
@@ -1671,9 +1696,24 @@
                 </p>
 
                 <h3>Japanese Variants</h3>
+                <p>
+                    There are 3 variants in Japan that we know of. Japan carts seem to have been produced continuously and a lot of Sub-variants can be identified.
+                    <ul>
+                        <li>DMG-TRA Version 1.0 (Minuet) / DMG-TRA0 on ROM chip (Imprints 05, 09, 20, 23)</li>
+                        <ul>
+                            <li>Minuet with the revised artwork (Imprint 22)</li>
+                        </ul>
+                        <li>DMG-TRA Version 1.1 / DMG-TRA1 on ROM chip</li>
+                        <ul>
+                            <li>Chip variant (AAA-01, AAA-02, AAA-03)</li>
+                            <li>Blob variant</li>
+                        </ul>
+                        <li>DMG-TRA-1 (Tetris Company)</li>
+                    </ul>
+                </p>
                 <b>Minuet Version (v1.0) - DMG-TRA</b>
                 <p>
-                    The "Minuet Version", owing its name for the distinct A-Type minuet melody, is a precursor to the regular Game Boy Tetris that was later released in the only ever revision, also known as Revision A, or v1.0.<br>
+                    Colloquially reffered to as the Minuet Version, ows this name for its distinct A-Type minuet melody. It is a precursor to the regular Game Boy Tetris that was later released in the only ever revision, also known as Revision A, or v1.0.<br>
                     Earlier estimates that there were only ever 10,000 units released, have long been debunked. Still, it's a rather rare version of Tetris.<br>
                     There are quite a few in-game differences from v1.0 to 1.1 which I will list in another chapter.<br>
                     It is believed that there only exist carts with imprints 05, 09, 20, 22 and 23. Where imprint 22 might be special.<br>
@@ -1864,7 +1904,6 @@ https://datassette.org/revistas/nintendo-world-->
                 <img src="images/small/small_All-DMG-TR-SCN.png"><br>
                 <img src="images/small/small_All-DMG-TR-UKV.png"><br>
 
-                
                 <!--<img src="images/small/small_All-From-Below-Pocket.png"><br>
                 <img src="images/small/small_All-Lukris.png"><br>
                 <img src="images/small/small_All-Magical-Tetris-Challenge.png"><br>
@@ -1882,8 +1921,6 @@ https://datassette.org/revistas/nintendo-world-->
                 <img src="images/small/small_Chromatic-Tetris-Proto2.png"><br>
                 <img src="images/small/small_Collection.png"><br>
                 <img src="images/small/small_Comp-Carts.png"><br>-->
-                
-
 
                 <img src="images/small/small_DMG-TR-BRZ-grey-back.png"><br>
                 <img src="images/small/small_DMG-TR-BRZ-grey.png"><br>
