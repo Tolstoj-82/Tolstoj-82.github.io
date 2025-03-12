@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processor</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            image-rendering: pixelated;
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="buttonContainer">
+        <input type="file" id="imageInput" accept="image/*">
+    </div>
+    <div id="controlsContainer" style="display: none;">
+        Brightness: <input type="range" id="brightness" min="-100" max="100" value="0">
+        Contrast: <input type="range" id="contrast" min="0" max="200" value="100">
+        <br>
+        <label><input type="color" id="color1" value="#0E0F02"><input type="checkbox" class="colorCheck" checked></label>
+        <label><input type="color" id="color2" value="#203828"><input type="checkbox" class="colorCheck" checked></label>
+        <label><input type="color" id="color3" value="#415625"><input type="checkbox" class="colorCheck" checked></label>
+        <label><input type="color" id="color4" value="#696C04"><input type="checkbox" class="colorCheck" checked></label>
+        <button id="downloadBtn">Download</button>
+        <br>
+        <canvas id="canvas" width="1600" height="1440"></canvas>
+    </div>
+    <script>
+        const imageInput = document.getElementById("imageInput");
+        const brightnessSlider = document.getElementById("brightness");
+        const contrastSlider = document.getElementById("contrast");
+        const downloadBtn = document.getElementById("downloadBtn");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const colorInputs = Array.from(document.querySelectorAll("input[type='color']"));
+        const checkboxes = Array.from(document.querySelectorAll(".colorCheck"));
+
+        let greyArray = [];
+        let LUTed = [];
+
+        imageInput.addEventListener("change", handleImageUpload);
+        brightnessSlider.addEventListener("input", applyLUT);
+        contrastSlider.addEventListener("input", applyLUT);
+        checkboxes.forEach(cb => cb.addEventListener("change", applyLUT));
+        colorInputs.forEach(input => input.addEventListener("input", drawLUTedImage));
+        downloadBtn.addEventListener("click", downloadImage);
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const img = new Image();
+                img.onload = function () {
+                    const tempCanvas = document.createElement("canvas");
+                    const tempCtx = tempCanvas.getContext("2d");
+                    tempCanvas.width = 160;
+                    tempCanvas.height = 144;
+                    tempCtx.drawImage(img, 0, 0, 160, 144);
+                    processImage(tempCtx);
+                };
+                img.src = URL.createObjectURL(file);
+            }
+        }
+
+        function processImage(ctx) {
+            greyArray = [];
+            LUTed = [];
+            const imageData = ctx.getImageData(0, 0, 160, 144);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const grey = Math.round(data[i + 1]); // Use green channel for grayscale
+                greyArray.push(grey);
+            }
+            applyLUT();
+        }
+
+        function applyLUT() {
+            const brightness = parseInt(brightnessSlider.value, 10);
+            const contrast = parseInt(contrastSlider.value, 10) / 100;
+            
+            const activeColors = getActiveColors();
+            const n = activeColors.length;
+            if (n === 0) return; // Avoid division by zero
+            
+            const interval = Math.floor(256 / n);
+            LUTed = greyArray.map(value => {
+                let adjusted = (value - 128) * contrast + 128 + brightness;
+                adjusted = Math.max(0, Math.min(255, adjusted));
+                
+                const index = Math.min(n - 1, Math.floor(adjusted / interval));
+                return activeColors[index]; // Map to selected colors
+            });
+
+            drawLUTedImage();
+        }
+
+        function drawLUTedImage() {
+            const imageData = ctx.createImageData(1600, 1440);
+            
+            for (let y = 0; y < 144; y++) {
+                for (let x = 0; x < 160; x++) {
+                    const i = y * 160 + x;
+                    let color = LUTed[i];
+
+                    for (let sy = 0; sy < 10; sy++) {
+                        for (let sx = 0; sx < 10; sx++) {
+                            const index = ((y * 10 + sy) * 1600 + (x * 10 + sx)) * 4;
+                            imageData.data[index] = color.r;
+                            imageData.data[index + 1] = color.g;
+                            imageData.data[index + 2] = color.b;
+                            imageData.data[index + 3] = 255;
+                        }
+                    }
+                }
+            }
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function getActiveColors() {
+            return colorInputs
+                .map((input, i) => checkboxes[i].checked ? hexToRGB(input.value) : null)
+                .filter(color => color !== null);
+        }
+
+        function hexToRGB(hex) {
+            const bigint = parseInt(hex.slice(1), 16);
+            return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+        }
+
+        function downloadImage() {
+            const link = document.createElement("a");
+            link.download = "processed_image.png";
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        document.getElementById("imageInput").addEventListener("change", function() {
+            if (this.files.length > 0) {
+                document.getElementById("buttonContainer").style.display = "none";
+                document.getElementById("controlsContainer").style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>
