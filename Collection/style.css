@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&display=swap');
+
+table {
+    /*margin: auto;*/
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #4c795c;
+    color: white;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+.equal-cols-table {
+    border-collapse: collapse;
+}
+
+.equal-cols-table th:nth-child(2), /* Early */
+.equal-cols-table th:nth-child(3), /* Late */
+.equal-cols-table th:nth-child(4), /* Code-1 */
+.equal-cols-table th:nth-child(5)  /* Code-2 */ {
+    width: auto; /* Automatically adjust */
+    white-space: nowrap;
+}
+
+/*.equal-cols-table td:nth-child(1),*/
+.equal-cols-table td:nth-child(2), /* Early */
+.equal-cols-table td:nth-child(3), /* Late */
+.equal-cols-table td:nth-child(4), /* Code-1 */
+.equal-cols-table td:nth-child(5)  /* Code-2 */ {
+    text-align: center;
+    margin: auto;
+    /*border-left: 2px dotted #7ba88b;*/
+    border-right: 1px dashed #7ba88b;
+}
+
+.equal-cols-table td:nth-child(1){
+    font-weight: bold;
+    border-right: 1px dashed #7ba88b;
+}
+
+.equal-cols-table th, 
+.equal-cols-table td {
+    padding: 8px;
+}
+
+.subhead {
+    font-weight: bold;
+    text-align: center;
+    background-color: #7ba88b;
+    color: #ffffff;
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: flex-start;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: fit-content;
+    min-width: max-content;
+}
+
+.title {
+    background-color: #4c795c;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    white-space: nowrap;
+}
+
+.upper {
+    background-color: #ddd;
+    color: #333;
+    padding: 10px;
+    white-space: nowrap;
+}
+
+.lower {
+    background-color: #ffffff;
+    color: #333;
+    padding: 10px;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+img{
+    max-width: 100%;
+}
+
+.check::before {
+    content: "✔";
+    color: green;
+}
