@@ -1,92 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QR Code Generator</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-            background-color: ghostwhite;
-        }
-        #qrCode {
-            margin-top: 20px;
-            display: inline-block;
-            box-shadow: 10px 10px 20px 5px rgba(0, 0, 0, 0.5);
-            background-color: white;
-            width: 256px;
-            height: 256px;
-        }
-        #sliderValue {
-            font-weight: bold;
-        }
+      body {
+        text-align: center;
+        font-family: "Poppins", sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        display: inline-block;
+        margin-top: 40px;
+      }
+      input[type="text"],
+      select,
+      input[type="range"] {
+        padding: 8px;
+        margin: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      input[type="color"] {
+        padding: 0px;
+        margin: 0px;
+        border: none;
+        cursor: pointer;
+      }
+      input[type="color"]::-webkit-color-swatch {
+        border-radius: 5px;
+        border: 2px solid #888;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin-top: 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease-in-out;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      p {
+        font-weight: bold;
+      }
+      label {
+        display: inline-block;
+        margin-right: 10px;
+      }
+      #sizeSlider {
+        display: block;
+        margin: 10px auto;
+      }
+      canvas {
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+        border-radius: 20px;
+      }
     </style>
-</head>
-<body>
-
-    <h1>Tolstoj's QR Code Generator</h1>
-    <input type="text" id="urlInput" placeholder="Enter URL" size="30" oninput="generateQRCode()">    
-    <span id="sliderValue">256</span>px
-    <input type="range" id="sizeSlider" min="100" max="1000" value="256" oninput="updateSliderValue()" onchange="generateQRCode()">
-    <button id="downloadBtn" style="display:none;" onclick="downloadQRCode()">Download</button>
+  </head>
+  <body>
     <p>
-        <div id="qrCode"></div>
+      Adresse
+      <input
+        type="text"
+        id="qrInput"
+        placeholder="Text..."
+        oninput="generateQRCode()"
+      />
     </p>
+    <p>
+      <label>QR Code</label>
+      <select id="shapeSelect" onchange="generateQRCode()">
+        <option value="square">Eckig</option>
+        <option value="circle">Rund</option>
+      </select>
+      <input
+        type="color"
+        id="colorPicker"
+        value="#000000"
+        onchange="generateQRCode()"
+      />
+      |
+      <label>Finder</label>
+      <select id="finderShapeSelect" onchange="generateQRCode()">
+        <option value="square">Eckig</option>
+        <option value="circle">Rund</option>
+      </select>
+      <input
+        type="color"
+        id="finderColorPicker"
+        value="#000000"
+        onchange="generateQRCode()"
+      />
+    </p>
+    <input
+      type="range"
+      id="sizeSlider"
+      min="200"
+      max="700"
+      value="300"
+      onchange="generateQRCode()"
+    />
+
+    <p><canvas id="qrCanvas"></canvas></p>
+    <button id="downloadBtn" onclick="downloadQRCode()" style="display: none">
+      Download
+    </button>
     <script>
-        function updateSliderValue() {
-            const sliderValue = document.getElementById("sizeSlider").value;
-            document.getElementById("sliderValue").textContent = sliderValue;
+      function generateQRCode() {
+        const inputText = document.getElementById("qrInput").value.trim();
+        const downloadBtn = document.getElementById("downloadBtn");
 
-            // Update placeholder box size
-            const qrCodeDiv = document.getElementById("qrCode");
-            qrCodeDiv.style.width = sliderValue + "px";
-            qrCodeDiv.style.height = sliderValue + "px";
-
-            // Resize the QR code image if it exists
-            const img = document.getElementById("qrImage");
-            if (img) {
-                img.style.width = sliderValue + "px";
-                img.style.height = sliderValue + "px";
+        // Hide download button if input is empty
+        if (inputText === "") {
+          downloadBtn.style.display = "none";
+        } else {
+          downloadBtn.style.display = "inline-block";
+        }
+        const qr = qrcode(0, "H");
+        qr.addData(inputText);
+        qr.make();
+        const modules = qr.getModuleCount();
+        const canvas = document.getElementById("qrCanvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          console.error("Failed to get canvas context.");
+          return;
+        }
+        const shape = document.getElementById("shapeSelect").value;
+        const finderShape = document.getElementById("finderShapeSelect").value;
+        const color = document.getElementById("colorPicker").value;
+        const finderColor = document.getElementById("finderColorPicker").value;
+        const size = parseInt(document.getElementById("sizeSlider").value, 10);
+        canvas.width = size;
+        canvas.height = size;
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const moduleSize = Math.floor((size * 0.8) / modules);
+        const actualQRSize = moduleSize * modules;
+        const padding = Math.floor((canvas.width - actualQRSize) / 2);
+        for (let row = 0; row < modules; row++) {
+          for (let col = 0; col < modules; col++) {
+            if (qr.isDark(row, col)) {
+              const x = padding + col * moduleSize;
+              const y = padding + row * moduleSize;
+              const isFinderPattern =
+                (row < 7 && col < 7) ||
+                (row < 7 && col > modules - 8) ||
+                (row > modules - 8 && col < 7);
+              ctx.fillStyle = isFinderPattern ? finderColor : color;
+              const drawShape = isFinderPattern ? finderShape : shape;
+              if (drawShape === "square") {
+                ctx.fillRect(x, y, moduleSize, moduleSize);
+              } else if (drawShape === "circle") {
+                ctx.beginPath();
+                ctx.arc(
+                  x + moduleSize / 2,
+                  y + moduleSize / 2,
+                  moduleSize / 2,
+                  0,
+                  Math.PI * 2
+                );
+                ctx.fill();
+              }
             }
+          }
         }
+      }
 
-        function generateQRCode() {
-            const url = document.getElementById("urlInput").value;
-            const size = document.getElementById("sizeSlider").value;
-            
-            if (!url.trim()) {
-                document.getElementById("qrCode").innerHTML = "";
-                document.getElementById("downloadBtn").style.display = "none";
-                return;
-            }
+      function downloadQRCode() {
+        const inputText = document.getElementById("qrInput").value.trim();
+        if (inputText === "") return; // Prevent download if input is empty
 
-            QRCode.toDataURL(url, { width: size, height: size }, function (err, url) {
-                if (err) {
-                    console.error(err);
-                    return;
-                }
-                const img = document.createElement("img");
-                img.src = url;
-                img.id = "qrImage";
-                img.style.width = size + "px";
-                img.style.height = size + "px";
-                document.getElementById("qrCode").innerHTML = ""; // Clear placeholder content
-                document.getElementById("qrCode").appendChild(img);
-                document.getElementById("downloadBtn").style.display = "inline";
-            });
-        }
+        const canvas = document.getElementById("qrCanvas");
+        const link = document.createElement("a");
+        link.download = `QR-${inputText}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      }
 
-        function downloadQRCode() {
-            const img = document.getElementById("qrImage");
-            const link = document.createElement("a");
-            link.href = img.src;
-            link.download = "qr-code.png";
-            link.click();
-        }
+      document.addEventListener("DOMContentLoaded", generateQRCode);
     </script>
-
-</body>
+  </body>
 </html>
