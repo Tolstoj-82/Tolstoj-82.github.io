@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Martin Jakob</title>
+  <link rel="stylesheet" href="styles/general.css">
+  <link rel="stylesheet" href="styles/grid.css">
+  <link rel="stylesheet" href="styles/header.css">
+  <link rel="stylesheet" href="styles/layouts.css">
+  <link rel="stylesheet" href="styles/modal.css">
+  <link rel="stylesheet" href="styles/timeline.css">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="../site.webmanifest">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Arvo&family=Outfit:wght@400;700&display=swap');
+  </style>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="scripts/video.js"></script>
+</head>
+<body>
+
+  <div class="content">
+  <header>
+    <h1>Martin Werner JAKOB</h1>
+    <button class="menu-btn" id="hamburger-icon" aria-label="Toggle Menu">☰</button>
+  </header>
+  <div class="menu-container">
+    <button class="close-btn" id="close-icon" aria-label="Close Menu">✖</button>
+    <h3 class="accordion">Navigation <span class="arrow">+</span></h3>
+    <ul class="menu">
+        <li><a href="#downloads">Downloads</a></li>
+        <li><a href="#projekte">Projekte</a></li>
+        <li><a href="#berufserfahrung">Berufserfahrung</a></li>
+        <li><a href="#schule">Schule / Ausbildungen</a></li>
+    </ul>
+    <h3 class="accordion">Andere Links <span class="arrow">+</span></h3>
+    <ul class="menu">
+        <li><a href="../Tolstoj/index.html">About Me</a></li>
+    </ul>
+  </div>
+
+  <div class="page-content">
+    <main>
+      <section class="intro">
+        <img src="images/Martin-Jakob.jpg" alt="Tolstoj" class="hover-image"
+            onmouseover="this.src='images/Martin-Jakob-Illustration.png';"
+            onmouseout="this.src='images/Martin-Jakob.jpg';">
+
+        <div class="text">
+          <p><b>Willkommen auf meiner professionellen Website!</b></p>
+          <p>
+            Wenn Sie hier gelandet sind, bin offensichtlich interessiert an Ihrer Stelle und Ihrem Unternehmen!<br>
+            Aus persönlicher Überzeugung besitze keine Social Media. Das beinhaltet auch Business Social Media (LinkedIn, Xing, etc.).<br>
+            Dafür habe ich hier aber meine Website.
+          </p>
+          <p>
+            Mein Skillset umfasst:
+            <ul>
+                <li>Webdesign (Front- und Backend)</li>
+                <li>CMS: CQ/AEM, Sitecore, ZMS</li>
+                <li>Agile: Scrum / Kanban</li>
+                <li>Statistische Auswertungen / Analysen</li>
+                <li>Testing</li>
+                <li>Design und Illustration</li>
+            </ul>
+          </p>
+        </div>
+      </section>
+      <hr>
+      <h2 id="downloads">Downloads</h2>
+      <a id ="CV" class="button secondary">CV</a> &nbsp; &nbsp; &nbsp;
+      <a id="AZ" class="button secondary">Arbeitszeugnisse</a>
+      <hr>
+      <h2 id="projekte">Projekte (Auswahl)</h2>
+      <section class="grid">
+
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="#" class="grid-item-clickable">
+              <img src="images/qr.png" alt="GB Interceptor OCR 2">
+              <h3>QR Code Generator</h3>
+              <p>
+                Für meine Bewerbung habe ich einen QR-Code-Generator erstellt. Dabei konnte ich mich mit dem spannenden Thema der QR Codes auseinandersetzen.
+              </p>
+            </a>
+            <div class="grid-item-buttons">
+                &nbsp;
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="https://virtualmic.izb.unibe.ch" id="virtualMicCard" class="grid-item-clickable" target="_blank">
+              <img src="images/virtual-mic.png" alt="YT">
+              <h3>Virtual Mic</h3>
+              <p>Für eine Mikroskopievorlesung habe ich mit dem Institut für Zellbiologie und der Pathologie ein virtuelles Mikroskop gemacht.</p>
+            </a>
+          </div>
+        </div>
+
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="#" class="grid-item-clickable">
+              <img src="images/crypto.png" alt="YT">
+              <h3>Pseudo-Verschlüsselung</h3>
+              <p>Teile dieser Seite sind Pseudo-Verschlüsselt. Dies ist eine Kombination aus Hashes und Vigenere-Chiffrierung.</p>
+            </a>
+          </div>
+        </div>
+      </section>
+      <hr>
+      <h2 id="berufserfahrung">Berufserfahrung (Auswahl)</h2>
+      <div class="timeline-wrapper">
+        <div class="timeline" id="timeline"></div>
+      </div>
+      <hr>
+      <h2 id="schule">Schule / Ausbildungen</h2>
+      <article class="remark">
+        <b>MSc in Molecular Life Sciences</b>
+        <p class="edu-duration">2012 – 2016 | MSc</p>
+        <p class="edu-duration">2009 – 2012 | BSc</p>
+        <p class="edu-location">Universität Bern</p>
+        <details>
+          <summary>Master Thesis</summary>
+          <p>Quantitative Description of Mitochondrial Dynamics during Differentiation in Bloodstream Form <i>Trypanosoma brucei</i> Using Image Analysis.</p>
+        </details>
+      </article>
+
+      <article class="remark">
+        <b>Passerelle</b>
+        <p class="edu-duration">2008 – 2009</p>
+        <p class="edu-location">Gymnasium Neufeld, Bern</p>
+      </article>
+
+      <article class="remark">
+        <b>BMS / Technische Fachrichtung</b>
+        <p class="edu-duration">2007 – 2008</p>
+        <p class="edu-location">GIBB, Bern</p>
+      </article>
+
+      <article class="remark">
+        <b>Informatiker EFZ</b>
+        <p class="edu-duration">2003 – 2007</p>
+        <p class="edu-location">RUAG Defence, Bern</p>
+      </article>
+</main>
+</div>
+</div>
+
+<footer class="site-footer">
+  <p>&copy; 2025 Martin Werner Jakob &nbsp;|&nbsp; Alle Rechte vorbehalten</p>
+</footer>
+
+
+<script src="scripts/script.js"></script>
+<script src="scripts/stylings.js"></script>
+<div id="imageModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <img id="modalImage" alt="Modal Image">
+  </div>
+</div>
+
+<div id="videoModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <iframe
+      id="modalVideo"
+      width="560"
+      height="315"
+      src="https://www.youtube.com/embed/KW5O75i4dVs?enablejsapi=1"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+    ></iframe>
+    <div>
+      <a href="https://virtualmic.izb.unibe.ch" target="_blank" class="button secondary">
+        Virtual Mic
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- events first -->
+<script src="scripts/events.js"></script>
+<script src="scripts/timeline.js"></script>
+</body>
+</html>
