@@ -1,0 +1,75 @@
+body {
+  padding: 2em;
+  max-width: 600px;
+  margin: auto;
+}
+
+textarea,
+input,
+select {
+  width: 100%;
+  margin-top: 1em;
+  padding: 0.5em;
+}
+
+div#querystring,
+#jsonoutput {
+  margin-top: 1em;
+  padding: 1em;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+label > a {
+  margin-left: 0.5em;
+  font-size: 0.9em;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#toast {
+  visibility: hidden;
+  min-width: 100px;
+  background-color: #444;
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  padding: 0.5em 1em;
+  position: fixed;
+  z-index: 1;
+  top: 2em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.9em;
+  opacity: 0;
+  transition: opacity 0.4s, visibility 0.4s;
+}
+
+#toast.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.accordion {
+  cursor: pointer;
+  padding: 1em;
+  width: 100%;
+  text-align: left;
+  border: none;
+  outline: none;
+  background-color: #eee;
+  font-weight: bold;
+}
+
+.accordion-content {
+  padding: 0 1em;
+  display: none;
+  overflow: hidden;
+  background-color: #f9f9f9;
+}
+
+.accordion.active + .accordion-content {
+  display: block;
+}

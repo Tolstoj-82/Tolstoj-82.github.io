@@ -72,27 +72,11 @@
         </div>
       </section>
       <hr>
-      <h2 id="downloads">Downloads</h2>
-      <a id ="CV" class="button secondary">CV</a> &nbsp; &nbsp; &nbsp;
-      <a id="AZ" class="button secondary">Arbeitszeugnisse</a>
-      <hr>
+
+      <div id="shvingDiv"></div>
+
       <h2 id="projekte">Projekte (Auswahl)</h2>
       <section class="grid">
-
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="#" class="grid-item-clickable">
-              <img src="images/qr.png" alt="GB Interceptor OCR 2">
-              <h3>QR Code Generator</h3>
-              <p>
-                Für meine Bewerbung habe ich einen QR-Code-Generator erstellt. Dabei konnte ich mich mit dem spannenden Thema der QR Codes auseinandersetzen.
-              </p>
-            </a>
-            <div class="grid-item-buttons">
-                &nbsp;
-            </div>
-          </div>
-        </div>
 
         <div class="grid-item">
           <div class="grid-item-wrapper">
@@ -106,10 +90,25 @@
 
         <div class="grid-item">
           <div class="grid-item-wrapper">
-            <a href="#" class="grid-item-clickable">
+            <a href="../QR-code.html" class="grid-item-clickable" target="_blank">
+              <img src="images/qr.png" alt="GB Interceptor OCR 2">
+              <h3>QR Code Generator</h3>
+              <p>
+                Für meine Bewerbung habe ich einen simplen QR-Code-Generator erstellt. Dabei konnte ich mich mit dem spannenden Thema der QR-Codes auseinandersetzen.
+              </p>
+            </a>
+            <div class="grid-item-buttons">
+                &nbsp;
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-item">
+          <div class="grid-item-wrapper">
+            <a href="shving.html" target="_blank" class="grid-item-clickable">
               <img src="images/crypto.png" alt="YT">
               <h3>Pseudo-Verschlüsselung</h3>
-              <p>Teile dieser Seite sind Pseudo-Verschlüsselt. Dies ist eine Kombination aus Hashes und Vigenere-Chiffrierung.</p>
+              <p>Teile dieser Seite sind mit meinem eigenen Algorithmus namens <b>Shving!</b> Pseudo-Verschlüsselt. Dies ist eine Kombination aus SHA-256 Hashes und Vigènere-Chiffrierung.</p>
             </a>
           </div>
         </div>
@@ -190,5 +189,31 @@
 <!-- events first -->
 <script src="scripts/events.js"></script>
 <script src="scripts/timeline.js"></script>
+<script src="scripts/shving.js"></script>
+<script src="scripts/shving-content.js"></script>
+<script>
+  (async () => {
+    const params = new URLSearchParams(window.location.search);
+    const a = params.get("a") || "";
+    const b = params.get("b") || "";
+
+    const hash = await sha256(a);
+
+    const encoded = shvingContent[hash];
+    if (!encoded) {
+      document.getElementById("shvingDiv").innerHTML = "";
+      return;
+    }
+
+    const decoded = vigenere(encoded, b, "decode");
+
+    if (decoded.includes("&nbsp;")) {
+      document.getElementById("shvingDiv").innerHTML = decoded;
+    } else {
+      document.getElementById("shvingDiv").innerHTML = "";
+    }
+  })();
+
+</script>
 </body>
 </html>

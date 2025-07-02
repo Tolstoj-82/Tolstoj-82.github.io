@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Shving!</title>
+    <link rel="stylesheet" href="styles/general.css" />
+    <link rel="stylesheet" href="styles/shving.css" />
+  </head>
+  <body>
+    <button class="accordion">Shving!</button>
+    <div class="accordion-content">
+      <p>
+        <b>Shving!</b> ist ein clientseitig eingesetztes Pseudo-Verschlüsselungsverfahren, das dazu dient, bestimmte Inhalte gezielt ein- oder auszublenden. Dabei werden zwei Schlüsselparameter – <b>a</b> und <b>b</b> – über die URL übergeben.
+      </p>
+      <p>
+        Das Verfahren basiert auf <b>SH</b>A-256 und im weiteren Sinne auf der <b>Vig</b>enère-Chiffrierung, deswegen der Name <b>Shving!</b> - mit dem vorgezogenen n.
+      </p>
+      <p>
+        Ich habe die Methode speziell für diese Website entwickelt um Inhalte gezielt zu steuern.
+      </p>
+        <ul>
+          <li>Der Schlüssel a wird mittels SHA-256 in einen Hash umgewandelt, welcher als Lookup-Schlüssel in einer JSON-Datei dient.</li>
+          <li>Der zugehörige Wert in dieser JSON ist mit einer Variante der Vigenère-Verschlüsselung codiert. Dieses Verfahren verschiebt Zeichen um bestimmte Werte – bei Shving! basiert diese Verschiebung auf Unicode-Codepunkten und verwendet Komma-separierte Dezimalzahlen anstelle von Unicode-Zeichen.</li>
+          <li>Um die Verschlüsselung auf längere Texte anzuwenden, wird der Schlüssel b mehrfach wiederholt. Beispiel: Bei b = Apfel ergibt sich eine wiederholte Schlüsselabfolge wie "ApfelApfelApfel....". Dies wird solange wiederholt, bis das Ende des zu verschlüsseltenn Texts erreicht ist.</li>
+        </ul>
+      <p>
+        Nach erfolgreicher Entschlüsselung wird der Inhalt auf HTML-spezifische Merkmale geprüft (z.B. bestimmte Tags oder Attribute). Erst wenn dieser Test bestanden ist, wird der zweite entschlüsselte Wert in einen Container geladen – andernfalls bleibt der Container leer.
+      </p>
+    </div>
+  
+    <p>
+      <label for="sha256"><b>Text (a) SHA-256</b></label>
+      <input type="text" id="sha256" />
+    </p>
+    <hr />
+    <p>
+      <label for="key"><b>Unicode-Vigenère Schlüssel (b)</b></label>
+      <input type="text" id="key" />
+    </p>
+    <p>
+      <label for="mode"><b>Modus</b></label>
+      <select id="mode">
+        <option value="encode">Verschlüsseln</option>
+        <option value="decode">Entschlüsseln</option>
+      </select>
+    </p>
+    <p>
+      <label for="text"><b>Text</b></label>
+      <textarea id="text" rows="5"></textarea>
+    </p>
+
+    <p>
+      <div>
+        <label
+          ><b>Querystring</b>
+          <a href="#" id="copyQuery" title="Copy to clipboard">🔗</a>
+        </label>
+        <div id="querystring"></div>
+      </div>
+    </p>
+    <p>
+      <div>
+        <label
+          ><b>JSON Output</b>
+          <a href="#" id="copyJson" title="Copy to clipboard">🔗</a>
+        </label>
+        <div id="jsonoutput"></div>
+      </div>
+    </p>
+
+    <div id="toast">Copied!</div>
+    <script src="scripts/shving.js"></script>
+    <script src="scripts/shving-specific.js"></script>
+    
+  </body>
+</html>
