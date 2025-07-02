@@ -4,6 +4,12 @@ body {
   margin: auto;
 }
 
+@media (max-width: 600px) {
+  body {
+    max-width: none;
+  }
+}
+
 textarea,
 input,
 select {
