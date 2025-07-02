@@ -20,7 +20,7 @@
         <li>Übersetzungsarbeit für Dokumentation</li>
         <li>Präsentationen / Vorträge</li>
       </ul>
-      ...Darüber könnte ich Stunden sprechen.`
+      <a href="files/Tetris-CV.pdf" class="button secondary">Tetris CV</a>`
     },
     { title: "Testmanagement", start: "06.2018 - 12.2023", content: 
     `<b>Publitiv GmbH</b>, Bern (externe Anstellung für Post CH AG)<br>

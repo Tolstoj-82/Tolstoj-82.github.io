@@ -138,10 +138,9 @@ img {
     text-align: left;
 }
 
-
 .remark {
     border-radius: 8px;
-    background-color: #f9f6ff;
+    background-color: white;
     color: #555;
     padding: 15px;
     margin: 20px 0;
@@ -152,7 +151,7 @@ img {
 }
 
 .remark:hover {
-  background-color: #eef3ff;
+  background-color: #e4eaf8;
   box-shadow: 0 4px 8px rgba(33, 94, 153, 0.15);
 }
 
