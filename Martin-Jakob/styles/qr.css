@@ -1,0 +1,65 @@
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: inline-block;
+    margin-top: 40px;
+}
+
+input[type="text"],
+select,
+input[type="range"] {
+    padding: 8px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+input[type="color"] {
+    padding: 0px;
+    margin: 0px;
+    border: none;
+    cursor: pointer;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border-radius: 5px;
+    border: 2px solid #888;
+}
+
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+/*p {
+    font-weight: bold;
+}*/
+
+label {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+#sizeSlider {
+    display: block;
+    margin: 10px auto;
+}
+
+canvas {
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    display: block;
+    margin: 0 auto;
+}

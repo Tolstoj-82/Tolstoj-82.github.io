@@ -5,6 +5,9 @@
     <title>Shving!</title>
     <link rel="stylesheet" href="styles/general.css" />
     <link rel="stylesheet" href="styles/shving.css" />
+    <link rel="stylesheet" href="styles/qr.css" />
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.min.js"></script>
+
   </head>
   <body>
     <button class="accordion">Shving!</button>
@@ -29,24 +32,26 @@
     </div>
   
     <p>
-      <label for="sha256"><b>Text (a) SHA-256</b></label>
-      <input type="text" id="sha256" />
+      <b>SHA-256</b><br />
+      <label for="sha256">a: </label>
+      <input type="text" id="sha256" style="width: 60%;" />
     </p>
     <hr />
     <p>
-      <label for="key"><b>Unicode-Vigenère Schlüssel (b)</b></label>
-      <input type="text" id="key" />
+      <b>Unicode-Vigenère Schlüssel</b><br />
+      <label for="key">b: </label>
+      <input type="text" id="key" style="width: 60%;"/>
     </p>
     <p>
       <label for="mode"><b>Modus</b></label>
-      <select id="mode">
+      <select id="mode" style="width: 100%;">
         <option value="encode">Verschlüsseln</option>
         <option value="decode">Entschlüsseln</option>
       </select>
     </p>
     <p>
       <label for="text"><b>Text</b></label>
-      <textarea id="text" rows="5"></textarea>
+      <textarea id="text" rows="5" style="width: 100%;"></textarea>
     </p>
 
     <p>
@@ -68,9 +73,80 @@
       </div>
     </p>
 
+    <p>
+      <label>QR Code</label>
+      <select id="shapeSelect" onchange="generateQRCode()">
+        <option value="square">Eckig</option>
+        <option value="circle">Rund</option>
+      </select>
+      <input
+        type="color"
+        id="colorPicker"
+        value="#000000"
+        onchange="generateQRCode()"
+      />
+      |
+      <label>Finder</label>
+      <select id="finderShapeSelect" onchange="generateQRCode()">
+        <option value="square">Eckig</option>
+        <option value="circle">Rund</option>
+      </select>
+      <input
+        type="color"
+        id="finderColorPicker"
+        value="#000000"
+        onchange="generateQRCode()"
+      />
+    </p>
+    <input
+      type="range"
+      id="sizeSlider"
+      min="200"
+      max="500"
+      value="300"
+      onchange="generateQRCode()"
+    />
+    <p>
+    <button id="downloadBtn" onclick="downloadQRCode()" style="display: none">
+      Download
+    </button>
+    
+      <input
+        type="text"
+        id="qrInput"
+      />
+    </p>
+
+
+    <p style="text-align: center;">
+      <canvas id="qrCanvas"></canvas>
+    </p>
+
     <div id="toast">Copied!</div>
     <script src="scripts/shving.js"></script>
     <script src="scripts/shving-specific.js"></script>
-    
+    <script src="scripts/qr.js"></script>
+    <script>
+      const target = document.getElementById("querystring");
+
+      const observer = new MutationObserver(() => {
+        generateQRCode();
+
+        const sha256 = document.getElementById("sha256")?.value || "";
+        const key = document.getElementById("key")?.value || "";
+        const qrInput = document.getElementById("qrInput");
+
+        if (qrInput) {
+          qrInput.value = `${sha256}-${key}`;
+        }
+      });
+
+      observer.observe(target, {
+        childList: true,    // for changes to children (e.g., innerHTML)
+        subtree: true,      // include deeper children
+        characterData: true // for text changes
+      });
+
+    </script>
   </body>
 </html>

@@ -181,11 +181,12 @@ header h1 {
 }
 
 .accordion:hover {
-  background-color: #e2eadd;
+  background-color: #C0DBEB;
 }
 
 .accordion.active {
-  background-color: #dcf2cd;
+  background-color: #215E99;
+  color: #fff;
 }
 
 .arrow {

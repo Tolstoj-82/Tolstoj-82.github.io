@@ -22,7 +22,7 @@ async function updateOutputs() {
   const vigenereResult = vigenere(text, bKey, mode);
 
   // Use raw input for "a" and encoded key for "b"
-  queryStringDiv.textContent = `?a=${aText}&b=${encodeURIComponent(bKey)}`;
+  queryStringDiv.textContent = `https://tolstoj-82.github.io/Martin-Jakob/index.html?a=${aText}&b=${encodeURIComponent(bKey)}`;
   jsonOutputDiv.textContent = sha ? `"${sha}": \`${vigenereResult}\`` : "";
 }
 

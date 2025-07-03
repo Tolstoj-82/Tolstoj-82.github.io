@@ -10,13 +10,13 @@ body {
   }
 }
 
-textarea,
+/*textarea,
 input,
 select {
   width: 100%;
   margin-top: 1em;
   padding: 0.5em;
-}
+}*/
 
 div#querystring,
 #jsonoutput {
@@ -67,6 +67,11 @@ label > a {
   outline: none;
   background-color: #eee;
   font-weight: bold;
+  color: black;
+}
+
+.accordion:hover {
+  color: white;
 }
 
 .accordion-content {
