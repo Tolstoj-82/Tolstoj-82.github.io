@@ -32,11 +32,8 @@
   <div class="menu-container">
     <button class="close-btn" id="close-icon" aria-label="Close Menu">✖</button>
     <h3 class="accordion">Navigation <span class="arrow">+</span></h3>
-    <ul class="menu">
-        <li><a href="#downloads">Downloads</a></li>
-        <li><a href="#projekte">Projekte</a></li>
-        <li><a href="#berufserfahrung">Berufserfahrung</a></li>
-        <li><a href="#schule">Schule / Ausbildungen</a></li>
+    <ul class="menu" id="anchors">
+      <!-- populated on open-->  
     </ul>
     <h3 class="accordion">Andere Links <span class="arrow">+</span></h3>
     <ul class="menu">
@@ -53,8 +50,10 @@
 
         <div class="text">
           <p><b>Willkommen auf meiner professionellen Website!</b></p>
-          <p>
+          <p id="targetIntro">
             Wenn Sie hier gelandet sind, bin offensichtlich interessiert an Ihrer Stelle und Ihrem Unternehmen!<br>
+          </p>
+          <p>
             Aus persönlicher Überzeugung besitze keine Social Media. Das beinhaltet auch Business Social Media (LinkedIn, Xing, etc.).<br>
             Dafür habe ich hier aber meine Website.
           </p>
@@ -73,7 +72,9 @@
       </section>
       <hr>
 
-      <div id="shvingDiv"></div>
+      <div id="shvingDiv">
+        <!-- populated on request-->
+      </div>
 
       <h2 id="projekte">Projekte (Auswahl)</h2>
       <section class="grid">
@@ -204,6 +205,35 @@
     const b = params.get("b") || "";
 
     const hash = await sha256(a);
+    const contentArray = shvingContent[hash];
+
+    if (!Array.isArray(contentArray) || contentArray.length < 2) {
+      return;
+    }
+
+    const [introEncoded, mainEncoded] = contentArray;
+    const mainDecoded = vigenere(mainEncoded, b, "decode");
+
+    if (!mainDecoded.includes("&nbsp;")) {
+      return;
+    }
+
+    // Set main content
+    document.getElementById("shvingDiv").innerHTML = mainDecoded;
+
+    // Set intro content if non-empty
+    if (introEncoded && introEncoded.trim() !== "") {
+      const introDecoded = vigenere(introEncoded, b, "decode");
+      document.getElementById("targetIntro").innerHTML = introDecoded;
+    }
+  })();
+
+  /*(async () => {
+    const params = new URLSearchParams(window.location.search);
+    const a = params.get("a") || "";
+    const b = params.get("b") || "";
+
+    const hash = await sha256(a);
 
     const encoded = shvingContent[hash];
     if (!encoded) {
@@ -218,7 +248,7 @@
     } else {
       document.getElementById("shvingDiv").innerHTML = "";
     }
-  })();
+  })();*/
 
 </script>
 </body>

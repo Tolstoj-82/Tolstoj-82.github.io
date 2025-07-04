@@ -1,5 +1,5 @@
   const events = [
-    { title: "Informatiker EFZ", start: "01.2025 - 07.2025", content: 
+    { title: "Informatiker EFZ", start: "01.2025 - 07.2025 (befristet)", content: 
     `<b>Universität Bern, Informatikdienste</b>, Bern
     <p>
         Projekt Fachliche Konsolidierung (FaKo) der Webseite der Uni Bern.

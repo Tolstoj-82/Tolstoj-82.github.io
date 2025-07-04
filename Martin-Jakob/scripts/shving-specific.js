@@ -1,4 +1,5 @@
 const shaInput = document.getElementById("sha256");
+const entrytextInput = document.getElementById("entrytext");
 const textInput = document.getElementById("text");
 const keyInput = document.getElementById("key");
 const modeSelect = document.getElementById("mode");
@@ -16,14 +17,16 @@ async function updateOutputs() {
   const aText = shaInput.value; // raw user input
   const bKey = keyInput.value;
   const text = textInput.value;
+  const entrytext = entrytextInput.value;
   const mode = modeSelect.value;
 
   const sha = aText ? await sha256(aText) : "";
   const vigenereResult = vigenere(text, bKey, mode);
+  const entryTextResut = vigenere(entrytext, bKey, mode);
 
   // Use raw input for "a" and encoded key for "b"
   queryStringDiv.textContent = `https://tolstoj-82.github.io/Martin-Jakob/index.html?a=${aText}&b=${encodeURIComponent(bKey)}`;
-  jsonOutputDiv.textContent = sha ? `"${sha}": \`${vigenereResult}\`` : "";
+  jsonOutputDiv.textContent = sha ? `"${sha}": ["${entryTextResut}", "${vigenereResult}"], ` : "";
 }
 
 function copyToClipboard(elementId) {

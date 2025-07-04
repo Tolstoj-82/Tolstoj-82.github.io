@@ -65,12 +65,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Menu open/close
   if (menuBtn && closeBtn && menuContainer) {
+    const anchorsList = document.getElementById('anchors');
+
+    function generateMenuItems() {
+      const headings = document.querySelectorAll('h2[id]');
+      headings.forEach(h2 => {
+        const id = h2.id;
+        let text = h2.textContent || '';
+        // Remove anything in brackets () and trim whitespace
+        text = text.replace(/\s*\(.*?\)\s*/g, '').trim();
+
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = `#${id}`;
+        a.textContent = text;
+        li.appendChild(a);
+        anchorsList.appendChild(li);
+      });
+    }
+
+    function clearMenuItems() {
+      anchorsList.innerHTML = '';
+    }
+
     menuBtn.addEventListener('click', () => {
+      generateMenuItems();
       menuContainer.classList.add('active');
     });
 
     closeBtn.addEventListener('click', () => {
       menuContainer.classList.remove('active');
+      clearMenuItems();
     });
 
     document.addEventListener('click', (e) => {
@@ -80,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         !closeBtn.contains(e.target)
       ) {
         menuContainer.classList.remove('active');
+        clearMenuItems();
       }
     });
   }
@@ -118,124 +144,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
-/*document.addEventListener('DOMContentLoaded', () => {
-  const images = document.querySelectorAll('.clickable');
-  const modal = document.getElementById('imageModal');
-  const modalImage = document.getElementById('modalImage');
-  const closeModal = modal.querySelector('.close');
-  const accordions = document.querySelectorAll('.accordion');
-
-  accordions.forEach((accordion) => {
-    accordion.addEventListener('click', () => {
-      const menu = accordion.nextElementSibling;
-  
-      if (menu && menu.classList.contains('menu')) {
-        menu.classList.toggle('active');
-        accordion.classList.toggle('active');
-  
-        // Toggle the + and - symbols
-        const arrow = accordion.querySelector('.arrow');
-        if (arrow) {
-          arrow.textContent = accordion.classList.contains('active') ? '-' : '+';
-        }
-      }
-    });
-  })
-
-  // Attach click event to all clickable images
-  images.forEach(image => {
-    image.addEventListener('click', () => {
-      modalImage.src = image.src; // Set the modal image to the clicked image
-      modal.style.display = 'flex'; // Show the modal
-    });
-  });
-
-  // Close the modal when the close button is clicked
-  closeModal.addEventListener('click', () => {
-    modal.style.display = 'none'; // Hide the modal
-  });
-
-  // Close the modal when clicking outside the modal-content
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.style.display = 'none';
-    }
-  });
-
-  // Open the image in a new tab when the modal image is clicked
-  modalImage.addEventListener('click', () => {
-    window.open(modalImage.src, '_blank'); // Open the image in a new tab
-  });
-});
-
-const menuBtn = document.querySelector('.menu-btn');
-const closeBtn = document.querySelector('.close-btn');
-const menuContainer = document.querySelector('.menu-container');
-
-menuBtn.addEventListener('click', () => {
-  menuContainer.classList.add('active');
-});
-
-closeBtn.addEventListener('click', () => {
-  menuContainer.classList.remove('active');
-});
-
-// Close menu on clicking outside
-document.addEventListener('click', (e) => {
-  if (
-    !menuBtn.contains(e.target) &&
-    !menuContainer.contains(e.target) &&
-    !closeBtn.contains(e.target)
-  ) {
-    menuContainer.classList.remove('active');
-  }
-});
-
-//----
-// Video modal
-
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('videoModal');
-  const closeBtn2 = modal.querySelector('.close');
-  const modalVideo = document.getElementById('modalVideo');
-
-  // Open modal only on the specific card:
-  const virtualMicCard = document.getElementById('virtualMicCard');
-
-  virtualMicCard.addEventListener('click', (event) => {
-    event.preventDefault(); // prevent link navigation
-    modal.style.display = 'flex';
-    // Reset video to start from beginning
-    modalVideo.src = modalVideo.src;
-  });
-
-  // Close modal on close button click
-  closeBtn2.addEventListener('click', () => {
-    modal.style.display = 'none';
-    modalVideo.src = '';
-    modalVideo.src = "https://www.youtube.com/embed/KW5O75i4dVs";
-  });
-
-  // Close modal when clicking outside modal-content
-  window.addEventListener('click', (event) => {
-    if (event.target === modal) {
-      modal.style.display = 'none';
-      modalVideo.src = '';
-      modalVideo.src = "https://www.youtube.com/embed/KW5O75i4dVs";
-    }
-  });
-
-  window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      const modalDisplay = window.getComputedStyle(modal).display;
-      if (modalDisplay === 'flex') {
-        modal.style.display = 'none';
-        modalVideo.src = '';
-        modalVideo.src = "https://www.youtube.com/embed/KW5O75i4dVs";
-      }
-    }
-  });
-
-});
-*/
