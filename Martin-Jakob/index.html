@@ -145,19 +145,17 @@
         <p class="edu-duration">2003 – 2007</p>
         <p class="edu-location">RUAG Defence, Bern</p>
       </article>
-
       <hr />
+      <div id="contactData"></div>
 
     </main>
 
   </div>
 </div>
 
-
 <footer class="site-footer">
-  <p>&copy; 2025 Martin Werner Jakob &nbsp;|&nbsp; Alle Rechte vorbehalten</p>
+  <p>2025 Martin Werner Jakob &nbsp;|&nbsp; Alle Rechte vorbehalten</p>
 </footer>
-
 
 <script src="scripts/script.js"></script>
 <script src="scripts/stylings.js"></script>
@@ -222,30 +220,13 @@
       const introDecoded = vigenere(introEncoded, b, "decode");
       document.getElementById("targetIntro").innerHTML = introDecoded;
     }
+
+    // Populate contactData div using Vigenère cipher with key "welcome"
+    if (typeof contactData === "string") {
+      const contactDecoded = vigenere(contactData, "welcome", "decode");
+      document.getElementById("contactData").innerHTML = contactDecoded;
+    }
   })();
-
-  /*(async () => {
-    const params = new URLSearchParams(window.location.search);
-    const a = params.get("a") || "";
-    const b = params.get("b") || "";
-
-    const hash = await sha256(a);
-
-    const encoded = shvingContent[hash];
-    if (!encoded) {
-      document.getElementById("shvingDiv").innerHTML = "";
-      return;
-    }
-
-    const decoded = vigenere(encoded, b, "decode");
-
-    if (decoded.includes("&nbsp;")) {
-      document.getElementById("shvingDiv").innerHTML = decoded;
-    } else {
-      document.getElementById("shvingDiv").innerHTML = "";
-    }
-  })();*/
-
 </script>
 </body>
 </html>
