@@ -114,7 +114,8 @@ label {
   border-radius: var(--radius-small);
 }
 
-#addROI {
+#addROI,
+#addScreen {
   margin-bottom: var(--gap-xl);
 }
 
@@ -132,6 +133,15 @@ button {
 select,
 input[type="text"] {
   padding: var(--gap-sm);
+}
+
+.selectedScreenName {
+  margin-bottom: var(--gap-lg);
+  padding: 6px 8px;
+  background: var(--panel-light);
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  font-weight: bold;
 }
 
 /* Buttons */
@@ -403,10 +413,12 @@ button:hover {
   background: var(--bg-panel-dark);
   border-radius: var(--radius-small);
   cursor: pointer;
+  border: 3px solid transparent;
 }
 
 .roiItem.active {
-  outline: 3px solid var(--border-light);
+  border: 3px solid #000;
+  outline: 3px solid var(--panel-light);
   transform: scale(1.03);
 }
 

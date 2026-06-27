@@ -34,12 +34,91 @@ const toggleCapture = document.getElementById("toggleCapture");
 
 const tileDeleteZone = document.getElementById("tileDeleteZone");
 
+const selectedScreenName = document.getElementById("selectedScreenName");
+
 const shadeBoxes = [
   document.getElementById("shade0"),
   document.getElementById("shade1"),
   document.getElementById("shade2"),
   document.getElementById("shade3"),
 ];
+
+document.getElementById("gameName").oninput = (e) => {
+  game.name = e.target.value;
+};
+
+document.getElementById("addScreen").onclick = () => {
+  const name = prompt("Screen name", "Screen " + (game.screens.length + 1));
+
+  if (name === null) return;
+
+  const screen = {
+    id: Date.now(),
+    name: name.trim() || "Screen " + (game.screens.length + 1),
+    color: screenColors[game.screens.length % screenColors.length],
+    identifiers: [],
+    rois: [],
+  };
+
+  game.screens.push(screen);
+  activeScreenId = screen.id;
+  activeROI = null;
+
+  renderScreenList();
+  renderROIList();
+  drawROIOverlay();
+  updateSelectedScreenName();
+};
+
+function updateSelectedScreenName() {
+  const screen = getActiveScreen();
+
+  selectedScreenName.textContent = screen
+    ? `Selected: ${screen.name}`
+    : "No screen selected";
+}
+
+function renderScreenList() {
+  const screenList = document.getElementById("screenList");
+
+  screenList.innerHTML = "";
+
+  game.screens.forEach((screen) => {
+    const div = document.createElement("div");
+
+    div.className = "roiItem";
+    div.style.background = screen.color;
+
+    if (screen.id === activeScreenId) {
+      div.classList.add("active");
+    }
+
+    const name = document.createElement("span");
+    name.textContent = screen.name;
+
+    const count = document.createElement("span");
+    count.textContent = `IDs: ${screen.identifiers.length}`;
+
+    div.onclick = () => {
+      activeScreenId = screen.id;
+      activeROI = null;
+
+      renderScreenList();
+      renderROIList();
+      drawROIOverlay();
+      updateSelectedScreenName();
+    };
+
+    div.appendChild(name);
+    div.appendChild(count);
+
+    screenList.appendChild(div);
+  });
+}
+
+document.getElementById("identifierMode").onclick = () => {
+  selectionMode = "identifier";
+};
 
 // State
 //--------------------------------
@@ -53,7 +132,13 @@ let applyLUT = false;
 
 let quantized = new Array(WIDTH * HEIGHT).fill(0);
 
-let rois = [];
+let game = {
+  name: "",
+  screens: [],
+};
+
+let activeScreenId = null;
+let selectionMode = "roi";
 
 let activeROI = null;
 
@@ -71,8 +156,24 @@ const roiColors = [
   "rgb(255,255,0)",
 ];
 
+const screenColors = [
+  "rgb(47,140,255)",
+  "rgb(120,90,255)",
+  "rgb(0,170,120)",
+  "rgb(255,150,0)",
+  "rgb(220,70,120)",
+];
+
 function roiOverlayColor(color) {
   return color.replace("rgb(", "rgba(").replace(")", ",0.35)");
+}
+
+function getActiveScreen() {
+  return game.screens.find((s) => s.id === activeScreenId);
+}
+
+function getActiveScreenROIs() {
+  return getActiveScreen()?.rois || [];
 }
 
 // Camera
@@ -285,11 +386,22 @@ const gridCtx = gridCanvas.getContext("2d");
 function drawROIOverlay() {
   roiCtx.clearRect(0, 0, WIDTH, HEIGHT);
 
-  for (const roi of rois) {
+  for (const roi of getActiveScreenROIs()) {
     roiCtx.fillStyle = roiOverlayColor(roi.color);
 
     for (const key of roi.tiles) {
       const [x, y] = key.split(",").map(Number);
+      roiCtx.fillRect(x * TILE, y * TILE, TILE, TILE);
+    }
+  }
+  const screen = getActiveScreen();
+
+  if (screen) {
+    roiCtx.fillStyle = "rgba(255, 0, 0, 0.45)";
+
+    for (const identifier of screen.identifiers) {
+      const [x, y] = identifier.tile.split(",").map(Number);
+
       roiCtx.fillRect(x * TILE, y * TILE, TILE, TILE);
     }
   }
@@ -328,12 +440,41 @@ let roiSelectionMode = "add";
 let lastSelectedTile = null;
 
 gridCanvas.addEventListener("mousedown", (e) => {
+  const key = getTileKeyFromMouse(e);
+
+  if (!key) return;
+
+  const screen = getActiveScreen();
+
+  if (!screen) return;
+
+  const existingIdentifier = screen.identifiers.find((id) => id.tile === key);
+
+  if (existingIdentifier) {
+    const shouldDelete = confirm(
+      `Delete identifier tile ${key} from "${screen.name}"?`,
+    );
+
+    if (shouldDelete) {
+      screen.identifiers = screen.identifiers.filter((id) => id.tile !== key);
+
+      renderScreenList();
+      drawROIOverlay();
+    }
+
+    return;
+  }
+
+  if (selectionMode === "identifier") {
+    addIdentifierTile(key);
+    return;
+  }
+
   if (!activeROI) return;
 
-  const key = getTileKeyFromMouse(e);
-  const roi = rois.find((r) => r.id === activeROI);
+  const roi = getActiveScreenROIs().find((r) => r.id === activeROI);
 
-  if (!key || !roi) return;
+  if (!roi) return;
 
   isSelectingROI = true;
   lastSelectedTile = null;
@@ -342,6 +483,32 @@ gridCanvas.addEventListener("mousedown", (e) => {
 
   applyROITileSelection(key);
 });
+
+function addIdentifierTile(key) {
+  const screen = getActiveScreen();
+
+  if (!screen) return;
+
+  const [x, y] = key.split(",").map(Number);
+
+  screen.identifiers.push({
+    tile: key,
+    pixels: getTile(x, y),
+  });
+
+  selectionMode = "roi";
+  identifierModeButton.textContent = "Add Identifier Tile";
+
+  renderScreenList();
+  drawROIOverlay();
+}
+
+const identifierModeButton = document.getElementById("identifierMode");
+
+identifierModeButton.onclick = () => {
+  selectionMode = "identifier";
+  identifierModeButton.textContent = "🎯 Click a tile.";
+};
 
 gridCanvas.addEventListener("mousemove", (e) => {
   if (!isSelectingROI || !activeROI) return;
@@ -359,7 +526,7 @@ window.addEventListener("mouseup", () => {
 });
 
 function applyROITileSelection(key) {
-  const roi = rois.find((r) => r.id === activeROI);
+  const roi = getActiveScreenROIs().find((r) => r.id === activeROI);
 
   if (!roi) return;
 
@@ -372,6 +539,7 @@ function applyROITileSelection(key) {
   lastSelectedTile = key;
 
   drawROIOverlay();
+  updateSelectedScreenName();
 }
 
 function getTileKeyFromMouse(e) {
@@ -389,28 +557,36 @@ function getTileKeyFromMouse(e) {
 //--------------------------------
 
 document.getElementById("addROI").onclick = () => {
-  const name = prompt("ROI name", "ROI " + (rois.length + 1));
+  const screen = getActiveScreen();
+
+  if (!screen) {
+    alert("Add or select a screen first.");
+    return;
+  }
+
+  const name = prompt("ROI name", "ROI " + (screen.rois.length + 1));
 
   if (name === null) return;
 
   const roi = {
     id: Date.now(),
-    name: name.trim() || "ROI " + (rois.length + 1),
-    color: roiColors[rois.length % roiColors.length],
+    name: name.trim() || "ROI " + (screen.rois.length + 1),
+    color: roiColors[screen.rois.length % roiColors.length],
     tiles: new Set(),
   };
 
-  rois.push(roi);
+  screen.rois.push(roi);
   activeROI = roi.id;
 
   renderROIList();
   drawROIOverlay();
+  updateSelectedScreenName();
 };
 
 function renderROIList() {
   roiList.innerHTML = "";
 
-  rois.forEach((r) => {
+  getActiveScreenROIs().forEach((r) => {
     let div = document.createElement("div");
 
     div.className = "roiItem";
@@ -447,20 +623,23 @@ function renderROIList() {
     del.onclick = (e) => {
       e.stopPropagation();
 
-      rois = rois.filter((x) => x.id !== r.id);
+      const screen = getActiveScreen();
+      screen.rois = screen.rois.filter((x) => x.id !== r.id);
 
       if (activeROI === r.id) {
-        activeROI = rois.length ? rois[0].id : null;
+        activeROI = screen.rois.length ? screen.rois[0].id : null;
       }
 
       renderROIList();
       drawROIOverlay();
+      updateSelectedScreenName();
     };
 
     div.onclick = () => {
       activeROI = r.id;
       renderROIList();
       drawROIOverlay();
+      updateSelectedScreenName();
     };
 
     div.appendChild(name);
@@ -510,7 +689,7 @@ function updateCaptureUI() {
 setInterval(() => {
   if (!capturing) return;
 
-  rois.forEach((r) => {
+  getActiveScreenROIs().forEach((r) => {
     r.tiles.forEach((id) => {
       let [x, y] = id.split(",");
 
@@ -708,13 +887,22 @@ function reorderTiles(sourceKey, targetKey, insertAfter) {
 //--------------------------------
 
 document.getElementById("exportJSON").onclick = () => {
-  let data = {
+  const data = {
+    game: game.name,
     palette,
 
-    rois: rois.map((r) => ({
-      name: r.name,
+    screens: game.screens.map((screen) => ({
+      name: screen.name,
 
-      tiles: [...r.tiles],
+      identifiers: screen.identifiers.map((id) => ({
+        tile: id.tile,
+        pixels: id.pixels,
+      })),
+
+      rois: screen.rois.map((r) => ({
+        name: r.name,
+        tiles: [...r.tiles],
+      })),
     })),
 
     tiles: [...uniqueTiles.values()],
@@ -775,3 +963,4 @@ drawROIOverlay();
 drawGrid();
 updatePalette();
 updateCaptureUI();
+updateSelectedScreenName();
