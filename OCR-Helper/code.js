@@ -186,40 +186,43 @@ function getActiveScreenROIs() {
 
 async function loadCameras() {
   try {
-    // STEP 1: force permission FIRST (this unlocks labels)
-    const tempStream = await navigator.mediaDevices.getUserMedia({
+    if (!navigator.mediaDevices?.getUserMedia) {
+      alert("Camera API not available. Use HTTPS or localhost.");
+      return;
+    }
+
+    cameraSelect.innerHTML = "";
+
+    // Ask permission first.
+    const permissionStream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: false,
     });
 
-    // stop it immediately (we only needed permission)
-    tempStream.getTracks().forEach((t) => t.stop());
+    permissionStream.getTracks().forEach((track) => track.stop());
 
-    // STEP 2: now device labels will be available
+    // Chrome sometimes needs a short moment after permission.
+    await new Promise((resolve) => setTimeout(resolve, 250));
+
     const devices = await navigator.mediaDevices.enumerateDevices();
+    const cams = devices.filter((device) => device.kind === "videoinput");
 
-    const cams = devices.filter((d) => d.kind === "videoinput");
-
-    cameraSelect.innerHTML = "";
-
-    cams.forEach((cam, i) => {
+    cams.forEach((cam, index) => {
       const option = document.createElement("option");
 
       option.value = cam.deviceId;
-
-      option.textContent = cam.label || `Camera ${i}`;
+      option.textContent = cam.label || `Camera ${index + 1}`;
 
       cameraSelect.appendChild(option);
     });
 
-    if (cams.length > 0) {
-      cameraSelect.selectedIndex = 0;
-      await startCamera();
+    if (cams.length === 0) {
+      alert("No cameras found. Check Chrome camera permissions.");
+      return;
     }
 
-    if (cams.length === 0) {
-      alert("No cameras found.");
-    }
+    cameraSelect.selectedIndex = 0;
+    await startCamera();
   } catch (err) {
     console.error(err);
     alert("Camera access failed: " + err.message);
@@ -1267,7 +1270,7 @@ document.getElementById("startCamera").style.display = "none";
 
 document.getElementById("startCamera").onclick = startCamera;
 
-navigator.mediaDevices
+/*navigator.mediaDevices
   .getUserMedia({ video: true })
   .then((stream) => {
     stream.getTracks().forEach((t) => t.stop());
@@ -1276,7 +1279,8 @@ navigator.mediaDevices
   .catch((err) => {
     console.warn("Permission not granted yet:", err);
     loadCameras(); // fallback (may show empty labels)
-  });
+  });*/
+loadCameras();
 
 document.querySelectorAll(".lutBox").forEach((box) => {
   box.style.width = "40px";
