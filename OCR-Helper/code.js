@@ -15,6 +15,10 @@ let drawLoopRunning = false;
 
 const calibrationStatus = document.getElementById("calibrationStatus");
 
+const identifierInfo = document.getElementById("identifierInfo");
+let highlightedIdentifierTile = null;
+let highlightedIdentifierIntensity = 0;
+
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -405,14 +409,76 @@ function drawROIOverlay() {
   const screen = getActiveScreen();
 
   if (screen) {
-    roiCtx.fillStyle = "rgba(255, 0, 0, 0.45)";
-
     for (const identifier of screen.identifiers) {
       const [x, y] = identifier.tile.split(",").map(Number);
+
+      const isHighlighted = identifier.tile === highlightedIdentifierTile;
+
+      const alpha = isHighlighted
+        ? 0.45 + highlightedIdentifierIntensity * 0.45
+        : 0.45;
+
+      roiCtx.fillStyle = `rgba(255,0,0,${alpha})`;
 
       roiCtx.fillRect(x * TILE, y * TILE, TILE, TILE);
     }
   }
+}
+
+function renderIdentifierInfo() {
+  const screen = getActiveScreen();
+
+  identifierInfo.innerHTML = "";
+
+  if (!screen || screen.identifiers.length === 0) {
+    identifierInfo.textContent = "No identifier tiles";
+    return;
+  }
+
+  screen.identifiers.forEach((identifier, index) => {
+    const row = document.createElement("div");
+    row.className = "identifierInfoItem";
+
+    const label = document.createElement("div");
+    label.className = "identifierInfoLabel";
+    label.textContent = `${String.fromCharCode(65 + index)}:`;
+
+    const card = createTileCard({
+      pixels: identifier.pixels,
+      label: "",
+    });
+
+    card.querySelector("input").remove();
+    card.draggable = false;
+
+    card.addEventListener("mouseenter", () => {
+      highlightedIdentifierTile = identifier.tile;
+
+      //let highlightedIdentifierIntensity = 0;
+      highlightedIdentifierTile = identifier.tile;
+      highlightedIdentifierIntensity = 1;
+
+      const animate = () => {
+        highlightedIdentifierIntensity *= 0.92;
+
+        drawROIOverlay();
+
+        if (highlightedIdentifierIntensity > 0.05) {
+          requestAnimationFrame(animate);
+        } else {
+          highlightedIdentifierTile = null;
+          drawROIOverlay();
+        }
+      };
+
+      animate();
+    });
+
+    row.appendChild(label);
+    row.appendChild(card);
+
+    identifierInfo.appendChild(row);
+  });
 }
 
 function drawGrid() {
@@ -468,6 +534,7 @@ gridCanvas.addEventListener("mousedown", (e) => {
 
       renderScreenList();
       drawROIOverlay();
+      renderIdentifierInfo();
     }
 
     return;
@@ -509,6 +576,7 @@ function addIdentifierTile(key) {
 
   renderScreenList();
   drawROIOverlay();
+  renderIdentifierInfo();
 }
 
 const identifierModeButton = document.getElementById("identifierMode");
@@ -547,6 +615,7 @@ function applyROITileSelection(key) {
   lastSelectedTile = key;
 
   drawROIOverlay();
+  renderIdentifierInfo();
   updateSelectedScreenName();
 }
 
@@ -588,6 +657,7 @@ document.getElementById("addROI").onclick = () => {
 
   renderROIList();
   drawROIOverlay();
+  renderIdentifierInfo();
   updateSelectedScreenName();
 };
 
@@ -640,6 +710,7 @@ function renderROIList() {
 
       renderROIList();
       drawROIOverlay();
+      renderIdentifierInfo();
       updateSelectedScreenName();
     };
 
@@ -647,6 +718,7 @@ function renderROIList() {
       activeROI = r.id;
       renderROIList();
       drawROIOverlay();
+      renderIdentifierInfo();
       updateSelectedScreenName();
     };
 
@@ -1269,17 +1341,6 @@ cameraSelect.onchange = () => {
 document.getElementById("startCamera").style.display = "none";
 
 document.getElementById("startCamera").onclick = startCamera;
-
-/*navigator.mediaDevices
-  .getUserMedia({ video: true })
-  .then((stream) => {
-    stream.getTracks().forEach((t) => t.stop());
-    loadCameras();
-  })
-  .catch((err) => {
-    console.warn("Permission not granted yet:", err);
-    loadCameras(); // fallback (may show empty labels)
-  });*/
 loadCameras();
 
 document.querySelectorAll(".lutBox").forEach((box) => {
@@ -1307,6 +1368,7 @@ document.querySelectorAll(".lutBox").forEach((box) => {
 });
 
 drawROIOverlay();
+renderIdentifierInfo();
 drawGrid();
 updatePalette();
 updateCaptureUI();
