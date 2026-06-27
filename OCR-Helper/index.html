@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GB OCR Helper</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="main">
+        <!-- Camera Controls -->
+        <section class="panel">
+          <div class="row">
+            <label for="cameraSelect"> GB Interceptor </label>
+
+            <select id="cameraSelect"></select>
+
+            <button id="refreshCamera">Refresh</button>
+
+            <button id="startCamera">Start Camera</button>
+          </div>
+        </section>
+
+        <!-- hidden video -->
+        <video id="video" autoplay playsinline muted></video>
+
+        <!-- Image -->
+        <section class="panel">
+          <div class="canvasContainer">
+            <canvas id="canvas" width="160" height="144"></canvas>
+            <canvas id="roiCanvas" width="160" height="144"></canvas>
+            <canvas id="gridCanvas" width="640" height="576"></canvas>
+          </div>
+
+          <div class="buttonRow">
+            <button id="calibrateButton">Calibrate</button>
+
+            <div id="palette">
+              <div class="shade">
+                <div class="shadeBox" id="shade0"></div>
+              </div>
+
+              <div class="shade">
+                <div class="shadeBox" id="shade1"></div>
+              </div>
+
+              <div class="shade">
+                <div class="shadeBox" id="shade2"></div>
+              </div>
+
+              <div class="shade">
+                <div class="shadeBox" id="shade3"></div>
+              </div>
+            </div>
+
+            <span id="calibrationStatus" class="calibrationStatus bad">✖</span>
+          </div>
+        </section>
+      </div>
+      <div id="roiPanel">
+        <h2>ROIs</h2>
+
+        <button id="addROI">+ Add ROI</button>
+
+        <div id="roiList"></div>
+      </div>
+
+      <section class="panel">
+        <h2>Search for Tiles</h2>
+
+        <div class="buttonRow">
+          <button id="toggleCapture">▶️</button>
+
+          <span>
+            Unique Tiles:
+            <strong id="tileCount">0</strong>
+          </span>
+
+          <div id="tileDeleteZone">🗑️ Drop tile here to delete</div>
+        </div>
+
+        <hr />
+
+        <div id="tilesContainer"></div>
+      </section>
+
+      <!-- Export -->
+      <section class="panel">
+        <h2>Export</h2>
+
+        <div class="buttonRow">
+          <button id="exportJSON">Export JSON</button>
+
+          <button id="downloadJSON">Download JSON</button>
+        </div>
+
+        <textarea id="jsonOutput" rows="18" spellcheck="false"></textarea>
+      </section>
+    </div>
+
+    <script src="code.js"></script>
+  </body>
+</html>
