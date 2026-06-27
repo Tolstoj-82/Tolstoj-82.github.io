@@ -36,6 +36,10 @@ const tileDeleteZone = document.getElementById("tileDeleteZone");
 
 const selectedScreenName = document.getElementById("selectedScreenName");
 
+const tilesetContainer = document.getElementById("tilesetContainer");
+const addTilesetButton = document.getElementById("addTileset");
+const sendToTilesetButton = document.getElementById("sendToTileset");
+
 const shadeBoxes = [
   document.getElementById("shade0"),
   document.getElementById("shade1"),
@@ -143,6 +147,7 @@ let selectionMode = "roi";
 let activeROI = null;
 
 let uniqueTiles = new Map();
+let tilesets = [];
 
 let capturing = false;
 let captureBlink = false;
@@ -642,15 +647,110 @@ function renderROIList() {
       updateSelectedScreenName();
     };
 
-    div.appendChild(name);
+    const select = document.createElement("select");
 
-    div.appendChild(edit);
+    const none = document.createElement("option");
+    none.value = "";
+    none.textContent = "No tileset";
 
-    div.appendChild(del);
+    select.appendChild(none);
+
+    tilesets.forEach((tileset) => {
+      const option = document.createElement("option");
+
+      option.value = tileset.id;
+      option.textContent = tileset.name;
+
+      select.appendChild(option);
+    });
+
+    select.value = r.tilesetId || "";
+
+    select.onchange = (e) => {
+      e.stopPropagation();
+
+      r.tilesetId = Number(e.target.value) || null;
+    };
+
+    select.onclick = (e) => {
+      e.stopPropagation();
+    };
+
+    const top = document.createElement("div");
+    top.className = "roiItemTop";
+
+    const bottom = document.createElement("div");
+    bottom.className = "roiItemBottom";
+
+    top.appendChild(name);
+    top.appendChild(edit);
+    top.appendChild(del);
+
+    bottom.appendChild(select);
+
+    div.appendChild(top);
+    div.appendChild(bottom);
 
     roiList.appendChild(div);
   });
 }
+
+addTilesetButton.onclick = () => {
+  const name = prompt("Tileset name", "New Tileset");
+
+  if (name === null) return;
+
+  tilesets.push({
+    id: Date.now(),
+    name: name.trim() || "New Tileset",
+    tiles: [],
+  });
+
+  renderTilesets();
+  renderROIList();
+};
+
+sendToTilesetButton.onclick = () => {
+  const tiles = [...uniqueTiles.values()];
+
+  if (tiles.length === 0) return;
+
+  const existingNames = tilesets
+    .map((t, i) => `${i + 1}: ${t.name}`)
+    .join("\n");
+
+  const choice = prompt(
+    `Send to tileset:\n${existingNames}\n\nEnter number or new name:`,
+    "",
+  );
+
+  if (choice === null) return;
+
+  let tileset = tilesets[Number(choice) - 1];
+
+  if (!tileset) {
+    tileset = {
+      id: Date.now(),
+      name: choice.trim() || "New Tileset",
+      tiles: [],
+    };
+
+    tilesets.push(tileset);
+  }
+
+  tileset.tiles.push(
+    ...tiles.map((tile) => ({
+      pixels: tile.pixels,
+      label: tile.label,
+    })),
+  );
+
+  uniqueTiles.clear();
+  renderTiles();
+
+  renderTilesets();
+  renderROIList();
+};
 
 // Tile capture
 //--------------------------------
@@ -727,47 +827,54 @@ function getTile(tx, ty) {
 // Tile display
 //--------------------------------
 
+function createTileCard(tile) {
+  const div = document.createElement("div");
+
+  div.className = "tileCard";
+
+  const c = document.createElement("canvas");
+
+  c.width = 8;
+  c.height = 8;
+  c.className = "tileCanvas";
+
+  const cctx = c.getContext("2d");
+  const img = cctx.createImageData(8, 8);
+
+  tile.pixels.forEach((v, i) => {
+    const p = palette[v];
+
+    img.data[i * 4] = p;
+    img.data[i * 4 + 1] = p;
+    img.data[i * 4 + 2] = p;
+    img.data[i * 4 + 3] = 255;
+  });
+
+  cctx.putImageData(img, 0, 0);
+
+  const input = document.createElement("input");
+
+  input.value = tile.label;
+  input.placeholder = "...";
+
+  input.oninput = () => {
+    tile.label = input.value;
+  };
+
+  div.appendChild(c);
+  div.appendChild(input);
+
+  return div;
+}
+
 function renderTiles() {
   tilesContainer.innerHTML = "";
 
   [...uniqueTiles.entries()].forEach(([key, tile]) => {
-    const div = document.createElement("div");
+    const div = createTileCard(tile);
 
-    div.className = "tileCard";
     div.draggable = true;
     div.dataset.key = key;
-
-    const c = document.createElement("canvas");
-
-    c.width = 8;
-    c.height = 8;
-    c.className = "tileCanvas";
-
-    const cctx = c.getContext("2d");
-    const img = cctx.createImageData(8, 8);
-
-    tile.pixels.forEach((v, i) => {
-      const p = palette[v];
-
-      img.data[i * 4] = p;
-      img.data[i * 4 + 1] = p;
-      img.data[i * 4 + 2] = p;
-      img.data[i * 4 + 3] = 255;
-    });
-
-    cctx.putImageData(img, 0, 0);
-
-    const input = document.createElement("input");
-
-    input.value = tile.label;
-    input.placeholder = "...";
-
-    input.oninput = () => {
-      tile.label = input.value;
-    };
-
-    div.appendChild(c);
-    div.appendChild(input);
 
     addTileDragHandlers(div);
 
@@ -775,6 +882,77 @@ function renderTiles() {
   });
 
   tileCount.textContent = uniqueTiles.size;
+}
+
+function renderTilesets() {
+  tilesetContainer.innerHTML = "";
+
+  tilesets.forEach((tileset) => {
+    const details = document.createElement("details");
+    details.open = true;
+    details.className = "tileset";
+
+    const summary = document.createElement("summary");
+    summary.textContent = `${tileset.name} • ${tileset.tiles.length} tile${tileset.tiles.length === 1 ? "" : "s"}`;
+
+    const list = document.createElement("div");
+    list.dataset.tileset = tileset.id;
+
+    list.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      list.classList.add("drag-over");
+    });
+
+    list.addEventListener("dragleave", () => {
+      list.classList.remove("drag-over");
+    });
+
+    list.addEventListener("drop", (e) => {
+      e.preventDefault();
+
+      const raw = e.dataTransfer.getData("application/json");
+
+      if (!raw) return;
+
+      const data = JSON.parse(raw);
+
+      moveTileToTileset(data, tileset.id, tileset.tiles.length, false);
+
+      list.classList.remove("drag-over");
+
+      renderTilesets();
+      renderTiles();
+    });
+
+    list.className = "tilesetTiles";
+
+    if (tileset.tiles.length === 0) {
+      const hint = document.createElement("div");
+
+      hint.className = "tilesetEmptyHint";
+      hint.textContent = "Drop tiles here";
+
+      list.appendChild(hint);
+    }
+
+    tileset.tiles.forEach((tile, index) => {
+      const card = createTileCard(tile);
+
+      card.draggable = true;
+      card.dataset.source = "tileset";
+      card.dataset.tilesetId = tileset.id;
+      card.dataset.index = index;
+
+      addTilesetTileDragHandlers(card);
+
+      list.appendChild(card);
+    });
+
+    details.appendChild(summary);
+    details.appendChild(list);
+
+    tilesetContainer.appendChild(details);
+  });
 }
 
 tileDeleteZone.addEventListener("dragover", (e) => {
@@ -788,6 +966,25 @@ tileDeleteZone.addEventListener("dragleave", () => {
 
 tileDeleteZone.addEventListener("drop", (e) => {
   e.preventDefault();
+
+  const raw = e.dataTransfer.getData("application/json");
+
+  if (raw) {
+    const data = JSON.parse(raw);
+
+    if (data.source === "tileset") {
+      const tileset = tilesets.find((t) => t.id === Number(data.tilesetId));
+
+      if (tileset) {
+        tileset.tiles.splice(Number(data.index), 1);
+      }
+
+      tileDeleteZone.classList.remove("visible", "drag-over");
+
+      renderTilesets();
+      return;
+    }
+  }
 
   const key = e.dataTransfer.getData("text/plain");
 
@@ -812,6 +1009,14 @@ function addTileDragHandlers(card) {
 
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", draggedTileKey);
+
+    e.dataTransfer.setData(
+      "application/json",
+      JSON.stringify({
+        source: "unique",
+        key: draggedTileKey,
+      }),
+    );
   });
 
   card.addEventListener("dragend", () => {
@@ -862,6 +1067,139 @@ function addTileDragHandlers(card) {
   });
 }
 
+let draggedTilesetTile = null;
+
+function addTilesetTileDragHandlers(card) {
+  card.addEventListener("dragstart", (e) => {
+    draggedTilesetTile = {
+      tilesetId: Number(card.dataset.tilesetId),
+      index: Number(card.dataset.index),
+    };
+
+    tileDeleteZone.classList.add("visible");
+
+    card.classList.add("dragging");
+
+    e.dataTransfer.effectAllowed = "move";
+
+    e.dataTransfer.setData(
+      "application/json",
+      JSON.stringify({
+        source: "tileset",
+        tilesetId: Number(card.dataset.tilesetId),
+        index: Number(card.dataset.index),
+      }),
+    );
+  });
+
+  card.addEventListener("dragend", () => {
+    draggedTilesetTile = null;
+
+    document.querySelectorAll(".tileCard").forEach((tile) => {
+      tile.classList.remove(
+        "dragging",
+        "drag-over",
+        "drop-before",
+        "drop-after",
+      );
+    });
+
+    tileDeleteZone.classList.remove("visible", "drag-over");
+  });
+
+  card.addEventListener("dragover", (e) => {
+    e.preventDefault();
+
+    const rect = card.getBoundingClientRect();
+    const isAfter = e.clientX > rect.left + rect.width / 2;
+
+    card.classList.add("drag-over");
+    card.classList.toggle("drop-before", !isAfter);
+    card.classList.toggle("drop-after", isAfter);
+  });
+
+  card.addEventListener("dragleave", () => {
+    card.classList.remove("drag-over", "drop-before", "drop-after");
+  });
+
+  card.addEventListener("drop", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const data = JSON.parse(e.dataTransfer.getData("application/json"));
+
+    const targetTilesetId = Number(card.dataset.tilesetId);
+    const targetIndex = Number(card.dataset.index);
+
+    const rect = card.getBoundingClientRect();
+    const insertAfter = e.clientX > rect.left + rect.width / 2;
+
+    moveTileToTileset(data, targetTilesetId, targetIndex, insertAfter);
+
+    renderTilesets();
+  });
+
+  card.addEventListener("dblclick", () => {
+    const tileset = tilesets.find(
+      (t) => t.id === Number(card.dataset.tilesetId),
+    );
+
+    if (!tileset) return;
+
+    const index = Number(card.dataset.index);
+
+    const shouldDelete = confirm(`Delete tile from "${tileset.name}"?`);
+
+    if (!shouldDelete) return;
+
+    tileset.tiles.splice(index, 1);
+
+    renderTilesets();
+  });
+}
+
+function moveTileToTileset(data, targetTilesetId, targetIndex, insertAfter) {
+  const targetTileset = tilesets.find((t) => t.id === targetTilesetId);
+
+  if (!targetTileset) return;
+
+  let movedTile = null;
+
+  if (data.source === "unique") {
+    const tile = uniqueTiles.get(data.key);
+
+    if (!tile) return;
+
+    movedTile = {
+      pixels: tile.pixels,
+      label: tile.label,
+    };
+  }
+
+  if (data.source === "tileset") {
+    const sourceTileset = tilesets.find((t) => t.id === Number(data.tilesetId));
+
+    if (!sourceTileset) return;
+
+    const [tile] = sourceTileset.tiles.splice(Number(data.index), 1);
+
+    movedTile = tile;
+
+    if (
+      sourceTileset.id === targetTileset.id &&
+      Number(data.index) < targetIndex
+    ) {
+      targetIndex--;
+    }
+  }
+
+  if (!movedTile) return;
+
+  const insertIndex = insertAfter ? targetIndex + 1 : targetIndex;
+
+  targetTileset.tiles.splice(insertIndex, 0, movedTile);
+}
+
 function reorderTiles(sourceKey, targetKey, insertAfter) {
   const entries = [...uniqueTiles.entries()];
 
@@ -891,6 +1229,12 @@ document.getElementById("exportJSON").onclick = () => {
     game: game.name,
     palette,
 
+    tilesets: tilesets.map((tileset) => ({
+      id: tileset.id,
+      name: tileset.name,
+      tiles: tileset.tiles,
+    })),
+
     screens: game.screens.map((screen) => ({
       name: screen.name,
 
@@ -902,10 +1246,9 @@ document.getElementById("exportJSON").onclick = () => {
       rois: screen.rois.map((r) => ({
         name: r.name,
         tiles: [...r.tiles],
+        tileset: r.tilesetId || null,
       })),
     })),
-
-    tiles: [...uniqueTiles.values()],
   };
 
   jsonOutput.value = JSON.stringify(data, null, 2);
@@ -964,3 +1307,4 @@ drawGrid();
 updatePalette();
 updateCaptureUI();
 updateSelectedScreenName();
+renderTilesets();

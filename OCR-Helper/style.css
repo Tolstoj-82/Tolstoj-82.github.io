@@ -1,8 +1,5 @@
 :root {
   --bg-page: #2b2b2b;
-  --bg-panel: #3a3a3a;
-  --bg-panel-dark: #2f2f2f;
-  --bg-card: #4a4a4a;
   --bg-code: #202020;
 
   --text-main: #f0f0f0;
@@ -42,6 +39,9 @@
   --panel-text: #202020;
 
   --border-calibrated: #00aa00;
+
+  --input-warning-bg: #fff0f3;
+  --tile-hover-bg: #eef6ff;
 }
 
 /* Base */
@@ -131,7 +131,7 @@ button {
 }
 
 select,
-input[type="text"] {
+input {
   padding: var(--gap-sm);
 }
 
@@ -219,12 +219,29 @@ button:hover {
   pointer-events: none;
 }
 
-#gridCanvas {
-  z-index: 3;
-  cursor: crosshair;
+/* Palette */
+
+.calibrationStatus {
+  height: 38px;
+  min-width: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 26px;
+  font-weight: bold;
+  line-height: 1;
+
+  border-radius: var(--radius-small);
 }
 
-/* Palette */
+.calibrationStatus.bad {
+  color: var(--text-red);
+}
+
+.calibrationStatus.good {
+  color: var(--border-calibrated);
+}
 
 .calibrateRow {
   align-items: center;
@@ -299,7 +316,7 @@ button:hover {
 
 .tileCard:hover {
   transform: translateY(-3px);
-  background: #eef6ff;
+  background: var(--tile-hover-bg);
 }
 
 .tileCard.dragging {
@@ -364,7 +381,7 @@ button:hover {
 }
 
 .tileCard input:placeholder-shown {
-  background: #fff0f3;
+  background: var(--input-warning-bg);
 }
 
 .tileCard input:focus {
@@ -402,6 +419,27 @@ button:hover {
   right: var(--gap-xl);
   top: var(--gap-xl);
   width: var(--roi-width);
+
+  max-height: calc(100vh - (2 * var(--gap-xl)));
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#roiPanel::-webkit-scrollbar {
+  width: 10px;
+}
+
+#roiPanel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#roiPanel::-webkit-scrollbar-thumb {
+  background: var(--border-mid);
+  border-radius: 999px;
+}
+
+#roiPanel::-webkit-scrollbar-thumb:hover {
+  background: var(--border-panel);
 }
 
 .roiItem {
@@ -507,28 +545,6 @@ button:hover {
   border-top: 2px solid var(--border-panel);
 }
 
-.calibrationStatus {
-  height: 38px;
-  min-width: 38px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 26px;
-  font-weight: bold;
-  line-height: 1;
-
-  border-radius: var(--radius-small);
-}
-
-.calibrationStatus.bad {
-  color: var(--text-red);
-}
-
-.calibrationStatus.good {
-  color: var(--border-calibrated);
-}
-
 /* Mobile */
 
 @media (max-width: 900px) {
@@ -558,4 +574,78 @@ button:hover {
   .tileCard {
     width: 100%;
   }
+}
+
+.tilesetTiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  align-items: flex-start;
+
+  min-height: 72px;
+  padding: var(--gap-md);
+
+  border: 2px dashed var(--border-mid);
+  border-radius: var(--radius-small);
+}
+
+.tilesetTiles.drag-over {
+  border-color: var(--accent-blue);
+  background: var(--tile-hover-bg);
+}
+
+.tileset .tileCard {
+  flex: 0 0 auto;
+}
+
+.roiItem {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--gap-sm);
+}
+
+.roiItemTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+}
+
+.roiItemBottom select {
+  width: 100%;
+}
+
+.tilesetTiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  align-items: flex-start;
+  min-height: 72px;
+  padding: var(--gap-md);
+  border: 2px dashed var(--border-mid);
+  border-radius: var(--radius-small);
+}
+
+.tilesetTiles.drag-over {
+  background: #eef6ff;
+  border-color: var(--accent-blue);
+}
+
+.tilesetEmptyHint {
+  width: 100%;
+  color: var(--border-mid);
+  font-weight: bold;
+  text-align: center;
+  pointer-events: none;
+}
+
+.roiItemBottom select {
+  width: 100%;
+  padding: var(--gap-sm);
+  margin-top: var(--gap-sm);
+  cursor: pointer;
+}
+
+.roiItemBottom {
+  width: 100%;
 }
