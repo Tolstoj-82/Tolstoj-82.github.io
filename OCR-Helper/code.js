@@ -12,6 +12,7 @@ let drawLoopRunning = false;
 let lastOCRValues = {};
 let highlightedIdentifierTile = null;
 let highlightedIdentifierIntensity = 0;
+let captureROIIds = new Set();
 
 // Elements
 //--------------------------------
@@ -35,6 +36,7 @@ const addTilesetButton = document.getElementById("addTileset");
 const sendToTilesetButton = document.getElementById("sendToTileset");
 const workflowHint = document.getElementById("workflowHint");
 const roiReadout = document.getElementById("roiReadout");
+const captureROIPicker = document.getElementById("captureROIPicker");
 const shadeBoxes = [
   document.getElementById("shade0"),
   document.getElementById("shade1"),
@@ -65,6 +67,7 @@ document.getElementById("addScreen").onclick = () => {
 
   renderScreenList();
   renderROIList();
+  renderCaptureROIPicker();
   drawROIOverlay();
   updateSelectedScreenName();
   updateWorkflowUI();
@@ -77,6 +80,33 @@ function updateSelectedScreenName() {
     ? `Selected: ${screen.name}`
     : "No screen selected";
 }
+
+/*function chooseCaptureROIs() {
+  const rois = getActiveScreenROIs();
+
+  const list = rois.map((roi, index) => `${index + 1}: ${roi.name}`).join("\n");
+
+  const choice = prompt(
+    `Which ROIs should be searched for tiles?\n\n${list}\n\nEnter numbers separated by comma, or leave empty for all:`,
+    "",
+  );
+
+  if (choice === null) return false;
+
+  if (choice.trim() === "") {
+    captureROIIds = new Set(rois.map((roi) => roi.id));
+    return true;
+  }
+
+  const selectedIndexes = choice
+    .split(",")
+    .map((v) => Number(v.trim()) - 1)
+    .filter((index) => index >= 0 && index < rois.length);
+
+  captureROIIds = new Set(selectedIndexes.map((index) => rois[index].id));
+
+  return captureROIIds.size > 0;
+}*/
 
 function updateWorkflowHint() {
   const hasScreen = !!getActiveScreen();
@@ -130,6 +160,7 @@ function renderScreenList() {
 
       renderScreenList();
       renderROIList();
+      renderCaptureROIPicker();
       drawROIOverlay();
       renderIdentifierInfo();
       updateSelectedScreenName();
@@ -160,6 +191,48 @@ let cameraReady = false;
 
 function setDisabledReason(button, reason) {
   button.title = reason || "";
+}
+
+function renderCaptureROIPicker() {
+  const rois = getActiveScreenROIs();
+
+  captureROIPicker.innerHTML = "";
+  captureROIIds.clear();
+
+  if (rois.length === 0) {
+    captureROIPicker.textContent = "No ROIs available";
+    return;
+  }
+
+  rois.forEach((roi) => {
+    const label = document.createElement("label");
+    label.className = "captureROICheck";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+
+    checkbox.checked = roi.id === activeROI;
+
+    if (checkbox.checked) {
+      captureROIIds.add(roi.id);
+      label.classList.add("selected");
+    }
+
+    checkbox.onchange = () => {
+      if (checkbox.checked) {
+        captureROIIds.add(roi.id);
+        label.classList.add("selected");
+      } else {
+        captureROIIds.delete(roi.id);
+        label.classList.remove("selected");
+      }
+    };
+
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(roi.name));
+
+    captureROIPicker.appendChild(label);
+  });
 }
 
 function updateWorkflowUI() {
@@ -772,6 +845,7 @@ document.getElementById("addROI").onclick = () => {
   activeROI = roi.id;
 
   renderROIList();
+  renderCaptureROIPicker();
   drawROIOverlay();
   renderIdentifierInfo();
   updateSelectedScreenName();
@@ -808,6 +882,7 @@ function renderROIList() {
       if (name !== null) {
         r.name = name.trim() || r.name;
         renderROIList();
+        renderCaptureROIPicker();
       }
     };
 
@@ -826,6 +901,7 @@ function renderROIList() {
       }
 
       renderROIList();
+      renderCaptureROIPicker();
       drawROIOverlay();
       renderIdentifierInfo();
       updateSelectedScreenName();
@@ -835,6 +911,7 @@ function renderROIList() {
     div.onclick = () => {
       activeROI = r.id;
       renderROIList();
+      renderCaptureROIPicker();
       drawROIOverlay();
       renderIdentifierInfo();
       updateSelectedScreenName();
@@ -884,6 +961,7 @@ function renderROIList() {
     top.appendChild(del);
 
     bottom.appendChild(select);
+    //bottom.appendChild(captureLabel);
 
     div.appendChild(top);
     div.appendChild(bottom);
@@ -905,6 +983,7 @@ addTilesetButton.onclick = () => {
 
   renderTilesets();
   renderROIList();
+  renderCaptureROIPicker();
 };
 
 sendToTilesetButton.onclick = () => {
@@ -945,11 +1024,6 @@ sendToTilesetButton.onclick = () => {
     tilesets.push(tileset);
   }
 
-  if (tilesets.some((t) => t.name === name.trim())) {
-    alert("Tileset names must be unique.");
-    return;
-  }
-
   tileset.tiles.push(
     ...tiles.map((tile) => ({
       pixels: tile.pixels,
@@ -962,12 +1036,18 @@ sendToTilesetButton.onclick = () => {
 
   renderTilesets();
   renderROIList();
+  renderCaptureROIPicker();
 };
 
 // Tile capture
 //--------------------------------
 
 toggleCapture.onclick = () => {
+  if (!capturing && captureROIIds.size === 0) {
+    alert("Select at least one ROI to search.");
+    return;
+  }
+
   capturing = !capturing;
   updateCaptureUI();
 };
@@ -1001,7 +1081,11 @@ function updateCaptureUI() {
 setInterval(() => {
   if (!capturing) return;
 
-  getActiveScreenROIs().forEach((r) => {
+  const selectedROIs = getActiveScreenROIs().filter((r) =>
+    captureROIIds.has(r.id),
+  );
+
+  selectedROIs.forEach((r) => {
     r.tiles.forEach((id) => {
       let [x, y] = id.split(",");
 
@@ -1602,3 +1686,4 @@ updateCaptureUI();
 updateSelectedScreenName();
 renderTilesets();
 updateWorkflowUI();
+renderCaptureROIPicker();

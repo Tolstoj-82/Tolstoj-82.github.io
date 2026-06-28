@@ -483,6 +483,54 @@ button:hover {
   margin-left: 4px;
 }
 
+.captureROICheck input {
+  margin: 0;
+}
+
+.captureROIPickerRow {
+  flex-basis: 100%;
+  width: 100%;
+  margin-top: var(--gap-md);
+  padding-top: var(--gap-sm);
+}
+
+.captureROIPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+}
+
+.captureROICheck {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 10px;
+  border: 2px solid var(--border-mid);
+  border-radius: 999px;
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+
+  cursor: pointer;
+  user-select: none;
+  font-weight: normal;
+
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.captureROICheck input {
+  display: none;
+}
+
+.captureROICheck:has(input:checked) {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: var(--shade-white);
+}
+
 /* Status */
 
 .statusGood {
