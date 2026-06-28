@@ -35,7 +35,10 @@
               <canvas id="gridCanvas" width="640" height="576"></canvas>
             </div>
 
-            <div id="identifierInfo"></div>
+            <div class="sideInfo">
+              <div id="identifierInfo"></div>
+              <div id="roiReadout"></div>
+            </div>
           </div>
 
           <div class="buttonRow">
@@ -64,6 +67,11 @@
         </section>
       </div>
       <div id="roiPanel">
+        <div class="workflowHeader">
+          <div id="workflowHint" class="workflowHint"></div>
+        </div>
+        <hr />
+
         <h2>Game</h2>
 
         <input id="gameName" type="text" placeholder="Game name..." />

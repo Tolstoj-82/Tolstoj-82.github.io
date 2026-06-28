@@ -9,41 +9,32 @@ const TILES_Y = HEIGHT / TILE;
 const SCALE = 4;
 
 let drawLoopRunning = false;
+let lastOCRValues = {};
+let highlightedIdentifierTile = null;
+let highlightedIdentifierIntensity = 0;
 
 // Elements
 //--------------------------------
 
 const calibrationStatus = document.getElementById("calibrationStatus");
-
 const identifierInfo = document.getElementById("identifierInfo");
-let highlightedIdentifierTile = null;
-let highlightedIdentifierIntensity = 0;
-
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-
 const cameraSelect = document.getElementById("cameraSelect");
-
 const tilesContainer = document.getElementById("tilesContainer");
-
 const roiList = document.getElementById("roiList");
-
 const jsonOutput = document.getElementById("jsonOutput");
-
 const tileCount = document.getElementById("tileCount");
-
 const canvasContainer = document.querySelector(".canvasContainer");
 const toggleCapture = document.getElementById("toggleCapture");
-
 const tileDeleteZone = document.getElementById("tileDeleteZone");
-
 const selectedScreenName = document.getElementById("selectedScreenName");
-
 const tilesetContainer = document.getElementById("tilesetContainer");
 const addTilesetButton = document.getElementById("addTileset");
 const sendToTilesetButton = document.getElementById("sendToTileset");
-
+const workflowHint = document.getElementById("workflowHint");
+const roiReadout = document.getElementById("roiReadout");
 const shadeBoxes = [
   document.getElementById("shade0"),
   document.getElementById("shade1"),
@@ -76,6 +67,7 @@ document.getElementById("addScreen").onclick = () => {
   renderROIList();
   drawROIOverlay();
   updateSelectedScreenName();
+  updateWorkflowUI();
 };
 
 function updateSelectedScreenName() {
@@ -84,6 +76,31 @@ function updateSelectedScreenName() {
   selectedScreenName.textContent = screen
     ? `Selected: ${screen.name}`
     : "No screen selected";
+}
+
+function updateWorkflowHint() {
+  const hasScreen = !!getActiveScreen();
+  const hasROIs = hasScreen && getActiveScreen().rois.length > 0;
+
+  let message = "";
+
+  if (!cameraReady) {
+    message = "Start the capture.";
+  } else if (!calibrated) {
+    message = "Choose GB capture then calibrate.";
+  } else if (!hasScreen) {
+    message = "Create a screen.";
+  } else if (getActiveScreen().identifiers.length === 0) {
+    message = "Add at least one identifier tile.";
+  } else if (!hasROIs) {
+    message = "Add at least one ROI.";
+  } else if (uniqueTiles.size === 0) {
+    message = "Start capturing tiles.";
+  } else {
+    message = "OK!";
+  }
+
+  workflowHint.textContent = message;
 }
 
 function renderScreenList() {
@@ -114,7 +131,9 @@ function renderScreenList() {
       renderScreenList();
       renderROIList();
       drawROIOverlay();
+      renderIdentifierInfo();
       updateSelectedScreenName();
+      updateWorkflowUI();
     };
 
     div.appendChild(name);
@@ -137,6 +156,72 @@ let calibrated = false;
 let palette = [240, 160, 80, 0];
 let lut = [null, null, null, null];
 let applyLUT = false;
+let cameraReady = false;
+
+function setDisabledReason(button, reason) {
+  button.title = reason || "";
+}
+
+function updateWorkflowUI() {
+  const hasScreen = !!getActiveScreen();
+  const hasROIs = hasScreen && getActiveScreen().rois.length > 0;
+
+  const calibrateButton = document.getElementById("calibrateButton");
+  const addScreenButton = document.getElementById("addScreen");
+  const identifierButton = document.getElementById("identifierMode");
+  const addROIButton = document.getElementById("addROI");
+
+  calibrateButton.disabled = !cameraReady;
+  setDisabledReason(
+    calibrateButton,
+    cameraReady ? "" : "Start the camera first.",
+  );
+
+  addScreenButton.disabled = !calibrated;
+  setDisabledReason(
+    addScreenButton,
+    calibrated ? "" : "Calibrate the image first.",
+  );
+
+  identifierButton.disabled = !calibrated || !hasScreen;
+  setDisabledReason(
+    identifierButton,
+    !calibrated
+      ? "Calibrate the image first."
+      : !hasScreen
+        ? "Create a screen first."
+        : "",
+  );
+
+  addROIButton.disabled = !calibrated || !hasScreen;
+  setDisabledReason(
+    addROIButton,
+    !calibrated
+      ? "Calibrate the image first."
+      : !hasScreen
+        ? "Create a screen first."
+        : "",
+  );
+
+  toggleCapture.disabled = !hasROIs;
+  setDisabledReason(
+    toggleCapture,
+    hasROIs ? "" : "Create at least one ROI first.",
+  );
+
+  addTilesetButton.disabled = !hasROIs;
+  setDisabledReason(
+    addTilesetButton,
+    hasROIs ? "" : "Capture tiles before creating tilesets.",
+  );
+
+  sendToTilesetButton.disabled = !hasROIs;
+  setDisabledReason(
+    sendToTilesetButton,
+    hasROIs ? "" : "Create at least one ROI first.",
+  );
+  updateWorkflowHint();
+}
 
 let quantized = new Array(WIDTH * HEIGHT).fill(0);
 
@@ -254,6 +339,9 @@ async function startCamera() {
   video.srcObject = stream;
 
   video.onloadedmetadata = () => {
+    cameraReady = true;
+    updateWorkflowUI();
+
     if (!drawLoopRunning) {
       drawLoopRunning = true;
       drawLoop();
@@ -270,6 +358,8 @@ function drawLoop() {
   let frame = ctx.getImageData(0, 0, WIDTH, HEIGHT);
 
   processFrame(frame);
+  renderIdentifierInfo();
+  renderROIReadout();
 
   requestAnimationFrame(drawLoop);
 }
@@ -294,6 +384,7 @@ document.getElementById("calibrateButton").onclick = () => {
 
   calibrated = true;
   updatePalette();
+  updateWorkflowUI();
 };
 
 // Find 4 histogram peaks
@@ -430,18 +521,44 @@ function renderIdentifierInfo() {
 
   identifierInfo.innerHTML = "";
 
-  if (!screen || screen.identifiers.length === 0) {
-    identifierInfo.textContent = "No identifier tiles";
+  if (!screen) {
+    identifierInfo.textContent = "No screen selected";
+    identifierInfo.classList.remove("valid");
+    return;
+  }
+
+  const title = document.createElement("div");
+  title.className = "identifierInfoTitle";
+
+  const allVisible =
+    screen.identifiers.length > 0 &&
+    screen.identifiers.every((identifier) => isIdentifierVisible(identifier));
+
+  title.innerHTML = allVisible
+    ? `${screen.name} <span class="screenOk">✓</span>`
+    : screen.name;
+
+  identifierInfo.classList.toggle("valid", allVisible);
+
+  identifierInfo.appendChild(title);
+
+  if (screen.identifiers.length === 0) {
+    const empty = document.createElement("div");
+    empty.textContent = "No identifier tiles";
+    identifierInfo.appendChild(empty);
     return;
   }
 
   screen.identifiers.forEach((identifier, index) => {
+    const visible = isIdentifierVisible(identifier);
+
     const row = document.createElement("div");
     row.className = "identifierInfoItem";
+    row.classList.toggle("valid", visible);
 
     const label = document.createElement("div");
     label.className = "identifierInfoLabel";
-    label.textContent = `${String.fromCharCode(65 + index)}:`;
+    label.textContent = `(${identifier.tile})`;
 
     const card = createTileCard({
       pixels: identifier.pixels,
@@ -453,14 +570,10 @@ function renderIdentifierInfo() {
 
     card.addEventListener("mouseenter", () => {
       highlightedIdentifierTile = identifier.tile;
-
-      //let highlightedIdentifierIntensity = 0;
-      highlightedIdentifierTile = identifier.tile;
       highlightedIdentifierIntensity = 1;
 
       const animate = () => {
         highlightedIdentifierIntensity *= 0.92;
-
         drawROIOverlay();
 
         if (highlightedIdentifierIntensity > 0.05) {
@@ -535,6 +648,7 @@ gridCanvas.addEventListener("mousedown", (e) => {
       renderScreenList();
       drawROIOverlay();
       renderIdentifierInfo();
+      updateWorkflowUI();
     }
 
     return;
@@ -577,6 +691,7 @@ function addIdentifierTile(key) {
   renderScreenList();
   drawROIOverlay();
   renderIdentifierInfo();
+  updateWorkflowUI();
 }
 
 const identifierModeButton = document.getElementById("identifierMode");
@@ -617,6 +732,7 @@ function applyROITileSelection(key) {
   drawROIOverlay();
   renderIdentifierInfo();
   updateSelectedScreenName();
+  updateWorkflowUI();
 }
 
 function getTileKeyFromMouse(e) {
@@ -659,6 +775,7 @@ document.getElementById("addROI").onclick = () => {
   drawROIOverlay();
   renderIdentifierInfo();
   updateSelectedScreenName();
+  updateWorkflowUI();
 };
 
 function renderROIList() {
@@ -712,6 +829,7 @@ function renderROIList() {
       drawROIOverlay();
       renderIdentifierInfo();
       updateSelectedScreenName();
+      updateWorkflowUI();
     };
 
     div.onclick = () => {
@@ -720,6 +838,7 @@ function renderROIList() {
       drawROIOverlay();
       renderIdentifierInfo();
       updateSelectedScreenName();
+      updateWorkflowUI();
     };
 
     const select = document.createElement("select");
@@ -740,11 +859,14 @@ function renderROIList() {
     });
 
     select.value = r.tilesetId || "";
+    select.classList.toggle("missingTileset", !r.tilesetId);
 
     select.onchange = (e) => {
       e.stopPropagation();
 
       r.tilesetId = Number(e.target.value) || null;
+
+      select.classList.toggle("missingTileset", !r.tilesetId);
     };
 
     select.onclick = (e) => {
@@ -788,7 +910,10 @@ addTilesetButton.onclick = () => {
 sendToTilesetButton.onclick = () => {
   const tiles = [...uniqueTiles.values()];
 
-  if (tiles.length === 0) return;
+  if (tiles.length === 0) {
+    alert("No captured tiles available yet.");
+    return;
+  }
 
   const existingNames = tilesets
     .map((t, i) => `${i + 1}: ${t.name}`)
@@ -804,13 +929,25 @@ sendToTilesetButton.onclick = () => {
   let tileset = tilesets[Number(choice) - 1];
 
   if (!tileset) {
+    const newName = choice.trim() || "New Tileset";
+
+    if (tilesets.some((t) => t.name === newName)) {
+      alert("Tileset names must be unique.");
+      return;
+    }
+
     tileset = {
       id: Date.now(),
-      name: choice.trim() || "New Tileset",
+      name: newName,
       tiles: [],
     };
 
     tilesets.push(tileset);
+  }
+
+  if (tilesets.some((t) => t.name === name.trim())) {
+    alert("Tileset names must be unique.");
+    return;
   }
 
   tileset.tiles.push(
@@ -897,6 +1034,88 @@ function getTile(tx, ty) {
   }
 
   return arr;
+}
+
+function tilesEqual(a, b) {
+  return a.length === b.length && a.every((value, i) => value === b[i]);
+}
+
+function isCurrentScreenVisible() {
+  const screen = getActiveScreen();
+
+  return (
+    screen &&
+    screen.identifiers.length > 0 &&
+    screen.identifiers.every((identifier) => isIdentifierVisible(identifier))
+  );
+}
+
+function findTileLabelInTileset(pixels, tileset) {
+  const match = tileset.tiles.find((tile) => tilesEqual(tile.pixels, pixels));
+
+  return match ? match.label : null;
+}
+
+function isIdentifierVisible(identifier) {
+  const [x, y] = identifier.tile.split(",").map(Number);
+  const currentPixels = getTile(x, y);
+
+  return tilesEqual(currentPixels, identifier.pixels);
+}
+
+function renderROIReadout() {
+  const screen = getActiveScreen();
+
+  roiReadout.innerHTML = "";
+
+  if (!screen) {
+    roiReadout.textContent = "No screen selected";
+    return;
+  }
+
+  const title = document.createElement("div");
+  title.className = "roiReadoutTitle";
+  title.textContent = "Live OCR";
+
+  roiReadout.appendChild(title);
+
+  const screenVisible = isCurrentScreenVisible();
+
+  screen.rois.forEach((roi) => {
+    const row = document.createElement("div");
+    row.className = "roiReadoutItem";
+
+    const label = document.createElement("strong");
+    label.textContent = `${roi.name}: `;
+
+    const value = document.createElement("span");
+
+    const tileset = tilesets.find((t) => t.id === roi.tilesetId);
+
+    if (!tileset) {
+      value.textContent = "--";
+    } else if (screenVisible) {
+      const found = [...roi.tiles]
+        .map((key) => {
+          const [x, y] = key.split(",").map(Number);
+          return findTileLabelInTileset(getTile(x, y), tileset);
+        })
+        .filter((label) => label !== null && label !== "")
+        .join("");
+
+      if (found !== "") {
+        lastOCRValues[roi.id] = found;
+      }
+
+      value.textContent = lastOCRValues[roi.id] || "--";
+    } else {
+      value.textContent = lastOCRValues[roi.id] || "--";
+    }
+
+    row.appendChild(label);
+    row.appendChild(value);
+    roiReadout.appendChild(row);
+  });
 }
 
 // Tile display
@@ -1305,7 +1524,6 @@ document.getElementById("exportJSON").onclick = () => {
     palette,
 
     tilesets: tilesets.map((tileset) => ({
-      id: tileset.id,
       name: tileset.name,
       tiles: tileset.tiles,
     })),
@@ -1321,12 +1539,21 @@ document.getElementById("exportJSON").onclick = () => {
       rois: screen.rois.map((r) => ({
         name: r.name,
         tiles: [...r.tiles],
-        tileset: r.tilesetId || null,
+        tileset:
+          tilesets.find((tileset) => tileset.id === r.tilesetId)?.name || null,
       })),
     })),
   };
 
-  jsonOutput.value = JSON.stringify(data, null, 2);
+  let json = JSON.stringify(data, null, 2);
+
+  // Keep all pixel arrays on one line.
+  json = json.replace(
+    /"pixels":\s*\[\s*([\d,\s]+?)\s*\]/gs,
+    (_, values) => `"pixels": [${values.replace(/\s+/g, " ").trim()}]`,
+  );
+
+  jsonOutput.value = json;
 };
 
 // Init
@@ -1374,3 +1601,4 @@ updatePalette();
 updateCaptureUI();
 updateSelectedScreenName();
 renderTilesets();
+updateWorkflowUI();
