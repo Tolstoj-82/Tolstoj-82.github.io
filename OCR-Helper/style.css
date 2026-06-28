@@ -531,6 +531,10 @@ button:hover {
   color: var(--shade-white);
 }
 
+.tileset > select {
+  margin: var(--gap-md) 0 var(--gap-lg);
+}
+
 /* Status */
 
 .statusGood {

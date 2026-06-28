@@ -81,33 +81,6 @@ function updateSelectedScreenName() {
     : "No screen selected";
 }
 
-/*function chooseCaptureROIs() {
-  const rois = getActiveScreenROIs();
-
-  const list = rois.map((roi, index) => `${index + 1}: ${roi.name}`).join("\n");
-
-  const choice = prompt(
-    `Which ROIs should be searched for tiles?\n\n${list}\n\nEnter numbers separated by comma, or leave empty for all:`,
-    "",
-  );
-
-  if (choice === null) return false;
-
-  if (choice.trim() === "") {
-    captureROIIds = new Set(rois.map((roi) => roi.id));
-    return true;
-  }
-
-  const selectedIndexes = choice
-    .split(",")
-    .map((v) => Number(v.trim()) - 1)
-    .filter((index) => index >= 0 && index < rois.length);
-
-  captureROIIds = new Set(selectedIndexes.map((index) => rois[index].id));
-
-  return captureROIIds.size > 0;
-}*/
-
 function updateWorkflowHint() {
   const hasScreen = !!getActiveScreen();
   const hasROIs = hasScreen && getActiveScreen().rois.length > 0;
@@ -316,19 +289,40 @@ let captureBlink = false;
 let captureBlinkTimer = null;
 
 const roiColors = [
-  "rgb(255,140,0)",
-  "rgb(0,150,255)",
-  "rgb(0,255,100)",
-  "rgb(255,0,150)",
-  "rgb(255,255,0)",
+  "rgb(255, 99, 71)",
+  "rgb(30, 144, 255)",
+  "rgb(50, 205, 50)",
+  "rgb(255, 0, 255)",
+  "rgb(255, 215, 0)",
+  "rgb(255, 140, 0)",
+  "rgb(0, 206, 209)",
+  "rgb(186, 85, 211)",
+  "rgb(220, 20, 60)",
+  "rgb(127, 255, 0)",
+  "rgb(0, 191, 255)",
+  "rgb(255, 105, 180)",
 ];
 
 const screenColors = [
-  "rgb(47,140,255)",
-  "rgb(120,90,255)",
-  "rgb(0,170,120)",
-  "rgb(255,150,0)",
-  "rgb(220,70,120)",
+  "rgb(100, 149, 237)",
+  "rgb(147, 112, 219)",
+  "rgb(60, 179, 113)",
+  "rgb(255, 165, 0)",
+  "rgb(219, 112, 147)",
+  "rgb(70, 130, 180)",
+  "rgb(72, 209, 204)",
+  "rgb(205, 133, 63)",
+  "rgb(188, 143, 143)",
+  "rgb(154, 205, 50)",
+  "rgb(123, 104, 238)",
+  "rgb(95, 158, 160)",
+];
+
+const tilesetTypes = [
+  { value: "integer", label: "Number" },
+  { value: "text", label: "Text" },
+  { value: "counter", label: "Counter (e.g. hearts)" },
+  { value: "tokens", label: "Labels" },
 ];
 
 function roiOverlayColor(color) {
@@ -961,7 +955,6 @@ function renderROIList() {
     top.appendChild(del);
 
     bottom.appendChild(select);
-    //bottom.appendChild(captureLabel);
 
     div.appendChild(top);
     div.appendChild(bottom);
@@ -978,6 +971,7 @@ addTilesetButton.onclick = () => {
   tilesets.push({
     id: Date.now(),
     name: name.trim() || "New Tileset",
+    type: "integer",
     tiles: [],
   });
 
@@ -1018,6 +1012,7 @@ sendToTilesetButton.onclick = () => {
     tileset = {
       id: Date.now(),
       name: newName,
+      type: "integer",
       tiles: [],
     };
 
@@ -1134,6 +1129,34 @@ function isCurrentScreenVisible() {
   );
 }
 
+function formatROIValue(labels, type) {
+  if (labels.length === 0) return "--";
+
+  switch (type) {
+    case "integer": {
+      return labels.join("").replace(/^0+/, "") || "0";
+    }
+
+    case "text": {
+      return labels.join("");
+    }
+
+    case "counter": {
+      return String(
+        labels.reduce((sum, label) => sum + (parseInt(label, 10) || 0), 0),
+      );
+    }
+
+    case "tokens": {
+      return labels.join(", ");
+    }
+
+    default: {
+      return labels.join("");
+    }
+  }
+}
+
 function findTileLabelInTileset(pixels, tileset) {
   const match = tileset.tiles.find((tile) => tilesEqual(tile.pixels, pixels));
 
@@ -1179,15 +1202,16 @@ function renderROIReadout() {
     if (!tileset) {
       value.textContent = "--";
     } else if (screenVisible) {
-      const found = [...roi.tiles]
+      const labels = [...roi.tiles]
         .map((key) => {
           const [x, y] = key.split(",").map(Number);
           return findTileLabelInTileset(getTile(x, y), tileset);
         })
-        .filter((label) => label !== null && label !== "")
-        .join("");
+        .filter((label) => label !== null && label !== "");
 
-      if (found !== "") {
+      const found = formatROIValue(labels, tileset.type || "integer");
+
+      if (found !== "--") {
         lastOCRValues[roi.id] = found;
       }
 
@@ -1263,15 +1287,44 @@ function renderTiles() {
 }
 
 function renderTilesets() {
+  const openStates = new Map();
+
+  tilesetContainer.querySelectorAll(".tileset").forEach((details) => {
+    openStates.set(Number(details.dataset.tilesetId), details.open);
+  });
+
   tilesetContainer.innerHTML = "";
 
   tilesets.forEach((tileset) => {
     const details = document.createElement("details");
-    details.open = true;
     details.className = "tileset";
+    details.dataset.tilesetId = tileset.id;
+    details.open = openStates.has(tileset.id)
+      ? openStates.get(tileset.id)
+      : true;
 
     const summary = document.createElement("summary");
     summary.textContent = `${tileset.name} • ${tileset.tiles.length} tile${tileset.tiles.length === 1 ? "" : "s"}`;
+
+    const typeSelect = document.createElement("select");
+
+    tilesetTypes.forEach((type) => {
+      const option = document.createElement("option");
+      option.value = type.value;
+      option.textContent = type.label;
+      typeSelect.appendChild(option);
+    });
+
+    typeSelect.value = tileset.type || "integer";
+
+    typeSelect.onchange = (e) => {
+      e.stopPropagation();
+      tileset.type = typeSelect.value;
+    };
+
+    typeSelect.onclick = (e) => {
+      e.stopPropagation();
+    };
 
     const list = document.createElement("div");
     list.dataset.tileset = tileset.id;
@@ -1327,6 +1380,7 @@ function renderTilesets() {
     });
 
     details.appendChild(summary);
+    details.appendChild(typeSelect);
     details.appendChild(list);
 
     tilesetContainer.appendChild(details);
@@ -1609,6 +1663,7 @@ document.getElementById("exportJSON").onclick = () => {
 
     tilesets: tilesets.map((tileset) => ({
       name: tileset.name,
+      type: tileset.type || "integer",
       tiles: tileset.tiles,
     })),
 
