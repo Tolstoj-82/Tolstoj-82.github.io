@@ -833,6 +833,67 @@ button:disabled:hover {
   font-weight: bold;
 }
 
+.autoDetectToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: var(--gap-md);
+
+  cursor: pointer;
+  user-select: none;
+
+  font-weight: normal;
+}
+
+.autoDetectToggle input {
+  display: none;
+}
+
+.autoDetectToggle .slider {
+  position: relative;
+
+  width: 46px;
+  height: 24px;
+
+  background: #bbb;
+  border-radius: 999px;
+
+  transition: background 0.2s ease;
+}
+
+.autoDetectToggle .slider::before {
+  content: "";
+
+  position: absolute;
+  left: 3px;
+  top: 3px;
+
+  width: 18px;
+  height: 18px;
+
+  background: white;
+  border-radius: 50%;
+
+  transition: transform 0.2s ease;
+}
+
+.autoDetectToggle input:checked + .slider {
+  background: var(--accent-blue);
+}
+
+.autoDetectToggle input:checked + .slider::before {
+  transform: translateX(22px);
+}
+
+.autoDetectToggle input:disabled + .slider {
+  opacity: 0.4;
+}
+
+.autoDetectToggle input:disabled + .slider + span {
+  opacity: 0.5;
+}
+
 /* Mobile */
 
 @media (max-width: 900px) {

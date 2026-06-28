@@ -16,7 +16,7 @@ let captureROIIds = new Set();
 
 // Elements
 //--------------------------------
-
+const autoDetectScreens = document.getElementById("autoDetectScreens");
 const calibrationStatus = document.getElementById("calibrationStatus");
 const identifierInfo = document.getElementById("identifierInfo");
 const video = document.getElementById("video");
@@ -153,11 +153,43 @@ document.getElementById("identifierMode").onclick = () => {
   selectionMode = "identifier";
 };
 
+autoDetectScreens.onchange = () => {
+  autoDetectEnabled = autoDetectScreens.checked;
+};
+
+function screenMatchesLiveImage(screen) {
+  return (
+    screen.identifiers.length > 0 &&
+    screen.identifiers.every((identifier) => isIdentifierVisible(identifier))
+  );
+}
+
+function autoDetectScreen() {
+  if (!autoDetectEnabled) return;
+  if (game.screens.length < 2) return;
+
+  const match = game.screens.find((screen) => screenMatchesLiveImage(screen));
+
+  if (!match || match.id === activeScreenId) return;
+
+  activeScreenId = match.id;
+  activeROI = match.rois[0]?.id || null;
+
+  renderScreenList();
+  renderROIList();
+  renderCaptureROIPicker();
+  renderIdentifierInfo();
+  renderROIReadout();
+  drawROIOverlay();
+  updateSelectedScreenName();
+  updateWorkflowUI();
+}
+
 // State
 //--------------------------------
 
 let stream = null;
-
+let autoDetectEnabled = false;
 let calibrated = false;
 let palette = [240, 160, 80, 0];
 let lut = [null, null, null, null];
@@ -273,6 +305,13 @@ function updateWorkflowUI() {
   const hasUsableTileset = tilesets.some((t) => t.tiles.length > 0);
 
   workflowHeader.classList.toggle("hidden", hasUsableTileset);
+
+  autoDetectScreens.disabled = game.screens.length < 2;
+
+  if (game.screens.length < 2) {
+    autoDetectScreens.checked = false;
+    autoDetectEnabled = false;
+  }
 }
 
 let quantized = new Array(WIDTH * HEIGHT).fill(0);
@@ -431,6 +470,7 @@ function drawLoop() {
   let frame = ctx.getImageData(0, 0, WIDTH, HEIGHT);
 
   processFrame(frame);
+  autoDetectScreen();
   renderIdentifierInfo();
   renderROIReadout();
 
