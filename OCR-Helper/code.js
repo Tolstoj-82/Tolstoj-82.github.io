@@ -1708,6 +1708,27 @@ document.getElementById("exportJSON").onclick = () => {
   jsonOutput.value = json;
 };
 
+// Download
+document.getElementById("downloadJSON").onclick = () => {
+  document.getElementById("exportJSON").click();
+
+  const blob = new Blob([jsonOutput.value], {
+    type: "application/json",
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${game.name || "ocr-helper"}.json`;
+
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
 // Import
 importJSONButton.onclick = () => {
   importJSONFile.click();
