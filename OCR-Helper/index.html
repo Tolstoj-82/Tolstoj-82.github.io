@@ -106,7 +106,7 @@
         <h2>Search for Tiles</h2>
 
         <div class="buttonRow">
-          <button id="toggleCapture">▶️</button>
+          <button id="toggleCapture">▶</button>
 
           <span>
             Unique Tiles:
@@ -116,7 +116,7 @@
           <button id="addTileset">+ Tileset</button>
           <button id="sendToTileset">» Tileset</button>
 
-          <div id="tileDeleteZone">🗑️ Drop tile here to delete</div>
+          <div id="tileDeleteZone">Drop tile here to delete</div>
           <div class="captureROIPickerRow">
             <div id="captureROIPicker" class="captureROIPicker"></div>
           </div>
@@ -137,8 +137,16 @@
 
         <div class="buttonRow">
           <button id="exportJSON">Export JSON</button>
-
           <button id="downloadJSON">Download JSON</button>
+          <!-- Import -->
+          <button id="importJSON">Import JSON</button>
+
+          <input
+            id="importJSONFile"
+            type="file"
+            accept="application/json"
+            style="display: none"
+          />
         </div>
 
         <textarea id="jsonOutput" rows="18" spellcheck="false"></textarea>
