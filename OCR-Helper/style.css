@@ -719,6 +719,10 @@ button:disabled:hover {
   background: var(--panel-light);
 }
 
+.workflowHeader.hidden {
+  display: none;
+}
+
 .workflowHint {
   min-height: 56px;
 

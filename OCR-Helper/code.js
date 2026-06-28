@@ -216,6 +216,7 @@ function updateWorkflowUI() {
   const addScreenButton = document.getElementById("addScreen");
   const identifierButton = document.getElementById("identifierMode");
   const addROIButton = document.getElementById("addROI");
+  const workflowHeader = document.querySelector(".workflowHeader");
 
   calibrateButton.disabled = !cameraReady;
   setDisabledReason(
@@ -267,6 +268,9 @@ function updateWorkflowUI() {
     hasROIs ? "" : "Create at least one ROI first.",
   );
   updateWorkflowHint();
+  const hasUsableTileset = tilesets.some((t) => t.tiles.length > 0);
+
+  workflowHeader.classList.toggle("hidden", hasUsableTileset);
 }
 
 let quantized = new Array(WIDTH * HEIGHT).fill(0);
@@ -1032,6 +1036,7 @@ sendToTilesetButton.onclick = () => {
   renderTilesets();
   renderROIList();
   renderCaptureROIPicker();
+  updateWorkflowUI();
 };
 
 // Tile capture
@@ -1353,6 +1358,7 @@ function renderTilesets() {
 
       renderTilesets();
       renderTiles();
+      updateWorkflowUI();
     });
 
     list.className = "tilesetTiles";
@@ -1414,6 +1420,7 @@ tileDeleteZone.addEventListener("drop", (e) => {
       tileDeleteZone.classList.remove("visible", "drag-over");
 
       renderTilesets();
+      updateWorkflowUI();
       return;
     }
   }
@@ -1569,9 +1576,12 @@ function addTilesetTileDragHandlers(card) {
     moveTileToTileset(data, targetTilesetId, targetIndex, insertAfter);
 
     renderTilesets();
+    updateWorkflowUI();
   });
 
-  card.addEventListener("dblclick", () => {
+  card.addEventListener("dblclick", (e) => {
+    if (e.target.tagName === "INPUT") return;
+
     const tileset = tilesets.find(
       (t) => t.id === Number(card.dataset.tilesetId),
     );
@@ -1587,6 +1597,7 @@ function addTilesetTileDragHandlers(card) {
     tileset.tiles.splice(index, 1);
 
     renderTilesets();
+    updateWorkflowUI();
   });
 }
 
