@@ -130,6 +130,10 @@ function renderScreenList() {
     count.textContent = `IDs: ${screen.identifiers.length}`;
 
     div.onclick = () => {
+      // Manual selection disables auto detection
+      autoDetectEnabled = false;
+      autoDetectScreens.checked = false;
+
       activeScreenId = screen.id;
       activeROI = null;
 
