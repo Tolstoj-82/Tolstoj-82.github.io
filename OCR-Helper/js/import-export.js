@@ -155,6 +155,7 @@ function importProject(data) {
 
   //updatePalette();
   renderScreenList();
+  updateScreenSetupTitle();
   renderROIList();
   renderCaptureROIPicker();
   renderIdentifierInfo();

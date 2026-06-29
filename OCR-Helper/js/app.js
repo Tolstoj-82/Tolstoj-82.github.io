@@ -22,6 +22,7 @@ renderTilesets();
 updateWorkflowUI();
 renderCaptureROIPicker();
 renderSavedGameList();
+updateScreenSetupTitle();
 
 document.querySelectorAll(".lutBox").forEach((box) => {
   box.style.width = "40px";

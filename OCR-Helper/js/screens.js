@@ -22,6 +22,7 @@ document.getElementById("addScreen").onclick = () => {
   activeROI = null;
 
   renderScreenList();
+  updateScreenSetupTitle();
   renderROIList();
   renderCaptureROIPicker();
   drawROIOverlay();
@@ -29,8 +30,8 @@ document.getElementById("addScreen").onclick = () => {
 };
 
 function updateScreenSetupTitle() {
-  const title = document.getElementById("screenSetupTitle");
   const screen = getActiveScreen();
+  const title = document.getElementById("screenSetupTitle");
 
   title.textContent = screen ? screen.name : "Screen Setup";
 }
@@ -64,6 +65,7 @@ function renderScreenList() {
       activeROI = null;
 
       renderScreenList();
+      updateScreenSetupTitle();
       renderROIList();
       renderCaptureROIPicker();
       drawROIOverlay();
@@ -98,6 +100,7 @@ function autoDetectScreen() {
   activeROI = match.rois[0]?.id || null;
 
   renderScreenList();
+  updateScreenSetupTitle();
   renderROIList();
   renderCaptureROIPicker();
   renderIdentifierInfo();

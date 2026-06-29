@@ -135,6 +135,7 @@ gridCanvas.addEventListener("mousedown", (e) => {
       screen.identifiers = screen.identifiers.filter((id) => id.tile !== key);
 
       renderScreenList();
+      updateScreenSetupTitle();
       drawROIOverlay();
       renderIdentifierInfo();
       updateWorkflowUI();
@@ -178,6 +179,7 @@ function addIdentifierTile(key) {
   identifierModeButton.textContent = "Add Identifier Tile";
 
   renderScreenList();
+  updateScreenSetupTitle();
   drawROIOverlay();
   renderIdentifierInfo();
   updateWorkflowUI();
