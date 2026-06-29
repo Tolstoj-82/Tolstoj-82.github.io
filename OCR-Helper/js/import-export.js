@@ -10,7 +10,6 @@ function updateJSONOutput() {
 
   const data = {
     game: game.name,
-    palette,
 
     tilesets: tilesets.map((tileset) => ({
       name: tileset.name,
@@ -103,7 +102,7 @@ function importProject(data) {
     return;
   }
 
-  palette = Array.isArray(data.palette) ? data.palette : palette;
+  //palette = Array.isArray(data.palette) ? data.palette : palette;
   game.name = data.game || "";
 
   document.getElementById("gameName").value = game.name;
@@ -154,7 +153,7 @@ function importProject(data) {
   captureROIIds.clear();
   lastOCRValues = {};
 
-  updatePalette();
+  //updatePalette();
   renderScreenList();
   renderROIList();
   renderCaptureROIPicker();
@@ -164,6 +163,10 @@ function importProject(data) {
   renderTilesets();
   drawROIOverlay();
   updateWorkflowUI();
+
+  alert(
+    "Project loaded. Calibration may be needed again for the current capture.",
+  );
 
   jsonOutput.value = JSON.stringify(data, null, 2);
 }

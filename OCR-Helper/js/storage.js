@@ -106,10 +106,10 @@ deleteSavedGameButton.onclick = deleteGameFromLocalStorage;
 savedGameSelect.onchange = updateStorageButtons;
 
 function updateStorageButtons() {
-  const hasGameName = game.name.trim() !== "";
+  const canSaveGame = game.name.trim() !== "" && game.screens.length > 0;
   const hasSelectedSavedGame = savedGameSelect.value !== "";
 
-  saveGameLocalButton.disabled = !hasGameName;
+  saveGameLocalButton.disabled = !canSaveGame;
   loadSavedGameButton.disabled = !hasSelectedSavedGame;
   deleteSavedGameButton.disabled = !hasSelectedSavedGame;
 }
