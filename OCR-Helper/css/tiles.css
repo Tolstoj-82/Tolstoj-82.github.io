@@ -1,0 +1,145 @@
+/* Tile gallery */
+
+#tilesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-lg);
+  min-height: 120px;
+}
+
+.tileCard {
+  width: 96px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-sm);
+  user-select: none;
+  cursor: grab;
+  background: var(--panel-light);
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.tileCard:active {
+  cursor: grabbing;
+}
+
+.tileCard:hover {
+  transform: translateY(-3px);
+  background: var(--tile-hover-bg);
+}
+
+.tileCard.dragging {
+  opacity: 0.35;
+  transform: scale(0.96);
+  cursor: grabbing;
+}
+
+.tileCard.drag-over {
+  transform: translateY(-4px);
+  border-color: var(--border-light);
+}
+
+.tileCard.drop-after {
+  box-shadow: 8px 0 0 var(--text-green);
+}
+
+.tileCard.drop-before {
+  box-shadow: -8px 0 0 var(--text-green);
+}
+
+.tileCanvas {
+  width: var(--tile-preview-size);
+  height: var(--tile-preview-size);
+
+  padding: 4px;
+
+  background: var(--panel-light);
+
+  border: 2px solid var(--border-mid);
+  border-radius: 4px;
+
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.tileCard input {
+  width: 100%;
+  padding: 4px 6px;
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+
+  border: 2px solid var(--border-mid);
+  border-radius: 4px;
+
+  text-align: center;
+}
+
+.tileCard input::placeholder {
+  color: #999;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+.tileCard input:focus::placeholder {
+  opacity: 0;
+}
+
+.tileCard input:not(:placeholder-shown) {
+  background: var(--panel-light);
+}
+
+.tileCard input:placeholder-shown {
+  background: var(--input-warning-bg);
+}
+
+.tileCard input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
+.tileButtons {
+  display: flex;
+  gap: var(--gap-sm);
+  width: 100%;
+}
+
+.tileButtons button {
+  flex: 1;
+}
+
+#tileDeleteZone {
+  min-height: 44px;
+  padding: var(--gap-md) var(--gap-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  visibility: hidden;
+  opacity: 0;
+
+  border: 2px dashed var(--text-red);
+  border-radius: var(--radius-small);
+  color: var(--text-red);
+  background: rgba(255, 68, 68, 0.08);
+
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+#tileDeleteZone.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+#tileDeleteZone.drag-over {
+  background: rgba(255, 68, 68, 0.22);
+  transform: scale(1.02);
+}

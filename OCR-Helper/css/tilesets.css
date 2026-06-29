@@ -1,0 +1,31 @@
+.tileset > select {
+  margin: var(--gap-md) 0 var(--gap-lg);
+}
+
+.tileset .tileCard {
+  flex: 0 0 auto;
+}
+
+.tilesetTiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  align-items: flex-start;
+  min-height: 72px;
+  padding: var(--gap-md);
+  border: 2px dashed var(--border-mid);
+  border-radius: var(--radius-small);
+}
+
+.tilesetTiles.drag-over {
+  background: #eef6ff;
+  border-color: var(--accent-blue);
+}
+
+.tilesetEmptyHint {
+  width: 100%;
+  color: var(--border-mid);
+  font-weight: bold;
+  text-align: center;
+  pointer-events: none;
+}

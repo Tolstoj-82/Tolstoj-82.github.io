@@ -1,0 +1,83 @@
+/* Controls */
+
+.row,
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-lg);
+}
+
+label {
+  font-weight: bold;
+}
+
+select,
+button,
+input,
+textarea {
+  font-size: 14px;
+}
+
+button {
+  font-weight: bold;
+}
+
+select,
+input {
+  padding: var(--gap-sm);
+}
+
+/* Buttons */
+
+button {
+  padding: 8px 16px;
+  cursor: pointer;
+
+  background: var(--panel-light);
+  color: var(--accent-blue);
+
+  border: 2px solid var(--accent-blue);
+  border-radius: var(--radius-small);
+}
+
+button:hover {
+  background: var(--accent-blue);
+  color: var(--shade-white);
+}
+
+button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  background: var(--panel-light);
+  color: var(--accent-blue);
+}
+
+#toggleCapture {
+  min-width: 52px;
+  font-size: 20px;
+}
+
+/* Status */
+
+.statusGood {
+  color: var(--text-green);
+}
+
+.statusBad {
+  color: var(--text-red);
+}
+
+.statusWarn {
+  color: var(--text-yellow);
+}
+
+.panel hr {
+  margin: var(--gap-xl) 0;
+  border: 0;
+  border-top: 2px solid var(--border-panel);
+}

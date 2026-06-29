@@ -1,0 +1,166 @@
+/* Camera + canvas */
+
+#video {
+  display: none;
+}
+
+.canvasContainer {
+  position: relative;
+  display: inline-block;
+
+  width: min(var(--canvas-width), 100%);
+  aspect-ratio: 160 / 144;
+  height: auto;
+
+  margin-bottom: var(--gap-xl);
+
+  border: 2px solid var(--border-mid);
+  background: var(--shade-black);
+}
+
+.canvasContainer.capturing {
+  animation: capturePulse 1.2s ease-in-out infinite;
+}
+
+#canvas,
+#roiCanvas,
+#gridCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#canvas,
+#roiCanvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+#gridOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(5% - 1px),
+      rgba(95, 191, 95, 0.6) calc(5% - 1px),
+      rgba(95, 191, 95, 0.6) 5%
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(5.555555% - 1px),
+      rgba(95, 191, 95, 0.6) calc(5.555555% - 1px),
+      rgba(95, 191, 95, 0.6) 5.555555%
+    );
+}
+
+#gridCanvas {
+  z-index: 4;
+  cursor: crosshair;
+  background: transparent;
+}
+
+.canvasContainer:hover #gridOverlay {
+  opacity: 1;
+}
+
+#canvas {
+  z-index: 1;
+}
+
+#roiCanvas {
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Palette */
+
+.calibrationStatus {
+  height: 38px;
+  min-width: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 26px;
+  font-weight: bold;
+  line-height: 1;
+
+  border-radius: var(--radius-small);
+}
+
+.calibrationStatus.bad {
+  color: var(--text-red);
+}
+
+.calibrationStatus.good {
+  color: var(--border-calibrated);
+}
+
+.calibrateRow {
+  align-items: center;
+}
+
+#palette {
+  display: flex;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+.shade {
+  line-height: 0;
+}
+
+.shadeBox {
+  width: 38px;
+  height: 38px;
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+}
+
+.shadeBox.calibrated {
+  border-color: var(--border-calibrated);
+}
+
+#shade0 {
+  background: var(--shade-black);
+}
+
+#shade1 {
+  background: var(--shade-dark);
+}
+
+#shade2 {
+  background: var(--shade-light);
+}
+
+#shade3 {
+  background: var(--shade-white);
+}
+
+/* Animations */
+
+@keyframes capturePulse {
+  0%,
+  100% {
+    border-color: var(--capture-red-dark);
+    box-shadow: 0 0 4px var(--capture-red-dark);
+    background-color: rgba(176, 0, 0, 0.02);
+  }
+
+  50% {
+    border-color: var(--capture-red-light);
+    box-shadow: 0 0 4px var(--capture-red-light);
+    background-color: rgba(255, 64, 64, 0.05);
+  }
+}

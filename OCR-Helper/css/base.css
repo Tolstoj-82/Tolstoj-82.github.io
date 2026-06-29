@@ -1,0 +1,73 @@
+:root {
+  --bg-page: #2b2b2b;
+  --bg-code: #202020;
+
+  --text-main: #f0f0f0;
+  --text-green: #00ff66;
+  --text-red: #ff4444;
+  --text-yellow: #ffcc00;
+
+  --border-light: #fff;
+  --border-mid: #666;
+  --border-panel: #555;
+
+  --shade-black: #000;
+  --shade-dark: #555;
+  --shade-light: #aaa;
+  --shade-white: #fff;
+
+  --radius-panel: 8px;
+  --radius-small: 6px;
+
+  --gap-sm: 6px;
+  --gap-md: 10px;
+  --gap-lg: 15px;
+  --gap-xl: 20px;
+
+  --roi-width: 260px;
+  --sidebar-space: 320px;
+
+  --canvas-width: 640px;
+  --canvas-height: 576px;
+  --tile-preview-size: 64px;
+
+  --capture-red-dark: #b00000;
+  --capture-red-light: #ff4040;
+
+  --accent-blue: #2f8cff;
+  --panel-light: #ffffff;
+  --panel-text: #202020;
+
+  --border-calibrated: #00aa00;
+
+  --input-warning-bg: #fff0f3;
+  --tile-hover-bg: #eef6ff;
+
+  --success-bg: rgba(0, 170, 0, 0.05);
+  --success-glow: rgba(0, 170, 0, 0.2);
+}
+
+/* Base */
+
+* {
+  box-sizing: border-box;
+}
+
+h1,
+.panel h2,
+#roiPanel h2 {
+  margin-top: 0;
+}
+
+/* JSON output */
+
+#jsonOutput {
+  width: 100%;
+  resize: vertical;
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  background: var(--bg-code);
+  color: var(--text-green);
+  border: 2px solid var(--border-mid);
+  padding: var(--gap-md);
+}

@@ -1,0 +1,80 @@
+/* Panels */
+
+.panel {
+  margin-bottom: var(--gap-xl);
+}
+
+.panel h2 {
+  margin-bottom: var(--gap-lg);
+}
+
+.panel,
+#roiPanel {
+  padding: var(--gap-lg);
+  background: var(--panel-light);
+  color: var(--panel-text);
+  border: 0;
+  border-radius: var(--radius-panel);
+}
+
+/* ROI sidebar */
+
+#roiPanel {
+  width: 100%;
+  max-width: var(--roi-width);
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#roiPanel::-webkit-scrollbar {
+  width: 10px;
+}
+
+#roiPanel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#roiPanel::-webkit-scrollbar-thumb {
+  background: var(--border-mid);
+  border-radius: 999px;
+}
+
+#roiPanel::-webkit-scrollbar-thumb:hover {
+  background: var(--border-panel);
+}
+
+.workflowHeader {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  /* Extend into the panel padding */
+  margin: calc(-1 * var(--gap-lg)) calc(-1 * var(--gap-lg)) var(--gap-lg);
+
+  padding: var(--gap-lg) var(--gap-lg) var(--gap-md);
+
+  background: var(--panel-light);
+}
+
+.workflowHeader.hidden {
+  display: none;
+}
+
+.workflowHint {
+  min-height: 56px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 12px 14px;
+
+  background: var(--panel-light);
+
+  border: 2px solid var(--accent-blue);
+  border-radius: var(--radius-small);
+
+  color: var(--panel-text);
+  font-weight: normal;
+  line-height: 1.4;
+}

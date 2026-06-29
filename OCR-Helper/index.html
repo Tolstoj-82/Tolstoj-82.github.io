@@ -5,151 +5,172 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GB OCR Helper</title>
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/controls.css" />
+    <link rel="stylesheet" href="css/canvas.css" />
+    <link rel="stylesheet" href="css/panels.css" />
+    <link rel="stylesheet" href="css/tiles.css" />
+    <link rel="stylesheet" href="css/tilesets.css" />
+    <link rel="stylesheet" href="css/roi.css" />
+    <link rel="stylesheet" href="css/live-ocr.css" />
   </head>
+
   <body>
     <div id="app">
-      <div id="main">
-        <!-- Camera Controls -->
-        <section class="panel">
-          <div class="row">
-            <label for="cameraSelect"> GB Interceptor </label>
-
-            <select id="cameraSelect"></select>
-
-            <button id="refreshCamera">Refresh</button>
-
-            <button id="startCamera">Start Camera</button>
-          </div>
-        </section>
-
-        <!-- hidden video -->
-        <video id="video" autoplay playsinline muted></video>
-
-        <!-- Image -->
-        <section class="panel">
-          <div class="imageRow">
-            <div class="canvasContainer">
-              <canvas id="canvas" width="160" height="144"></canvas>
-              <canvas id="roiCanvas" width="160" height="144"></canvas>
-              <canvas id="gridCanvas" width="640" height="576"></canvas>
+      <div id="topLayout">
+        <div id="main">
+          <section class="panel">
+            <div class="row">
+              <label for="cameraSelect">GB Interceptor</label>
+              <select id="cameraSelect"></select>
+              <button id="refreshCamera">Refresh</button>
+              <button id="startCamera">Start Camera</button>
             </div>
+          </section>
 
-            <div class="sideInfo">
-              <label class="autoDetectToggle">
-                <input id="autoDetectScreens" type="checkbox" />
-                <span class="slider"></span>
-                <span>Auto detect</span>
-              </label>
+          <video id="video" autoplay playsinline muted></video>
 
-              <div id="identifierInfo"></div>
-              <div id="roiReadout"></div>
-            </div>
-          </div>
-
-          <div class="buttonRow">
-            <button id="calibrateButton">Calibrate</button>
-
-            <div id="palette">
-              <div class="shade">
-                <div class="shadeBox" id="shade0"></div>
+          <section class="panel">
+            <div class="imageRow">
+              <div class="canvasContainer">
+                <canvas id="canvas" width="160" height="144"></canvas>
+                <canvas id="roiCanvas" width="160" height="144"></canvas>
+                <div id="gridOverlay"></div>
+                <canvas id="gridCanvas" width="160" height="144"></canvas>
               </div>
 
-              <div class="shade">
-                <div class="shadeBox" id="shade1"></div>
-              </div>
+              <div class="sideInfo">
+                <label class="autoDetectToggle">
+                  <input id="autoDetectScreens" type="checkbox" />
+                  <span class="slider"></span>
+                  <span>Auto detect</span>
+                </label>
 
-              <div class="shade">
-                <div class="shadeBox" id="shade2"></div>
-              </div>
-
-              <div class="shade">
-                <div class="shadeBox" id="shade3"></div>
+                <div id="identifierInfo"></div>
+                <div id="roiReadout"></div>
               </div>
             </div>
 
-            <span id="calibrationStatus" class="calibrationStatus bad">✖</span>
+            <div class="buttonRow">
+              <button id="calibrateButton">Calibrate</button>
+
+              <div id="palette">
+                <div class="shade">
+                  <div class="shadeBox" id="shade0"></div>
+                </div>
+                <div class="shade">
+                  <div class="shadeBox" id="shade1"></div>
+                </div>
+                <div class="shade">
+                  <div class="shadeBox" id="shade2"></div>
+                </div>
+                <div class="shade">
+                  <div class="shadeBox" id="shade3"></div>
+                </div>
+              </div>
+
+              <span id="calibrationStatus" class="calibrationStatus bad"
+                >✖</span
+              >
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Search for Tiles</h2>
+
+            <div class="buttonRow">
+              <button id="toggleCapture">▶</button>
+
+              <span>
+                Unique Tiles:
+                <strong id="tileCount">0</strong>
+              </span>
+
+              <button id="addTileset">+ Tileset</button>
+              <button id="sendToTileset">» Tileset</button>
+
+              <div id="tileDeleteZone">Drop tile here to delete</div>
+
+              <div class="captureROIPickerRow">
+                <div id="captureROIPicker" class="captureROIPicker"></div>
+              </div>
+            </div>
+
+            <hr />
+
+            <div id="tilesContainer"></div>
+
+            <hr />
+
+            <h2>Tilesets</h2>
+            <div id="tilesetContainer"></div>
+          </section>
+
+          <section class="panel">
+            <h2>JSON</h2>
+
+            <div class="buttonRow">
+              <button id="downloadJSON">Download JSON</button>
+              <button id="importJSON">Import JSON</button>
+
+              <input
+                id="importJSONFile"
+                type="file"
+                accept="application/json"
+                style="display: none"
+              />
+            </div>
+
+            <textarea id="jsonOutput" rows="18" spellcheck="false"></textarea>
+          </section>
+        </div>
+
+        <div id="roiPanel">
+          <div class="workflowHeader">
+            <div id="workflowHint" class="workflowHint"></div>
+            <hr />
           </div>
-        </section>
-      </div>
-      <div id="roiPanel">
-        <div class="workflowHeader">
-          <div id="workflowHint" class="workflowHint"></div>
+
+          <h2>Game</h2>
+          <input id="gameName" type="text" placeholder="Game name..." />
           <hr />
-        </div>
 
-        <h2>Game</h2>
-        <input id="gameName" type="text" placeholder="Game name..." />
-        <hr />
+          <h2>Screens</h2>
+          <button id="addScreen">+ Add Screen</button>
+          <div id="screenList"></div>
+          <hr />
 
-        <h2>Screens</h2>
-        <button id="addScreen">+ Add Screen</button>
-        <div id="screenList"></div>
-        <hr />
-
-        <h2>Screen Setup</h2>
-        <div id="selectedScreenName" class="selectedScreenName">
-          No screen selected
-        </div>
-
-        <button id="identifierMode">Add Identifier Tile</button>
-        <hr />
-
-        <h2>ROIs</h2>
-        <button id="addROI">+ Add ROI</button>
-        <div id="roiList"></div>
-      </div>
-
-      <section class="panel">
-        <h2>Search for Tiles</h2>
-
-        <div class="buttonRow">
-          <button id="toggleCapture">▶</button>
-
-          <span>
-            Unique Tiles:
-            <strong id="tileCount">0</strong>
-          </span>
-
-          <button id="addTileset">+ Tileset</button>
-          <button id="sendToTileset">» Tileset</button>
-
-          <div id="tileDeleteZone">Drop tile here to delete</div>
-          <div class="captureROIPickerRow">
-            <div id="captureROIPicker" class="captureROIPicker"></div>
+          <h2>Screen Setup</h2>
+          <div id="selectedScreenName" class="selectedScreenName">
+            No screen selected
           </div>
+
+          <button id="identifierMode">Add Identifier Tile</button>
+          <hr />
+
+          <h2>ROIs</h2>
+          <button id="addROI">+ Add ROI</button>
+          <div id="roiList"></div>
         </div>
-        <hr />
-
-        <div id="tilesContainer"></div>
-        <hr />
-
-        <h2>Tilesets</h2>
-        <div id="tilesetContainer"></div>
-      </section>
-
-      <!-- Export -->
-      <section class="panel">
-        <h2>Export</h2>
-
-        <div class="buttonRow">
-          <button id="exportJSON">Export JSON</button>
-          <button id="downloadJSON">Download JSON</button>
-          <!-- Import -->
-          <button id="importJSON">Import JSON</button>
-
-          <input
-            id="importJSONFile"
-            type="file"
-            accept="application/json"
-            style="display: none"
-          />
-        </div>
-
-        <textarea id="jsonOutput" rows="18" spellcheck="false"></textarea>
-      </section>
+      </div>
     </div>
 
-    <script src="code.js"></script>
+    <script src="js/constants.js"></script>
+    <script src="js/elements.js"></script>
+    <script src="js/model.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/live-ocr.js"></script>
+    <script src="js/screens.js"></script>
+    <script src="js/workflow.js"></script>
+    <script src="js/import-export.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/calibration.js"></script>
+    <script src="js/tiles.js"></script>
+    <script src="js/tilesets.js"></script>
+    <script src="js/roi.js"></script>
+    <script src="js/canvas-editor.js"></script>
+    <script src="js/capture.js"></script>
+    <script src="js/app.js"></script>
   </body>
 </html>
