@@ -23,6 +23,10 @@ const roiReadout = document.getElementById("roiReadout");
 const captureROIPicker = document.getElementById("captureROIPicker");
 const importJSONButton = document.getElementById("importJSON");
 const importJSONFile = document.getElementById("importJSONFile");
+const savedGameSelect = document.getElementById("savedGameSelect");
+const loadSavedGameButton = document.getElementById("loadSavedGame");
+const saveGameLocalButton = document.getElementById("saveGameLocal");
+const deleteSavedGameButton = document.getElementById("deleteSavedGame");
 const shadeBoxes = [
   document.getElementById("shade0"),
   document.getElementById("shade1"),

@@ -1,5 +1,7 @@
 document.getElementById("gameName").oninput = (e) => {
   game.name = e.target.value;
+  updateWorkflowUI();
+  updateStorageButtons();
 };
 
 document.getElementById("addScreen").onclick = () => {
@@ -23,16 +25,14 @@ document.getElementById("addScreen").onclick = () => {
   renderROIList();
   renderCaptureROIPicker();
   drawROIOverlay();
-  updateSelectedScreenName();
   updateWorkflowUI();
 };
 
-function updateSelectedScreenName() {
+function updateScreenSetupTitle() {
+  const title = document.getElementById("screenSetupTitle");
   const screen = getActiveScreen();
 
-  selectedScreenName.textContent = screen
-    ? `Selected: ${screen.name}`
-    : "No screen selected";
+  title.textContent = screen ? screen.name : "Screen Setup";
 }
 
 function renderScreenList() {
@@ -68,7 +68,6 @@ function renderScreenList() {
       renderCaptureROIPicker();
       drawROIOverlay();
       renderIdentifierInfo();
-      updateSelectedScreenName();
       updateWorkflowUI();
     };
 
@@ -104,6 +103,5 @@ function autoDetectScreen() {
   renderIdentifierInfo();
   renderROIReadout();
   drawROIOverlay();
-  updateSelectedScreenName();
   updateWorkflowUI();
 }

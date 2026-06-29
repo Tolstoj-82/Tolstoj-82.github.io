@@ -81,3 +81,7 @@ button:disabled:hover {
   border: 0;
   border-top: 2px solid var(--border-panel);
 }
+
+#saveGameLocal {
+  margin-top: var(--gap-md);
+}

@@ -59,6 +59,12 @@ h1,
   margin-top: 0;
 }
 
+.panel h3,
+#roiPanel h3 {
+  margin-top: var(--gap-lg);
+  margin-bottom: var(--gap-md);
+}
+
 /* JSON output */
 
 #jsonOutput {

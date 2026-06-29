@@ -58,19 +58,6 @@
   border: 2px solid var(--text-red);
 }
 
-/* Selected screen */
-
-.selectedScreenName {
-  margin-bottom: var(--gap-lg);
-  padding: 6px 8px;
-
-  background: var(--panel-light);
-  border: 2px solid var(--border-mid);
-  border-radius: var(--radius-small);
-
-  font-weight: bold;
-}
-
 /* Capture ROI picker */
 
 .captureROIPickerRow {

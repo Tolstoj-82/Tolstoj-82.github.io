@@ -163,7 +163,6 @@ function importProject(data) {
   renderTiles();
   renderTilesets();
   drawROIOverlay();
-  updateSelectedScreenName();
   updateWorkflowUI();
 
   jsonOutput.value = JSON.stringify(data, null, 2);

@@ -31,7 +31,6 @@ document.getElementById("addROI").onclick = () => {
   renderCaptureROIPicker();
   drawROIOverlay();
   renderIdentifierInfo();
-  updateSelectedScreenName();
   updateWorkflowUI();
 };
 
@@ -140,7 +139,6 @@ function renderROIList() {
       renderCaptureROIPicker();
       drawROIOverlay();
       renderIdentifierInfo();
-      updateSelectedScreenName();
       updateWorkflowUI();
     };
 
@@ -150,7 +148,6 @@ function renderROIList() {
       renderCaptureROIPicker();
       drawROIOverlay();
       renderIdentifierInfo();
-      updateSelectedScreenName();
       updateWorkflowUI();
     };
 

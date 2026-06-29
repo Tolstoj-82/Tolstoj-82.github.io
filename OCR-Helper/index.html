@@ -29,6 +29,19 @@
             </div>
           </section>
 
+          <section class="panel">
+            <div class="savedGameRow">
+              <label for="savedGameSelect">Available Games</label>
+
+              <select id="savedGameSelect">
+                <option value="">Local games...</option>
+              </select>
+
+              <button id="loadSavedGame">Load</button>
+              <button id="deleteSavedGame">Delete</button>
+            </div>
+          </section>
+
           <video id="video" autoplay playsinline muted></video>
 
           <section class="panel">
@@ -134,6 +147,7 @@
 
           <h2>Game</h2>
           <input id="gameName" type="text" placeholder="Game name..." />
+          <button id="saveGameLocal">Save locally</button>
           <hr />
 
           <h2>Screens</h2>
@@ -141,15 +155,12 @@
           <div id="screenList"></div>
           <hr />
 
-          <h2>Screen Setup</h2>
-          <div id="selectedScreenName" class="selectedScreenName">
-            No screen selected
-          </div>
+          <h2 id="screenSetupTitle">Screen Setup</h2>
 
           <button id="identifierMode">Add Identifier Tile</button>
           <hr />
 
-          <h2>ROIs</h2>
+          <h3>ROIs</h3>
           <button id="addROI">+ Add ROI</button>
           <div id="roiList"></div>
         </div>
@@ -164,6 +175,7 @@
     <script src="js/screens.js"></script>
     <script src="js/workflow.js"></script>
     <script src="js/import-export.js"></script>
+    <script src="js/storage.js"></script>
     <script src="js/camera.js"></script>
     <script src="js/calibration.js"></script>
     <script src="js/tiles.js"></script>

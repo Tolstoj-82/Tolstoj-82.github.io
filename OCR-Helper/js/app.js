@@ -18,10 +18,10 @@ drawROIOverlay();
 renderIdentifierInfo();
 updatePalette();
 updateCaptureUI();
-updateSelectedScreenName();
 renderTilesets();
 updateWorkflowUI();
 renderCaptureROIPicker();
+renderSavedGameList();
 
 document.querySelectorAll(".lutBox").forEach((box) => {
   box.style.width = "40px";

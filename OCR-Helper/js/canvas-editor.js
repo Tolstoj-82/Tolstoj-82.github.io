@@ -210,7 +210,6 @@ function applyROITileSelection(key) {
 
   drawROIOverlay();
   renderIdentifierInfo();
-  updateSelectedScreenName();
   updateWorkflowUI();
 }
 
