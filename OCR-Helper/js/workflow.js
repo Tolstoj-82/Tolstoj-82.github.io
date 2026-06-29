@@ -3,6 +3,11 @@ function setDisabledReason(button, reason) {
 }
 
 function updateWorkflowHint() {
+  if (calibrationReminder) {
+    workflowHint.textContent = "Recalibrate before capture.";
+    return;
+  }
+
   const hasScreen = !!getActiveScreen();
   const hasROIs = hasScreen && getActiveScreen().rois.length > 0;
 
@@ -86,10 +91,15 @@ function updateWorkflowUI() {
     sendToTilesetButton,
     hasROIs ? "" : "Create at least one ROI first.",
   );
+
   updateWorkflowHint();
+
   const hasUsableTileset = tilesets.some((t) => t.tiles.length > 0);
 
-  workflowHeader.classList.toggle("hidden", hasUsableTileset);
+  workflowHeader.classList.toggle(
+    "hidden",
+    hasUsableTileset && !calibrationReminder,
+  );
 
   autoDetectScreens.disabled = game.screens.length < 2;
 

@@ -153,7 +153,6 @@ function importProject(data) {
   captureROIIds.clear();
   lastOCRValues = {};
 
-  //updatePalette();
   renderScreenList();
   updateScreenSetupTitle();
   renderROIList();
@@ -163,11 +162,9 @@ function importProject(data) {
   renderTiles();
   renderTilesets();
   drawROIOverlay();
+
+  calibrationReminder = true;
+
   updateWorkflowUI();
-
-  alert(
-    "Project loaded. Calibration may be needed again for the current capture.",
-  );
-
-  jsonOutput.value = JSON.stringify(data, null, 2);
+  updateJSONOutput();
 }

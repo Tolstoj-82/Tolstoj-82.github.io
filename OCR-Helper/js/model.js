@@ -34,3 +34,4 @@ let captureBlink = false;
 let captureBlinkTimer = null;
 
 let autoDetectEnabled = false;
+let calibrationReminder = false;

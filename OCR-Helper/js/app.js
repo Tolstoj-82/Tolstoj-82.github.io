@@ -23,6 +23,7 @@ updateWorkflowUI();
 renderCaptureROIPicker();
 renderSavedGameList();
 updateScreenSetupTitle();
+loadCameras();
 
 document.querySelectorAll(".lutBox").forEach((box) => {
   box.style.width = "40px";

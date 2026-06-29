@@ -17,6 +17,8 @@ document.getElementById("calibrateButton").onclick = () => {
   palette = findFourShades(samples);
 
   calibrated = true;
+  calibrationReminder = false;
+
   updatePalette();
   updateWorkflowUI();
 };
