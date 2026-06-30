@@ -22,6 +22,7 @@ toggleCapture.onclick = () => {
 function updateCaptureUI() {
   toggleCapture.textContent = capturing ? "⏹" : "▶";
 
+  toggleCapture.classList.toggle("capturing", capturing);
   canvasContainer.classList.toggle("capturing", capturing);
 
   if (!capturing) {
