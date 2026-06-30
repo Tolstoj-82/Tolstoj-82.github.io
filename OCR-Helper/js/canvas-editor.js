@@ -30,9 +30,15 @@ function drawROIOverlay() {
         ? 0.45 + highlightedIdentifierIntensity * 0.45
         : 0.45;
 
+      const px = x * TILE;
+      const py = y * TILE;
+
       roiCtx.fillStyle = `rgba(255,0,0,${alpha})`;
 
-      roiCtx.fillRect(x * TILE, y * TILE, TILE, TILE);
+      roiCtx.fillRect(px, py, TILE, 1); // top
+      roiCtx.fillRect(px, py + TILE - 1, TILE, 1); // bottom
+      roiCtx.fillRect(px, py + 1, 1, TILE - 2); // left
+      roiCtx.fillRect(px + TILE - 1, py + 1, 1, TILE - 2); // right
     }
   }
 }
