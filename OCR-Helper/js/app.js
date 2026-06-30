@@ -1,5 +1,10 @@
 // Main loop
 //--------------------------------
+const APP_VERSION = "1.0";
+const APP_AUTHOR = "Tolstoj";
+const APP_TITLE = "GB OCR Tool";
+
+document.title = APP_TITLE;
 
 function drawLoop() {
   ctx.drawImage(video, 0, 0, WIDTH, HEIGHT);

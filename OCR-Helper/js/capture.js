@@ -8,6 +8,14 @@ toggleCapture.onclick = () => {
   }
 
   capturing = !capturing;
+
+  if (capturing) {
+    captureStartTime = Date.now();
+  } else {
+    captureStartTime = null;
+    document.title = APP_TITLE;
+  }
+
   updateCaptureUI();
 };
 
@@ -16,29 +24,21 @@ function updateCaptureUI() {
 
   canvasContainer.classList.toggle("capturing", capturing);
 
-  if (capturing) {
-    captureBlink = false;
-
-    document.title = "🔴 Capturing — Tile Capture Tool";
-
-    captureBlinkTimer = setInterval(() => {
-      captureBlink = !captureBlink;
-
-      document.title = captureBlink
-        ? "🔴 Capturing — Tile Capture Tool"
-        : "⚫ Capturing — Tile Capture Tool";
-    }, 500);
-  } else {
-    clearInterval(captureBlinkTimer);
-
-    captureBlinkTimer = null;
-
-    document.title = "Tile Capture Tool";
+  if (!capturing) {
+    document.title = APP_TITLE;
   }
 }
 
 setInterval(() => {
   if (!capturing) return;
+
+  if (captureStartTime) {
+    const elapsed = Math.floor((Date.now() - captureStartTime) / 1000);
+    const minutes = String(Math.floor(elapsed / 60)).padStart(2, "0");
+    const seconds = String(elapsed % 60).padStart(2, "0");
+
+    document.title = `Discovering ${minutes}:${seconds} • ${APP_TITLE}`;
+  }
 
   const selectedROIs = getActiveScreenROIs().filter((r) =>
     captureROIIds.has(r.id),

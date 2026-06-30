@@ -5,7 +5,7 @@ let lastOCRValues = {};
 let highlightedIdentifierTile = null;
 let highlightedIdentifierIntensity = 0;
 let captureROIIds = new Set();
-
+let captureStartTime = null;
 let stream = null;
 
 let calibrated = false;
@@ -30,8 +30,6 @@ let uniqueTiles = new Map();
 let tilesets = [];
 
 let capturing = false;
-let captureBlink = false;
-let captureBlinkTimer = null;
 
 let autoDetectEnabled = false;
 let calibrationReminder = false;
