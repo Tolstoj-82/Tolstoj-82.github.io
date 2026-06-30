@@ -127,11 +127,7 @@ gridCanvas.addEventListener("mousedown", (e) => {
   const existingIdentifier = screen.identifiers.find((id) => id.tile === key);
 
   if (existingIdentifier) {
-    const shouldDelete = confirm(
-      `Delete identifier tile ${key} from "${screen.name}"?`,
-    );
-
-    if (shouldDelete) {
+    showConfirm(`Delete identifier tile ${key} from "${screen.name}"?`, () => {
       screen.identifiers = screen.identifiers.filter((id) => id.tile !== key);
 
       renderScreenList();
@@ -139,7 +135,7 @@ gridCanvas.addEventListener("mousedown", (e) => {
       drawROIOverlay();
       renderIdentifierInfo();
       updateWorkflowUI();
-    }
+    });
 
     return;
   }

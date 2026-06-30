@@ -1,0 +1,54 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: var(--gap-xl);
+
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.modalOverlay.hidden {
+  display: none;
+}
+
+.modalBox {
+  width: min(420px, 100%);
+
+  padding: var(--gap-lg);
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+
+  border-radius: var(--radius-panel);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.modalMessage {
+  margin-bottom: var(--gap-lg);
+  line-height: 1.4;
+  white-space: pre-line;
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gap-md);
+}
+
+.modalInput {
+  width: 100%;
+
+  margin: 0 0 var(--gap-lg);
+
+  padding: var(--gap-sm);
+
+  font: inherit;
+
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+}

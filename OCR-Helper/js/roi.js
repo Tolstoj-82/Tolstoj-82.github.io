@@ -9,29 +9,27 @@ document.getElementById("addROI").onclick = () => {
   const screen = getActiveScreen();
 
   if (!screen) {
-    alert("Add or select a screen first.");
+    showAlert("Add or select a screen first.");
     return;
   }
 
-  const name = prompt("ROI name", "ROI " + (screen.rois.length + 1));
+  showPrompt("ROI name", "ROI " + (screen.rois.length + 1), (name) => {
+    const roi = {
+      id: Date.now(),
+      name: name.trim() || "ROI " + (screen.rois.length + 1),
+      color: roiColors[screen.rois.length % roiColors.length],
+      tiles: new Set(),
+    };
 
-  if (name === null) return;
+    screen.rois.push(roi);
+    activeROI = roi.id;
 
-  const roi = {
-    id: Date.now(),
-    name: name.trim() || "ROI " + (screen.rois.length + 1),
-    color: roiColors[screen.rois.length % roiColors.length],
-    tiles: new Set(),
-  };
-
-  screen.rois.push(roi);
-  activeROI = roi.id;
-
-  renderROIList();
-  renderCaptureROIPicker();
-  drawROIOverlay();
-  renderIdentifierInfo();
-  updateWorkflowUI();
+    renderROIList();
+    renderCaptureROIPicker();
+    drawROIOverlay();
+    renderIdentifierInfo();
+    updateWorkflowUI();
+  });
 };
 
 function renderROIList() {
@@ -39,6 +37,10 @@ function renderROIList() {
 
   getActiveScreenROIs().forEach((r) => {
     let div = document.createElement("div");
+
+    const dragHandle = document.createElement("span");
+    dragHandle.className = "dragHandle";
+    dragHandle.title = "Drag to reorder";
 
     div.className = "roiItem";
     div.draggable = true;
@@ -101,45 +103,51 @@ function renderROIList() {
 
     div.style.background = r.color;
 
-    let name = document.createElement("span");
+    let name = document.createElement("input");
+    name.className = "roiNameInput";
+    name.value = r.name;
 
-    name.textContent = r.name;
-
-    let edit = document.createElement("button");
-
-    edit.textContent = "✏";
-
-    edit.onclick = (e) => {
+    name.onclick = (e) => {
       e.stopPropagation();
+    };
 
-      const name = prompt("Name", r.name);
-
-      if (name !== null) {
-        r.name = name.trim() || r.name;
-        renderROIList();
-        renderCaptureROIPicker();
-      }
+    name.oninput = () => {
+      r.name = name.value.trim() || r.name;
+      renderCaptureROIPicker();
+      renderROIReadout();
+      updateWorkflowUI();
     };
 
     let del = document.createElement("button");
 
-    del.textContent = "🗑";
+    del.textContent = "×";
+    del.className = "roiDeleteButton";
+    del.title = "Delete ROI";
 
     del.onclick = (e) => {
       e.stopPropagation();
 
-      const screen = getActiveScreen();
-      screen.rois = screen.rois.filter((x) => x.id !== r.id);
+      showConfirm(
+        `Delete ROI "${r.name}"?`,
+        () => {
+          const screen = getActiveScreen();
 
-      if (activeROI === r.id) {
-        activeROI = screen.rois.length ? screen.rois[0].id : null;
-      }
+          screen.rois = screen.rois.filter((x) => x.id !== r.id);
 
-      renderROIList();
-      renderCaptureROIPicker();
-      drawROIOverlay();
-      renderIdentifierInfo();
-      updateWorkflowUI();
+          if (activeROI === r.id) {
+            activeROI = screen.rois.length ? screen.rois[0].id : null;
+          }
+
+          renderROIList();
+          renderCaptureROIPicker();
+          drawROIOverlay();
+          renderIdentifierInfo();
+          updateWorkflowUI();
+        },
+        null,
+        "Delete",
+        "Cancel",
+      );
     };
 
     div.onclick = () => {
@@ -189,8 +197,8 @@ function renderROIList() {
     const bottom = document.createElement("div");
     bottom.className = "roiItemBottom";
 
+    top.appendChild(dragHandle);
     top.appendChild(name);
-    top.appendChild(edit);
     top.appendChild(del);
 
     bottom.appendChild(select);

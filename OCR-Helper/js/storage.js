@@ -37,25 +37,37 @@ function saveCurrentGameToLocalStorage() {
   updateJSONOutput();
 
   if (!jsonOutput.value.trim()) {
-    alert("Nothing to save yet.");
+    showAlert("Nothing to save yet.");
     return;
   }
 
   const name = game.name.trim();
 
   if (!name) {
-    alert("Enter a game name first.");
+    showAlert("Enter a game name first.");
     return;
   }
 
   const savedGames = getSavedGames();
 
   if (savedGames[name]) {
-    const overwrite = confirm(
-      `A local game named "${name}" already exists. Overwrite it?`,
+    showConfirm(
+      `A local game named "${name}" already exists.\n\nOverwrite it?`,
+      () => {
+        savedGames[name] = JSON.parse(jsonOutput.value);
+
+        setSavedGames(savedGames);
+        renderSavedGameList();
+
+        savedGameSelect.value = name;
+        updateStorageButtons();
+      },
+      null,
+      "Overwrite",
+      "Cancel",
     );
 
-    if (!overwrite) return;
+    return;
   }
 
   savedGames[name] = JSON.parse(jsonOutput.value);
@@ -89,15 +101,23 @@ function deleteGameFromLocalStorage() {
 
   if (!name) return;
 
-  if (!confirm(`Delete saved game "${name}"?`)) return;
+  showConfirm(
+    `Delete saved game "${name}"?`,
+    () => {
+      const savedGames = getSavedGames();
 
-  const savedGames = getSavedGames();
-  delete savedGames[name];
+      delete savedGames[name];
 
-  setSavedGames(savedGames);
-  renderSavedGameList();
+      setSavedGames(savedGames);
+      renderSavedGameList();
 
-  savedGameSelect.value = "";
+      savedGameSelect.value = "";
+      updateStorageButtons();
+    },
+    null,
+    "Delete",
+    "Cancel",
+  );
 }
 
 saveGameLocalButton.onclick = saveCurrentGameToLocalStorage;
@@ -113,3 +133,44 @@ function updateStorageButtons() {
   loadSavedGameButton.disabled = !hasSelectedSavedGame;
   deleteSavedGameButton.disabled = !hasSelectedSavedGame;
 }
+
+newProjectButton.onclick = () => {
+  showConfirm(
+    "Start a new project?\n\nCurrent screens, ROIs, tiles and tilesets will be cleared.",
+    () => {
+      game = {
+        name: "",
+        screens: [],
+      };
+
+      tilesets = [];
+      uniqueTiles.clear();
+      captureROIIds.clear();
+      lastOCRValues = {};
+
+      activeScreenId = null;
+      activeROI = null;
+      selectionMode = "roi";
+
+      calibrationReminder = false;
+
+      document.getElementById("gameName").value = "";
+
+      renderScreenList();
+      updateScreenSetupTitle();
+      renderROIList();
+      renderCaptureROIPicker();
+      renderIdentifierInfo();
+      renderROIReadout();
+      renderTiles();
+      renderTilesets();
+      drawROIOverlay();
+
+      updateWorkflowUI();
+      updateStorageButtons();
+    },
+    null,
+    "New Project",
+    "Cancel",
+  );
+};

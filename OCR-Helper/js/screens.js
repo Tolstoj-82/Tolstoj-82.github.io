@@ -5,28 +5,26 @@ document.getElementById("gameName").oninput = (e) => {
 };
 
 document.getElementById("addScreen").onclick = () => {
-  const name = prompt("Screen name", "Screen " + (game.screens.length + 1));
+  showPrompt("Screen name", "Screen " + (game.screens.length + 1), (name) => {
+    const screen = {
+      id: Date.now(),
+      name: name.trim() || "Screen " + (game.screens.length + 1),
+      color: screenColors[game.screens.length % screenColors.length],
+      identifiers: [],
+      rois: [],
+    };
 
-  if (name === null) return;
+    game.screens.push(screen);
+    activeScreenId = screen.id;
+    activeROI = null;
 
-  const screen = {
-    id: Date.now(),
-    name: name.trim() || "Screen " + (game.screens.length + 1),
-    color: screenColors[game.screens.length % screenColors.length],
-    identifiers: [],
-    rois: [],
-  };
-
-  game.screens.push(screen);
-  activeScreenId = screen.id;
-  activeROI = null;
-
-  renderScreenList();
-  updateScreenSetupTitle();
-  renderROIList();
-  renderCaptureROIPicker();
-  drawROIOverlay();
-  updateWorkflowUI();
+    renderScreenList();
+    updateScreenSetupTitle();
+    renderROIList();
+    renderCaptureROIPicker();
+    drawROIOverlay();
+    updateWorkflowUI();
+  });
 };
 
 function updateScreenSetupTitle() {

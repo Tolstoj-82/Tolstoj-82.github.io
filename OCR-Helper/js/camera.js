@@ -36,7 +36,7 @@ function cleanCameraLabel(label, index) {
 async function loadCameras() {
   try {
     if (!navigator.mediaDevices?.getUserMedia) {
-      alert("Camera API not available. Use HTTPS or localhost.");
+      showAlert("Camera API not available. Use HTTPS or localhost.");
       return;
     }
 
@@ -77,7 +77,7 @@ async function loadCameras() {
     await startCamera();
   } catch (err) {
     console.error(err);
-    alert("Camera list failed: " + err.message);
+    showAlert("Camera list failed: " + err.message);
   }
 }
 
@@ -112,7 +112,7 @@ async function startCamera() {
     updateWorkflowUI();
 
     console.error(err);
-    alert("Camera access failed: " + err.message);
+    showAlert("Camera access failed: " + err.message);
   }
 }
 

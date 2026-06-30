@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="css/tilesets.css" />
     <link rel="stylesheet" href="css/roi.css" />
     <link rel="stylesheet" href="css/live-ocr.css" />
+    <link rel="stylesheet" href="css/modal.css" />
   </head>
 
   <body>
@@ -26,6 +27,7 @@
               <select id="cameraSelect"></select>
               <button id="refreshCamera">Refresh devices</button>
               <button id="startCamera">Start Camera</button>
+              <button id="newProject" class="pushRight">New project</button>
             </div>
           </section>
 
@@ -90,8 +92,8 @@
           </section>
 
           <section class="panel">
-            <h2>Search for Tiles</h2>
-
+            <h2>Tiles</h2>
+            <h3>Tile discoverer</h3>
             <div class="buttonRow">
               <button id="toggleCapture">▶</button>
 
@@ -116,7 +118,7 @@
 
             <hr />
 
-            <h2>Tilesets</h2>
+            <h3>Tilesets</h3>
             <div id="tilesetContainer"></div>
           </section>
 
@@ -167,8 +169,33 @@
       </div>
     </div>
 
+    <div id="modalOverlay" class="modalOverlay hidden">
+      <div class="modalBox">
+        <div id="modalMessage" class="modalMessage"></div>
+
+        <input
+          id="modalInput"
+          class="modalInput"
+          type="text"
+          style="display: none"
+        />
+
+        <select
+          id="modalSelect"
+          class="modalInput"
+          style="display: none"
+        ></select>
+
+        <div class="modalButtons">
+          <button id="modalCancel">Cancel</button>
+          <button id="modalOk">OK</button>
+        </div>
+      </div>
+    </div>
+
     <script src="js/constants.js"></script>
     <script src="js/elements.js"></script>
+    <script src="js/modal.js"></script>
     <script src="js/model.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/live-ocr.js"></script>

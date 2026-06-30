@@ -111,4 +111,8 @@ function updateWorkflowUI() {
   if (typeof updateJSONOutput === "function") {
     updateJSONOutput();
   }
+
+  if (typeof updateStorageButtons === "function") {
+    updateStorageButtons();
+  }
 }

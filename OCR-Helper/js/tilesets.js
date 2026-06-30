@@ -1,73 +1,57 @@
 addTilesetButton.onclick = () => {
-  const name = prompt("Tileset name", "New Tileset");
+  showPrompt("Tileset name", "New Tileset", (name) => {
+    tilesets.push({
+      id: Date.now(),
+      name: name.trim() || "New Tileset",
+      type: "integer",
+      tiles: [],
+    });
 
-  if (name === null) return;
-
-  tilesets.push({
-    id: Date.now(),
-    name: name.trim() || "New Tileset",
-    type: "integer",
-    tiles: [],
+    renderTilesets();
+    renderROIList();
+    renderCaptureROIPicker();
   });
-
-  renderTilesets();
-  renderROIList();
-  renderCaptureROIPicker();
 };
 
 sendToTilesetButton.onclick = () => {
   const tiles = [...uniqueTiles.values()];
 
   if (tiles.length === 0) {
-    alert("No captured tiles available yet.");
+    showAlert("No captured tiles available yet.");
     return;
   }
 
-  const existingNames = tilesets
-    .map((t, i) => `${i + 1}: ${t.name}`)
-    .join("\n");
+  showPrompt("Send tiles to tileset", "", (choice) => {
+    const name = choice.trim();
 
-  const choice = prompt(
-    `Send to tileset:\n${existingNames}\n\nEnter number or new name:`,
-    "",
-  );
+    let tileset = tilesets.find((t) => t.name === name);
 
-  if (choice === null) return;
+    if (!tileset) {
+      tileset = {
+        id: Date.now(),
+        name: name || "New Tileset",
+        type: "integer",
+        tiles: [],
+      };
 
-  let tileset = tilesets[Number(choice) - 1];
-
-  if (!tileset) {
-    const newName = choice.trim() || "New Tileset";
-
-    if (tilesets.some((t) => t.name === newName)) {
-      alert("Tileset names must be unique.");
-      return;
+      tilesets.push(tileset);
     }
 
-    tileset = {
-      id: Date.now(),
-      name: newName,
-      type: "integer",
-      tiles: [],
-    };
+    tileset.tiles.push(
+      ...tiles.map((tile) => ({
+        pixels: tile.pixels,
+        label: tile.label,
+      })),
+    );
 
-    tilesets.push(tileset);
-  }
+    uniqueTiles.clear();
+    renderTiles();
 
-  tileset.tiles.push(
-    ...tiles.map((tile) => ({
-      pixels: tile.pixels,
-      label: tile.label,
-    })),
-  );
-
-  uniqueTiles.clear();
-  renderTiles();
-
-  renderTilesets();
-  renderROIList();
-  renderCaptureROIPicker();
-  updateWorkflowUI();
+    renderTilesets();
+    renderROIList();
+    renderCaptureROIPicker();
+    updateWorkflowUI();
+  });
 };
 
 function renderTilesets() {
@@ -88,7 +72,45 @@ function renderTilesets() {
       : true;
 
     const summary = document.createElement("summary");
+
+    summary.className = "tilesetSummary";
     summary.textContent = `${tileset.name} • ${tileset.tiles.length} tile${tileset.tiles.length === 1 ? "" : "s"}`;
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "tilesetDeleteButton";
+    deleteButton.textContent = "×";
+    deleteButton.title = "Delete tileset";
+
+    deleteButton.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      showConfirm(
+        `Delete tileset "${tileset.name}"?`,
+        () => {
+          game.screens.forEach((screen) => {
+            screen.rois.forEach((roi) => {
+              if (roi.tilesetId === tileset.id) {
+                roi.tilesetId = null;
+              }
+            });
+          });
+
+          tilesets = tilesets.filter((t) => t.id !== tileset.id);
+
+          renderTilesets();
+          renderROIList();
+          renderCaptureROIPicker();
+          drawROIOverlay();
+          renderROIReadout();
+          updateWorkflowUI();
+        },
+        null,
+        "Delete",
+        "Cancel",
+      );
+    };
 
     const typeSelect = document.createElement("select");
 
@@ -165,6 +187,7 @@ function renderTilesets() {
     });
 
     details.appendChild(summary);
+    details.appendChild(deleteButton);
     details.appendChild(typeSelect);
     details.appendChild(list);
 
@@ -238,27 +261,6 @@ function addTilesetTileDragHandlers(card) {
     const insertAfter = e.clientX > rect.left + rect.width / 2;
 
     moveTileToTileset(data, targetTilesetId, targetIndex, insertAfter);
-
-    renderTilesets();
-    updateWorkflowUI();
-  });
-
-  card.addEventListener("dblclick", (e) => {
-    if (e.target.tagName === "INPUT") return;
-
-    const tileset = tilesets.find(
-      (t) => t.id === Number(card.dataset.tilesetId),
-    );
-
-    if (!tileset) return;
-
-    const index = Number(card.dataset.index);
-
-    const shouldDelete = confirm(`Delete tile from "${tileset.name}"?`);
-
-    if (!shouldDelete) return;
-
-    tileset.tiles.splice(index, 1);
 
     renderTilesets();
     updateWorkflowUI();

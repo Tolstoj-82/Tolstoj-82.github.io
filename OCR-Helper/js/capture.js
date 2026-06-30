@@ -3,7 +3,7 @@
 
 toggleCapture.onclick = () => {
   if (!capturing && captureROIIds.size === 0) {
-    alert("Select at least one ROI to search.");
+    showAlert("Select at least one ROI to search.");
     return;
   }
 

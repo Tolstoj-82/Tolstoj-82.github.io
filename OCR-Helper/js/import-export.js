@@ -82,7 +82,7 @@ importJSONFile.onchange = (e) => {
       const data = JSON.parse(reader.result);
       importProject(data);
     } catch (err) {
-      alert("Invalid JSON file.");
+      showAlert("Invalid JSON file.");
       console.error(err);
     }
   };
@@ -94,77 +94,79 @@ importJSONFile.onchange = (e) => {
 
 function importProject(data) {
   if (!data || !Array.isArray(data.screens) || !Array.isArray(data.tilesets)) {
-    alert("This does not look like a valid OCR Helper JSON file.");
+    showAlert("This does not seem to be a valid OCR JSON file.");
     return;
   }
 
-  if (!confirm("Import this JSON? This will replace the current setup.")) {
-    return;
-  }
+  showConfirm(
+    "Import this JSON?\n\nThis will replace the current setup.",
+    () => {
+      game.name = data.game || "";
+      document.getElementById("gameName").value = game.name;
 
-  //palette = Array.isArray(data.palette) ? data.palette : palette;
-  game.name = data.game || "";
+      tilesets = data.tilesets.map((tileset, index) => ({
+        id: Date.now() + index,
+        name: tileset.name || `Tileset ${index + 1}`,
+        type: tileset.type || "integer",
+        tiles: Array.isArray(tileset.tiles)
+          ? tileset.tiles.map((tile) => ({
+              pixels: tile.pixels || [],
+              label: tile.label || "",
+            }))
+          : [],
+      }));
 
-  document.getElementById("gameName").value = game.name;
+      const tilesetIdByName = new Map(
+        tilesets.map((tileset) => [tileset.name, tileset.id]),
+      );
 
-  tilesets = data.tilesets.map((tileset, index) => ({
-    id: Date.now() + index,
-    name: tileset.name || `Tileset ${index + 1}`,
-    type: tileset.type || "integer",
-    tiles: Array.isArray(tileset.tiles)
-      ? tileset.tiles.map((tile) => ({
-          pixels: tile.pixels || [],
-          label: tile.label || "",
-        }))
-      : [],
-  }));
+      game.screens = data.screens.map((screen, screenIndex) => ({
+        id: Date.now() + 1000 + screenIndex,
+        name: screen.name || `Screen ${screenIndex + 1}`,
+        color: screenColors[screenIndex % screenColors.length],
 
-  const tilesetIdByName = new Map(
-    tilesets.map((tileset) => [tileset.name, tileset.id]),
+        identifiers: Array.isArray(screen.identifiers)
+          ? screen.identifiers.map((identifier) => ({
+              tile: identifier.tile,
+              pixels: identifier.pixels || [],
+            }))
+          : [],
+
+        rois: Array.isArray(screen.rois)
+          ? screen.rois.map((roi, roiIndex) => ({
+              id: Date.now() + 2000 + screenIndex * 100 + roiIndex,
+              name: roi.name || `ROI ${roiIndex + 1}`,
+              color: roiColors[roiIndex % roiColors.length],
+              tiles: new Set(roi.tiles || []),
+              tilesetId: tilesetIdByName.get(roi.tileset) || null,
+            }))
+          : [],
+      }));
+
+      activeScreenId = game.screens[0]?.id || null;
+      activeROI = game.screens[0]?.rois[0]?.id || null;
+
+      uniqueTiles.clear();
+      captureROIIds.clear();
+      lastOCRValues = {};
+
+      renderScreenList();
+      updateScreenSetupTitle();
+      renderROIList();
+      renderCaptureROIPicker();
+      renderIdentifierInfo();
+      renderROIReadout();
+      renderTiles();
+      renderTilesets();
+      drawROIOverlay();
+
+      calibrationReminder = true;
+
+      updateWorkflowUI();
+      updateJSONOutput();
+    },
+    null,
+    "Import",
+    "Cancel",
   );
-
-  game.screens = data.screens.map((screen, screenIndex) => ({
-    id: Date.now() + 1000 + screenIndex,
-    name: screen.name || `Screen ${screenIndex + 1}`,
-    color: screenColors[screenIndex % screenColors.length],
-
-    identifiers: Array.isArray(screen.identifiers)
-      ? screen.identifiers.map((identifier) => ({
-          tile: identifier.tile,
-          pixels: identifier.pixels || [],
-        }))
-      : [],
-
-    rois: Array.isArray(screen.rois)
-      ? screen.rois.map((roi, roiIndex) => ({
-          id: Date.now() + 2000 + screenIndex * 100 + roiIndex,
-          name: roi.name || `ROI ${roiIndex + 1}`,
-          color: roiColors[roiIndex % roiColors.length],
-          tiles: new Set(roi.tiles || []),
-          tilesetId: tilesetIdByName.get(roi.tileset) || null,
-        }))
-      : [],
-  }));
-
-  activeScreenId = game.screens[0]?.id || null;
-  activeROI = game.screens[0]?.rois[0]?.id || null;
-
-  uniqueTiles.clear();
-  captureROIIds.clear();
-  lastOCRValues = {};
-
-  renderScreenList();
-  updateScreenSetupTitle();
-  renderROIList();
-  renderCaptureROIPicker();
-  renderIdentifierInfo();
-  renderROIReadout();
-  renderTiles();
-  renderTilesets();
-  drawROIOverlay();
-
-  calibrationReminder = true;
-
-  updateWorkflowUI();
-  updateJSONOutput();
 }

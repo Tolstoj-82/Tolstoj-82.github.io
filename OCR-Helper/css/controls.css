@@ -9,6 +9,20 @@
   margin-bottom: var(--gap-lg);
 }
 
+.rowSpacer {
+  flex: 1;
+}
+
+.pushRight {
+  margin-left: auto;
+}
+
+@media (max-width: 700px) {
+  #newProject {
+    margin-left: auto;
+  }
+}
+
 label {
   font-weight: bold;
 }

@@ -1,11 +1,13 @@
 // Elements
 //--------------------------------
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const newProjectButton = document.getElementById("newProject");
 const autoDetectScreens = document.getElementById("autoDetectScreens");
 const calibrationStatus = document.getElementById("calibrationStatus");
 const identifierInfo = document.getElementById("identifierInfo");
 const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
 const cameraSelect = document.getElementById("cameraSelect");
 const tilesContainer = document.getElementById("tilesContainer");
 const roiList = document.getElementById("roiList");
@@ -27,6 +29,14 @@ const savedGameSelect = document.getElementById("savedGameSelect");
 const loadSavedGameButton = document.getElementById("loadSavedGame");
 const saveGameLocalButton = document.getElementById("saveGameLocal");
 const deleteSavedGameButton = document.getElementById("deleteSavedGame");
+
+const modalOverlay = document.getElementById("modalOverlay");
+const modalMessage = document.getElementById("modalMessage");
+const modalOk = document.getElementById("modalOk");
+const modalCancel = document.getElementById("modalCancel");
+const modalInput = document.getElementById("modalInput");
+const modalSelect = document.getElementById("modalSelect");
+
 const shadeBoxes = [
   document.getElementById("shade0"),
   document.getElementById("shade1"),
