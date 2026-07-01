@@ -122,33 +122,6 @@ function renderIdentifierInfo() {
 }
 
 gridCanvas.addEventListener("mousedown", (e) => {
-  if (shadePickMode !== null) {
-    const rect = gridCanvas.getBoundingClientRect();
-
-    const x = Math.floor((e.clientX - rect.left) / (rect.width / WIDTH));
-    const y = Math.floor((e.clientY - rect.top) / (rect.height / HEIGHT));
-
-    if (x < 0 || y < 0 || x >= WIDTH || y >= HEIGHT) return;
-
-    const frame = ctx.getImageData(x, y, 1, 1);
-    const data = frame.data;
-
-    const value = Math.round((data[0] + data[1] + data[2]) / 3);
-
-    palette[shadePickMode] = value;
-    calibrationThresholds = calculateThresholdsFromPalette(palette);
-
-    calibrationMode = "manual-pickers";
-    calibrationQuality = "manual-pickers";
-
-    shadePickMode = null;
-
-    updatePalette();
-    updateWorkflowUI();
-
-    return;
-  }
-
   const key = getTileKeyFromMouse(e);
 
   if (!key) return;

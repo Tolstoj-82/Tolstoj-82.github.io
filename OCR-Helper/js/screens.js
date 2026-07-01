@@ -41,26 +41,127 @@ function renderScreenList() {
 
   game.screens.forEach((screen) => {
     const div = document.createElement("div");
-
-    div.className = "roiItem";
+    div.className = "roiItem screenItem";
     div.style.background = screen.color;
+    div.draggable = false;
 
     if (screen.id === activeScreenId) {
       div.classList.add("active");
     }
 
-    const name = document.createElement("span");
-    name.textContent = `${screen.name} (${screen.identifiers.length})`;
+    const dragHandle = document.createElement("span");
+    dragHandle.className = "dragHandle";
+    dragHandle.title = "Drag to reorder";
+    dragHandle.draggable = true;
 
-    div.appendChild(name);
+    const name = document.createElement("input");
+    name.className = "roiNameInput screenNameInput";
+    name.value = screen.name;
+
+    name.classList.toggle("missingIdentifier", screen.identifiers.length === 0);
+
+    name.onclick = (e) => {
+      e.stopPropagation();
+    };
+
+    name.oninput = () => {
+      screen.name = name.value.trim() || screen.name;
+
+      updateScreenSetupTitle();
+      updateWorkflowUI();
+    };
+
+    const del = document.createElement("button");
+    del.textContent = "×";
+    del.className = "roiDeleteButton";
+    del.title = "Delete screen";
+
+    del.onclick = (e) => {
+      e.stopPropagation();
+
+      showConfirm(
+        `Delete screen "${screen.name}"?`,
+        () => {
+          game.screens = game.screens.filter((s) => s.id !== screen.id);
+
+          if (activeScreenId === screen.id) {
+            activeScreenId = game.screens[0]?.id || null;
+            activeROI = getActiveScreen()?.rois[0]?.id || null;
+          }
+
+          renderScreenList();
+          updateScreenSetupTitle();
+          renderROIList();
+          renderCaptureROIPicker();
+          renderIdentifierInfo();
+          drawROIOverlay();
+          updateWorkflowUI();
+        },
+        null,
+        "Delete",
+        "Cancel",
+      );
+    };
+
+    dragHandle.addEventListener("dragstart", (e) => {
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", String(screen.id));
+      e.dataTransfer.setDragImage(
+        div,
+        div.offsetWidth / 2,
+        div.offsetHeight / 2,
+      );
+      div.classList.add("dragging");
+    });
+
+    dragHandle.addEventListener("dragend", () => {
+      div.classList.remove(
+        "dragging",
+        "drag-over",
+        "drop-before",
+        "drop-after",
+      );
+    });
+
+    div.addEventListener("dragover", (e) => {
+      e.preventDefault();
+
+      const rect = div.getBoundingClientRect();
+      const isAfter = e.clientY > rect.top + rect.height / 2;
+
+      div.classList.add("drag-over");
+      div.classList.toggle("drop-before", !isAfter);
+      div.classList.toggle("drop-after", isAfter);
+    });
+
+    div.addEventListener("dragleave", () => {
+      div.classList.remove("drag-over", "drop-before", "drop-after");
+    });
+
+    div.addEventListener("drop", (e) => {
+      e.preventDefault();
+
+      const draggedId = Number(e.dataTransfer.getData("text/plain"));
+      const targetId = screen.id;
+
+      div.classList.remove("drag-over", "drop-before", "drop-after");
+
+      if (!draggedId || draggedId === targetId) return;
+
+      reorderScreens(draggedId, targetId);
+
+      renderScreenList();
+      updateScreenSetupTitle();
+      updateWorkflowUI();
+    });
 
     div.onclick = () => {
-      // Manual selection disables auto detection
       autoDetectEnabled = false;
       autoDetectScreens.checked = false;
 
       activeScreenId = screen.id;
-      activeROI = null;
+      activeScreenId = screen.id;
+      activeROI = screen.rois[0]?.id || null;
 
       renderScreenList();
       updateScreenSetupTitle();
@@ -70,6 +171,15 @@ function renderScreenList() {
       renderIdentifierInfo();
       updateWorkflowUI();
     };
+
+    const top = document.createElement("div");
+    top.className = "roiItemTop";
+
+    top.appendChild(dragHandle);
+    top.appendChild(name);
+    top.appendChild(del);
+
+    div.appendChild(top);
 
     screenList.appendChild(div);
   });
@@ -105,4 +215,14 @@ function autoDetectScreen() {
   renderROIReadout();
   drawROIOverlay();
   updateWorkflowUI();
+}
+
+function reorderScreens(sourceId, targetId) {
+  const sourceIndex = game.screens.findIndex((s) => s.id === sourceId);
+  const targetIndex = game.screens.findIndex((s) => s.id === targetId);
+
+  if (sourceIndex === -1 || targetIndex === -1) return;
+
+  const [moved] = game.screens.splice(sourceIndex, 1);
+  game.screens.splice(targetIndex, 0, moved);
 }

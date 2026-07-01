@@ -43,16 +43,22 @@ function renderROIList() {
     dragHandle.title = "Drag to reorder";
 
     div.className = "roiItem";
-    div.draggable = true;
+    div.draggable = false;
+    dragHandle.draggable = true;
     div.dataset.roiId = r.id;
 
-    div.addEventListener("dragstart", (e) => {
+    dragHandle.addEventListener("dragstart", (e) => {
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", String(r.id));
+      e.dataTransfer.setDragImage(
+        div,
+        div.offsetWidth / 2,
+        div.offsetHeight / 2,
+      );
       div.classList.add("dragging");
     });
 
-    div.addEventListener("dragend", () => {
+    dragHandle.addEventListener("dragend", () => {
       document.querySelectorAll(".roiItem").forEach((item) => {
         item.classList.remove(
           "dragging",
