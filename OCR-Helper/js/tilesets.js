@@ -79,8 +79,7 @@ function renderTilesets() {
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.className = "tilesetDeleteButton";
-    deleteButton.textContent = "×";
-    deleteButton.title = "Delete tileset";
+    deleteButton.textContent = "Delete Tileset";
 
     deleteButton.onclick = (e) => {
       e.preventDefault();

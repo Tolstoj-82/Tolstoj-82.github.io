@@ -32,29 +32,23 @@
   top: 8px;
   right: 8px;
 
-  width: 22px;
-  height: 22px;
+  padding: 4px 10px;
 
-  display: grid;
-  place-items: center;
-
-  padding: 0;
-
-  border: none;
-  border-radius: 50%;
-  background: transparent;
-
-  color: #000 !important;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
-  line-height: 1;
+
+  border: 2px solid var(--text-red);
+  border-radius: var(--radius-small);
+
+  background: transparent;
+  color: var(--text-red);
 
   cursor: pointer;
 }
 
 .tilesetDeleteButton:hover {
-  background: rgba(255, 255, 255, 0.6);
-  color: #000 !important;
+  background: var(--text-red);
+  color: var(--shade-white);
 }
 
 .tileset > select {
