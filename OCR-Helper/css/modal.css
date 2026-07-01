@@ -52,3 +52,44 @@
   border: 2px solid var(--border-mid);
   border-radius: var(--radius-small);
 }
+
+.calibrationModalBox {
+  width: min(720px, 100%);
+}
+
+#calibrationHistogram {
+  width: 100%;
+  height: 220px;
+
+  display: block;
+
+  background: #fff;
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+
+  cursor: pointer;
+}
+
+.thresholdRow {
+  margin-top: var(--gap-md);
+  margin-bottom: var(--gap-md);
+}
+
+.calibrationWarning {
+  color: var(--text-red);
+  font-weight: bold;
+}
+
+.calibrationModalButtons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  margin-top: var(--gap-lg);
+}
+
+.calibrationModalButtonGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+}

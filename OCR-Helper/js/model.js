@@ -33,3 +33,14 @@ let capturing = false;
 
 let autoDetectEnabled = false;
 let calibrationReminder = false;
+
+let calibrationSamples = [];
+let calibrationThresholds = [64, 128, 192];
+let calibrationMode = "auto";
+let calibrationQuality = "none";
+let pendingCalibrationThresholds = null;
+let pendingPalette = null;
+
+let autoCalibrationThresholds = [64, 128, 192];
+let autoCalibrationPalette = [240, 160, 80, 0];
+let selectedThresholdIndex = null;

@@ -1,6 +1,6 @@
 // Scatterplot Setup
-const canvas = document.getElementById('scatterplot');
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("scatterplot");
+const ctx = canvas.getContext("2d");
 
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
@@ -14,8 +14,8 @@ const Y_MAX = 1000000;
 
 const dotImage = new Image();
 const explosion = new Image(); // *
-dotImage.src = 'airplane.png';
-explosion.src = 'explosion.png'; // *
+dotImage.src = "airplane.png";
+explosion.src = "explosion.png"; // *
 
 let points = []; // Start with an empty array of points
 let currentSegment = []; // Points for the current game
@@ -24,7 +24,7 @@ let lastNumbers = { score: 0, lines: 0 }; // Track previous numbers
 let lastTopouts = []; // Store the last points before reset // *
 
 // Colors for different segments
-const colors = ['blue', 'red', 'green', 'orange', 'purple'];
+const colors = ["blue", "red", "green", "orange", "purple"];
 let colorIndex = 0;
 
 // Draw axes
@@ -43,25 +43,40 @@ function drawAxes() {
   ctx.moveTo(MARGIN, MARGIN);
   ctx.lineTo(WIDTH - MARGIN, MARGIN); // X-axis top
 
-  ctx.strokeStyle = 'black';
+  ctx.strokeStyle = "black";
   ctx.lineWidth = 1;
   ctx.stroke();
 
   // Add axis labels
-  ctx.font = '14px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText('Lines', WIDTH / 2, HEIGHT - 10);
+  ctx.font = "14px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("Lines", WIDTH / 2, HEIGHT - 10);
   ctx.save();
-  ctx.translate(20, HEIGHT / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText('Score', 0, 0);
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  ctx.fillStyle = "#000";
+  ctx.font = "12px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+
+  HISTOGRAM_TICKS.forEach((value) => {
+    const x = (plotLeft + (value / 255) * plotWidth) * window.devicePixelRatio;
+    const y = (plotBottom + 18) * window.devicePixelRatio;
+
+    ctx.fillText(String(value), x, y);
+  });
+
   ctx.restore();
 }
 
 // Scale point to canvas coordinates
 function scalePoint(lines, score) {
   const x = MARGIN + ((lines - X_MIN) / (X_MAX - X_MIN)) * (WIDTH - 2 * MARGIN);
-  const y = HEIGHT - MARGIN - ((score - Y_MIN) / (Y_MAX - Y_MIN)) * (HEIGHT - 2 * MARGIN);
+  const y =
+    HEIGHT -
+    MARGIN -
+    ((score - Y_MIN) / (Y_MAX - Y_MIN)) * (HEIGHT - 2 * MARGIN);
   return { x, y };
 }
 
@@ -95,10 +110,18 @@ function drawPoints() {
   // Draw the explosion image at last topouts
   lastTopouts.forEach((point) => {
     explosion.onload = () => {
-      ctx.drawImage(explosion, point.x - explosion.width / 2, point.y - explosion.height / 2);
+      ctx.drawImage(
+        explosion,
+        point.x - explosion.width / 2,
+        point.y - explosion.height / 2,
+      );
     };
     if (explosion.complete) {
-      ctx.drawImage(explosion, point.x - explosion.width / 2, point.y - explosion.height / 2);
+      ctx.drawImage(
+        explosion,
+        point.x - explosion.width / 2,
+        point.y - explosion.height / 2,
+      );
     }
   });
 
@@ -106,35 +129,47 @@ function drawPoints() {
   if (currentSegment.length > 0) {
     const currentPoint = currentSegment[currentSegment.length - 1];
     dotImage.onload = () => {
-      ctx.drawImage(dotImage, currentPoint.x - dotImage.width / 2, currentPoint.y - dotImage.height / 2);
+      ctx.drawImage(
+        dotImage,
+        currentPoint.x - dotImage.width / 2,
+        currentPoint.y - dotImage.height / 2,
+      );
     };
     if (dotImage.complete) {
-      ctx.drawImage(dotImage, currentPoint.x - dotImage.width / 2, currentPoint.y - dotImage.height / 2);
+      ctx.drawImage(
+        dotImage,
+        currentPoint.x - dotImage.width / 2,
+        currentPoint.y - dotImage.height / 2,
+      );
     }
   }
 }
 
 // Update point based on score and level divs
 function updatePoint() {
-  const scoreDiv = document.getElementById('score');
-  const linesDiv = document.getElementById('lines');
+  const scoreDiv = document.getElementById("score");
+  const linesDiv = document.getElementById("lines");
 
   let score = 0;
   let lines = 0;
 
   // Extract numbers from <p> elements inside scoreDiv
-  const pElements = scoreDiv.getElementsByTagName('p');
+  const pElements = scoreDiv.getElementsByTagName("p");
   for (let p of pElements) {
     const textContent = p.textContent.trim();
-    if (textContent.includes('Score')) {
-      score = parseInt(textContent.replace(/[^\d]/g, ''), 10);
-    } else if (textContent.includes('Lines')) {
-      lines = parseInt(textContent.replace(/[^\d]/g, ''), 10);
+    if (textContent.includes("Score")) {
+      score = parseInt(textContent.replace(/[^\d]/g, ""), 10);
+    } else if (textContent.includes("Lines")) {
+      lines = parseInt(textContent.replace(/[^\d]/g, ""), 10);
     }
   }
 
   // Detect game reset
-  if (lines === 0 && score === 0 && (lastNumbers.lines !== 0 || lastNumbers.score !== 0)) {
+  if (
+    lines === 0 &&
+    score === 0 &&
+    (lastNumbers.lines !== 0 || lastNumbers.score !== 0)
+  ) {
     // Save the current segment and start a new one
     if (currentSegment.length > 0) {
       const lastPoint = currentSegment[currentSegment.length - 1]; // Track last point before reset
@@ -157,8 +192,14 @@ function updatePoint() {
 
 // Monitor changes to score and level divs
 const observer = new MutationObserver(updatePoint);
-observer.observe(document.getElementById('score'), { childList: true, subtree: true });
-observer.observe(document.getElementById('lines'), { childList: true, subtree: true });
+observer.observe(document.getElementById("score"), {
+  childList: true,
+  subtree: true,
+});
+observer.observe(document.getElementById("lines"), {
+  childList: true,
+  subtree: true,
+});
 
 // Initial render
 drawAxes();

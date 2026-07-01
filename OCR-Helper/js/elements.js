@@ -43,3 +43,28 @@ const shadeBoxes = [
   document.getElementById("shade2"),
   document.getElementById("shade3"),
 ];
+
+const calibrationModalOverlay = document.getElementById(
+  "calibrationModalOverlay",
+);
+const openCalibrationModalButton = document.getElementById(
+  "openCalibrationModal",
+);
+const calibrationHistogram = document.getElementById("calibrationHistogram");
+const calibrationHistogramCtx = calibrationHistogram.getContext("2d");
+const thresholdValues = document.getElementById("thresholdValues");
+const calibrationWarning = document.getElementById("calibrationWarning");
+const saveCalibrationModalButton = document.getElementById(
+  "saveCalibrationModal",
+);
+const discardCalibrationModalButton = document.getElementById(
+  "discardCalibrationModal",
+);
+
+const calibrationQualityText = document.getElementById(
+  "calibrationQualityText",
+);
+
+const resetCalibrationAutoButton = document.getElementById(
+  "resetCalibrationAuto",
+);
