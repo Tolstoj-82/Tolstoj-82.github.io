@@ -68,3 +68,5 @@ const calibrationQualityText = document.getElementById(
 const resetCalibrationAutoButton = document.getElementById(
   "resetCalibrationAuto",
 );
+
+const tileSelectionBoxElement = document.getElementById("tileSelectionBox");

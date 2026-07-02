@@ -4,6 +4,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--gap-lg);
+  padding: var(--gap-xl);
   /*min-height: 120px;*/
 }
 
@@ -142,4 +143,37 @@
 #tileDeleteZone.drag-over {
   background: rgba(255, 68, 68, 0.22);
   transform: scale(1.02);
+}
+
+.tileCard.selected {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 2px;
+  transform: scale(1.04);
+}
+
+.tileSelectionBox {
+  position: fixed;
+  z-index: 9998;
+
+  border: 2px solid var(--accent-blue);
+  background: rgba(47, 140, 255, 0.18);
+
+  pointer-events: none;
+}
+
+.tileSelectionBox.hidden {
+  display: none;
+}
+
+.tileCard.selected {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 2px;
+
+  background: rgba(47, 140, 255, 0.18);
+
+  transform: scale(1.04);
+}
+
+.tileCard.selected .tileCanvas {
+  box-shadow: 0 0 0 2px var(--accent-blue);
 }

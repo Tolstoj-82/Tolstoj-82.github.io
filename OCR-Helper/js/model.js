@@ -44,3 +44,11 @@ let pendingPalette = null;
 let autoCalibrationThresholds = [64, 128, 192];
 let autoCalibrationPalette = [240, 160, 80, 0];
 let selectedThresholdIndex = null;
+
+let selectedTiles = new Map();
+let tileSelectionSource = null;
+let tileSelectionBox = null;
+
+let tileSelectionDrag = null;
+
+let tileSelectionDragStartIds = new Set();

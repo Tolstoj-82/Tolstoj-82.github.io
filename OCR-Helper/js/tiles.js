@@ -31,8 +31,25 @@ function createTileCard(tile) {
   input.value = tile.label;
   input.placeholder = "...";
 
+  input.onclick = (e) => {
+    e.stopPropagation();
+    input.select();
+  };
+
+  input.onmousedown = (e) => {
+    e.stopPropagation();
+  };
+
   input.oninput = () => {
     tile.label = input.value;
+  };
+
+  input.onclick = (e) => {
+    e.stopPropagation();
+  };
+
+  input.onmousedown = (e) => {
+    e.stopPropagation();
   };
 
   div.appendChild(c);
@@ -47,6 +64,28 @@ function renderTiles() {
   [...uniqueTiles.entries()].forEach(([key, tile]) => {
     const div = createTileCard(tile);
 
+    const tileData = {
+      source: "unique",
+      key,
+    };
+
+    div.dataset.tileData = JSON.stringify(tileData);
+
+    div.classList.toggle("selected", isTileSelected(tileData));
+
+    div.onclick = (e) => {
+      e.stopPropagation();
+
+      if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        clearTileSelection();
+      }
+
+      toggleTileSelection(tileData);
+
+      renderTiles();
+      renderTilesets();
+    };
+
     div.draggable = true;
     div.dataset.key = key;
 
@@ -60,6 +99,7 @@ function renderTiles() {
 
 function addTileDragHandlers(card) {
   card.addEventListener("dragstart", (e) => {
+    document.body.classList.add("draggingTiles");
     draggedTileKey = card.dataset.key;
 
     tileDeleteZone.classList.add("visible");
@@ -69,18 +109,15 @@ function addTileDragHandlers(card) {
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", draggedTileKey);
 
-    e.dataTransfer.setData(
-      "application/json",
-      JSON.stringify({
-        source: "unique",
-        key: draggedTileKey,
-      }),
-    );
+    const tileData = JSON.parse(card.dataset.tileData);
+    const payload = getDragTilePayload(tileData);
+
+    e.dataTransfer.setData("application/json", JSON.stringify(payload));
   });
 
   card.addEventListener("dragend", () => {
     draggedTileKey = null;
-
+    document.body.classList.remove("draggingTiles");
     tileDeleteZone.classList.remove("visible", "drag-over");
 
     document.querySelectorAll(".tileCard").forEach((tile) => {
@@ -163,31 +200,232 @@ tileDeleteZone.addEventListener("drop", (e) => {
 
   const raw = e.dataTransfer.getData("application/json");
 
-  if (raw) {
-    const data = JSON.parse(raw);
+  if (!raw) return;
 
-    if (data.source === "tileset") {
-      const tileset = tilesets.find((t) => t.id === Number(data.tilesetId));
+  const payload = JSON.parse(raw);
+  const refs = payload.kind === "tile-selection" ? payload.tiles : [payload];
 
-      if (tileset) {
-        tileset.tiles.splice(Number(data.index), 1);
-      }
-
-      tileDeleteZone.classList.remove("visible", "drag-over");
-
-      renderTilesets();
-      updateWorkflowUI();
-      return;
-    }
-  }
-
-  const key = e.dataTransfer.getData("text/plain");
-
-  if (!key) return;
-
-  uniqueTiles.delete(key);
+  removeTileReferences(refs);
+  clearTileSelection();
 
   tileDeleteZone.classList.remove("visible", "drag-over");
 
   renderTiles();
+  renderTilesets();
+  updateWorkflowUI();
 });
+
+function getTileSelectionId(data) {
+  if (data.source === "unique") {
+    return `unique:${data.key}`;
+  }
+
+  return `tileset:${data.tilesetId}:${data.index}`;
+}
+
+function clearTileSelection() {
+  selectedTiles.clear();
+  tileSelectionSource = null;
+  renderTiles();
+  renderTilesets();
+}
+
+function getTileSelectionGroup(data) {
+  if (data.source === "unique") {
+    return "unique";
+  }
+
+  return `tileset:${data.tilesetId}`;
+}
+
+function toggleTileSelection(data) {
+  const group = getTileSelectionGroup(data);
+
+  if (tileSelectionSource && tileSelectionSource !== group) {
+    clearTileSelection();
+  }
+
+  tileSelectionSource = group;
+
+  const id = getTileSelectionId(data);
+
+  if (selectedTiles.has(id)) {
+    selectedTiles.delete(id);
+  } else {
+    selectedTiles.set(id, data);
+  }
+
+  if (selectedTiles.size === 0) {
+    tileSelectionSource = null;
+  }
+}
+
+function isTileSelected(data) {
+  return selectedTiles.has(getTileSelectionId(data));
+}
+
+tilesContainer.onclick = () => {
+  clearTileSelection();
+};
+
+function startTileMarquee(e, container, sourceData) {
+  if (e.button !== 0) return;
+  if (e.target.closest(".tileCard")) return;
+
+  if (!container.contains(e.target)) return;
+
+  e.stopPropagation();
+
+  tileSelectionDrag = {
+    startX: e.clientX,
+    startY: e.clientY,
+    currentX: e.clientX,
+    currentY: e.clientY,
+    container,
+    sourceData,
+    additive: e.ctrlKey || e.metaKey,
+  };
+
+  tileSelectionDragStartIds = new Set(selectedTiles.keys());
+
+  if (!tileSelectionDrag.additive) {
+    selectedTiles.clear();
+    tileSelectionSource = null;
+  }
+
+  tileSelectionBoxElement.classList.remove("hidden");
+  updateTileSelectionBox();
+}
+
+function updateTileSelectionBox() {
+  if (!tileSelectionDrag) return;
+
+  const x1 = Math.min(tileSelectionDrag.startX, tileSelectionDrag.currentX);
+  const y1 = Math.min(tileSelectionDrag.startY, tileSelectionDrag.currentY);
+  const x2 = Math.max(tileSelectionDrag.startX, tileSelectionDrag.currentX);
+  const y2 = Math.max(tileSelectionDrag.startY, tileSelectionDrag.currentY);
+
+  tileSelectionBoxElement.style.left = `${x1}px`;
+  tileSelectionBoxElement.style.top = `${y1}px`;
+  tileSelectionBoxElement.style.width = `${x2 - x1}px`;
+  tileSelectionBoxElement.style.height = `${y2 - y1}px`;
+
+  selectTilesInBox({
+    left: x1,
+    top: y1,
+    right: x2,
+    bottom: y2,
+  });
+}
+
+function selectTilesInBox(box) {
+  const cards = tileSelectionDrag.container.querySelectorAll(".tileCard");
+
+  selectedTiles.clear();
+
+  cards.forEach((card) => {
+    const rect = card.getBoundingClientRect();
+
+    const intersects =
+      rect.left < box.right &&
+      rect.right > box.left &&
+      rect.top < box.bottom &&
+      rect.bottom > box.top;
+
+    const data = JSON.parse(card.dataset.tileData);
+    const id = getTileSelectionId(data);
+
+    if (intersects) {
+      selectedTiles.set(id, data);
+      tileSelectionSource = getTileSelectionGroup(data);
+      card.classList.add("selected");
+    } else {
+      card.classList.remove("selected");
+    }
+  });
+
+  if (selectedTiles.size === 0) {
+    tileSelectionSource = null;
+  }
+}
+
+window.addEventListener("mousemove", (e) => {
+  if (!tileSelectionDrag) return;
+
+  tileSelectionDrag.currentX = e.clientX;
+  tileSelectionDrag.currentY = e.clientY;
+
+  updateTileSelectionBox();
+});
+
+window.addEventListener("mouseup", () => {
+  if (!tileSelectionDrag) return;
+
+  tileSelectionDrag = null;
+  tileSelectionBoxElement.classList.add("hidden");
+
+  renderTiles();
+  renderTilesets();
+});
+
+document.addEventListener("mousedown", (e) => {
+  if (tileSelectionDrag) return;
+  if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+
+  if (
+    e.target.closest(".tileCard") ||
+    e.target.closest(".tileset") ||
+    e.target.closest("#tilesContainer")
+  ) {
+    return;
+  }
+
+  clearTileSelection();
+});
+
+tilesContainer.addEventListener("mousedown", (e) => {
+  startTileMarquee(e, tilesContainer, {
+    source: "unique",
+  });
+});
+
+function idToTileData(id) {
+  const parts = id.split(":");
+
+  if (parts[0] === "unique") {
+    return JSON.stringify({
+      source: "unique",
+      key: parts.slice(1).join(":"),
+    });
+  }
+
+  return JSON.stringify({
+    source: "tileset",
+    tilesetId: Number(parts[1]),
+    index: Number(parts[2]),
+  });
+}
+
+function getDragTilePayload(singleTileData) {
+  const singleId = getTileSelectionId(singleTileData);
+
+  if (!selectedTiles.has(singleId)) {
+    selectedTiles.clear();
+    tileSelectionSource = getTileSelectionGroup(singleTileData);
+    selectedTiles.set(singleId, singleTileData);
+
+    document.querySelectorAll(".tileCard.selected").forEach((card) => {
+      card.classList.remove("selected");
+    });
+  }
+
+  return {
+    kind: "tile-selection",
+    sourceGroup: tileSelectionSource,
+    sourceTilesetId:
+      singleTileData.source === "tileset"
+        ? Number(singleTileData.tilesetId)
+        : null,
+    tiles: [...selectedTiles.values()],
+  };
+}

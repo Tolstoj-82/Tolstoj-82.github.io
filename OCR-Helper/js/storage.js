@@ -123,12 +123,12 @@ function deleteGameFromLocalStorage() {
 saveGameLocalButton.onclick = saveCurrentGameToLocalStorage;
 loadSavedGameButton.onclick = loadGameFromLocalStorage;
 deleteSavedGameButton.onclick = deleteGameFromLocalStorage;
-savedGameSelect.onchange = updateStorageButtons;
 
 function updateStorageButtons() {
   const canSaveGame = game.name.trim() !== "" && game.screens.length > 0;
   const hasSelectedSavedGame = savedGameSelect.value !== "";
 
+  deleteSavedGameButton.hidden = !hasSelectedSavedGame;
   saveGameLocalButton.disabled = !canSaveGame;
   loadSavedGameButton.disabled = !hasSelectedSavedGame;
   deleteSavedGameButton.disabled = !hasSelectedSavedGame;
@@ -156,6 +156,8 @@ newProjectButton.onclick = () => {
 
       document.getElementById("gameName").value = "";
 
+      savedGameSelect.value = "";
+
       renderScreenList();
       updateScreenSetupTitle();
       renderROIList();
@@ -173,4 +175,23 @@ newProjectButton.onclick = () => {
     "New Project",
     "Cancel",
   );
+};
+
+function isCurrentProjectEmpty() {
+  return (
+    game.name.trim() === "" &&
+    game.screens.length === 0 &&
+    tilesets.length === 0 &&
+    uniqueTiles.size === 0
+  );
+}
+
+savedGameSelect.onchange = () => {
+  updateStorageButtons();
+
+  if (!savedGameSelect.value) return;
+
+  if (isCurrentProjectEmpty()) {
+    loadGameFromLocalStorage();
+  }
 };

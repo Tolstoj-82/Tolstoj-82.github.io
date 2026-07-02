@@ -111,6 +111,42 @@ function renderTilesets() {
       );
     };
 
+    deleteButton.addEventListener("dragover", (e) => {
+      if (!document.body.classList.contains("draggingTiles")) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      deleteButton.classList.add("tile-delete-over");
+    });
+
+    deleteButton.addEventListener("dragleave", () => {
+      deleteButton.classList.remove("tile-delete-over");
+    });
+
+    deleteButton.addEventListener("drop", (e) => {
+      if (!document.body.classList.contains("draggingTiles")) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      deleteButton.classList.remove("tile-delete-over");
+
+      const raw = e.dataTransfer.getData("application/json");
+      if (!raw) return;
+
+      const payload = JSON.parse(raw);
+      const refs =
+        payload.kind === "tile-selection" ? payload.tiles : [payload];
+
+      removeTileReferences(refs);
+      clearTileSelection();
+
+      renderTiles();
+      renderTilesets();
+      updateWorkflowUI();
+    });
+
     const typeSelect = document.createElement("select");
 
     tilesetTypes.forEach((type) => {
@@ -132,15 +168,29 @@ function renderTilesets() {
     };
 
     const list = document.createElement("div");
+
+    list.addEventListener("mousedown", (e) => {
+      startTileMarquee(e, list, {
+        source: "tileset",
+        tilesetId: tileset.id,
+      });
+    });
+
     list.dataset.tileset = tileset.id;
 
     list.addEventListener("dragover", (e) => {
       e.preventDefault();
+
+      const rect = list.getBoundingClientRect();
+      const isCopy = e.clientX > rect.left + rect.width / 2;
+
       list.classList.add("drag-over");
+      list.classList.toggle("copy-mode", isCopy);
+      list.classList.toggle("move-mode", !isCopy);
     });
 
     list.addEventListener("dragleave", () => {
-      list.classList.remove("drag-over");
+      list.classList.remove("drag-over", "copy-mode", "move-mode");
     });
 
     list.addEventListener("drop", (e) => {
@@ -148,16 +198,26 @@ function renderTilesets() {
 
       const raw = e.dataTransfer.getData("application/json");
 
+      list.classList.remove("drag-over", "copy-mode", "move-mode");
+
       if (!raw) return;
 
-      const data = JSON.parse(raw);
+      const payload = JSON.parse(raw);
 
-      moveTileToTileset(data, tileset.id, tileset.tiles.length, false);
+      moveTilePayloadToTileset(
+        payload,
+        tileset.id,
+        tileset.tiles.length,
+        false,
+        e.ctrlKey,
+      );
 
-      list.classList.remove("drag-over");
+      clearTileSelection();
 
-      renderTilesets();
       renderTiles();
+      renderTilesets();
+      renderROIList();
+      renderCaptureROIPicker();
       updateWorkflowUI();
     });
 
@@ -174,6 +234,29 @@ function renderTilesets() {
 
     tileset.tiles.forEach((tile, index) => {
       const card = createTileCard(tile);
+
+      const tileData = {
+        source: "tileset",
+        tilesetId: tileset.id,
+        index,
+      };
+
+      card.dataset.tileData = JSON.stringify(tileData);
+
+      card.classList.toggle("selected", isTileSelected(tileData));
+
+      card.onclick = (e) => {
+        e.stopPropagation();
+
+        if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+          clearTileSelection();
+        }
+
+        toggleTileSelection(tileData);
+
+        renderTiles();
+        renderTilesets();
+      };
 
       card.draggable = true;
       card.dataset.source = "tileset";
@@ -196,29 +279,25 @@ function renderTilesets() {
 
 function addTilesetTileDragHandlers(card) {
   card.addEventListener("dragstart", (e) => {
+    const tileData = JSON.parse(card.dataset.tileData);
+    const payload = getDragTilePayload(tileData);
+    document.body.classList.add("draggingTiles");
+
     draggedTilesetTile = {
       tilesetId: Number(card.dataset.tilesetId),
       index: Number(card.dataset.index),
     };
 
     tileDeleteZone.classList.add("visible");
-
     card.classList.add("dragging");
 
     e.dataTransfer.effectAllowed = "move";
-
-    e.dataTransfer.setData(
-      "application/json",
-      JSON.stringify({
-        source: "tileset",
-        tilesetId: Number(card.dataset.tilesetId),
-        index: Number(card.dataset.index),
-      }),
-    );
+    e.dataTransfer.setData("application/json", JSON.stringify(payload));
   });
 
   card.addEventListener("dragend", () => {
     draggedTilesetTile = null;
+    document.body.classList.remove("draggingTiles");
 
     document.querySelectorAll(".tileCard").forEach((tile) => {
       tile.classList.remove(
@@ -251,7 +330,10 @@ function addTilesetTileDragHandlers(card) {
     e.preventDefault();
     e.stopPropagation();
 
-    const data = JSON.parse(e.dataTransfer.getData("application/json"));
+    const raw = e.dataTransfer.getData("application/json");
+    if (!raw) return;
+
+    const payload = JSON.parse(raw);
 
     const targetTilesetId = Number(card.dataset.tilesetId);
     const targetIndex = Number(card.dataset.index);
@@ -259,53 +341,122 @@ function addTilesetTileDragHandlers(card) {
     const rect = card.getBoundingClientRect();
     const insertAfter = e.clientX > rect.left + rect.width / 2;
 
-    moveTileToTileset(data, targetTilesetId, targetIndex, insertAfter);
+    moveTilePayloadToTileset(
+      payload,
+      targetTilesetId,
+      targetIndex,
+      insertAfter,
+      e.ctrlKey,
+    );
 
+    clearTileSelection();
+
+    renderTiles();
     renderTilesets();
     updateWorkflowUI();
   });
 }
 
-function moveTileToTileset(data, targetTilesetId, targetIndex, insertAfter) {
+let draggedTilesetTile = null;
+
+function getTileFromReference(ref) {
+  if (ref.source === "unique") {
+    return uniqueTiles.get(ref.key) || null;
+  }
+
+  if (ref.source === "tileset") {
+    const tileset = tilesets.find((t) => t.id === Number(ref.tilesetId));
+
+    if (!tileset) return null;
+
+    return tileset.tiles[Number(ref.index)] || null;
+  }
+
+  return null;
+}
+
+function removeTileReferences(tileRefs) {
+  const refsByUniqueKey = tileRefs
+    .filter((ref) => ref.source === "unique")
+    .map((ref) => ref.key);
+
+  refsByUniqueKey.forEach((key) => {
+    uniqueTiles.delete(key);
+  });
+
+  const refsByTileset = new Map();
+
+  tileRefs
+    .filter((ref) => ref.source === "tileset")
+    .forEach((ref) => {
+      const id = Number(ref.tilesetId);
+
+      if (!refsByTileset.has(id)) {
+        refsByTileset.set(id, []);
+      }
+
+      refsByTileset.get(id).push(Number(ref.index));
+    });
+
+  refsByTileset.forEach((indexes, tilesetId) => {
+    const tileset = tilesets.find((t) => t.id === tilesetId);
+
+    if (!tileset) return;
+
+    indexes
+      .sort((a, b) => b - a)
+      .forEach((index) => {
+        tileset.tiles.splice(index, 1);
+      });
+  });
+}
+
+function moveTileSelectionToTileset(
+  tileRefs,
+  targetTilesetId,
+  targetIndex,
+  insertAfter,
+  copy = false,
+) {
   const targetTileset = tilesets.find((t) => t.id === targetTilesetId);
 
   if (!targetTileset) return;
 
-  let movedTile = null;
-
-  if (data.source === "unique") {
-    const tile = uniqueTiles.get(data.key);
-
-    if (!tile) return;
-
-    movedTile = {
-      pixels: tile.pixels,
+  const movedTiles = tileRefs
+    .map((ref) => getTileFromReference(ref))
+    .filter(Boolean)
+    .map((tile) => ({
+      pixels: [...tile.pixels],
       label: tile.label,
-    };
+    }));
+
+  if (movedTiles.length === 0) return;
+
+  if (!copy) {
+    removeTileReferences(tileRefs);
   }
 
-  if (data.source === "tileset") {
-    const sourceTileset = tilesets.find((t) => t.id === Number(data.tilesetId));
+  let insertIndex = insertAfter ? targetIndex + 1 : targetIndex;
 
-    if (!sourceTileset) return;
+  insertIndex = Math.max(0, Math.min(targetTileset.tiles.length, insertIndex));
 
-    const [tile] = sourceTileset.tiles.splice(Number(data.index), 1);
-
-    movedTile = tile;
-
-    if (
-      sourceTileset.id === targetTileset.id &&
-      Number(data.index) < targetIndex
-    ) {
-      targetIndex--;
-    }
-  }
-
-  if (!movedTile) return;
-
-  const insertIndex = insertAfter ? targetIndex + 1 : targetIndex;
-
-  targetTileset.tiles.splice(insertIndex, 0, movedTile);
+  targetTileset.tiles.splice(insertIndex, 0, ...movedTiles);
 }
 
-let draggedTilesetTile = null;
+function moveTilePayloadToTileset(
+  payload,
+  targetTilesetId,
+  targetIndex,
+  insertAfter,
+  copy = false,
+) {
+  const refs = payload.kind === "tile-selection" ? payload.tiles : [payload];
+
+  moveTileSelectionToTileset(
+    refs,
+    targetTilesetId,
+    targetIndex,
+    insertAfter,
+    copy,
+  );
+}

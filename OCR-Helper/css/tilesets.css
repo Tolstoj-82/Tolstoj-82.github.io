@@ -40,7 +40,7 @@
   border: 2px solid var(--text-red);
   border-radius: var(--radius-small);
 
-  background: transparent;
+  background: var(--shade-white);
   color: var(--text-red);
 
   cursor: pointer;
@@ -63,12 +63,12 @@
 .tilesetTiles {
   display: flex;
   flex-wrap: wrap;
+  padding: var(--gap-xl);
   gap: var(--gap-md);
   align-items: flex-start;
 
   min-height: 72px;
   margin: 0 var(--gap-md) var(--gap-md);
-  padding: var(--gap-md);
 
   border: 2px dashed var(--border-mid);
   border-radius: var(--radius-small);
@@ -87,4 +87,57 @@
   text-align: center;
 
   pointer-events: none;
+}
+
+.tilesetDropHint {
+  flex-basis: 100%;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  margin-bottom: var(--gap-md);
+
+  pointer-events: none;
+  user-select: none;
+
+  font-weight: bold;
+  text-align: center;
+  color: var(--border-mid);
+}
+
+.tilesetTiles.drag-over.move-mode {
+  border-color: var(--text-green);
+  background: rgba(0, 180, 90, 0.12);
+}
+
+.tilesetTiles.drag-over.copy-mode {
+  border-color: var(--accent-blue);
+  background: rgba(47, 140, 255, 0.14);
+}
+
+.tilesetTiles.drag-over.move-mode .tilesetDropHint span:first-child {
+  color: var(--text-green);
+}
+
+.tilesetTiles.drag-over.copy-mode .tilesetDropHint span:last-child {
+  color: var(--accent-blue);
+}
+
+body.draggingTiles .tilesetDeleteButton {
+  border-style: dashed;
+  background: rgba(255, 0, 0, 0.08);
+}
+
+body.draggingTiles .tilesetDeleteButton {
+  font-size: 0;
+}
+
+body.draggingTiles .tilesetDeleteButton::after {
+  content: "Drop to delete";
+  font-size: 12px;
+}
+
+.tilesetDeleteButton.tile-delete-over {
+  background: var(--text-red);
+  color: var(--shade-white);
 }
