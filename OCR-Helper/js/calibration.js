@@ -1,7 +1,4 @@
-// Calibration
-//--------------------------------
-
-const HISTOGRAM_HEIGHT = 220;
+const HISTOGRAM_HEIGHT = 260;
 const HISTOGRAM_TICKS = [0, 64, 128, 192, 255];
 
 let histogramDragIndex = null;
@@ -9,9 +6,6 @@ let histogramDragIndex = null;
 document.getElementById("calibrateButton").onclick = () => {
   runCalibration();
 };
-
-// Sampling
-//--------------------------------
 
 function getFrameBrightnessSamples() {
   ctx.drawImage(video, 0, 0, WIDTH, HEIGHT);
@@ -28,9 +22,6 @@ function getFrameBrightnessSamples() {
   return samples;
 }
 
-// Auto calibration
-//--------------------------------
-
 function findFourShades(samples) {
   const histogram = new Array(256).fill(0);
 
@@ -42,6 +33,7 @@ function findFourShades(samples) {
     .map((count, value) => ({ value, count }))
     .sort((a, b) => b.count - a.count);
 
+  // Pick separated brightness peaks as candidate Game Boy shades.
   const peaks = [];
 
   for (const peak of ranked) {
@@ -74,21 +66,7 @@ function assessCalibrationQuality(values) {
   return "bad";
 }
 
-// Palette + thresholds
-//--------------------------------
-
-function updatePalette() {
-  palette.sort((a, b) => b - a);
-
-  for (let i = 0; i < 4; i++) {
-    shadeBoxes[i].title = palette[i];
-
-    shadeBoxes[i].style.background =
-      `rgb(${palette[i]},${palette[i]},${palette[i]})`;
-
-    shadeBoxes[i].classList.toggle("calibrated", calibrated);
-  }
-
+function updateCalibrationStatus() {
   calibrationStatus.textContent = getCalibrationStatusSymbol();
 
   calibrationStatus.classList.toggle("good", calibrationQuality === "good");
@@ -96,8 +74,6 @@ function updatePalette() {
     "bad",
     calibrationQuality === "bad" || calibrationQuality === "none",
   );
-
-  validatePaletteOrder();
 }
 
 function calculateThresholdsFromPalette(values) {
@@ -110,54 +86,24 @@ function calculateThresholdsFromPalette(values) {
   ];
 }
 
-function paletteFromThresholds(thresholds) {
-  const sorted = [...thresholds].sort((a, b) => a - b);
-
-  return [
-    Math.round((sorted[2] + 255) / 2), // bright range
-    Math.round((sorted[1] + sorted[2]) / 2),
-    Math.round((sorted[0] + sorted[1]) / 2),
-    Math.round(sorted[0] / 2), // dark range
-  ];
-}
-
 function getCalibrationStatusSymbol() {
   switch (calibrationQuality) {
     case "good":
       return "✓";
 
     case "ok":
-      return "△";
+      return "OK";
 
     case "bad":
       return "!";
 
     case "manual-thresholds":
-      return "⇄";
-
-    case "manual-pickers":
-      return "✚";
+      return "Man.";
 
     default:
       return "✖";
   }
 }
-
-function validatePaletteOrder() {
-  if (!calibrationWarning) return;
-
-  const isOrdered = palette.every((value, index) => {
-    if (index === 0) return true;
-    return palette[index - 1] >= value;
-  });
-
-  calibrationWarning.textContent = isOrdered
-    ? ""
-    : "Warning: shades are not ordered bright to dark.";
-}
-
-// Quantize
-//--------------------------------
 
 function processFrame(frame) {
   const output = ctx.createImageData(WIDTH, HEIGHT);
@@ -180,19 +126,32 @@ function processFrame(frame) {
 
     quantized[i] = best;
 
-    const value = palette[best];
+    const color = getDisplayColor(best);
 
-    output.data[p] = value;
-    output.data[p + 1] = value;
-    output.data[p + 2] = value;
+    output.data[p] = color.r;
+    output.data[p + 1] = color.g;
+    output.data[p + 2] = color.b;
     output.data[p + 3] = 255;
   }
 
   ctx.putImageData(output, 0, 0);
 }
 
-// Histogram modal
-//--------------------------------
+function redrawQuantizedCanvas() {
+  const output = ctx.createImageData(WIDTH, HEIGHT);
+
+  for (let i = 0; i < WIDTH * HEIGHT; i++) {
+    const p = i * 4;
+    const color = getDisplayColor(quantized[i]);
+
+    output.data[p] = color.r;
+    output.data[p + 1] = color.g;
+    output.data[p + 2] = color.b;
+    output.data[p + 3] = 255;
+  }
+
+  ctx.putImageData(output, 0, 0);
+}
 
 openCalibrationModalButton.onclick = () => {
   if (!calibrated) {
@@ -200,29 +159,25 @@ openCalibrationModalButton.onclick = () => {
   }
 
   pendingCalibrationThresholds = calibrationThresholds.slice();
-  pendingPalette = palette.slice();
 
   calibrationModalOverlay.classList.remove("hidden");
 
   requestAnimationFrame(() => {
     drawCalibrationHistogram();
-    validatePaletteOrder();
   });
 };
 
 saveCalibrationModalButton.onclick = () => {
-  if (!pendingCalibrationThresholds || !pendingPalette) return;
+  if (!pendingCalibrationThresholds) return;
 
   calibrationThresholds = pendingCalibrationThresholds.slice();
-  palette = pendingPalette.slice();
 
   calibrationMode = "manual-thresholds";
   calibrationQuality = "manual-thresholds";
 
   pendingCalibrationThresholds = null;
-  pendingPalette = null;
 
-  updatePalette();
+  updateCalibrationStatus();
   updateWorkflowUI();
 
   calibrationModalOverlay.classList.add("hidden");
@@ -230,7 +185,6 @@ saveCalibrationModalButton.onclick = () => {
 
 discardCalibrationModalButton.onclick = () => {
   pendingCalibrationThresholds = null;
-  pendingPalette = null;
 
   calibrationModalOverlay.classList.add("hidden");
 };
@@ -269,10 +223,10 @@ function drawCalibrationHistogram() {
     .slice(0, 3)
     .sort((a, b) => a - b);
 
-  const plotLeft = 28;
-  const plotRight = width - 28;
-  const plotTop = 10;
-  const plotBottom = height - 34;
+  const plotLeft = 32;
+  const plotRight = width - 32;
+  const plotTop = 38;
+  const plotBottom = height - 52;
 
   const plotWidth = plotRight - plotLeft;
   const plotHeight = plotBottom - plotTop;
@@ -289,7 +243,7 @@ function drawCalibrationHistogram() {
 
   const max = Math.max(...bins, 1);
 
-  ctx.fillStyle = "#2f8cff";
+  drawHistogramTickGuides(ctx, plotLeft, plotTop, plotBottom, plotWidth);
 
   bins.forEach((count, index) => {
     const x = plotLeft + (index / 255) * plotWidth;
@@ -306,6 +260,15 @@ function drawCalibrationHistogram() {
     }
   });
 
+  drawDetectedShadeMarkers(
+    ctx,
+    bins,
+    max,
+    plotLeft,
+    plotBottom,
+    plotWidth,
+    plotHeight,
+  );
   drawHistogramBaseline(ctx, plotLeft, plotRight, plotBottom);
   drawHistogramThresholds(
     ctx,
@@ -330,6 +293,24 @@ function drawHistogramBaseline(ctx, plotLeft, plotRight, plotBottom) {
   ctx.stroke();
 }
 
+function drawHistogramTickGuides(ctx, plotLeft, plotTop, plotBottom, plotWidth) {
+  ctx.save();
+
+  ctx.strokeStyle = "#d8d8d8";
+  ctx.lineWidth = 1;
+
+  HISTOGRAM_TICKS.forEach((value) => {
+    const x = Math.round(plotLeft + (value / 255) * plotWidth) + 0.5;
+
+    ctx.beginPath();
+    ctx.moveTo(x, plotTop);
+    ctx.lineTo(x, plotBottom + 22);
+    ctx.stroke();
+  });
+
+  ctx.restore();
+}
+
 function drawHistogramThresholds(
   ctx,
   thresholds,
@@ -338,27 +319,94 @@ function drawHistogramThresholds(
   plotBottom,
   plotWidth,
 ) {
+  ctx.save();
+
   ctx.strokeStyle = "#ff4444";
   ctx.lineWidth = 1;
   ctx.setLineDash([4, 4]);
 
   thresholds.forEach((threshold) => {
-    const x = plotLeft + (threshold / 255) * plotWidth;
+    const x = Math.round(plotLeft + (threshold / 255) * plotWidth) + 0.5;
 
     ctx.beginPath();
     ctx.moveTo(x, plotTop);
-    ctx.lineTo(x, plotBottom);
+    ctx.lineTo(x, plotBottom + 22);
     ctx.stroke();
 
     ctx.setLineDash([]);
 
-    ctx.fillStyle = "#ff4444";
-    ctx.fillRect(x - 4, plotBottom + 5, 8, 8);
+    drawThresholdHandle(ctx, x, plotBottom + 14);
 
     ctx.setLineDash([4, 4]);
   });
 
   ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawThresholdHandle(ctx, x, y) {
+  const width = 20;
+  const height = 14;
+  const radius = 4;
+  const left = x - width / 2;
+  const top = y - height / 2;
+
+  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#ff4444";
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.roundRect(left, top, width, height, radius);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#ff4444";
+  ctx.font = "bold 11px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("⋮⋮", x, y - 0.5);
+}
+
+function drawDetectedShadeMarkers(
+  ctx,
+  bins,
+  max,
+  plotLeft,
+  plotBottom,
+  plotWidth,
+  plotHeight,
+) {
+  if (detectedCalibrationShades.length !== 4) return;
+
+  ctx.save();
+
+  ctx.font = "11px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "bottom";
+
+  detectedCalibrationShades.forEach((shade) => {
+    const x = plotLeft + (shade / 255) * plotWidth;
+    const barHeight = (bins[shade] / max) * plotHeight;
+    const tipY = Math.max(20, plotBottom - barHeight - 6);
+    const topY = tipY - 10;
+
+    ctx.fillStyle = "#000000";
+    ctx.fillText(String(shade), x, topY - 3);
+
+    ctx.fillStyle = `rgb(${shade},${shade},${shade})`;
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.moveTo(x, tipY);
+    ctx.lineTo(x - 6, topY);
+    ctx.lineTo(x + 6, topY);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  });
+
+  ctx.restore();
 }
 
 function drawHistogramLabels(ctx, plotLeft, plotBottom, plotWidth) {
@@ -369,12 +417,9 @@ function drawHistogramLabels(ctx, plotLeft, plotBottom, plotWidth) {
 
   HISTOGRAM_TICKS.forEach((value) => {
     const x = plotLeft + (value / 255) * plotWidth;
-    ctx.fillText(String(value), x, plotBottom + 18);
+    ctx.fillText(String(value), x, plotBottom + 34);
   });
 }
-
-// Histogram interaction
-//--------------------------------
 
 calibrationHistogram.addEventListener("mousedown", (e) => {
   if (!pendingCalibrationThresholds) {
@@ -384,6 +429,7 @@ calibrationHistogram.addEventListener("mousedown", (e) => {
   const value = getHistogramValueFromMouse(e);
   const thresholds = pendingCalibrationThresholds;
 
+  // Drag the nearest threshold, but keep changes pending until Save.
   histogramDragIndex = thresholds.reduce((closestIndex, threshold, index) => {
     return Math.abs(threshold - value) <
       Math.abs(thresholds[closestIndex] - value)
@@ -402,8 +448,6 @@ window.addEventListener("mousemove", (e) => {
   pendingCalibrationThresholds[histogramDragIndex] = value;
   pendingCalibrationThresholds.sort((a, b) => a - b);
 
-  pendingPalette = paletteFromThresholds(pendingCalibrationThresholds);
-
   drawCalibrationHistogram();
 });
 
@@ -414,8 +458,8 @@ window.addEventListener("mouseup", () => {
 function getHistogramValueFromMouse(e) {
   const rect = calibrationHistogram.getBoundingClientRect();
 
-  const plotLeft = 28;
-  const plotRight = rect.width - 28;
+  const plotLeft = 32;
+  const plotRight = rect.width - 32;
   const plotWidth = plotRight - plotLeft;
 
   const x = Math.max(plotLeft, Math.min(plotRight, e.clientX - rect.left));
@@ -423,57 +467,13 @@ function getHistogramValueFromMouse(e) {
   return Math.round(((x - plotLeft) / plotWidth) * 255);
 }
 
-function getCalibrationQualityText() {
-  switch (calibrationQuality) {
-    case "good":
-      return "✓ Good calibration";
-
-    case "ok":
-      return "△ Acceptable calibration";
-
-    case "bad":
-      return "! Poor calibration";
-
-    case "manual-thresholds":
-      return "⇄ Manual thresholds";
-
-    default:
-      return "✖ Not calibrated";
-  }
-}
-
 resetCalibrationAutoButton.onclick = () => {
   pendingCalibrationThresholds = autoCalibrationThresholds.slice();
-  pendingPalette = autoCalibrationPalette.slice();
 
   selectedThresholdIndex = null;
 
   drawCalibrationHistogram();
 };
-
-function drawHistogramRegions(
-  ctx,
-  thresholds,
-  plotLeft,
-  plotTop,
-  plotBottom,
-  plotWidth,
-) {
-  const xs = [
-    plotLeft,
-    plotLeft + (thresholds[0] / 255) * plotWidth,
-    plotLeft + (thresholds[1] / 255) * plotWidth,
-    plotLeft + (thresholds[2] / 255) * plotWidth,
-    plotLeft + plotWidth,
-  ];
-
-  const alphas = [0.18, 0.13, 0.08, 0.04];
-
-  for (let i = 0; i < 4; i++) {
-    ctx.fillStyle = `rgba(0, 0, 0, ${alphas[i]})`;
-    ctx.fillRect(xs[i], plotTop, xs[i + 1] - xs[i], plotBottom - plotTop);
-  }
-}
 
 window.addEventListener("keydown", (e) => {
   if (calibrationModalOverlay.classList.contains("hidden")) return;
@@ -496,7 +496,6 @@ window.addEventListener("keydown", (e) => {
   );
 
   pendingCalibrationThresholds.sort((a, b) => a - b);
-  pendingPalette = paletteFromThresholds(pendingCalibrationThresholds);
 
   drawCalibrationHistogram();
 });
@@ -506,18 +505,17 @@ function runCalibration() {
 
   calibrationSamples = samples.slice();
 
-  palette = findFourShades(samples);
-  calibrationThresholds = calculateThresholdsFromPalette(palette);
+  const detectedShades = findFourShades(samples);
 
+  detectedCalibrationShades = detectedShades.slice();
+  calibrationThresholds = calculateThresholdsFromPalette(detectedShades);
   autoCalibrationThresholds = calibrationThresholds.slice();
-  autoCalibrationPalette = palette.slice();
 
   calibrationMode = "auto";
-  calibrationQuality = assessCalibrationQuality(palette);
+  calibrationQuality = assessCalibrationQuality(detectedShades);
 
   calibrated = true;
-  calibrationReminder = false;
 
-  updatePalette();
+  updateCalibrationStatus();
   updateWorkflowUI();
 }

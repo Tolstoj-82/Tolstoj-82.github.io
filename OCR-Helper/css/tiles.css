@@ -1,16 +1,17 @@
-/* Tile gallery */
-
 #tilesContainer {
+  --tile-card-padding: clamp(4px, 1.1cqi, 8px);
+  --tile-input-inset: clamp(6px, 1.2cqi, 10px);
+  --tile-preview-size: clamp(34px, 8cqi, 64px);
+
   display: flex;
   flex-wrap: wrap;
-  gap: var(--gap-lg);
-  padding: var(--gap-xl);
-  /*min-height: 120px;*/
+  gap: clamp(var(--gap-sm), 2cqi, var(--gap-lg));
+  padding: clamp(var(--gap-md), 3cqi, var(--gap-xl));
 }
 
 .tileCard {
-  width: 96px;
-  padding: 8px;
+  width: calc(var(--tile-preview-size) + (2 * var(--tile-card-padding)) + 8px);
+  padding: var(--tile-card-padding);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,6 +39,11 @@
   opacity: 0.35;
   transform: scale(0.96);
   cursor: grabbing;
+}
+
+.tileCard.deleting {
+  animation: tileDeleteFade 0.18s ease forwards;
+  pointer-events: none;
 }
 
 .tileCard.drag-over {
@@ -69,8 +75,10 @@
 }
 
 .tileCard input {
-  width: 100%;
-  padding: 4px 6px;
+  width: calc(100% - (2 * var(--tile-input-inset)));
+  min-width: 0;
+  margin-inline: var(--tile-input-inset);
+  padding: 3px 4px;
 
   background: var(--panel-light);
   color: var(--panel-text);
@@ -104,16 +112,6 @@
   border-color: var(--accent-blue);
 }
 
-.tileButtons {
-  display: flex;
-  gap: var(--gap-sm);
-  width: 100%;
-}
-
-.tileButtons button {
-  flex: 1;
-}
-
 #tileDeleteZone {
   min-height: 44px;
   padding: var(--gap-md) var(--gap-lg);
@@ -145,17 +143,18 @@
   transform: scale(1.02);
 }
 
-.tileCard.selected {
-  outline: 3px solid var(--accent-blue);
-  outline-offset: 2px;
-  transform: scale(1.04);
+@keyframes tileDeleteFade {
+  100% {
+    opacity: 0;
+    transform: scale(0.84);
+  }
 }
 
 .tileSelectionBox {
   position: fixed;
   z-index: 9998;
 
-  border: 2px solid var(--accent-blue);
+  border: 1px solid var(--accent-blue);
   background: rgba(47, 140, 255, 0.18);
 
   pointer-events: none;
@@ -166,8 +165,8 @@
 }
 
 .tileCard.selected {
-  outline: 3px solid var(--accent-blue);
-  outline-offset: 2px;
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 0;
 
   background: rgba(47, 140, 255, 0.18);
 

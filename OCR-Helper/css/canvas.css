@@ -1,5 +1,3 @@
-/* Camera + canvas */
-
 #video {
   display: none;
 }
@@ -83,8 +81,6 @@
   pointer-events: none;
 }
 
-/* Palette */
-
 .calibrationStatus {
   height: 38px;
   min-width: 38px;
@@ -107,48 +103,42 @@
   color: var(--border-calibrated);
 }
 
-.calibrateRow {
-  align-items: center;
+.lutSection {
+  margin-top: var(--gap-lg);
+  padding-top: var(--gap-md);
 }
 
-#palette {
+.lutControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-md);
+}
+
+.lutControls select {
+  min-width: 180px;
+}
+
+.lutSwatches {
   display: flex;
   gap: var(--gap-sm);
-  flex-wrap: wrap;
 }
 
-.shade {
-  line-height: 0;
-}
+.lutSwatch {
+  width: 42px;
+  height: 42px;
 
-.shadeBox {
-  width: 38px;
-  height: 38px;
   border: 2px solid var(--border-mid);
   border-radius: var(--radius-small);
+  cursor: pointer;
 }
 
-.shadeBox.calibrated {
-  border-color: var(--border-calibrated);
+.lutSwatch input {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
 }
-
-#shade0 {
-  background: var(--shade-black);
-}
-
-#shade1 {
-  background: var(--shade-dark);
-}
-
-#shade2 {
-  background: var(--shade-light);
-}
-
-#shade3 {
-  background: var(--shade-white);
-}
-
-/* Animations */
 
 @keyframes capturePulse {
   0%,

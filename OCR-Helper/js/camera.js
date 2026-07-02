@@ -1,6 +1,3 @@
-// Camera
-//--------------------------------
-
 navigator.mediaDevices?.addEventListener("devicechange", () => {
   loadCameras();
 });
@@ -115,9 +112,6 @@ async function startCamera() {
     showAlert("Camera access failed: " + err.message);
   }
 }
-
-// Event handlers
-//--------------------------------
 
 document.getElementById("refreshCamera").onclick = loadCameras;
 

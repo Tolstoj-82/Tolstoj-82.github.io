@@ -1,6 +1,7 @@
 :root {
   --bg-page: #2b2b2b;
   --bg-code: #202020;
+  --bg-panel-dark: #f7f7f7;
 
   --text-main: #f0f0f0;
   --text-green: #00ff66;
@@ -47,8 +48,6 @@
   --success-glow: rgba(0, 170, 0, 0.2);
 }
 
-/* Base */
-
 * {
   box-sizing: border-box;
 }
@@ -65,15 +64,62 @@ h1,
   margin-bottom: var(--gap-md);
 }
 
-/* JSON output */
+#screenSetupTitle,
+.identifierInfoTitle {
+  padding-bottom: var(--gap-sm);
+  border-bottom: 5px solid var(--border-mid);
+}
 
+.jsonViewer {
+  position: relative;
+  width: 100%;
+}
+
+#jsonHighlight,
 #jsonOutput {
   width: 100%;
-  resize: vertical;
+  min-height: 320px;
+  margin: 0;
   font-family: Consolas, monospace;
   font-size: 13px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  overflow: auto;
+  tab-size: 2;
+}
+
+#jsonHighlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background: var(--bg-code);
-  color: var(--text-green);
+  color: #d6deeb;
   border: 2px solid var(--border-mid);
   padding: var(--gap-md);
+}
+
+#jsonOutput {
+  position: relative;
+  resize: vertical;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--shade-white);
+  border: 2px solid transparent;
+  padding: var(--gap-md);
+}
+
+.jsonKey {
+  color: #7fdbca;
+}
+
+.jsonString {
+  color: #ecc48d;
+}
+
+.jsonNumber {
+  color: #f78c6c;
+}
+
+.jsonLiteral {
+  color: #c792ea;
 }

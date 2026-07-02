@@ -1,5 +1,3 @@
-/* Controls */
-
 .row,
 .buttonRow {
   display: flex;
@@ -22,9 +20,16 @@
     margin-left: auto;
   }
 }
-
 label {
   font-weight: bold;
+}
+
+.savedGameRow {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--gap-md);
+  margin-bottom: 0;
 }
 
 select,
@@ -43,7 +48,17 @@ input {
   padding: var(--gap-sm);
 }
 
-/* Buttons */
+select {
+  min-height: 36px;
+  background: var(--panel-light);
+  color: var(--panel-text);
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+}
+
+input[type="text"] {
+  padding-inline: var(--gap-md);
+}
 
 button {
   padding: 8px 16px;
@@ -71,29 +86,118 @@ button:disabled:hover {
   color: var(--accent-blue);
 }
 
-#toggleCapture {
-  min-width: 52px;
-  font-size: 20px;
+.savedGamePicker {
+  position: relative;
+  width: 220px;
 }
 
-/* Status */
-
-.statusGood {
-  color: var(--text-green);
+#savedGameDropdownButton {
+  position: relative;
+  width: 100%;
+  padding: var(--gap-sm) 28px var(--gap-sm) var(--gap-sm);
+  min-height: 36px;
+  text-align: left;
+  font-weight: normal;
+  color: var(--panel-text);
+  border-color: var(--border-mid);
+  appearance: none;
 }
 
-.statusBad {
+#savedGameDropdownButton:hover:not(:disabled) {
+  background: var(--panel-light);
+  color: var(--panel-text);
+  border-color: var(--border-mid);
+}
+
+#savedGameDropdownButton::after {
+  content: "▾";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--panel-text);
+}
+
+.savedGameMenu {
+  position: absolute;
+  z-index: 200;
+  top: calc(100% + 4px);
+  left: 0;
+  width: min(320px, 80vw);
+  max-height: 260px;
+  overflow-y: auto;
+
+  padding: var(--gap-sm);
+
+  background: var(--panel-light);
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.savedGameMenu.hidden {
+  display: none;
+}
+
+.savedGameItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+
+  padding: 7px 8px;
+
+  color: var(--panel-text);
+  border-color: transparent;
+}
+
+.savedGameItem:hover {
+  color: var(--shade-white);
+}
+
+.savedGameDelete {
+  width: 22px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+
+  border-radius: 50%;
   color: var(--text-red);
+  font-size: 18px;
+  line-height: 1;
 }
 
-.statusWarn {
-  color: var(--text-yellow);
+.savedGameItem:hover .savedGameDelete {
+  color: var(--shade-white);
 }
 
-.panel hr {
-  margin: var(--gap-xl) 0;
-  border: 0;
-  border-top: 2px solid var(--border-panel);
+#loadSavedGame {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
+}
+
+#calibrateButton.needsInput {
+  background: var(--panel-light);
+  border-color: #d98c00;
+  color: #b26b00;
+}
+
+#calibrateButton.needsInput:hover:not(:disabled) {
+  background: #d98c00;
+  border-color: #d98c00;
+  color: var(--shade-white);
+}
+
+#newProject {
+  border-color: #000000;
+  color: #000000;
+}
+
+#newProject:hover:not(:disabled) {
+  background: #000000;
+  color: var(--shade-white);
 }
 
 #saveGameLocal {
@@ -107,13 +211,13 @@ button:disabled:hover {
   font-weight: bold;
 
   background: transparent;
-  color: var(--text-red);
+  color: #000000;
 
-  border-color: var(--text-red);
+  border-color: #000000;
 }
 
 #toggleCapture:hover:not(:disabled) {
-  background: var(--text-red);
+  background: #000000;
   color: var(--shade-white);
 }
 
@@ -125,24 +229,13 @@ button:disabled:hover {
   0%,
   100% {
     background: transparent;
-    color: var(--text-red);
-    box-shadow: 0 0 0 rgba(255, 68, 68, 0);
+    color: #000000;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   }
 
   50% {
-    background: rgba(255, 68, 68, 0.18);
-    color: var(--text-red);
-    box-shadow: 0 0 10px rgba(255, 68, 68, 0.45);
+    background: rgba(0, 0, 0, 0.12);
+    color: #000000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
   }
-}
-
-#deleteSavedGame {
-  border-color: var(--text-red);
-  background: var(--shade-white);
-  color: var(--text-red);
-}
-
-#deleteSavedGame:hover:not(:disabled) {
-  background: var(--text-red);
-  color: var(--shade-white);
 }

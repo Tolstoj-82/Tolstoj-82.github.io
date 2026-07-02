@@ -1,4 +1,3 @@
-/* Screen helpers */
 function getActiveScreen() {
   return game.screens.find((s) => s.id === activeScreenId);
 }
@@ -10,9 +9,6 @@ function getActiveScreenROIs() {
 function roiOverlayColor(color) {
   return color.replace("rgb(", "rgba(").replace(")", ",0.35)");
 }
-
-// Extract tile
-//--------------------------------
 
 function getTile(tx, ty) {
   let arr = [];
@@ -34,22 +30,19 @@ function formatROIValue(labels, type) {
   if (labels.length === 0) return "--";
 
   switch (type) {
-    case "integer": {
-      return labels.join("").replace(/^0+/, "") || "0";
-    }
+    case "integer":
+    case "text":
+    case "tokens":
+    case "text-number": {
+      const value = labels.join("");
 
-    case "text": {
-      return labels.join("");
+      return /^\d+$/.test(value) ? value.replace(/^0+/, "") || "0" : value;
     }
 
     case "counter": {
       return String(
         labels.reduce((sum, label) => sum + (parseInt(label, 10) || 0), 0),
       );
-    }
-
-    case "tokens": {
-      return labels.join(", ");
     }
 
     default: {

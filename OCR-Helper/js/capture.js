@@ -1,9 +1,6 @@
-// Tile capture
-//--------------------------------
-
 toggleCapture.onclick = () => {
   if (!capturing && captureROIIds.size === 0) {
-    showAlert("Select at least one ROI to search.");
+    showAlert("Select at least one region to search.");
     return;
   }
 

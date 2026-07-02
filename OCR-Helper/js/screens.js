@@ -32,6 +32,7 @@ function updateScreenSetupTitle() {
   const title = document.getElementById("screenSetupTitle");
 
   title.textContent = screen ? screen.name : "Screen Setup";
+  title.style.borderBottomColor = screen ? screen.color : "";
 }
 
 function renderScreenList() {
@@ -115,12 +116,14 @@ function renderScreenList() {
     });
 
     dragHandle.addEventListener("dragend", () => {
-      div.classList.remove(
-        "dragging",
-        "drag-over",
-        "drop-before",
-        "drop-after",
-      );
+      document.querySelectorAll(".screenItem").forEach((item) => {
+        item.classList.remove(
+          "dragging",
+          "drag-over",
+          "drop-before",
+          "drop-after",
+        );
+      });
     });
 
     div.addEventListener("dragover", (e) => {
@@ -148,7 +151,10 @@ function renderScreenList() {
 
       if (!draggedId || draggedId === targetId) return;
 
-      reorderScreens(draggedId, targetId);
+      const rect = div.getBoundingClientRect();
+      const insertAfter = e.clientY > rect.top + rect.height / 2;
+
+      reorderScreens(draggedId, targetId, insertAfter);
 
       renderScreenList();
       updateScreenSetupTitle();
@@ -159,7 +165,6 @@ function renderScreenList() {
       autoDetectEnabled = false;
       autoDetectScreens.checked = false;
 
-      activeScreenId = screen.id;
       activeScreenId = screen.id;
       activeROI = screen.rois[0]?.id || null;
 
@@ -187,6 +192,11 @@ function renderScreenList() {
 
 autoDetectScreens.onchange = () => {
   autoDetectEnabled = autoDetectScreens.checked;
+};
+
+showRegionsToggle.onchange = () => {
+  showRegions = showRegionsToggle.checked;
+  drawROIOverlay();
 };
 
 function screenMatchesLiveImage(screen) {
@@ -217,12 +227,20 @@ function autoDetectScreen() {
   updateWorkflowUI();
 }
 
-function reorderScreens(sourceId, targetId) {
+function reorderScreens(sourceId, targetId, insertAfter) {
   const sourceIndex = game.screens.findIndex((s) => s.id === sourceId);
   const targetIndex = game.screens.findIndex((s) => s.id === targetId);
 
   if (sourceIndex === -1 || targetIndex === -1) return;
 
   const [moved] = game.screens.splice(sourceIndex, 1);
-  game.screens.splice(targetIndex, 0, moved);
+
+  // Recompute after removal so adjacent before/after drops can stay put.
+  let insertIndex = game.screens.findIndex((s) => s.id === targetId);
+
+  if (insertAfter) {
+    insertIndex += 1;
+  }
+
+  game.screens.splice(insertIndex, 0, moved);
 }

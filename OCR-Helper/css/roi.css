@@ -1,5 +1,3 @@
-/* ROI cards */
-
 .roiItem {
   display: flex;
   flex-direction: column;
@@ -33,8 +31,6 @@
   border-radius: var(--radius-small);
 }
 
-/* ROI card structure */
-
 .roiItemTop {
   display: flex;
   align-items: center;
@@ -56,8 +52,6 @@
 .roiItemBottom select.missingTileset {
   border: 2px solid var(--text-red);
 }
-
-/* Capture ROI picker */
 
 .captureROIPickerRow {
   flex-basis: 100%;

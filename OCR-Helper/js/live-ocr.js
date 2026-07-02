@@ -54,7 +54,7 @@ function renderROIReadout() {
         })
         .filter((label) => label !== null && label !== "");
 
-      const found = formatROIValue(labels, tileset.type || "integer");
+      const found = formatROIValue(labels, tileset.type || "text-number");
 
       if (found !== "--") {
         lastOCRValues[roi.id] = found;

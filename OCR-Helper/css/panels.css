@@ -1,5 +1,3 @@
-/* Panels */
-
 .panel {
   margin-bottom: var(--gap-xl);
 }
@@ -17,7 +15,18 @@
   border-radius: var(--radius-panel);
 }
 
-/* ROI sidebar */
+.panelSection {
+  margin-top: var(--gap-lg);
+  padding: var(--gap-md);
+
+  background: var(--bg-panel-dark);
+  border: 1px solid #e0e0e0;
+  border-radius: var(--radius-small);
+}
+
+.panelSection:first-of-type {
+  margin-top: 0;
+}
 
 #roiPanel {
   width: 100%;
@@ -25,6 +34,7 @@
   max-height: none;
   overflow-y: auto;
   overflow-x: hidden;
+  overflow-anchor: none;
 }
 
 #roiPanel::-webkit-scrollbar {
@@ -49,7 +59,7 @@
   top: 0;
   z-index: 100;
 
-  /* Extend into the panel padding */
+  /* Keep the sticky header flush with the panel edge. */
   margin: calc(-1 * var(--gap-lg)) calc(-1 * var(--gap-lg)) var(--gap-lg);
 
   padding: var(--gap-lg) var(--gap-lg) var(--gap-md);

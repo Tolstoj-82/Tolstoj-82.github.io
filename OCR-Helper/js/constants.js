@@ -8,6 +8,23 @@ const TILES_Y = HEIGHT / TILE;
 
 const SCALE = 4;
 
+const DEFAULT_DISPLAY_PALETTE = ["#f0f0f0", "#a0a0a0", "#505050", "#000000"];
+let displayPalette = DEFAULT_DISPLAY_PALETTE.slice();
+
+function hexToRgb(hex) {
+  const value = hex.replace("#", "");
+
+  return {
+    r: parseInt(value.slice(0, 2), 16),
+    g: parseInt(value.slice(2, 4), 16),
+    b: parseInt(value.slice(4, 6), 16),
+  };
+}
+
+function getDisplayColor(index) {
+  return hexToRgb(displayPalette[index] || DEFAULT_DISPLAY_PALETTE[index]);
+}
+
 const roiColors = [
   "rgb(255, 99, 71)",
   "rgb(30, 144, 255)",
@@ -39,8 +56,6 @@ const screenColors = [
 ];
 
 const tilesetTypes = [
-  { value: "integer", label: "Number" },
-  { value: "text", label: "Text" },
-  { value: "counter", label: "Counter (e.g. hearts)" },
-  { value: "tokens", label: "Labels" },
+  { value: "text-number", label: "Text/Number" },
+  { value: "counter", label: "Counter" },
 ];

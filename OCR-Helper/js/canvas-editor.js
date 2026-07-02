@@ -1,14 +1,12 @@
-// Grid + ROI drawing
-//--------------------------------
-
 const roiCanvas = document.getElementById("roiCanvas");
 const roiCtx = roiCanvas.getContext("2d");
 
-const gridInput = document.getElementById("gridCanvas");
-const gridCtx = gridCanvas.getContext("2d");
+const gridCanvas = document.getElementById("gridCanvas");
 
 function drawROIOverlay() {
   roiCtx.clearRect(0, 0, WIDTH, HEIGHT);
+
+  if (!showRegions) return;
 
   for (const roi of getActiveScreenROIs()) {
     roiCtx.fillStyle = roiOverlayColor(roi.color);
@@ -35,10 +33,10 @@ function drawROIOverlay() {
 
       roiCtx.fillStyle = `rgba(255,0,0,${alpha})`;
 
-      roiCtx.fillRect(px, py, TILE, 1); // top
-      roiCtx.fillRect(px, py + TILE - 1, TILE, 1); // bottom
-      roiCtx.fillRect(px, py + 1, 1, TILE - 2); // left
-      roiCtx.fillRect(px + TILE - 1, py + 1, 1, TILE - 2); // right
+      roiCtx.fillRect(px, py, TILE, 1);
+      roiCtx.fillRect(px, py + TILE - 1, TILE, 1);
+      roiCtx.fillRect(px, py + 1, 1, TILE - 2);
+      roiCtx.fillRect(px + TILE - 1, py + 1, 1, TILE - 2);
     }
   }
 }
@@ -56,6 +54,7 @@ function renderIdentifierInfo() {
 
   const title = document.createElement("div");
   title.className = "identifierInfoTitle";
+  title.style.borderBottomColor = screen.color;
 
   const allVisible =
     screen.identifiers.length > 0 &&
@@ -227,9 +226,6 @@ function getTileKeyFromMouse(e) {
 
   return `${Math.floor(x / TILE)},${Math.floor(y / TILE)}`;
 }
-
-// ROI selection
-//--------------------------------
 
 let isSelectingROI = false;
 let roiSelectionMode = "add";

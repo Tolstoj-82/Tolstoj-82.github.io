@@ -3,7 +3,7 @@ addTilesetButton.onclick = () => {
     tilesets.push({
       id: Date.now(),
       name: name.trim() || "New Tileset",
-      type: "integer",
+      type: "text-number",
       tiles: [],
     });
 
@@ -30,7 +30,7 @@ sendToTilesetButton.onclick = () => {
       tileset = {
         id: Date.now(),
         name: name || "New Tileset",
-        type: "integer",
+        type: "text-number",
         tiles: [],
       };
 
@@ -139,12 +139,14 @@ function renderTilesets() {
       const refs =
         payload.kind === "tile-selection" ? payload.tiles : [payload];
 
-      removeTileReferences(refs);
-      clearTileSelection();
+      animateTileDeletion(refs, () => {
+        removeTileReferences(refs);
+        clearTileSelection();
 
-      renderTiles();
-      renderTilesets();
-      updateWorkflowUI();
+        renderTiles();
+        renderTilesets();
+        updateWorkflowUI();
+      });
     });
 
     const typeSelect = document.createElement("select");
@@ -156,7 +158,8 @@ function renderTilesets() {
       typeSelect.appendChild(option);
     });
 
-    typeSelect.value = tileset.type || "integer";
+    typeSelect.value =
+      tileset.type === "counter" ? "counter" : "text-number";
 
     typeSelect.onchange = (e) => {
       e.stopPropagation();
@@ -283,11 +286,6 @@ function addTilesetTileDragHandlers(card) {
     const payload = getDragTilePayload(tileData);
     document.body.classList.add("draggingTiles");
 
-    draggedTilesetTile = {
-      tilesetId: Number(card.dataset.tilesetId),
-      index: Number(card.dataset.index),
-    };
-
     tileDeleteZone.classList.add("visible");
     card.classList.add("dragging");
 
@@ -296,7 +294,6 @@ function addTilesetTileDragHandlers(card) {
   });
 
   card.addEventListener("dragend", () => {
-    draggedTilesetTile = null;
     document.body.classList.remove("draggingTiles");
 
     document.querySelectorAll(".tileCard").forEach((tile) => {
@@ -356,8 +353,6 @@ function addTilesetTileDragHandlers(card) {
     updateWorkflowUI();
   });
 }
-
-let draggedTilesetTile = null;
 
 function getTileFromReference(ref) {
   if (ref.source === "unique") {

@@ -1,18 +1,30 @@
 .imageRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, var(--canvas-width)) minmax(180px, 220px);
   align-items: flex-start;
+  justify-content: start;
   gap: var(--gap-lg);
   max-width: 100%;
 }
 
+.captureMain {
+  min-width: 0;
+}
+
 .sideInfo {
+  justify-self: start;
   display: flex;
   flex-direction: column;
-  gap: var(--gap-lg);
+  gap: var(--gap-md);
+  width: 100%;
 }
 
 #identifierInfo {
-  width: 180px;
+  --tile-card-padding: clamp(4px, 2cqi, 8px);
+  --tile-preview-size: clamp(34px, 28cqi, 54px);
+
+  width: 100%;
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--gap-md);
@@ -35,7 +47,7 @@
 .identifierInfoTitle {
   font-weight: bold;
   font-size: 15px;
-  padding-bottom: var(--gap-sm);
+  padding: var(--gap-sm);
   border-bottom: 2px solid var(--border-mid);
 
   transition:
@@ -60,7 +72,7 @@
 }
 
 .identifierInfoLabel {
-  min-width: 48px;
+  flex: 0 0 48px;
   color: var(--text-red);
   font-weight: bold;
 }
@@ -92,7 +104,7 @@
 }
 
 #roiReadout {
-  width: 180px;
+  width: 100%;
   padding: var(--gap-md);
   border: 2px solid var(--border-mid);
   border-radius: var(--radius-small);
@@ -128,6 +140,12 @@
   user-select: none;
 
   font-weight: normal;
+}
+
+@media (max-width: 700px) {
+  .imageRow {
+    grid-template-columns: 1fr;
+  }
 }
 
 .autoDetectToggle input {

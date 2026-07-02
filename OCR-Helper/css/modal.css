@@ -54,14 +54,60 @@
 }
 
 .calibrationModalBox {
-  width: min(720px, 100%);
+  position: relative;
+  width: min(760px, 100%);
+  max-height: calc(100vh - (2 * var(--gap-xl)));
+  overflow-y: auto;
+}
+
+.modalCloseButton {
+  position: absolute;
+  top: var(--gap-md);
+  right: var(--gap-md);
+
+  width: 30px;
+  height: 30px;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+
+  border: 2px solid var(--border-mid);
+  border-radius: 50%;
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+
+  font-size: 0;
+  line-height: 1;
+}
+
+.modalCloseButton::before {
+  content: "×";
+
+  position: absolute;
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -53%);
+
+  font-size: 22px;
+  line-height: 1;
+}
+
+.modalCloseButton:hover {
+  background: var(--panel-text);
+  border-color: var(--panel-text);
+  color: var(--panel-light);
 }
 
 #calibrationHistogram {
   width: 100%;
-  height: 220px;
+  height: 260px;
 
   display: block;
+  margin-top: var(--gap-md);
 
   background: #fff;
   border: 2px solid var(--border-mid);
@@ -73,11 +119,10 @@
 .thresholdRow {
   margin-top: var(--gap-md);
   margin-bottom: var(--gap-md);
-}
+  padding: var(--gap-sm) var(--gap-md);
 
-.calibrationWarning {
-  color: var(--text-red);
-  font-weight: bold;
+  background: var(--bg-panel-dark);
+  border-radius: var(--radius-small);
 }
 
 .calibrationModalButtons {

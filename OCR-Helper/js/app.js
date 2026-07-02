@@ -1,7 +1,3 @@
-// Main loop
-//--------------------------------
-const APP_VERSION = "1.0";
-const APP_AUTHOR = "Tolstoj";
 const APP_TITLE = "GB OCR Tool";
 
 document.title = APP_TITLE;
@@ -21,35 +17,12 @@ function drawLoop() {
 
 drawROIOverlay();
 renderIdentifierInfo();
-updatePalette();
+updateCalibrationStatus();
 updateCaptureUI();
+renderLUTControls();
 renderTilesets();
 updateWorkflowUI();
 renderCaptureROIPicker();
 renderSavedGameList();
 updateScreenSetupTitle();
 loadCameras();
-
-document.querySelectorAll(".lutBox").forEach((box) => {
-  box.style.width = "40px";
-  box.style.height = "40px";
-  box.style.border = "2px solid white";
-  box.style.cursor = "pointer";
-  box.style.background = "#222";
-
-  box.onclick = async () => {
-    let i = Number(box.dataset.i);
-
-    // simple browser color picker
-    let input = document.createElement("input");
-    input.type = "color";
-
-    input.oninput = () => {
-      lut[i] = input.value;
-
-      box.style.background = input.value;
-    };
-
-    input.click();
-  };
-});

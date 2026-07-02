@@ -1,10 +1,3 @@
-document.getElementById("identifierMode").onclick = () => {
-  selectionMode = "identifier";
-};
-
-// ROI management
-//--------------------------------
-
 document.getElementById("addROI").onclick = () => {
   const screen = getActiveScreen();
 
@@ -13,10 +6,10 @@ document.getElementById("addROI").onclick = () => {
     return;
   }
 
-  showPrompt("ROI name", "ROI " + (screen.rois.length + 1), (name) => {
+  showPrompt("Region name", "Region " + (screen.rois.length + 1), (name) => {
     const roi = {
       id: Date.now(),
-      name: name.trim() || "ROI " + (screen.rois.length + 1),
+      name: name.trim() || "Region " + (screen.rois.length + 1),
       color: roiColors[screen.rois.length % roiColors.length],
       tiles: new Set(),
     };
@@ -128,13 +121,13 @@ function renderROIList() {
 
     del.textContent = "×";
     del.className = "roiDeleteButton";
-    del.title = "Delete ROI";
+    del.title = "Delete region";
 
     del.onclick = (e) => {
       e.stopPropagation();
 
       showConfirm(
-        `Delete ROI "${r.name}"?`,
+        `Delete region "${r.name}"?`,
         () => {
           const screen = getActiveScreen();
 
@@ -228,6 +221,7 @@ function reorderROIs(sourceId, targetId, insertAfter) {
 
   const [moved] = screen.rois.splice(sourceIndex, 1);
 
+  // Recompute after removal so adjacent before/after drops can stay put.
   let insertIndex = screen.rois.findIndex((r) => r.id === targetId);
 
   if (insertAfter) {
@@ -244,7 +238,7 @@ function renderCaptureROIPicker() {
   captureROIIds.clear();
 
   if (rois.length === 0) {
-    captureROIPicker.textContent = "No ROIs available";
+    captureROIPicker.textContent = "No regions available";
     return;
   }
 

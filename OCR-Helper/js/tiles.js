@@ -1,6 +1,3 @@
-// Tile display
-//--------------------------------
-
 function createTileCard(tile) {
   const div = document.createElement("div");
 
@@ -16,11 +13,11 @@ function createTileCard(tile) {
   const img = cctx.createImageData(8, 8);
 
   tile.pixels.forEach((v, i) => {
-    const p = palette[v];
+    const color = getDisplayColor(v);
 
-    img.data[i * 4] = p;
-    img.data[i * 4 + 1] = p;
-    img.data[i * 4 + 2] = p;
+    img.data[i * 4] = color.r;
+    img.data[i * 4 + 1] = color.g;
+    img.data[i * 4 + 2] = color.b;
     img.data[i * 4 + 3] = 255;
   });
 
@@ -42,14 +39,6 @@ function createTileCard(tile) {
 
   input.oninput = () => {
     tile.label = input.value;
-  };
-
-  input.onclick = (e) => {
-    e.stopPropagation();
-  };
-
-  input.onmousedown = (e) => {
-    e.stopPropagation();
   };
 
   div.appendChild(c);
@@ -185,6 +174,7 @@ function reorderTiles(sourceKey, targetKey, insertAfter) {
 }
 
 let draggedTileKey = null;
+let suppressNextTileContainerClick = false;
 
 tileDeleteZone.addEventListener("dragover", (e) => {
   e.preventDefault();
@@ -205,15 +195,32 @@ tileDeleteZone.addEventListener("drop", (e) => {
   const payload = JSON.parse(raw);
   const refs = payload.kind === "tile-selection" ? payload.tiles : [payload];
 
-  removeTileReferences(refs);
-  clearTileSelection();
-
   tileDeleteZone.classList.remove("visible", "drag-over");
 
-  renderTiles();
-  renderTilesets();
-  updateWorkflowUI();
+  animateTileDeletion(refs, () => {
+    removeTileReferences(refs);
+    clearTileSelection();
+
+    renderTiles();
+    renderTilesets();
+    updateWorkflowUI();
+  });
 });
+
+function animateTileDeletion(refs, onComplete) {
+  const ids = new Set(refs.map(getTileSelectionId));
+  const cards = [...document.querySelectorAll(".tileCard")].filter((card) => {
+    if (!card.dataset.tileData) return false;
+
+    return ids.has(getTileSelectionId(JSON.parse(card.dataset.tileData)));
+  });
+
+  cards.forEach((card) => {
+    card.classList.add("deleting");
+  });
+
+  window.setTimeout(onComplete, cards.length > 0 ? 180 : 0);
+}
 
 function getTileSelectionId(data) {
   if (data.source === "unique") {
@@ -265,6 +272,11 @@ function isTileSelected(data) {
 }
 
 tilesContainer.onclick = () => {
+  if (suppressNextTileContainerClick) {
+    suppressNextTileContainerClick = false;
+    return;
+  }
+
   clearTileSelection();
 };
 
@@ -276,6 +288,11 @@ function startTileMarquee(e, container, sourceData) {
 
   e.stopPropagation();
 
+  const sourceGroup = getTileSelectionGroup(sourceData);
+  const additive =
+    (e.ctrlKey || e.metaKey) &&
+    (!tileSelectionSource || tileSelectionSource === sourceGroup);
+
   tileSelectionDrag = {
     startX: e.clientX,
     startY: e.clientY,
@@ -283,10 +300,10 @@ function startTileMarquee(e, container, sourceData) {
     currentY: e.clientY,
     container,
     sourceData,
-    additive: e.ctrlKey || e.metaKey,
+    sourceGroup,
+    additive,
+    baseSelection: additive ? new Map(selectedTiles) : new Map(),
   };
-
-  tileSelectionDragStartIds = new Set(selectedTiles.keys());
 
   if (!tileSelectionDrag.additive) {
     selectedTiles.clear();
@@ -322,6 +339,9 @@ function selectTilesInBox(box) {
   const cards = tileSelectionDrag.container.querySelectorAll(".tileCard");
 
   selectedTiles.clear();
+  tileSelectionDrag.baseSelection.forEach((data, id) => {
+    selectedTiles.set(id, data);
+  });
 
   cards.forEach((card) => {
     const rect = card.getBoundingClientRect();
@@ -334,19 +354,18 @@ function selectTilesInBox(box) {
 
     const data = JSON.parse(card.dataset.tileData);
     const id = getTileSelectionId(data);
+    const selected = intersects || tileSelectionDrag.baseSelection.has(id);
 
-    if (intersects) {
+    if (selected) {
       selectedTiles.set(id, data);
-      tileSelectionSource = getTileSelectionGroup(data);
       card.classList.add("selected");
     } else {
       card.classList.remove("selected");
     }
   });
 
-  if (selectedTiles.size === 0) {
-    tileSelectionSource = null;
-  }
+  tileSelectionSource =
+    selectedTiles.size > 0 ? tileSelectionDrag.sourceGroup : null;
 }
 
 window.addEventListener("mousemove", (e) => {
@@ -361,6 +380,7 @@ window.addEventListener("mousemove", (e) => {
 window.addEventListener("mouseup", () => {
   if (!tileSelectionDrag) return;
 
+  suppressNextTileContainerClick = tileSelectionDrag.container === tilesContainer;
   tileSelectionDrag = null;
   tileSelectionBoxElement.classList.add("hidden");
 
@@ -389,27 +409,11 @@ tilesContainer.addEventListener("mousedown", (e) => {
   });
 });
 
-function idToTileData(id) {
-  const parts = id.split(":");
-
-  if (parts[0] === "unique") {
-    return JSON.stringify({
-      source: "unique",
-      key: parts.slice(1).join(":"),
-    });
-  }
-
-  return JSON.stringify({
-    source: "tileset",
-    tilesetId: Number(parts[1]),
-    index: Number(parts[2]),
-  });
-}
-
 function getDragTilePayload(singleTileData) {
   const singleId = getTileSelectionId(singleTileData);
 
   if (!selectedTiles.has(singleId)) {
+    // Dragging an unselected tile makes it the only dragged item.
     selectedTiles.clear();
     tileSelectionSource = getTileSelectionGroup(singleTileData);
     selectedTiles.set(singleId, singleTileData);

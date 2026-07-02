@@ -34,16 +34,18 @@
             </div>
           </section>
 
-          <section class="panel">
+          <section class="panel savedGamePanel">
             <div class="savedGameRow">
-              <label for="savedGameSelect">Available Games</label>
+              <label for="savedGameDropdownButton">Available Games</label>
 
-              <select id="savedGameSelect">
-                <option value="">Local games...</option>
-              </select>
+              <div id="savedGamePicker" class="savedGamePicker">
+                <button id="savedGameDropdownButton" type="button">
+                  Saved games...
+                </button>
+                <div id="savedGameMenu" class="savedGameMenu hidden"></div>
+              </div>
 
               <button id="loadSavedGame">Load</button>
-              <button id="deleteSavedGame">Delete</button>
             </div>
           </section>
 
@@ -51,11 +53,32 @@
 
           <section class="panel">
             <div class="imageRow">
-              <div class="canvasContainer">
-                <canvas id="canvas" width="160" height="144"></canvas>
-                <canvas id="roiCanvas" width="160" height="144"></canvas>
-                <div id="gridOverlay"></div>
-                <canvas id="gridCanvas" width="160" height="144"></canvas>
+              <div class="captureMain">
+                <div class="canvasContainer">
+                  <canvas id="canvas" width="160" height="144"></canvas>
+                  <canvas id="roiCanvas" width="160" height="144"></canvas>
+                  <div id="gridOverlay"></div>
+                  <canvas id="gridCanvas" width="160" height="144"></canvas>
+                </div>
+
+                <div class="buttonRow">
+                  <button id="calibrateButton">Calibrate</button>
+
+                  <span id="calibrationStatus" class="calibrationStatus bad"
+                    >✖</span
+                  >
+                  <button id="openCalibrationModal">Calibration Details</button>
+                </div>
+
+                <div class="lutSection">
+                  <h3>LUT</h3>
+
+                  <div class="lutControls">
+                    <select id="lutPaletteSelect"></select>
+                  </div>
+
+                  <div id="lutSwatches" class="lutSwatches"></div>
+                </div>
               </div>
 
               <div class="sideInfo">
@@ -65,65 +88,47 @@
                   <span>Auto detect</span>
                 </label>
 
-                <div id="identifierInfo"></div>
+                <label class="autoDetectToggle">
+                  <input id="showRegionsToggle" type="checkbox" checked />
+                  <span class="slider"></span>
+                  <span>Show Regions</span>
+                </label>
+
                 <div id="roiReadout"></div>
+                <div id="identifierInfo"></div>
               </div>
-            </div>
-
-            <div class="buttonRow">
-              <button id="calibrateButton">Calibrate</button>
-
-              <div id="palette">
-                <div class="shade">
-                  <div class="shadeBox" id="shade0"></div>
-                </div>
-                <div class="shade">
-                  <div class="shadeBox" id="shade1"></div>
-                </div>
-                <div class="shade">
-                  <div class="shadeBox" id="shade2"></div>
-                </div>
-                <div class="shade">
-                  <div class="shadeBox" id="shade3"></div>
-                </div>
-              </div>
-
-              <span id="calibrationStatus" class="calibrationStatus bad"
-                >✖</span
-              >
-              <button id="openCalibrationModal">Calibration Details</button>
             </div>
           </section>
 
           <section class="panel">
             <h2>Tiles</h2>
-            <h3>Tile discoverer</h3>
-            <div class="buttonRow">
-              <button id="toggleCapture">▶</button>
+            <section class="panelSection">
+              <h3>Tile discoverer</h3>
+              <div class="buttonRow">
+                <button id="toggleCapture">▶</button>
 
-              <span>
-                Unique Tiles:
-                <strong id="tileCount">0</strong>
-              </span>
+                <span>
+                  Tiles found:
+                  <strong id="tileCount">0</strong>
+                </span>
 
-              <button id="addTileset">+ Tileset</button>
-              <button id="sendToTileset">» Tileset</button>
+                <button id="addTileset">+ Tileset</button>
+                <button id="sendToTileset">» Tileset</button>
 
-              <div id="tileDeleteZone">Drop tile here to delete</div>
+                <div id="tileDeleteZone">Drop tile here to delete</div>
 
-              <div class="captureROIPickerRow">
-                <div id="captureROIPicker" class="captureROIPicker"></div>
+                <div class="captureROIPickerRow">
+                  <div id="captureROIPicker" class="captureROIPicker"></div>
+                </div>
               </div>
-            </div>
 
-            <hr />
+              <div id="tilesContainer"></div>
+            </section>
 
-            <div id="tilesContainer"></div>
-
-            <hr />
-
-            <h3>Tilesets</h3>
-            <div id="tilesetContainer"></div>
+            <section class="panelSection">
+              <h3>Tilesets</h3>
+              <div id="tilesetContainer"></div>
+            </section>
           </section>
 
           <section class="panel">
@@ -141,34 +146,43 @@
               />
             </div>
 
-            <textarea id="jsonOutput" rows="18" spellcheck="false"></textarea>
+            <div class="jsonViewer">
+              <pre id="jsonHighlight" aria-hidden="true"></pre>
+              <textarea
+                id="jsonOutput"
+                rows="18"
+                spellcheck="false"
+              ></textarea>
+            </div>
           </section>
         </div>
 
         <div id="roiPanel">
           <div class="workflowHeader">
             <div id="workflowHint" class="workflowHint"></div>
-            <hr />
           </div>
 
-          <h2>Game</h2>
-          <input id="gameName" type="text" placeholder="Game name..." />
-          <button id="saveGameLocal">Save locally</button>
-          <hr />
+          <section class="panelSection">
+            <h2>Game</h2>
+            <input id="gameName" type="text" placeholder="Game name..." />
+            <button id="saveGameLocal">Save locally</button>
+          </section>
 
-          <h2>Screens</h2>
-          <button id="addScreen">+ Add Screen</button>
-          <div id="screenList"></div>
-          <hr />
+          <section class="panelSection">
+            <h2>Screens</h2>
+            <button id="addScreen">+ Add Screen</button>
+            <div id="screenList"></div>
+          </section>
 
-          <h2 id="screenSetupTitle">Screen Setup</h2>
+          <section class="panelSection">
+            <h2 id="screenSetupTitle">Screen Setup</h2>
 
-          <button id="identifierMode">Add Identifier Tile</button>
-          <hr />
+            <button id="identifierMode">Add Identifier Tile</button>
 
-          <h3>ROIs</h3>
-          <button id="addROI">+ Add ROI</button>
-          <div id="roiList"></div>
+            <h3>Regions</h3>
+            <button id="addROI">+ Add Region</button>
+            <div id="roiList"></div>
+          </section>
         </div>
       </div>
     </div>
@@ -199,9 +213,18 @@
 
     <div id="calibrationModalOverlay" class="modalOverlay hidden">
       <div class="modalBox calibrationModalBox">
+        <button
+          id="discardCalibrationModal"
+          class="modalCloseButton"
+          type="button"
+          title="Close"
+        >
+          ×
+        </button>
+
         <h2>Calibration Details</h2>
 
-        <canvas id="calibrationHistogram" width="512" height="180"></canvas>
+        <canvas id="calibrationHistogram" width="512" height="260"></canvas>
 
         <div class="thresholdRow">
           <span>Thresholds:</span>
@@ -212,7 +235,6 @@
           <button id="resetCalibrationAuto">Reset to Auto</button>
 
           <div class="calibrationModalButtonGroup">
-            <button id="discardCalibrationModal">Discard</button>
             <button id="saveCalibrationModal">Save</button>
           </div>
         </div>
@@ -221,6 +243,7 @@
 
     <div id="tileSelectionBox" class="tileSelectionBox hidden"></div>
 
+    <script defer src="js/LUT.js"></script>
     <script defer src="js/constants.js"></script>
     <script defer src="js/elements.js"></script>
     <script defer src="js/modal.js"></script>
@@ -231,6 +254,7 @@
     <script defer src="js/workflow.js"></script>
     <script defer src="js/import-export.js"></script>
     <script defer src="js/storage.js"></script>
+    <script defer src="js/lut-controls.js"></script>
     <script defer src="js/camera.js"></script>
     <script defer src="js/calibration.js"></script>
     <script defer src="js/tiles.js"></script>

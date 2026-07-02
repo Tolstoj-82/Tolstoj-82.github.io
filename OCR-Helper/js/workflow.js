@@ -3,11 +3,6 @@ function setDisabledReason(button, reason) {
 }
 
 function updateWorkflowHint() {
-  if (calibrationReminder) {
-    workflowHint.textContent = "Recalibrate before capture.";
-    return;
-  }
-
   const hasScreen = !!getActiveScreen();
   const hasROIs = hasScreen && getActiveScreen().rois.length > 0;
 
@@ -22,7 +17,7 @@ function updateWorkflowHint() {
   } else if (getActiveScreen().identifiers.length === 0) {
     message = "Add at least one identifier tile.";
   } else if (!hasROIs) {
-    message = "Add at least one ROI.";
+    message = "Add at least one region.";
   } else if (uniqueTiles.size === 0) {
     message = "Start capturing tiles.";
   } else {
@@ -43,6 +38,13 @@ function updateWorkflowUI() {
   const workflowHeader = document.querySelector(".workflowHeader");
 
   calibrateButton.disabled = !cameraReady;
+  calibrateButton.classList.toggle(
+    "needsInput",
+    cameraReady &&
+      (!calibrated ||
+        calibrationQuality === "bad" ||
+        calibrationQuality === "none"),
+  );
   setDisabledReason(
     calibrateButton,
     cameraReady ? "" : "Start the camera first.",
@@ -77,7 +79,7 @@ function updateWorkflowUI() {
   toggleCapture.disabled = !hasROIs;
   setDisabledReason(
     toggleCapture,
-    hasROIs ? "" : "Create at least one ROI first.",
+    hasROIs ? "" : "Create at least one region first.",
   );
 
   addTilesetButton.disabled = !hasROIs;
@@ -89,7 +91,7 @@ function updateWorkflowUI() {
   sendToTilesetButton.disabled = !hasROIs;
   setDisabledReason(
     sendToTilesetButton,
-    hasROIs ? "" : "Create at least one ROI first.",
+    hasROIs ? "" : "Create at least one region first.",
   );
 
   updateWorkflowHint();
@@ -98,7 +100,7 @@ function updateWorkflowUI() {
 
   workflowHeader.classList.toggle(
     "hidden",
-    hasUsableTileset && !calibrationReminder,
+    hasUsableTileset,
   );
 
   autoDetectScreens.disabled = game.screens.length < 2;
