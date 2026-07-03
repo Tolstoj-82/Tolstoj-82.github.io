@@ -16,6 +16,7 @@ function getCurrentProjectData() {
     tilesets: tilesets.map((tileset) => ({
       name: tileset.name,
       type: normalizeTilesetType(tileset.type),
+      scanPixels: getTilesetScanPixels(tileset),
       tiles: tileset.tiles,
     })),
 
@@ -32,6 +33,14 @@ function getCurrentProjectData() {
         tiles: [...r.tiles],
         tileset:
           tilesets.find((tileset) => tileset.id === r.tilesetId)?.name || null,
+      })),
+
+      achievements: (screen.achievements || []).map((achievement) => ({
+        metric: achievement.metric,
+        comparer: achievement.comparer,
+        value: achievement.value,
+        message: achievement.message,
+        tier: normalizeAchievementTier(achievement.tier),
       })),
     })),
   };
@@ -233,6 +242,7 @@ function applyImportedProject(data) {
     id: Date.now() + index,
     name: tileset.name || `Tileset ${index + 1}`,
     type: normalizeTilesetType(tileset.type),
+    scanPixels: normalizeScanPixels(tileset.scanPixels),
     tiles: Array.isArray(tileset.tiles)
       ? tileset.tiles.map((tile) => ({
           pixels: tile.pixels || [],
@@ -266,6 +276,8 @@ function applyImportedProject(data) {
           tilesetId: tilesetIdByName.get(roi.tileset) || null,
         }))
       : [],
+
+    achievements: normalizeImportedAchievements(screen.achievements),
   }));
 
   activeScreenId = game.screens[0]?.id || null;
@@ -274,10 +286,12 @@ function applyImportedProject(data) {
   uniqueTiles.clear();
   captureROIIds.clear();
   lastOCRValues = {};
+  resetAchievementRuntime({ clearQueue: true });
 
   renderScreenList();
   updateScreenSetupTitle();
   renderROIList();
+  renderAchievementList();
   renderCaptureROIPicker();
   renderIdentifierInfo();
   renderROIReadout();

@@ -18,6 +18,7 @@ document.getElementById("addROI").onclick = () => {
     activeROI = roi.id;
 
     renderROIList();
+    renderAchievementList();
     renderCaptureROIPicker();
     drawROIOverlay();
     renderIdentifierInfo();
@@ -116,9 +117,19 @@ function renderROIList() {
     };
 
     name.oninput = () => {
+      const oldName = r.name;
+
       r.name = name.value.trim() || r.name;
+
+      getActiveScreen()?.achievements?.forEach((achievement) => {
+        if (achievement.metric === oldName) {
+          achievement.metric = r.name;
+        }
+      });
+
       renderCaptureROIPicker();
       renderROIReadout();
+      renderAchievementList();
       updateWorkflowUI();
     };
 
@@ -143,6 +154,7 @@ function renderROIList() {
           }
 
           renderROIList();
+          renderAchievementList();
           renderCaptureROIPicker();
           drawROIOverlay();
           renderIdentifierInfo();
@@ -157,6 +169,7 @@ function renderROIList() {
     div.onclick = () => {
       activeROI = r.id;
       renderROIList();
+      renderAchievementList();
       renderCaptureROIPicker();
       drawROIOverlay();
       renderIdentifierInfo();

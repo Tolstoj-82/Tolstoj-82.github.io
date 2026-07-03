@@ -9,6 +9,7 @@ addTilesetButton.onclick = () => {
       id: Date.now(),
       name: name.trim() || "New Tileset",
       type: "text-number",
+      scanPixels: calculateTilesetScanPixels(tiles),
       tiles,
     });
 
@@ -139,6 +140,7 @@ function renderTilesets() {
 
       animateTileDeletion(refs, () => {
         removeTileReferences(refs);
+        refreshAllTilesetScanPixels();
         clearTileSelection();
 
         renderTiles();
@@ -216,6 +218,7 @@ function renderTilesets() {
         e.ctrlKey,
       );
 
+      refreshAllTilesetScanPixels();
       clearTileSelection();
 
       renderTiles();
@@ -267,6 +270,7 @@ function renderTilesets() {
     details.appendChild(summary);
     details.appendChild(deleteButton);
     details.appendChild(typeSelect);
+    details.appendChild(createTilesetScanInfo(tileset));
     details.appendChild(list);
 
     tilesetContainer.appendChild(details);
@@ -344,12 +348,73 @@ function addTilesetTileDragHandlers(card) {
       e.ctrlKey,
     );
 
+    refreshAllTilesetScanPixels();
     clearTileSelection();
 
     renderTiles();
     renderTilesets();
     updateWorkflowUI();
   });
+}
+
+function createTilesetScanInfo(tileset) {
+  const panel = document.createElement("div");
+  panel.className = "tilesetScanInfo";
+
+  const preview = document.createElement("canvas");
+  preview.className = "tilesetScanPreview";
+  preview.width = TILE;
+  preview.height = TILE;
+
+  const scanPixels = getTilesetScanPixels(tileset);
+  drawScanPixelPreview(preview, scanPixels);
+
+  const label = document.createElement("div");
+  label.className = "tilesetScanLabel";
+  label.textContent = getTilesetScanLabel(tileset, scanPixels);
+
+  panel.appendChild(preview);
+  panel.appendChild(label);
+
+  return panel;
+}
+
+function getTilesetScanLabel(tileset, scanPixels = getTilesetScanPixels(tileset)) {
+  if (tileset.tiles.length === 0) {
+    return "Fast OCR: no tiles";
+  }
+
+  if (!tilesetCanBeDistinguished(tileset.tiles)) {
+    return "Fast OCR unavailable: duplicate tile pixels";
+  }
+
+  if (!isUsableScanPixelSet(scanPixels)) {
+    return `Full tile scan: ${TILE * TILE}/${TILE * TILE} pixels`;
+  }
+
+  return `Fast OCR: ${scanPixels.length}/${TILE * TILE} pixels`;
+}
+
+function drawScanPixelPreview(canvas, scanPixels) {
+  const ctx = canvas.getContext("2d");
+  const ignoredColor = getCSSColor("--scan-pixel-ignored");
+  const activeColor = getCSSColor("--scan-pixel-active");
+  const active = new Set(scanPixels);
+
+  ctx.fillStyle = ignoredColor;
+  ctx.fillRect(0, 0, TILE, TILE);
+
+  ctx.fillStyle = activeColor;
+
+  for (let index = 0; index < TILE * TILE; index++) {
+    if (!active.has(index)) continue;
+
+    ctx.fillRect(index % TILE, Math.floor(index / TILE), 1, 1);
+  }
+}
+
+function getCSSColor(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
 function getTileFromReference(ref) {
@@ -445,6 +510,7 @@ function moveTileSelectionToTileset(
   insertIndex = Math.max(0, Math.min(targetTileset.tiles.length, insertIndex));
 
   targetTileset.tiles.splice(insertIndex, 0, ...movedTiles);
+  targetTileset.scanPixels = calculateTilesetScanPixels(targetTileset.tiles);
 }
 
 function moveTilePayloadToTileset(
@@ -463,4 +529,10 @@ function moveTilePayloadToTileset(
     insertAfter,
     copy,
   );
+}
+
+function refreshAllTilesetScanPixels() {
+  tilesets.forEach((tileset) => {
+    tileset.scanPixels = calculateTilesetScanPixels(tileset.tiles);
+  });
 }

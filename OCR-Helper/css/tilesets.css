@@ -100,7 +100,34 @@ body.draggingTiles .tilesetDeleteButton:hover {
 
 .tileset > select {
   margin: var(--gap-md);
-  width: calc(100% - (2 * var(--gap-md)));
+  width: auto;
+  max-width: calc(100% - (2 * var(--gap-md)));
+}
+
+.tilesetScanInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  margin: 0 var(--gap-md) var(--gap-md);
+  padding: var(--gap-sm);
+  background: var(--bg-panel-dark);
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-small);
+}
+
+.tilesetScanPreview {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border: 2px solid var(--border-mid);
+  border-radius: 4px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.tilesetScanLabel {
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .tileset .tileCard {

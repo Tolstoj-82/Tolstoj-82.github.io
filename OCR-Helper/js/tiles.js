@@ -600,6 +600,16 @@ document.addEventListener("contextmenu", (e) => {
   showTileSelectionActionDialog([...selectedTiles.values()]);
 });
 
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Delete" && e.key !== "Backspace") return;
+  if (selectedTiles.size === 0) return;
+  if (!modalOverlay.classList.contains("hidden")) return;
+  if (e.target.closest("input, textarea, select")) return;
+
+  e.preventDefault();
+  deleteTileSelection([...selectedTiles.values()]);
+});
+
 function handleTileCardClick(e, tileData) {
   e.stopPropagation();
 
@@ -724,6 +734,7 @@ function moveSelectedTilesToTileset(targetTileset, tileRefs) {
     false,
   );
 
+  refreshAllTilesetScanPixels();
   clearTileSelection();
   clearTileActionRefs();
   renderTiles();
@@ -736,6 +747,7 @@ function moveSelectedTilesToTileset(targetTileset, tileRefs) {
 function deleteTileSelection(tileRefs) {
   animateTileDeletion(tileRefs, () => {
     removeTileReferences(tileRefs);
+    refreshAllTilesetScanPixels();
     clearTileSelection();
     clearTileActionRefs();
 

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title></title>
 
-    <link rel="icon" href="favicon.ico" sizes="any" />
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <!--<link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />-->
 
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/layout.css" />
@@ -44,7 +44,10 @@
                       <button id="savedGameDropdownButton" type="button">
                         Saved games...
                       </button>
-                      <div id="savedGameMenu" class="savedGameMenu hidden"></div>
+                      <div
+                        id="savedGameMenu"
+                        class="savedGameMenu hidden"
+                      ></div>
                     </div>
 
                     <button id="loadSavedGame">Load</button>
@@ -77,6 +80,7 @@
                   <canvas id="roiCanvas" width="160" height="144"></canvas>
                   <div id="gridOverlay"></div>
                   <canvas id="gridCanvas" width="160" height="144"></canvas>
+                  <div id="achievementToastLayer"></div>
                 </div>
 
                 <section class="panelSection calibrationSection">
@@ -115,6 +119,12 @@
                   <span class="slider"></span>
                   <span>Show Regions</span>
                 </label>
+
+                <label class="autoDetectToggle">
+                  <input id="useOptimizedScanToggle" type="checkbox" />
+                  <span class="slider"></span>
+                  <span>Fast OCR</span>
+                </label>
                 <button id="snapshotToggle" type="button">Take Snapshot</button>
 
                 <section class="panelSection liveOcrSection">
@@ -144,7 +154,9 @@
                   <strong id="tileCount">0</strong>
                 </span>
 
-                <button id="uploadTileImage" type="button">Upload Tiles PNG</button>
+                <button id="uploadTileImage" type="button">
+                  Upload Tiles PNG
+                </button>
                 <input
                   id="uploadTileImageFile"
                   type="file"
@@ -206,6 +218,10 @@
             <h3>Regions</h3>
             <button id="addROI">+ Add Region</button>
             <div id="roiList"></div>
+
+            <h3>Achievements</h3>
+            <button id="addAchievement">+ Add Achievement</button>
+            <div id="achievementList"></div>
           </section>
         </div>
       </div>
@@ -311,6 +327,7 @@
     <script defer src="js/import-export.js"></script>
     <script defer src="js/storage.js"></script>
     <script defer src="js/lut-controls.js"></script>
+    <script defer src="js/achievements.js"></script>
     <script defer src="js/camera.js"></script>
     <script defer src="js/calibration.js"></script>
     <script defer src="js/tiles.js"></script>

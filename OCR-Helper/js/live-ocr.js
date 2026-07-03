@@ -32,6 +32,10 @@ function renderROIReadout() {
   roiReadout.appendChild(title);
 
   const screenVisible = isCurrentScreenVisible();
+  const canReadScreen = screenVisible || screen.identifiers.length === 0;
+  const ocrValues = {};
+
+  updateAchievementScreenRun(screen, canReadScreen);
 
   screen.rois.forEach((roi) => {
     const row = document.createElement("div");
@@ -46,7 +50,7 @@ function renderROIReadout() {
 
     if (!tileset) {
       value.textContent = "--";
-    } else if (screenVisible) {
+    } else if (canReadScreen) {
       const labels = [...roi.tiles]
         .map((key) => {
           const [x, y] = key.split(",").map(Number);
@@ -58,6 +62,7 @@ function renderROIReadout() {
 
       if (found !== "--") {
         lastOCRValues[roi.id] = found;
+        ocrValues[roi.name] = found;
       }
 
       value.textContent = lastOCRValues[roi.id] || "--";
@@ -65,8 +70,16 @@ function renderROIReadout() {
       value.textContent = lastOCRValues[roi.id] || "--";
     }
 
+    if (value.textContent !== "--") {
+      ocrValues[roi.name] = value.textContent;
+    }
+
     row.appendChild(label);
     row.appendChild(value);
     roiReadout.appendChild(row);
   });
+
+  if (canReadScreen) {
+    evaluateAchievements(screen, ocrValues);
+  }
 }

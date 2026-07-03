@@ -48,6 +48,8 @@
 
   --accent-orange: #d98c00;
   --accent-orange-text: #b26b00;
+  --scan-pixel-active: #ff8c00;
+  --scan-pixel-ignored: #fff200;
 
   --panel-light: #ffffff;
   --panel-text: #202020;
@@ -86,6 +88,21 @@
 
   --grid-line-default: rgba(255, 255, 255, 0.78);
   --grid-outline-default: rgba(0, 0, 0, 0.65);
+
+  --tier-beginner: #2f8cff;
+  --tier-beginner-bg: rgba(47, 140, 255, 0.14);
+  --tier-novice: #00aa66;
+  --tier-novice-bg: rgba(0, 170, 102, 0.14);
+  --tier-intermediate: #d98c00;
+  --tier-intermediate-bg: rgba(217, 140, 0, 0.16);
+  --tier-advanced: #8b5cf6;
+  --tier-advanced-bg: rgba(139, 92, 246, 0.14);
+  --tier-expert: #d946ef;
+  --tier-expert-bg: rgba(217, 70, 239, 0.14);
+  --tier-pro: #ff4444;
+  --tier-pro-bg: rgba(255, 68, 68, 0.14);
+  --tier-god: #111;
+  --tier-god-bg: rgba(0, 0, 0, 0.12);
 }
 
 * {

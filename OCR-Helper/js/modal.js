@@ -16,6 +16,31 @@ function closeModal() {
   document.onkeydown = null;
 }
 
+function bindModalKeys({ onConfirm, onCancel = null, allowEnter = true }) {
+  document.onkeydown = (e) => {
+    if (e.isComposing) return;
+
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeModal();
+
+      if (onCancel) {
+        onCancel();
+      }
+
+      return;
+    }
+
+    if (!allowEnter || e.key !== "Enter") return;
+
+    e.preventDefault();
+
+    if (onConfirm) {
+      onConfirm();
+    }
+  };
+}
+
 function setupModalDragging() {
   document.querySelectorAll(".modalBox").forEach((box) => {
     const handle = box.querySelector(".modalDragHandle");
@@ -84,7 +109,7 @@ function showModal({
 
   modalOverlay.classList.remove("hidden");
 
-  modalOk.onclick = () => {
+  const confirm = () => {
     const value = input ? modalInput.value : undefined;
 
     closeModal();
@@ -93,6 +118,8 @@ function showModal({
       onOk(value);
     }
   };
+
+  modalOk.onclick = confirm;
 
   modalCancel.onclick = () => {
     closeModal();
@@ -112,15 +139,10 @@ function showModal({
     }
   };
 
-  document.onkeydown = (e) => {
-    if (e.key !== "Escape") return;
-
-    closeModal();
-
-    if (onCancel) {
-      onCancel();
-    }
-  };
+  bindModalKeys({
+    onConfirm: confirm,
+    onCancel,
+  });
 
   if (input) {
     modalInput.focus();
@@ -209,7 +231,7 @@ function showSelect(
 
   modalOverlay.classList.remove("hidden");
 
-  modalOk.onclick = () => {
+  const confirm = () => {
     const value = modalSelect.value;
 
     closeModal();
@@ -219,6 +241,8 @@ function showSelect(
     }
   };
 
+  modalOk.onclick = confirm;
+
   modalCancel.onclick = () => {
     closeModal();
 
@@ -226,6 +250,11 @@ function showSelect(
       onCancel();
     }
   };
+
+  bindModalKeys({
+    onConfirm: confirm,
+    onCancel,
+  });
 
   modalSelect.focus();
 }
@@ -275,6 +304,14 @@ function showChoiceList(
 
   modalOverlay.classList.remove("hidden");
 
+  const confirmFocusedChoice = () => {
+    const activeChoice = modalChoices.contains(document.activeElement)
+      ? document.activeElement
+      : modalChoices.querySelector(".modalChoiceButton");
+
+    activeChoice?.click();
+  };
+
   modalCancel.onclick = () => {
     closeModal();
 
@@ -293,15 +330,10 @@ function showChoiceList(
     }
   };
 
-  document.onkeydown = (e) => {
-    if (e.key !== "Escape") return;
-
-    closeModal();
-
-    if (onCancel) {
-      onCancel();
-    }
-  };
+  bindModalKeys({
+    onConfirm: confirmFocusedChoice,
+    onCancel,
+  });
 
   const firstChoice = modalChoices.querySelector(".modalChoiceButton");
 

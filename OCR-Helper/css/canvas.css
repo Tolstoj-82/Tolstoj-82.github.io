@@ -92,6 +92,116 @@
   background: transparent;
 }
 
+#achievementToastLayer {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  bottom: calc(100% + var(--gap-sm));
+  width: min(360px, calc(100% - (2 * var(--gap-lg))));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.achievementToast {
+  --achievement-color: var(--tier-beginner);
+
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+
+  padding: var(--gap-md);
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+  border: 2px solid var(--achievement-color);
+  border-left-width: 8px;
+  border-radius: var(--radius-panel);
+  box-shadow: 0 12px 28px var(--black-shadow-strong);
+
+  animation: achievementToastIn 0.28s ease-out both;
+}
+
+.achievementToast + .achievementToast {
+  margin-top: var(--gap-sm);
+}
+
+.achievementToast.leaving {
+  animation: achievementToastOut 0.32s ease-in both;
+}
+
+.achievementToast[data-tier="novice"] {
+  --achievement-color: var(--tier-novice);
+}
+
+.achievementToast[data-tier="intermediate"] {
+  --achievement-color: var(--tier-intermediate);
+}
+
+.achievementToast[data-tier="advanced"] {
+  --achievement-color: var(--tier-advanced);
+}
+
+.achievementToast[data-tier="expert"] {
+  --achievement-color: var(--tier-expert);
+}
+
+.achievementToast[data-tier="pro"] {
+  --achievement-color: var(--tier-pro);
+}
+
+.achievementToast[data-tier="god-tier"] {
+  --achievement-color: var(--tier-god);
+  background: var(--shade-black);
+  color: var(--shade-white);
+}
+
+.achievementToastSymbol {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--shade-white);
+  background: var(--achievement-color);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px var(--white-hover-bg);
+
+  font-weight: bold;
+}
+
+.achievementToastHeader {
+  color: var(--achievement-color);
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.achievementToastMessage {
+  font-weight: bold;
+}
+
+@keyframes achievementToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes achievementToastOut {
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
 .canvasContainer:hover #gridOverlay {
   opacity: 1;
 }

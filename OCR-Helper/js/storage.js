@@ -186,6 +186,7 @@ newProjectButton.onclick = () => {
       uniqueTiles.clear();
       captureROIIds.clear();
       lastOCRValues = {};
+      resetAchievementRuntime({ clearQueue: true });
 
       activeScreenId = null;
       activeROI = null;
@@ -198,6 +199,7 @@ newProjectButton.onclick = () => {
       renderScreenList();
       updateScreenSetupTitle();
       renderROIList();
+      renderAchievementList();
       renderCaptureROIPicker();
       renderIdentifierInfo();
       renderROIReadout();

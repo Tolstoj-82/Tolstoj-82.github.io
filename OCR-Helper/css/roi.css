@@ -99,8 +99,182 @@
 }
 
 #addROI,
-#addScreen {
+#addScreen,
+#addAchievement {
   margin-bottom: var(--gap-xl);
+}
+
+#achievementList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.achievementGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.achievementGroupTitle {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.achievementItem {
+  --achievement-color: var(--tier-beginner);
+  --achievement-bg: var(--tier-beginner-bg);
+
+  overflow: hidden;
+
+  background: var(--achievement-bg);
+  border: 2px solid var(--achievement-color);
+  border-left-width: 5px;
+  border-radius: var(--radius-small);
+}
+
+.achievementItem[data-tier="novice"] {
+  --achievement-color: var(--tier-novice);
+  --achievement-bg: var(--tier-novice-bg);
+}
+
+.achievementItem[data-tier="intermediate"] {
+  --achievement-color: var(--tier-intermediate);
+  --achievement-bg: var(--tier-intermediate-bg);
+}
+
+.achievementItem[data-tier="advanced"] {
+  --achievement-color: var(--tier-advanced);
+  --achievement-bg: var(--tier-advanced-bg);
+}
+
+.achievementItem[data-tier="expert"] {
+  --achievement-color: var(--tier-expert);
+  --achievement-bg: var(--tier-expert-bg);
+}
+
+.achievementItem[data-tier="pro"] {
+  --achievement-color: var(--tier-pro);
+  --achievement-bg: var(--tier-pro-bg);
+}
+
+.achievementItem[data-tier="god-tier"] {
+  --achievement-color: var(--tier-god);
+  --achievement-bg: var(--tier-god-bg);
+}
+
+.achievementSummary {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--gap-sm);
+
+  padding: var(--gap-sm);
+
+  color: var(--panel-text);
+  cursor: pointer;
+  font-weight: bold;
+  list-style: none;
+}
+
+.achievementSummary::marker {
+  content: "";
+}
+
+.achievementSummary::-webkit-details-marker {
+  display: none;
+}
+
+.achievementSummary::before {
+  content: "▸";
+  color: var(--achievement-color);
+  font-size: 13px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.achievementItem[open] > .achievementSummary::before {
+  transform: rotate(90deg);
+}
+
+.achievementDragHandle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 18px;
+  color: var(--panel-text);
+
+  cursor: grab;
+  user-select: none;
+  opacity: 0.65;
+  font-weight: bold;
+}
+
+.achievementDragHandle::before {
+  content: "⋮⋮";
+}
+
+.achievementItem:hover .achievementDragHandle {
+  opacity: 1;
+}
+
+.achievementItem.dragging {
+  opacity: 0.35;
+  transform: scale(0.98);
+}
+
+.achievementItem.drop-before {
+  box-shadow: inset 0 7px 0 var(--text-green);
+}
+
+.achievementItem.drop-after {
+  box-shadow: inset 0 -7px 0 var(--text-green);
+}
+
+.achievementSummaryTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.achievementBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(58px, 0.7fr);
+  gap: var(--gap-sm);
+
+  padding: 0 var(--gap-sm) var(--gap-sm);
+}
+
+.achievementItem select,
+.achievementItem input {
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+.achievementMessageInput {
+  grid-column: 1 / -1;
+}
+
+.achievementTierSelect {
+  grid-column: 1 / -1;
+  justify-self: start;
+  width: auto;
+}
+
+.achievementItem .roiDeleteButton {
+  justify-self: end;
+}
+
+.achievementEmpty {
+  color: var(--text-muted);
+  font-size: 13px;
 }
 
 .screenItem.dragging,

@@ -4,6 +4,9 @@ const ctx = canvas.getContext("2d");
 const newProjectButton = document.getElementById("newProject");
 const autoDetectScreens = document.getElementById("autoDetectScreens");
 const showRegionsToggle = document.getElementById("showRegionsToggle");
+const useOptimizedScanToggle = document.getElementById(
+  "useOptimizedScanToggle",
+);
 const snapshotToggle = document.getElementById("snapshotToggle");
 const calibrationStatus = document.getElementById("calibrationStatus");
 const activeScreenTitle = document.getElementById("activeScreenTitle");
@@ -32,6 +35,9 @@ const addTilesetButton = document.getElementById("addTileset");
 const workflowHint = document.getElementById("workflowHint");
 const roiReadout = document.getElementById("roiReadout");
 const captureROIPicker = document.getElementById("captureROIPicker");
+const addAchievementButton = document.getElementById("addAchievement");
+const achievementList = document.getElementById("achievementList");
+const achievementToastLayer = document.getElementById("achievementToastLayer");
 const importJSONButton = document.getElementById("importJSON");
 const importJSONFile = document.getElementById("importJSONFile");
 const savedGameDropdownButton = document.getElementById(

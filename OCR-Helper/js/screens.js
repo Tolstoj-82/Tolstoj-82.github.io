@@ -12,6 +12,7 @@ document.getElementById("addScreen").onclick = () => {
       color: screenColors[game.screens.length % screenColors.length],
       identifiers: [],
       rois: [],
+      achievements: [],
     };
 
     game.screens.push(screen);
@@ -21,8 +22,10 @@ document.getElementById("addScreen").onclick = () => {
     renderScreenList();
     updateScreenSetupTitle();
     renderROIList();
+    renderAchievementList();
     renderCaptureROIPicker();
     renderIdentifierInfo();
+    renderROIReadout();
     drawROIOverlay();
     updateWorkflowUI();
   });
@@ -95,8 +98,10 @@ function renderScreenList() {
           renderScreenList();
           updateScreenSetupTitle();
           renderROIList();
+          renderAchievementList();
           renderCaptureROIPicker();
           renderIdentifierInfo();
+          renderROIReadout();
           drawROIOverlay();
           updateWorkflowUI();
         },
@@ -178,9 +183,11 @@ function renderScreenList() {
       renderScreenList();
       updateScreenSetupTitle();
       renderROIList();
+      renderAchievementList();
       renderCaptureROIPicker();
       drawROIOverlay();
       renderIdentifierInfo();
+      renderROIReadout();
       updateWorkflowUI();
     };
 
@@ -206,6 +213,11 @@ showRegionsToggle.onchange = () => {
   drawROIOverlay();
 };
 
+useOptimizedScanToggle.onchange = () => {
+  useOptimizedTileScan = useOptimizedScanToggle.checked;
+  renderROIReadout();
+};
+
 function screenMatchesLiveImage(screen) {
   return (
     screen.identifiers.length > 0 &&
@@ -227,6 +239,7 @@ function autoDetectScreen() {
   renderScreenList();
   updateScreenSetupTitle();
   renderROIList();
+  renderAchievementList();
   renderCaptureROIPicker();
   renderIdentifierInfo();
   renderROIReadout();

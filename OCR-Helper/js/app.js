@@ -26,6 +26,7 @@ renderLUTControls();
 renderTilesets();
 updateWorkflowUI();
 renderCaptureROIPicker();
+renderAchievementList();
 renderSavedGameList();
 updateScreenSetupTitle();
 loadCameras();

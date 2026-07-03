@@ -59,3 +59,21 @@ const tilesetTypes = [
   { value: "text-number", label: "Text/Number" },
   { value: "counter", label: "Counter (e.g. Hearts)" },
 ];
+
+const achievementComparers = [
+  { value: "=", label: "=" },
+  { value: ">", label: ">" },
+  { value: ">=", label: ">=" },
+  { value: "<", label: "<" },
+  { value: "<=", label: "<=" },
+];
+
+const achievementTiers = [
+  "beginner",
+  "novice",
+  "intermediate",
+  "advanced",
+  "expert",
+  "pro",
+  "god-tier",
+];

@@ -36,7 +36,7 @@
 
   min-width: 28px;
   height: 24px;
-  margin-bottom: var(--gap-sm);
+  margin: 0 var(--gap-sm) var(--gap-sm) 0;
 
   color: var(--border-mid);
   cursor: grab;
@@ -46,6 +46,17 @@
 
 .modalDragHandle:active {
   cursor: grabbing;
+}
+
+.modalDragHandle + h2,
+.modalDragHandle + .modalMessage {
+  display: inline-block;
+  width: calc(100% - 42px);
+  vertical-align: middle;
+}
+
+.modalDragHandle + h2 {
+  margin-top: 0;
 }
 
 .modalMessage {

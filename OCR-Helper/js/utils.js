@@ -43,8 +43,20 @@ function normalizeTilesetType(type) {
   return type === "counter" ? "counter" : "text-number";
 }
 
-function tilesEqual(a, b) {
-  return a.length === b.length && a.every((value, i) => value === b[i]);
+function normalizeScanPixels(scanPixels) {
+  if (!Array.isArray(scanPixels)) return [];
+
+  return [...new Set(scanPixels.map(Number))]
+    .filter((index) => Number.isInteger(index) && index >= 0 && index < TILE * TILE)
+    .sort((a, b) => a - b);
+}
+
+function tilesEqual(a, b, scanPixels = null) {
+  if (!scanPixels || scanPixels.length === 0) {
+    return a.length === b.length && a.every((value, i) => value === b[i]);
+  }
+
+  return scanPixels.every((index) => a[index] === b[index]);
 }
 
 function formatROIValue(labels, type) {
@@ -70,7 +82,130 @@ function formatROIValue(labels, type) {
 }
 
 function findTileLabelInTileset(pixels, tileset) {
-  const match = tileset.tiles.find((tile) => tilesEqual(tile.pixels, pixels));
+  const scanPixels =
+    useOptimizedTileScan && isUsableScanPixelSet(tileset.scanPixels)
+      ? tileset.scanPixels
+      : null;
+  const match = tileset.tiles.find((tile) => {
+    return tilesEqual(tile.pixels, pixels, scanPixels);
+  });
 
   return match ? match.label : null;
+}
+
+function isUsableScanPixelSet(scanPixels) {
+  return (
+    Array.isArray(scanPixels) &&
+    scanPixels.length > 0 &&
+    scanPixels.length < TILE * TILE
+  );
+}
+
+function getTilesetScanPixels(tileset) {
+  const normalized = normalizeScanPixels(tileset.scanPixels);
+
+  if (tilesetScanPixelsAreValid(tileset.tiles, normalized)) {
+    tileset.scanPixels = normalized;
+    return normalized;
+  }
+
+  tileset.scanPixels = calculateTilesetScanPixels(tileset.tiles);
+
+  return tileset.scanPixels;
+}
+
+function calculateTilesetScanPixels(tiles) {
+  if (!tilesetCanBeDistinguished(tiles)) {
+    return getAllTilePixelIndexes();
+  }
+
+  const unresolvedPairs = getDifferentTilePairs(tiles);
+  const selected = [];
+
+  while (unresolvedPairs.length > 0) {
+    const bestPixel = findBestDistinguishingPixel(unresolvedPairs, selected);
+
+    if (bestPixel === null) {
+      return getAllTilePixelIndexes();
+    }
+
+    selected.push(bestPixel);
+
+    for (let i = unresolvedPairs.length - 1; i >= 0; i--) {
+      const [a, b] = unresolvedPairs[i];
+
+      if (a.pixels[bestPixel] !== b.pixels[bestPixel]) {
+        unresolvedPairs.splice(i, 1);
+      }
+    }
+  }
+
+  return selected.sort((a, b) => a - b);
+}
+
+function tilesetCanBeDistinguished(tiles) {
+  const seen = new Set();
+
+  for (const tile of tiles) {
+    const key = (tile.pixels || []).join("");
+
+    if (seen.has(key)) return false;
+
+    seen.add(key);
+  }
+
+  return true;
+}
+
+function tilesetScanPixelsAreValid(tiles, scanPixels) {
+  if (tiles.length === 0) return scanPixels.length === 0;
+  if (!tilesetCanBeDistinguished(tiles)) return scanPixels.length === TILE * TILE;
+  if (scanPixels.length === 0) return false;
+
+  for (let a = 0; a < tiles.length; a++) {
+    for (let b = a + 1; b < tiles.length; b++) {
+      if (tilesEqual(tiles[a].pixels, tiles[b].pixels, scanPixels)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+function getDifferentTilePairs(tiles) {
+  const pairs = [];
+
+  for (let a = 0; a < tiles.length; a++) {
+    for (let b = a + 1; b < tiles.length; b++) {
+      pairs.push([tiles[a], tiles[b]]);
+    }
+  }
+
+  return pairs;
+}
+
+function findBestDistinguishingPixel(pairs, selected) {
+  const selectedSet = new Set(selected);
+  let bestPixel = null;
+  let bestScore = 0;
+
+  for (let index = 0; index < TILE * TILE; index++) {
+    if (selectedSet.has(index)) continue;
+
+    const score = pairs.reduce((total, [a, b]) => {
+      return total + (a.pixels[index] !== b.pixels[index] ? 1 : 0);
+    }, 0);
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestPixel = index;
+    }
+  }
+
+  return bestPixel;
+}
+
+function getAllTilePixelIndexes() {
+  return Array.from({ length: TILE * TILE }, (_, index) => index);
 }
