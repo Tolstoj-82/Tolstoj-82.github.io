@@ -195,6 +195,82 @@
   border-color: var(--text-red);
 }
 
+.modalSelectionTools {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+.modalSelectionCount {
+  flex: 1;
+  color: var(--border-panel);
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.modalSelectionToolButton {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.modalSelectionList {
+  max-height: min(320px, 45vh);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  padding-right: 2px;
+}
+
+.modalSelectionItem {
+  width: 100%;
+  min-height: 34px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 14px;
+  align-items: center;
+  gap: var(--gap-md);
+
+  padding: 7px 10px;
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+  border-color: var(--border-section);
+  text-align: left;
+}
+
+.modalSelectionItem:hover {
+  background: var(--accent-blue-hover);
+  color: var(--panel-text);
+  border-color: var(--border-mid);
+}
+
+.modalSelectionItem.selected {
+  background: var(--accent-blue-selected-bg);
+  border-color: var(--accent-blue);
+}
+
+.modalSelectionState {
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalSelectionState::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  display: block;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.modalSelectionItem.selected .modalSelectionState::before {
+  background: var(--accent-blue);
+}
+
 .calibrationModalButtons {
   display: flex;
   align-items: center;

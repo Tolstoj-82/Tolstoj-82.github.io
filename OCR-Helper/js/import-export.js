@@ -122,12 +122,7 @@ document.getElementById("downloadJSON").onclick = () => {
   const entries = Object.entries(savedGames);
 
   if (entries.length > 0) {
-    entries.forEach(([name, data], index) => {
-      window.setTimeout(() => {
-        downloadProjectFile(data, name);
-      }, index * 100);
-    });
-
+    showSavedGameDownloadDialog(entries);
     return;
   }
 
@@ -135,6 +130,32 @@ document.getElementById("downloadJSON").onclick = () => {
     downloadProjectFile(getCurrentProjectData(), game.name);
   }
 };
+
+function showSavedGameDownloadDialog(entries) {
+  const sortedEntries = entries.sort(([a], [b]) => a.localeCompare(b));
+
+  showCheckboxList(
+    "Download saved game JSONs",
+    sortedEntries.map(([name]) => ({
+      value: name,
+      label: name,
+    })),
+    (selectedNames) => {
+      const selected = new Set(selectedNames);
+
+      sortedEntries
+        .filter(([name]) => selected.has(name))
+        .forEach(([name, data], index) => {
+          window.setTimeout(() => {
+            downloadProjectFile(data, name);
+          }, index * 100);
+        });
+    },
+    null,
+    "Download",
+    "Cancel",
+  );
+}
 
 importJSONButton.onclick = () => {
   importJSONFile.click();

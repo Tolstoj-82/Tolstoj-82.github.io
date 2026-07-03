@@ -11,6 +11,7 @@ function closeModal() {
   modalChoices.innerHTML = "";
 
   modalOk.onclick = null;
+  modalOk.disabled = false;
   modalCancel.onclick = null;
   modalOverlay.onclick = null;
   document.onkeydown = null;
@@ -340,4 +341,142 @@ function showChoiceList(
   if (firstChoice) {
     firstChoice.focus();
   }
+}
+
+function showCheckboxList(
+  message,
+  options,
+  onOk,
+  onCancel = null,
+  okText = "Download",
+  cancelText = "Cancel",
+) {
+  modalMessage.textContent = message;
+
+  modalInput.style.display = "none";
+  modalSelect.style.display = "none";
+  modalSelect.innerHTML = "";
+  modalChoices.innerHTML = "";
+
+  const tools = document.createElement("div");
+  tools.className = "modalSelectionTools";
+
+  const count = document.createElement("span");
+  count.className = "modalSelectionCount";
+
+  const selectAllButton = document.createElement("button");
+  selectAllButton.type = "button";
+  selectAllButton.className = "modalSelectionToolButton";
+  selectAllButton.textContent = "All";
+
+  const selectNoneButton = document.createElement("button");
+  selectNoneButton.type = "button";
+  selectNoneButton.className = "modalSelectionToolButton";
+  selectNoneButton.textContent = "None";
+
+  tools.append(count, selectAllButton, selectNoneButton);
+  modalChoices.appendChild(tools);
+
+  const list = document.createElement("div");
+  list.className = "modalSelectionList";
+  modalChoices.appendChild(list);
+
+  const selected = new Set(options.map((option) => option.value));
+  const buttons = options.map((option) => {
+    const item = document.createElement("button");
+
+    item.type = "button";
+    item.className = "modalSelectionItem selected";
+    item.dataset.value = option.value;
+
+    const label = document.createElement("span");
+    label.textContent = option.label;
+
+    const state = document.createElement("span");
+    state.className = "modalSelectionState";
+
+    item.append(label, state);
+
+    item.onclick = () => {
+      if (selected.has(option.value)) {
+        selected.delete(option.value);
+      } else {
+        selected.add(option.value);
+      }
+
+      updateSelectionUI();
+    };
+
+    list.appendChild(item);
+
+    return item;
+  });
+
+  const updateSelectionUI = () => {
+    buttons.forEach((button) => {
+      button.classList.toggle("selected", selected.has(button.dataset.value));
+    });
+
+    count.textContent = `${selected.size}/${options.length} selected`;
+    modalOk.disabled = selected.size === 0;
+  };
+
+  selectAllButton.onclick = () => {
+    options.forEach((option) => selected.add(option.value));
+    updateSelectionUI();
+  };
+
+  selectNoneButton.onclick = () => {
+    selected.clear();
+    updateSelectionUI();
+  };
+
+  modalChoices.style.display = "";
+  modalOk.style.display = "";
+  modalOk.textContent = okText;
+  modalOk.disabled = false;
+  modalCancel.textContent = cancelText;
+  modalCancel.style.display = "";
+
+  modalOverlay.classList.remove("hidden");
+
+  const confirm = () => {
+    const values = [...selected];
+
+    if (values.length === 0) return;
+
+    closeModal();
+
+    if (onOk) {
+      onOk(values);
+    }
+  };
+
+  modalOk.onclick = confirm;
+
+  modalCancel.onclick = () => {
+    closeModal();
+
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
+  modalOverlay.onclick = (e) => {
+    if (e.target !== modalOverlay) return;
+
+    closeModal();
+
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
+  bindModalKeys({
+    onConfirm: confirm,
+    onCancel,
+  });
+
+  updateSelectionUI();
+  buttons[0]?.focus();
 }
