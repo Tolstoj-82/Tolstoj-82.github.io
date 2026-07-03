@@ -68,13 +68,6 @@ function renderTilesets() {
       updateWorkflowUI();
     };
 
-    const count = document.createElement("span");
-    count.className = "tilesetCount";
-    count.textContent = `(${tileset.tiles.length} tile${tileset.tiles.length === 1 ? "" : "s"})`;
-
-    summary.appendChild(nameInput);
-    summary.appendChild(count);
-
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.className = "tilesetDeleteButton";
@@ -150,6 +143,7 @@ function renderTilesets() {
     });
 
     const typeSelect = document.createElement("select");
+    typeSelect.className = "tilesetTypeSelect";
 
     tilesetTypes.forEach((type) => {
       const option = document.createElement("option");
@@ -168,6 +162,15 @@ function renderTilesets() {
     typeSelect.onclick = (e) => {
       e.stopPropagation();
     };
+
+    const count = document.createElement("span");
+    count.className = "tilesetCount";
+    count.textContent = `(${tileset.tiles.length} tile${tileset.tiles.length === 1 ? "" : "s"})`;
+
+    summary.appendChild(nameInput);
+    summary.appendChild(typeSelect);
+    summary.appendChild(count);
+    summary.appendChild(deleteButton);
 
     const list = document.createElement("div");
 
@@ -268,8 +271,6 @@ function renderTilesets() {
     });
 
     details.appendChild(summary);
-    details.appendChild(deleteButton);
-    details.appendChild(typeSelect);
     details.appendChild(createTilesetScanInfo(tileset));
     details.appendChild(list);
 

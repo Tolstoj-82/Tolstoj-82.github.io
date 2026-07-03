@@ -199,28 +199,6 @@
   transform: rotate(90deg);
 }
 
-.achievementDragHandle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 18px;
-  color: var(--panel-text);
-
-  cursor: grab;
-  user-select: none;
-  opacity: 0.65;
-  font-weight: bold;
-}
-
-.achievementDragHandle::before {
-  content: "⋮⋮";
-}
-
-.achievementItem:hover .achievementDragHandle {
-  opacity: 1;
-}
-
 .achievementItem.dragging {
   opacity: 0.35;
   transform: scale(0.98);
@@ -232,6 +210,13 @@
 
 .achievementItem.drop-after {
   box-shadow: inset 0 -7px 0 var(--text-green);
+}
+
+.achievementItem .dragHandle {
+  padding: 3px 6px;
+  background: var(--panel-light);
+  color: var(--panel-text);
+  border-radius: var(--radius-small);
 }
 
 .achievementSummaryTitle {
@@ -318,11 +303,13 @@
 }
 
 .roiItem:hover .dragHandle,
-.screenItem:hover .dragHandle {
+.screenItem:hover .dragHandle,
+.achievementItem:hover .dragHandle {
   opacity: 1;
 }
 
-.roiItem.dragging .dragHandle {
+.roiItem.dragging .dragHandle,
+.achievementItem.dragging .dragHandle {
   cursor: grabbing;
 }
 

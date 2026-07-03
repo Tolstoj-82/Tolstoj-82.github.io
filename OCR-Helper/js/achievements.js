@@ -6,6 +6,7 @@ function createAchievement(index = 0) {
     value: "",
     message: "",
     tier: "beginner",
+    _metricCommitted: false,
   };
 }
 
@@ -25,6 +26,11 @@ addAchievementButton.onclick = () => {
 
   if (!Array.isArray(screen.achievements)) {
     screen.achievements = [];
+  }
+
+  if (hasUnassignedAchievement(screen)) {
+    showAlert("Assign a metric and close the current achievement first.");
+    return;
   }
 
   const achievement = createAchievement(screen.achievements.length);
@@ -49,6 +55,8 @@ function renderAchievementList() {
   if (!Array.isArray(screen.achievements)) {
     screen.achievements = [];
   }
+
+  updateAddAchievementButton(screen);
 
   if (screen.achievements.length === 0) {
     const empty = document.createElement("div");
@@ -78,6 +86,24 @@ function renderAchievementList() {
   });
 }
 
+function updateAddAchievementButton(screen = getActiveScreen()) {
+  const disabled = !screen || hasUnassignedAchievement(screen);
+
+  addAchievementButton.disabled = disabled;
+  addAchievementButton.title =
+    screen && hasUnassignedAchievement(screen)
+      ? "Assign a metric and close the current achievement first."
+      : "";
+}
+
+function hasUnassignedAchievement(screen) {
+  return Boolean(
+    screen?.achievements?.some((achievement) => {
+      return !achievement.metric || !achievement._metricCommitted;
+    }),
+  );
+}
+
 function createAchievementItem(screen, achievement) {
   const details = document.createElement("details");
   details.className = "achievementItem";
@@ -89,7 +115,7 @@ function createAchievementItem(screen, achievement) {
   summary.className = "achievementSummary";
 
   const dragHandle = document.createElement("span");
-  dragHandle.className = "achievementDragHandle";
+  dragHandle.className = "dragHandle achievementDragHandle";
   dragHandle.title = "Drag to reorder";
   dragHandle.draggable = true;
 
@@ -135,7 +161,9 @@ function createAchievementItem(screen, achievement) {
     e.stopPropagation();
   });
 
-  const metric = createAchievementMetricSelect(screen, achievement);
+  const metric = createAchievementMetricSelect(screen, achievement, () => {
+    title.textContent = getAchievementTitle(achievement);
+  });
   metric.className = "achievementMetricSelect";
 
   const comparer = createAchievementSelect(
@@ -194,6 +222,17 @@ function bindAchievementToggle(details) {
     if (!details.open) {
       if (openAchievementId === Number(details.dataset.achievementId)) {
         openAchievementId = null;
+      }
+
+      const screen = getActiveScreen();
+      const achievement = screen?.achievements?.find((item) => {
+        return item.id === Number(details.dataset.achievementId);
+      });
+
+      if (achievement?.metric && !achievement._metricCommitted) {
+        achievement._metricCommitted = true;
+        renderAchievementList();
+        updateWorkflowUI();
       }
 
       return;
@@ -316,7 +355,10 @@ function groupAchievementsByMetric(achievements) {
   const groupByMetric = new Map();
 
   achievements.forEach((achievement) => {
-    const metric = achievement.metric || "Unassigned";
+    const metric =
+      achievement.metric && achievement._metricCommitted
+        ? achievement.metric
+        : "Unassigned";
 
     if (!groupByMetric.has(metric)) {
       const group = {
@@ -338,7 +380,7 @@ function groupAchievementsByMetric(achievements) {
   });
 }
 
-function createAchievementMetricSelect(screen, achievement) {
+function createAchievementMetricSelect(screen, achievement, onMetricChange) {
   const metrics = screen.rois.map((roi) => roi.name).filter(Boolean);
   const options = [
     {
@@ -366,7 +408,17 @@ function createAchievementMetricSelect(screen, achievement) {
       achievement.metric = value;
       resetAchievementRuntime({ clearQueue: true });
       openAchievementId = achievement.id;
-      renderAchievementList();
+
+      if (onMetricChange) {
+        onMetricChange();
+      }
+
+      if (achievement._metricCommitted) {
+        renderAchievementList();
+      } else {
+        updateAddAchievementButton(screen);
+      }
+
       updateWorkflowUI();
     },
   );
@@ -608,5 +660,6 @@ function normalizeImportedAchievements(achievements) {
     value: achievement.value ?? "",
     message: achievement.message || "",
     tier: normalizeAchievementTier(achievement.tier),
+    _metricCommitted: true,
   }));
 }

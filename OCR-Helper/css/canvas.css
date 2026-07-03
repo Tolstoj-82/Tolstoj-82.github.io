@@ -109,13 +109,12 @@
   align-items: center;
   gap: var(--gap-md);
 
-  padding: var(--gap-md);
+  padding: var(--gap-sm) var(--gap-md);
 
   background: var(--panel-light);
   color: var(--panel-text);
   border: 2px solid var(--achievement-color);
-  border-left-width: 8px;
-  border-radius: var(--radius-panel);
+  border-radius: 999px;
   box-shadow: 0 12px 28px var(--black-shadow-strong);
 
   animation: achievementToastIn 0.28s ease-out both;
@@ -156,9 +155,9 @@
 }
 
 .achievementToastSymbol {
-  flex: 0 0 42px;
-  width: 42px;
-  height: 42px;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
 
   display: inline-flex;
   align-items: center;

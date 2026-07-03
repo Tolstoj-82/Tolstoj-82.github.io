@@ -11,17 +11,27 @@
 }
 
 .tilesetSummary {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: var(--gap-sm);
 
-  padding: 10px 120px 10px 12px;
+  padding: 10px 12px;
 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
   background: var(--tile-hover-bg);
+  list-style: none;
+}
+
+.tilesetSummary::marker {
+  content: "";
+}
+
+.tilesetSummary::-webkit-details-marker {
+  display: none;
 }
 
 .tilesetSummary::before {
@@ -43,7 +53,7 @@
 
 .tilesetNameInput {
   min-width: 0;
-  flex: 1;
+  width: 100%;
 
   padding: 3px 6px;
 
@@ -68,10 +78,6 @@
 }
 
 .tilesetDeleteButton {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-
   padding: 4px 10px;
 
   font-size: 12px;
@@ -98,10 +104,11 @@ body.draggingTiles .tilesetDeleteButton:hover {
   transform: scale(1.02);
 }
 
-.tileset > select {
-  margin: var(--gap-md);
+.tilesetTypeSelect {
   width: auto;
-  max-width: calc(100% - (2 * var(--gap-md)));
+  max-width: 150px;
+  min-height: 32px;
+  padding: 4px 8px;
 }
 
 .tilesetScanInfo {

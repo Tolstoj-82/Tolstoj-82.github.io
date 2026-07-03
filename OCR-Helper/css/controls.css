@@ -194,14 +194,14 @@ button:disabled:hover {
   color: var(--shade-white);
 }
 
-#newProject,
-#importJSON {
+#importJSON,
+#downloadJSON {
   border-color: var(--shade-black);
   color: var(--shade-black);
 }
 
-#newProject:hover:not(:disabled),
-#importJSON:hover:not(:disabled) {
+#importJSON:hover:not(:disabled),
+#downloadJSON:hover:not(:disabled) {
   background: var(--shade-black);
   color: var(--shade-white);
 }
