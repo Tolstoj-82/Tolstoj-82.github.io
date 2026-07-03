@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GB OCR Two Player</title>
+
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/controls.css" />
+    <link rel="stylesheet" href="css/two-player.css" />
+  </head>
+
+  <body>
+    <main class="versusApp">
+      <section class="playerPanel" data-player="0">
+        <h1>Player 1</h1>
+
+        <div class="feedFrame">
+          <video id="player1Video" autoplay playsinline muted></video>
+          <canvas id="player1Canvas" width="160" height="144"></canvas>
+        </div>
+
+        <details class="settingsAccordion" open>
+          <summary title="Settings" aria-label="Settings"></summary>
+
+          <div class="controlStack">
+            <label>
+              Camera
+              <select id="player1Camera"></select>
+            </label>
+
+            <label>
+              Game
+              <select id="player1Game"></select>
+            </label>
+
+            <label>
+              LUT
+              <select id="player1Lut"></select>
+            </label>
+
+            <button id="player1Calibrate">Calibrate</button>
+          </div>
+        </details>
+
+        <div id="player1Status" class="playerStatus">Choose camera and game.</div>
+      </section>
+
+      <section class="livePanel">
+        <h1>Live</h1>
+        <div id="liveReadout" class="liveReadout"></div>
+      </section>
+
+      <section class="playerPanel" data-player="1">
+        <h1>Player 2</h1>
+
+        <div class="feedFrame">
+          <video id="player2Video" autoplay playsinline muted></video>
+          <canvas id="player2Canvas" width="160" height="144"></canvas>
+        </div>
+
+        <details class="settingsAccordion" open>
+          <summary title="Settings" aria-label="Settings"></summary>
+
+          <div class="controlStack">
+            <label>
+              Camera
+              <select id="player2Camera"></select>
+            </label>
+
+            <label>
+              Game
+              <select id="player2Game"></select>
+            </label>
+
+            <label>
+              LUT
+              <select id="player2Lut"></select>
+            </label>
+
+            <button id="player2Calibrate">Calibrate</button>
+          </div>
+        </details>
+
+        <div id="player2Status" class="playerStatus">Choose camera and game.</div>
+      </section>
+    </main>
+
+    <script defer src="js/LUT.js"></script>
+    <script defer src="js/two-player.js"></script>
+  </body>
+</html>

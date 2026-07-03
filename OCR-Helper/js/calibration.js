@@ -4,6 +4,11 @@ const HISTOGRAM_TICKS = [0, 64, 128, 192, 255];
 let histogramDragIndex = null;
 
 document.getElementById("calibrateButton").onclick = () => {
+  if (snapshotPaused) {
+    showAlert("Resume live feed before calibrating.");
+    return;
+  }
+
   runCalibration();
 };
 
@@ -154,6 +159,11 @@ function redrawQuantizedCanvas() {
 }
 
 openCalibrationModalButton.onclick = () => {
+  if (snapshotPaused) {
+    showAlert("Resume live feed before changing calibration.");
+    return;
+  }
+
   if (!calibrated) {
     runCalibration();
   }

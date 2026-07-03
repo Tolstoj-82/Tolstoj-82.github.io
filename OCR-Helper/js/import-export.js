@@ -137,21 +137,44 @@ importJSONFile.onchange = async (e) => {
   if (files.length === 0) return;
 
   if (files.length === 1) {
-    try {
-      const data = JSON.parse(await files[0].text());
-      importProject(data);
-    } catch (err) {
-      showAlert("Invalid JSON file.");
-      console.error(err);
-    }
-
+    await importSingleProjectFile(files[0]);
     importJSONFile.value = "";
     return;
   }
 
-  importMultipleProjects(files);
+  await importMultipleProjects(files);
   importJSONFile.value = "";
 };
+
+async function importSingleProjectFile(file) {
+  try {
+    const data = JSON.parse(await file.text());
+
+    if (!isValidProjectData(data)) {
+      showAlert("This does not seem to be a valid OCR JSON file.");
+      return;
+    }
+
+    const name = data.game || file.name.replace(/\.json$/i, "");
+
+    importProject(data, {
+      confirm: !isCurrentProjectEmpty(),
+      onComplete: () => {
+        const savedGames = getSavedGames();
+
+        savedGames[name] = data;
+        setSavedGames(savedGames);
+        renderSavedGameList();
+
+        selectedSavedGameName = name;
+        updateStorageButtons();
+      },
+    });
+  } catch (err) {
+    showAlert("Invalid JSON file.");
+    console.error(err);
+  }
+}
 
 async function importMultipleProjects(files) {
   const imported = [];

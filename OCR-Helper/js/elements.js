@@ -4,7 +4,9 @@ const ctx = canvas.getContext("2d");
 const newProjectButton = document.getElementById("newProject");
 const autoDetectScreens = document.getElementById("autoDetectScreens");
 const showRegionsToggle = document.getElementById("showRegionsToggle");
+const snapshotToggle = document.getElementById("snapshotToggle");
 const calibrationStatus = document.getElementById("calibrationStatus");
+const activeScreenTitle = document.getElementById("activeScreenTitle");
 const identifierInfo = document.getElementById("identifierInfo");
 const identifierInfoContent = document.getElementById("identifierInfoContent");
 const video = document.getElementById("video");
@@ -15,6 +17,15 @@ const jsonOutput = document.getElementById("jsonOutput");
 const tileCount = document.getElementById("tileCount");
 const canvasContainer = document.querySelector(".canvasContainer");
 const toggleCapture = document.getElementById("toggleCapture");
+const uploadTileImageButton = document.getElementById("uploadTileImage");
+const uploadTileImageFile = document.getElementById("uploadTileImageFile");
+const tileImageModalOverlay = document.getElementById("tileImageModalOverlay");
+const tileImagePreview = document.getElementById("tileImagePreview");
+const tileImageInvert = document.getElementById("tileImageInvert");
+const confirmTileImageImport = document.getElementById(
+  "confirmTileImageImport",
+);
+const cancelTileImageImport = document.getElementById("cancelTileImageImport");
 const tileDeleteZone = document.getElementById("tileDeleteZone");
 const tilesetContainer = document.getElementById("tilesetContainer");
 const addTilesetButton = document.getElementById("addTileset");

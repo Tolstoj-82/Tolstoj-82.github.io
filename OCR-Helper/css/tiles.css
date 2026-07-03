@@ -9,6 +9,17 @@
   padding: clamp(var(--gap-md), 3cqi, var(--gap-xl));
 }
 
+#uploadTileImage.tile-upload-over {
+  background: rgba(47, 140, 255, 0.12);
+  color: var(--accent-blue);
+  border-style: dashed;
+  border-color: var(--accent-blue);
+  box-shadow:
+    inset 0 0 0 2px rgba(47, 140, 255, 0.18),
+    0 0 0 4px rgba(47, 140, 255, 0.12);
+  transform: scale(1.02);
+}
+
 .tileCard {
   width: calc(var(--tile-preview-size) + (2 * var(--tile-card-padding)) + 8px);
   padding: var(--tile-card-padding);
@@ -176,4 +187,36 @@
 
 .tileCard.selected .tileCanvas {
   box-shadow: 0 0 0 2px var(--accent-blue);
+}
+
+.tileImageModalBox {
+  width: min(720px, 100%);
+}
+
+.tileImagePreviewFrame {
+  max-width: 100%;
+  max-height: min(420px, 52vh);
+  overflow: auto;
+  margin: var(--gap-md) 0;
+  background: #000000;
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+}
+
+#tileImagePreview {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.tileImageOptions {
+  display: flex;
+  gap: var(--gap-lg);
+  margin-bottom: var(--gap-lg);
+}
+
+.tileImageOptions label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-sm);
 }

@@ -22,6 +22,7 @@ document.getElementById("addScreen").onclick = () => {
     updateScreenSetupTitle();
     renderROIList();
     renderCaptureROIPicker();
+    renderIdentifierInfo();
     drawROIOverlay();
     updateWorkflowUI();
   });
@@ -69,6 +70,7 @@ function renderScreenList() {
       screen.name = name.value.trim() || screen.name;
 
       updateScreenSetupTitle();
+      renderIdentifierInfo();
       updateWorkflowUI();
     };
 

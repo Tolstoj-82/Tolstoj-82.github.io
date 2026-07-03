@@ -22,6 +22,27 @@
   animation: capturePulse 1.2s ease-in-out infinite;
 }
 
+.canvasContainer.snapshotPaused {
+  border-color: var(--text-yellow);
+  box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.18);
+}
+
+.canvasContainer.snapshotPaused::after {
+  content: "FRAME";
+  position: absolute;
+  z-index: 5;
+  top: var(--gap-sm);
+  right: var(--gap-sm);
+  padding: 3px 7px;
+  background: rgba(255, 204, 0, 0.92);
+  color: #000000;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius-small);
+  font-size: 12px;
+  font-weight: bold;
+  pointer-events: none;
+}
+
 #canvas,
 #roiCanvas,
 #gridCanvas {

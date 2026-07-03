@@ -37,6 +37,10 @@ function createTileCard(tile) {
     e.stopPropagation();
   };
 
+  input.onpointerdown = (e) => {
+    e.stopPropagation();
+  };
+
   input.oninput = () => {
     tile.label = input.value;
   };
@@ -62,17 +66,12 @@ function renderTiles() {
 
     div.classList.toggle("selected", isTileSelected(tileData));
 
+    div.addEventListener("pointerdown", (e) => {
+      handleTileSelectionActionPointer(e, tileData);
+    });
+
     div.onclick = (e) => {
-      e.stopPropagation();
-
-      if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
-        clearTileSelection();
-      }
-
-      toggleTileSelection(tileData);
-
-      renderTiles();
-      renderTilesets();
+      handleTileCardClick(e, tileData);
     };
 
     div.draggable = true;
@@ -84,6 +83,7 @@ function renderTiles() {
   });
 
   tileCount.textContent = uniqueTiles.size;
+  updateAddTilesetButtonText();
 }
 
 function addTileDragHandlers(card) {
@@ -167,6 +167,272 @@ function reorderTiles(sourceKey, targetKey, insertAfter) {
 
 let draggedTileKey = null;
 let suppressNextTileContainerClick = false;
+let pendingTileImageImport = null;
+
+uploadTileImageButton.onclick = () => {
+  uploadTileImageFile.click();
+};
+
+uploadTileImageButton.addEventListener("dragenter", (e) => {
+  if (!isFileDrag(e.dataTransfer)) return;
+
+  e.preventDefault();
+  uploadTileImageButton.classList.add("tile-upload-over");
+});
+
+uploadTileImageButton.addEventListener("dragover", (e) => {
+  if (!isFileDrag(e.dataTransfer)) return;
+
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "copy";
+  uploadTileImageButton.classList.add("tile-upload-over");
+});
+
+uploadTileImageButton.addEventListener("dragleave", () => {
+  uploadTileImageButton.classList.remove("tile-upload-over");
+});
+
+uploadTileImageButton.addEventListener("drop", async (e) => {
+  if (!isFileDrag(e.dataTransfer)) return;
+
+  e.preventDefault();
+  uploadTileImageButton.classList.remove("tile-upload-over");
+
+  const file = getPNGFile(e.dataTransfer.files);
+
+  if (!file) {
+    showAlert("Drop a PNG image.");
+    return;
+  }
+
+  await prepareTileImageImport(file);
+});
+
+uploadTileImageFile.onchange = async (e) => {
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  await prepareTileImageImport(file);
+  uploadTileImageFile.value = "";
+};
+
+tileImageInvert.onchange = updateTileImagePreview;
+cancelTileImageImport.onclick = closeTileImageImportModal;
+tileImageModalOverlay.onclick = (e) => {
+  if (e.target === tileImageModalOverlay) {
+    closeTileImageImportModal();
+  }
+};
+
+confirmTileImageImport.onclick = () => {
+  if (!pendingTileImageImport) return;
+
+  try {
+    const tiles = getPreparedTiles(
+      pendingTileImageImport,
+      tileImageInvert.checked,
+    );
+
+    if (tiles.length === 0) {
+      showAlert("The image did not contain any non-empty tiles.");
+      return;
+    }
+
+    tiles.forEach((pixels) => {
+      const hash = pixels.join("");
+
+      if (!uniqueTiles.has(hash)) {
+        uniqueTiles.set(hash, {
+          pixels,
+          label: "",
+        });
+      }
+    });
+
+    renderTiles();
+    updateWorkflowUI();
+    closeTileImageImportModal();
+  } catch (err) {
+    showAlert(err.message || "The image was not a valid tile PNG.");
+  }
+};
+
+async function prepareTileImageImport(file) {
+  try {
+    pendingTileImageImport = await readTileImage(file);
+    tileImageInvert.checked = false;
+    updateTileImagePreview();
+    tileImageModalOverlay.classList.remove("hidden");
+  } catch (err) {
+    showAlert(err.message || "The image was not a valid tile PNG.");
+  }
+}
+
+function closeTileImageImportModal() {
+  pendingTileImageImport = null;
+  tileImageModalOverlay.classList.add("hidden");
+}
+
+function isFileDrag(dataTransfer) {
+  return dataTransfer && [...dataTransfer.types].includes("Files");
+}
+
+function getPNGFile(files) {
+  return [...files].find(
+    (file) =>
+      file.type === "image/png" || file.name.toLowerCase().endsWith(".png"),
+  );
+}
+
+function readTileImage(file) {
+  return new Promise((resolve, reject) => {
+    if (file.type !== "image/png" && !file.name.toLowerCase().endsWith(".png")) {
+      reject(new Error("Upload a PNG image."));
+      return;
+    }
+
+    const image = new Image();
+    const url = URL.createObjectURL(file);
+
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+
+      try {
+        resolve(getTileImageData(image));
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("The image could not be loaded."));
+    };
+
+    image.src = url;
+  });
+}
+
+function getTileImageData(image) {
+  if (image.width % TILE !== 0 || image.height % TILE !== 0) {
+    throw new Error("The image dimensions must be divisible by 8.");
+  }
+
+  const scratch = document.createElement("canvas");
+  scratch.width = image.width;
+  scratch.height = image.height;
+
+  const scratchCtx = scratch.getContext("2d");
+  scratchCtx.drawImage(image, 0, 0);
+
+  const data = scratchCtx.getImageData(0, 0, image.width, image.height).data;
+  const shades = getImageShades(data);
+
+  if (![2, 4].includes(shades.length)) {
+    throw new Error("The image must contain exactly 2 or 4 grayscale shades.");
+  }
+
+  return {
+    width: image.width,
+    height: image.height,
+    data,
+    shades,
+  };
+}
+
+function getPreparedTiles(imageData, invert) {
+  const shadeToValue = getTileImageShadeMap(imageData.shades, invert);
+  const tiles = [];
+
+  for (let ty = 0; ty < imageData.height / TILE; ty++) {
+    for (let tx = 0; tx < imageData.width / TILE; tx++) {
+      tiles.push(
+        getImageTile(imageData.data, imageData.width, tx, ty, shadeToValue),
+      );
+    }
+  }
+
+  while (tiles.length > 0 && isEmptyTile(tiles[tiles.length - 1])) {
+    tiles.pop();
+  }
+
+  return tiles;
+}
+
+function updateTileImagePreview() {
+  if (!pendingTileImageImport) return;
+
+  const { width, height, data, shades } = pendingTileImageImport;
+  const shadeToValue = getTileImageShadeMap(shades, tileImageInvert.checked);
+
+  tileImagePreview.width = width;
+  tileImagePreview.height = height;
+  tileImagePreview.style.width = `${Math.min(width * 2, 640)}px`;
+
+  const previewCtx = tileImagePreview.getContext("2d");
+  const previewImage = previewCtx.createImageData(width, height);
+
+  for (let i = 0; i < data.length; i += 4) {
+    const color = getDisplayColor(shadeToValue.get(data[i]));
+
+    previewImage.data[i] = color.r;
+    previewImage.data[i + 1] = color.g;
+    previewImage.data[i + 2] = color.b;
+    previewImage.data[i + 3] = 255;
+  }
+
+  previewCtx.putImageData(previewImage, 0, 0);
+}
+
+function getTileImageShadeMap(shades, invert) {
+  return new Map(
+    [...shades].sort((a, b) => b - a).map((shade, index) => {
+      const value = shades.length === 2 && index === 1 ? 3 : index;
+
+      return [shade, invert ? 3 - value : value];
+    }),
+  );
+}
+
+function getImageShades(data) {
+  const shades = new Set();
+
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] !== 255) {
+      throw new Error("The image must be fully opaque.");
+    }
+
+    if (data[i] !== data[i + 1] || data[i] !== data[i + 2]) {
+      throw new Error("The image must use grayscale shades only.");
+    }
+
+    shades.add(data[i]);
+
+    if (shades.size > 4) {
+      break;
+    }
+  }
+
+  return [...shades];
+}
+
+function getImageTile(data, width, tx, ty, shadeToValue) {
+  const pixels = [];
+
+  for (let y = 0; y < TILE; y++) {
+    for (let x = 0; x < TILE; x++) {
+      const pixelIndex = ((ty * TILE + y) * width + tx * TILE + x) * 4;
+      pixels.push(shadeToValue.get(data[pixelIndex]));
+    }
+  }
+
+  return pixels;
+}
+
+function isEmptyTile(pixels) {
+  return pixels.every((value) => value === 0);
+}
 
 tileDeleteZone.addEventListener("dragover", (e) => {
   if (!isTileDrag(e)) return;
@@ -285,6 +551,169 @@ tilesContainer.onclick = () => {
 
   clearTileSelection();
 };
+
+document.addEventListener("contextmenu", (e) => {
+  if (selectedTiles.size === 0) return;
+  if (!e.target.closest("#tilesContainer, .tilesetTiles")) return;
+
+  e.preventDefault();
+  showTileSelectionActionDialog([...selectedTiles.values()]);
+});
+
+function handleTileCardClick(e, tileData) {
+  e.stopPropagation();
+
+  const additive = e.ctrlKey || e.metaKey || e.shiftKey;
+  const wasSelected = isTileSelected(tileData);
+
+  if (!additive && wasSelected && selectedTiles.size > 1) {
+    return;
+  }
+
+  if (!additive && wasSelected) {
+    clearTileSelection();
+    return;
+  }
+
+  if (!additive) {
+    clearTileSelection();
+  }
+
+  toggleTileSelection(tileData);
+
+  renderTiles();
+  renderTilesets();
+}
+
+function handleTileSelectionActionPointer(e, tileData) {
+  if (e.button !== 0) return;
+  if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+  if (selectedTiles.size < 2 || !isTileSelected(tileData)) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+  showTileSelectionActionDialog([...selectedTiles.values()]);
+}
+
+function showTileSelectionActionDialog(tileRefs) {
+  if (tileRefs.length === 0) return;
+
+  const options = [
+    {
+      value: "new-tileset",
+      label: "Create new tileset",
+    },
+  ];
+
+  if (tilesets.length > 0) {
+    options.push({
+      value: "existing-tileset",
+      label: "Move to existing tileset",
+    });
+  }
+
+  options.push({
+    value: "delete",
+    label: "Delete tiles",
+  });
+
+  showSelect(
+    "Tile selection",
+    options,
+    (value) => {
+      if (value === "new-tileset") {
+        showCreateTilesetDialog(tileRefs);
+        return;
+      }
+
+      if (value === "existing-tileset") {
+        showExistingTilesetDialog(tileRefs);
+        return;
+      }
+
+      deleteTileSelection(tileRefs);
+    },
+    null,
+    "OK",
+    "Cancel",
+  );
+}
+
+function showCreateTilesetDialog(tileRefs) {
+  if (tileRefs.length === 0) return;
+
+  showPrompt(
+    "Tileset name",
+    "New Tileset",
+    (name) => {
+      const tileset = {
+        id: Date.now(),
+        name: name.trim() || "New Tileset",
+        type: "text-number",
+        tiles: [],
+      };
+
+      tilesets.push(tileset);
+      moveSelectedTilesToTileset(tileset, tileRefs);
+    },
+    null,
+    "Create",
+    "Cancel",
+  );
+}
+
+function showExistingTilesetDialog(tileRefs) {
+  if (tileRefs.length === 0) return;
+  if (tilesets.length === 0) return;
+
+  showSelect(
+    ">>tileset",
+    tilesets.map((tileset) => ({
+      value: String(tileset.id),
+      label: tileset.name,
+    })),
+    (value) => {
+      const targetTilesetId = Number(value);
+      const targetTileset = tilesets.find(
+        (tileset) => tileset.id === targetTilesetId,
+      );
+
+      if (!targetTileset) return;
+
+      moveSelectedTilesToTileset(targetTileset, tileRefs);
+    },
+    null,
+    "Move",
+    "Cancel",
+  );
+}
+
+function moveSelectedTilesToTileset(targetTileset, tileRefs) {
+  moveTileSelectionToTileset(
+    tileRefs,
+    targetTileset.id,
+    targetTileset.tiles.length,
+    false,
+  );
+
+  clearTileSelection();
+  renderTiles();
+  renderTilesets();
+  renderROIList();
+  renderCaptureROIPicker();
+  updateWorkflowUI();
+}
+
+function deleteTileSelection(tileRefs) {
+  animateTileDeletion(tileRefs, () => {
+    removeTileReferences(tileRefs);
+    clearTileSelection();
+
+    renderTiles();
+    renderTilesets();
+    updateWorkflowUI();
+  });
+}
 
 function startTileMarquee(e, container, sourceData) {
   if (e.button !== 0) return;

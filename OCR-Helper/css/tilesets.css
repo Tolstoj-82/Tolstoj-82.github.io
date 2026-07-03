@@ -24,6 +24,19 @@
   background: var(--tile-hover-bg);
 }
 
+.tilesetSummary::before {
+  content: "▸";
+  flex: 0 0 auto;
+  color: var(--panel-text);
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.tileset[open] > .tilesetSummary::before {
+  transform: rotate(90deg);
+}
+
 .tilesetSummary:hover {
   background: #e2f0ff;
 }

@@ -19,6 +19,23 @@
   width: 100%;
 }
 
+.liveOcrSection {
+  width: 100%;
+}
+
+.activeScreenTitle {
+  min-height: 34px;
+  margin-bottom: var(--gap-md);
+  padding: var(--gap-sm);
+  font-weight: bold;
+  font-size: 15px;
+  transition: color 0.2s;
+}
+
+.activeScreenTitle.valid {
+  color: var(--border-calibrated);
+}
+
 #identifierInfo {
   --tile-card-padding: clamp(4px, 2cqi, 8px);
   --tile-preview-size: clamp(34px, 28cqi, 54px);
@@ -35,7 +52,6 @@
   background: var(--panel-light);
 
   transition:
-    border-color 0.2s,
     background-color 0.2s;
 }
 
@@ -46,6 +62,15 @@
 
 #identifierMode {
   width: 100%;
+  border-color: var(--identifier-screen-color, var(--accent-blue));
+  color: var(--identifier-screen-color, var(--accent-blue));
+  background: var(--panel-light);
+}
+
+#identifierMode:hover:not(:disabled) {
+  background: var(--identifier-screen-color, var(--accent-blue));
+  border-color: var(--identifier-screen-color, var(--accent-blue));
+  color: var(--shade-white);
 }
 
 #identifierInfoContent {
@@ -54,23 +79,10 @@
   gap: var(--gap-md);
 }
 
-.identifierInfoTitle {
-  font-weight: bold;
-  font-size: 15px;
-  padding: var(--gap-sm);
-  border-bottom: 2px solid var(--border-mid);
-
-  transition:
-    color 0.2s,
-    border-color 0.2s;
-}
-
-#identifierInfo.valid .identifierInfoTitle {
-  color: var(--border-calibrated);
-  border-bottom-color: var(--border-calibrated);
-}
-
 .screenOk {
+  display: inline-block;
+  width: 1em;
+  margin-left: 4px;
   color: var(--border-calibrated);
   font-weight: bold;
 }
@@ -108,12 +120,13 @@
 }
 
 .identifierInfoItem.valid .tileCard {
-  border-width: 3px;
   border-color: var(--border-calibrated);
   box-shadow: 0 0 6px var(--success-glow);
 }
 
 .identifierDeleteButton {
+  position: relative;
+  z-index: 2;
   flex: 0 0 22px;
   width: 22px;
   height: 22px;
@@ -141,6 +154,7 @@
 
 #roiReadout {
   width: 100%;
+  margin-bottom: var(--gap-md);
   padding: var(--gap-md);
   border: 2px solid var(--border-mid);
   border-radius: var(--radius-small);

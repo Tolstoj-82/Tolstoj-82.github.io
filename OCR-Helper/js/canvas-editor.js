@@ -98,24 +98,20 @@ function renderIdentifierInfo() {
   if (!screen) {
     identifierInfoContent.textContent = "No screen selected";
     identifierInfo.classList.remove("valid");
+    identifierInfo.style.removeProperty("--identifier-screen-color");
+    activeScreenTitle.textContent = "No screen selected";
+    activeScreenTitle.classList.remove("valid");
     return;
   }
 
-  const title = document.createElement("div");
-  title.className = "identifierInfoTitle";
-  title.style.borderBottomColor = screen.color;
+  identifierInfo.style.setProperty("--identifier-screen-color", screen.color);
 
   const allVisible =
     screen.identifiers.length > 0 &&
     screen.identifiers.every((identifier) => isIdentifierVisible(identifier));
 
-  title.innerHTML = allVisible
-    ? `${screen.name} <span class="screenOk">✓</span>`
-    : screen.name;
-
   identifierInfo.classList.toggle("valid", allVisible);
-
-  identifierInfoContent.appendChild(title);
+  renderActiveScreenTitle(screen, allVisible);
 
   if (screen.identifiers.length === 0) {
     const empty = document.createElement("div");
@@ -129,6 +125,7 @@ function renderIdentifierInfo() {
 
     const row = document.createElement("div");
     row.className = "identifierInfoItem";
+    row.dataset.tile = identifier.tile;
     row.classList.toggle("valid", visible);
 
     const label = document.createElement("div");
@@ -141,24 +138,17 @@ function renderIdentifierInfo() {
     deleteButton.textContent = "×";
     deleteButton.title = "Delete identifier tile";
 
-    deleteButton.onclick = () => {
-      showConfirm(
-        `Delete identifier tile ${identifier.tile} from "${screen.name}"?`,
-        () => {
-          screen.identifiers = screen.identifiers.filter((id) => {
-            return id.tile !== identifier.tile;
-          });
+    const handleDelete = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-          renderScreenList();
-          updateScreenSetupTitle();
-          drawROIOverlay();
-          renderIdentifierInfo();
-          updateWorkflowUI();
-        },
-        null,
-        "Delete",
-        "Cancel",
-      );
+      deleteIdentifierTile(screen, identifier.tile);
+    };
+
+    deleteButton.onpointerdown = handleDelete;
+    deleteButton.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
     };
 
     const card = createTileCard({
@@ -194,6 +184,57 @@ function renderIdentifierInfo() {
 
     identifierInfoContent.appendChild(row);
   });
+}
+
+function renderActiveScreenTitle(screen, allVisible) {
+  activeScreenTitle.innerHTML = `${screen.name} <span class="screenOk">${
+    allVisible ? "✓" : ""
+  }</span>`;
+  activeScreenTitle.classList.toggle("valid", allVisible);
+}
+
+function updateIdentifierInfoStatus() {
+  const screen = getActiveScreen();
+
+  if (!screen) return;
+
+  const allVisible =
+    screen.identifiers.length > 0 &&
+    screen.identifiers.every((identifier) => isIdentifierVisible(identifier));
+
+  identifierInfo.classList.toggle("valid", allVisible);
+  renderActiveScreenTitle(screen, allVisible);
+
+  identifierInfoContent
+    .querySelectorAll(".identifierInfoItem")
+    .forEach((row) => {
+      const tile = row.dataset.tile;
+      const identifier = screen.identifiers.find((item) => item.tile === tile);
+
+      if (!identifier) return;
+
+      row.classList.toggle("valid", isIdentifierVisible(identifier));
+    });
+}
+
+function deleteIdentifierTile(screen, tileKey) {
+  showConfirm(
+    `Delete identifier tile ${tileKey} from "${screen.name}"?`,
+    () => {
+      screen.identifiers = screen.identifiers.filter((identifier) => {
+        return identifier.tile !== tileKey;
+      });
+
+      renderScreenList();
+      updateScreenSetupTitle();
+      drawROIOverlay();
+      renderIdentifierInfo();
+      updateWorkflowUI();
+    },
+    null,
+    "Delete",
+    "Cancel",
+  );
 }
 
 gridCanvas.addEventListener("mousedown", (e) => {
@@ -256,8 +297,11 @@ function addIdentifierTile(key) {
 const identifierModeButton = document.getElementById("identifierMode");
 
 identifierModeButton.onclick = () => {
+  showRegions = true;
+  showRegionsToggle.checked = true;
   selectionMode = "identifier";
   identifierModeButton.textContent = "Click a tile.";
+  drawROIOverlay();
 };
 
 window.addEventListener("mouseup", () => {

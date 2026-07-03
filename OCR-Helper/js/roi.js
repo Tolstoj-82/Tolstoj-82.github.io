@@ -231,7 +231,6 @@ function renderCaptureROIPicker() {
   captureROIIds.clear();
 
   if (rois.length === 0) {
-    captureROIPicker.textContent = "No regions available";
     return;
   }
 

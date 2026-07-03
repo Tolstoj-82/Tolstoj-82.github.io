@@ -3,13 +3,16 @@ const APP_TITLE = "GB OCR Tool";
 document.title = APP_TITLE;
 
 function drawLoop() {
-  ctx.drawImage(video, 0, 0, WIDTH, HEIGHT);
+  if (!snapshotPaused) {
+    ctx.drawImage(video, 0, 0, WIDTH, HEIGHT);
 
-  let frame = ctx.getImageData(0, 0, WIDTH, HEIGHT);
+    let frame = ctx.getImageData(0, 0, WIDTH, HEIGHT);
 
-  processFrame(frame);
+    processFrame(frame);
+  }
+
   autoDetectScreen();
-  renderIdentifierInfo();
+  updateIdentifierInfoStatus();
   renderROIReadout();
 
   requestAnimationFrame(drawLoop);

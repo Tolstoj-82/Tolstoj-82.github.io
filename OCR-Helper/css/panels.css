@@ -28,6 +28,40 @@
   margin-top: 0;
 }
 
+.topSourceLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: start;
+  gap: var(--gap-lg);
+}
+
+.topSourceControls {
+  min-width: 0;
+}
+
+.topSourceControls .panelSection + .panelSection {
+  margin-top: var(--gap-lg);
+}
+
+.topSourcePanel .row {
+  margin-bottom: 0;
+}
+
+.topSourcePanel .topActionStack {
+  align-self: stretch;
+  justify-content: flex-start;
+}
+
+@media (max-width: 700px) {
+  .topSourceLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .topSourcePanel .topActionStack {
+    width: 100%;
+  }
+}
+
 #roiPanel {
   width: 100%;
   max-width: var(--roi-width);

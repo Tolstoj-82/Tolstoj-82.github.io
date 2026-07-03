@@ -11,21 +11,12 @@
   flex: 1;
 }
 
-.pushRight {
-  margin-left: auto;
-}
-
 .topActionStack {
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
 }
 
-@media (max-width: 700px) {
-  .topActionStack {
-    margin-left: auto;
-  }
-}
 label {
   font-weight: bold;
 }

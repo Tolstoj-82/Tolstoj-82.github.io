@@ -24,41 +24,47 @@
     <div id="app">
       <div id="topLayout">
         <div id="main">
-          <section class="panel">
-            <section class="panelSection">
-              <div class="row">
-                <label for="cameraSelect">GB Interceptor</label>
-                <select id="cameraSelect"></select>
-                <button id="refreshCamera">Refresh devices</button>
-                <button id="startCamera">Start Camera</button>
-                <div class="topActionStack pushRight">
-                  <button id="newProject">New project</button>
-                  <button id="importJSON">Import JSON</button>
-                </div>
-                <input
-                  id="importJSONFile"
-                  type="file"
-                  accept="application/json"
-                  multiple
-                  style="display: none"
-                />
+          <section class="panel topSourcePanel">
+            <div class="topSourceLayout">
+              <div class="topSourceControls">
+                <section class="panelSection">
+                  <div class="row">
+                    <label for="cameraSelect">GB Interceptor</label>
+                    <select id="cameraSelect"></select>
+                    <button id="refreshCamera">Refresh devices</button>
+                    <button id="startCamera">Start Camera</button>
+                  </div>
+                </section>
+
+                <section class="panelSection savedGamePanel">
+                  <div class="savedGameRow">
+                    <label for="savedGameDropdownButton">Available Games</label>
+
+                    <div id="savedGamePicker" class="savedGamePicker">
+                      <button id="savedGameDropdownButton" type="button">
+                        Saved games...
+                      </button>
+                      <div id="savedGameMenu" class="savedGameMenu hidden"></div>
+                    </div>
+
+                    <button id="loadSavedGame">Load</button>
+                  </div>
+                </section>
               </div>
-            </section>
 
-            <section class="panelSection savedGamePanel">
-              <div class="savedGameRow">
-                <label for="savedGameDropdownButton">Available Games</label>
-
-                <div id="savedGamePicker" class="savedGamePicker">
-                  <button id="savedGameDropdownButton" type="button">
-                    Saved games...
-                  </button>
-                  <div id="savedGameMenu" class="savedGameMenu hidden"></div>
-                </div>
-
-                <button id="loadSavedGame">Load</button>
+              <div class="topActionStack">
+                <button id="newProject">New project</button>
+                <button id="importJSON">Import JSON</button>
               </div>
-            </section>
+
+              <input
+                id="importJSONFile"
+                type="file"
+                accept="application/json"
+                multiple
+                style="display: none"
+              />
+            </div>
           </section>
 
           <video id="video" autoplay playsinline muted></video>
@@ -101,7 +107,7 @@
                 <label class="autoDetectToggle">
                   <input id="autoDetectScreens" type="checkbox" />
                   <span class="slider"></span>
-                  <span>Auto detect</span>
+                  <span>Auto Detect Screens</span>
                 </label>
 
                 <label class="autoDetectToggle">
@@ -109,12 +115,19 @@
                   <span class="slider"></span>
                   <span>Show Regions</span>
                 </label>
+                <button id="snapshotToggle" type="button">Take Snapshot</button>
 
-                <div id="roiReadout"></div>
-                <div id="identifierInfo">
-                  <button id="identifierMode">Add Identifier Tile</button>
-                  <div id="identifierInfoContent"></div>
-                </div>
+                <section class="panelSection liveOcrSection">
+                  <div id="activeScreenTitle" class="activeScreenTitle">
+                    No screen selected
+                  </div>
+
+                  <div id="roiReadout"></div>
+                  <div id="identifierInfo">
+                    <button id="identifierMode">Add Identifier Tile</button>
+                    <div id="identifierInfoContent"></div>
+                  </div>
+                </section>
               </div>
             </div>
           </section>
@@ -131,7 +144,13 @@
                   <strong id="tileCount">0</strong>
                 </span>
 
-                <button id="addTileset">+ Tileset</button>
+                <button id="uploadTileImage" type="button">Upload Tiles PNG</button>
+                <input
+                  id="uploadTileImageFile"
+                  type="file"
+                  accept="image/png"
+                  style="display: none"
+                />
 
                 <div id="tileDeleteZone">Drop tile here to delete</div>
 
@@ -141,6 +160,7 @@
               </div>
 
               <div id="tilesContainer"></div>
+              <button id="addTileset">+ Tileset</button>
             </section>
 
             <section class="panelSection">
@@ -158,11 +178,7 @@
 
             <div class="jsonViewer">
               <pre id="jsonHighlight" aria-hidden="true"></pre>
-              <textarea
-                id="jsonOutput"
-                rows="18"
-                spellcheck="false"
-              ></textarea>
+              <textarea id="jsonOutput" rows="18" spellcheck="false"></textarea>
             </div>
           </section>
         </div>
@@ -247,6 +263,30 @@
           <div class="calibrationModalButtonGroup">
             <button id="saveCalibrationModal">Save</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tileImageModalOverlay" class="modalOverlay hidden">
+      <div class="modalBox tileImageModalBox">
+        <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+
+        <h2>Import Tiles PNG</h2>
+
+        <div class="tileImagePreviewFrame">
+          <canvas id="tileImagePreview"></canvas>
+        </div>
+
+        <div class="tileImageOptions">
+          <label>
+            <input id="tileImageInvert" type="checkbox" />
+            Invert
+          </label>
+        </div>
+
+        <div class="modalButtons">
+          <button id="cancelTileImageImport">Cancel</button>
+          <button id="confirmTileImageImport">Import</button>
         </div>
       </div>
     </div>

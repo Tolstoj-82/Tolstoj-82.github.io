@@ -28,6 +28,7 @@ let capturing = false;
 
 let autoDetectEnabled = false;
 let showRegions = true;
+let snapshotPaused = false;
 
 let calibrationSamples = [];
 let detectedCalibrationShades = [];

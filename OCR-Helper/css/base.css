@@ -67,6 +67,9 @@ h1,
 #screenSetupTitle,
 .identifierInfoTitle {
   padding-bottom: var(--gap-sm);
+}
+
+#screenSetupTitle {
   border-bottom: 5px solid var(--border-mid);
 }
 

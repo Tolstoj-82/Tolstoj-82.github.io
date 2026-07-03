@@ -16,6 +16,33 @@ toggleCapture.onclick = () => {
   updateCaptureUI();
 };
 
+snapshotToggle.onclick = () => {
+  if (!cameraReady) {
+    showAlert("Start the camera first.");
+    return;
+  }
+
+  if (!calibrated) {
+    showAlert("Calibrate before taking a snapshot.");
+    return;
+  }
+
+  if (!snapshotPaused) {
+    ctx.drawImage(video, 0, 0, WIDTH, HEIGHT);
+
+    const frame = ctx.getImageData(0, 0, WIDTH, HEIGHT);
+    processFrame(frame);
+  }
+
+  snapshotPaused = !snapshotPaused;
+  updateSnapshotUI();
+};
+
+function updateSnapshotUI() {
+  snapshotToggle.textContent = snapshotPaused ? "Resume Live" : "Take Snapshot";
+  canvasContainer.classList.toggle("snapshotPaused", snapshotPaused);
+}
+
 function updateCaptureUI() {
   toggleCapture.textContent = capturing ? "⏹" : "▶";
 
@@ -27,6 +54,7 @@ function updateCaptureUI() {
   }
 
   updateWorkflowUI();
+  updateSnapshotUI();
 }
 
 setInterval(() => {

@@ -14,6 +14,8 @@ addTilesetButton.onclick = () => {
 
     if (tiles.length > 0) {
       uniqueTiles.clear();
+      selectedTiles.clear();
+      tileSelectionSource = null;
       renderTiles();
     }
 
@@ -24,7 +26,14 @@ addTilesetButton.onclick = () => {
   });
 };
 
+function updateAddTilesetButtonText() {
+  addTilesetButton.textContent =
+    uniqueTiles.size > 0 ? ">> Tileset" : "+ Tileset";
+}
+
 function renderTilesets() {
+  updateAddTilesetButtonText();
+
   const openStates = new Map();
 
   tilesetContainer.querySelectorAll(".tileset").forEach((details) => {
@@ -240,17 +249,12 @@ function renderTilesets() {
 
       card.classList.toggle("selected", isTileSelected(tileData));
 
+      card.addEventListener("pointerdown", (e) => {
+        handleTileSelectionActionPointer(e, tileData);
+      });
+
       card.onclick = (e) => {
-        e.stopPropagation();
-
-        if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
-          clearTileSelection();
-        }
-
-        toggleTileSelection(tileData);
-
-        renderTiles();
-        renderTilesets();
+        handleTileCardClick(e, tileData);
       };
 
       card.draggable = true;

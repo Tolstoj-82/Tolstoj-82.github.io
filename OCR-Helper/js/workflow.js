@@ -38,17 +38,32 @@ function updateWorkflowUI() {
   const addROIButton = document.getElementById("addROI");
   const workflowHeader = document.querySelector(".workflowHeader");
 
-  calibrateButton.disabled = !cameraReady;
+  calibrateButton.disabled = !cameraReady || snapshotPaused;
   calibrateButton.classList.toggle(
     "needsInput",
     cameraReady &&
+      !snapshotPaused &&
       (!calibrated ||
         calibrationQuality === "bad" ||
         calibrationQuality === "none"),
   );
   setDisabledReason(
     calibrateButton,
-    cameraReady ? "" : "Start the camera first.",
+    !cameraReady
+      ? "Start the camera first."
+      : snapshotPaused
+        ? "Resume live feed before calibrating."
+        : "",
+  );
+
+  snapshotToggle.disabled = !cameraReady || !calibrated;
+  setDisabledReason(
+    snapshotToggle,
+    !cameraReady
+      ? "Start the camera first."
+      : !calibrated
+        ? "Calibrate before taking a snapshot."
+        : "",
   );
 
   addScreenButton.disabled = !calibrated;
@@ -83,11 +98,8 @@ function updateWorkflowUI() {
     hasROIs ? "" : "Create at least one region first.",
   );
 
-  addTilesetButton.disabled = !hasROIs;
-  setDisabledReason(
-    addTilesetButton,
-    hasROIs ? "" : "Capture tiles before creating tilesets.",
-  );
+  addTilesetButton.disabled = false;
+  setDisabledReason(addTilesetButton, "");
 
   updateWorkflowHint();
 
@@ -121,7 +133,9 @@ function setCaptureLockedControls(locked) {
     .querySelectorAll("button, select, input, textarea")
     .forEach((control) => {
       if (control === toggleCapture) return;
+      if (control === snapshotToggle) return;
       if (control.type === "file") return;
+      if (control.classList.contains("identifierDeleteButton")) return;
 
       if (locked) {
         if (!control.disabled) {
