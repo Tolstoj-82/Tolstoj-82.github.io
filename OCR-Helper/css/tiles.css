@@ -10,13 +10,13 @@
 }
 
 #uploadTileImage.tile-upload-over {
-  background: rgba(47, 140, 255, 0.12);
+  background: var(--accent-blue-drop-bg);
   color: var(--accent-blue);
   border-style: dashed;
   border-color: var(--accent-blue);
   box-shadow:
-    inset 0 0 0 2px rgba(47, 140, 255, 0.18),
-    0 0 0 4px rgba(47, 140, 255, 0.12);
+    inset 0 0 0 2px var(--accent-blue-selected-bg),
+    0 0 0 4px var(--accent-blue-drop-bg);
   transform: scale(1.02);
 }
 
@@ -101,7 +101,7 @@
 }
 
 .tileCard input::placeholder {
-  color: #999;
+  color: var(--text-muted);
   opacity: 1;
   transition: opacity 0.15s ease;
 }
@@ -136,7 +136,7 @@
   border: 2px dashed var(--text-red);
   border-radius: var(--radius-small);
   color: var(--text-red);
-  background: rgba(255, 68, 68, 0.08);
+  background: var(--danger-bg);
 
   transition:
     opacity 0.15s ease,
@@ -150,8 +150,8 @@
 }
 
 #tileDeleteZone.drag-over {
-  background: rgba(255, 68, 68, 0.22);
-  box-shadow: 0 0 0 4px rgba(255, 68, 68, 0.12);
+  background: var(--danger-bg-strong);
+  box-shadow: 0 0 0 4px var(--danger-glow);
   transform: scale(1.02);
 }
 
@@ -167,7 +167,7 @@
   z-index: 9998;
 
   border: 1px solid var(--accent-blue);
-  background: rgba(47, 140, 255, 0.18);
+  background: var(--accent-blue-selected-bg);
 
   pointer-events: none;
 }
@@ -181,7 +181,7 @@
   outline: 2px solid var(--accent-blue);
   outline-offset: 0;
 
-  background: rgba(47, 140, 255, 0.18);
+  background: var(--accent-blue-selected-bg);
 
   transform: scale(1.04);
 }
@@ -200,7 +200,7 @@
   max-height: min(420px, 52vh);
   overflow: auto;
   margin: var(--gap-md) 0;
-  background: #000000;
+  background: var(--shade-black);
   border: 2px solid var(--border-mid);
   border-radius: var(--radius-small);
 }

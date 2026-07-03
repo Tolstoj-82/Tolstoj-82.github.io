@@ -20,7 +20,7 @@
   padding: var(--gap-md);
 
   background: var(--bg-panel-dark);
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-section);
   border-radius: var(--radius-small);
 }
 

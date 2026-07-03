@@ -55,7 +55,7 @@ body {
 .feedFrame {
   width: 100%;
   aspect-ratio: 160 / 144;
-  background: #000000;
+  background: var(--shade-black);
   border: 2px solid var(--border-mid);
   border-radius: var(--radius-small);
   overflow: hidden;
@@ -101,7 +101,7 @@ body {
 }
 
 .settingsAccordion summary:hover {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--black-faint);
 }
 
 .settingsAccordion summary::-webkit-details-marker {

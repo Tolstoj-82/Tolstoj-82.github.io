@@ -38,7 +38,7 @@
 }
 
 .tilesetSummary:hover {
-  background: #e2f0ff;
+  background: var(--accent-blue-hover);
 }
 
 .tilesetNameInput {
@@ -77,7 +77,7 @@
   font-size: 12px;
   font-weight: bold;
 
-  border: 2px solid rgba(255, 68, 68, 0.35);
+  border: 2px solid var(--danger-border-soft);
   border-radius: var(--radius-small);
 
   background: var(--shade-white);
@@ -93,7 +93,7 @@
 }
 
 body.draggingTiles .tilesetDeleteButton:hover {
-  background: rgba(255, 68, 68, 0.22);
+  background: var(--danger-bg-strong);
   color: var(--text-red);
   transform: scale(1.02);
 }
@@ -127,7 +127,7 @@ body.draggingTiles .tilesetDeleteButton:hover {
 }
 
 .tilesetTiles.drag-over {
-  background: #eef6ff;
+  background: var(--accent-blue-soft);
   border-color: var(--accent-blue);
 }
 
@@ -143,18 +143,18 @@ body.draggingTiles .tilesetDeleteButton:hover {
 
 .tilesetTiles.drag-over.move-mode {
   border-color: var(--text-green);
-  background: rgba(0, 180, 90, 0.12);
+  background: var(--success-drop-bg);
 }
 
 .tilesetTiles.drag-over.copy-mode {
   border-color: var(--accent-blue);
-  background: rgba(47, 140, 255, 0.14);
+  background: var(--accent-blue-copy-bg);
 }
 
 body.draggingTiles .tilesetDeleteButton {
   border-color: var(--text-red);
   border-style: dashed;
-  background: rgba(255, 68, 68, 0.08);
+  background: var(--danger-bg);
   color: var(--text-red);
   transition:
     background 0.15s ease,
@@ -172,8 +172,8 @@ body.draggingTiles .tilesetDeleteButton::after {
 }
 
 .tilesetDeleteButton.tile-delete-over {
-  background: rgba(255, 68, 68, 0.22);
+  background: var(--danger-bg-strong);
   color: var(--text-red);
-  box-shadow: 0 0 0 4px rgba(255, 68, 68, 0.12);
+  box-shadow: 0 0 0 4px var(--danger-glow);
   transform: scale(1.04);
 }

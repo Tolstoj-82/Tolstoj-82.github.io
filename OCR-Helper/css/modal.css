@@ -9,7 +9,7 @@
 
   padding: var(--gap-xl);
 
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--modal-overlay-bg);
 }
 
 .modalOverlay.hidden {
@@ -26,7 +26,7 @@
   color: var(--panel-text);
 
   border-radius: var(--radius-panel);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 12px 40px var(--black-shadow-strong);
 }
 
 .modalDragHandle {
@@ -130,7 +130,7 @@
   display: block;
   margin-top: var(--gap-md);
 
-  background: #fff;
+  background: var(--shade-white);
   border: 2px solid var(--border-mid);
   border-radius: var(--radius-small);
 

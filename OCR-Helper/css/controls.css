@@ -134,7 +134,7 @@ button:disabled:hover {
   background: var(--panel-light);
   border: 2px solid var(--border-mid);
   border-radius: var(--radius-small);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 24px var(--black-shadow-soft);
 }
 
 .savedGameMenu.hidden {
@@ -184,25 +184,25 @@ button:disabled:hover {
 
 #calibrateButton.needsInput {
   background: var(--panel-light);
-  border-color: #d98c00;
-  color: #b26b00;
+  border-color: var(--accent-orange);
+  color: var(--accent-orange-text);
 }
 
 #calibrateButton.needsInput:hover:not(:disabled) {
-  background: #d98c00;
-  border-color: #d98c00;
+  background: var(--accent-orange);
+  border-color: var(--accent-orange);
   color: var(--shade-white);
 }
 
 #newProject,
 #importJSON {
-  border-color: #000000;
-  color: #000000;
+  border-color: var(--shade-black);
+  color: var(--shade-black);
 }
 
 #newProject:hover:not(:disabled),
 #importJSON:hover:not(:disabled) {
-  background: #000000;
+  background: var(--shade-black);
   color: var(--shade-white);
 }
 
@@ -217,13 +217,13 @@ button:disabled:hover {
   font-weight: bold;
 
   background: transparent;
-  color: #000000;
+  color: var(--shade-black);
 
-  border-color: #000000;
+  border-color: var(--shade-black);
 }
 
 #toggleCapture:hover:not(:disabled) {
-  background: #000000;
+  background: var(--shade-black);
   color: var(--shade-white);
 }
 
@@ -235,13 +235,13 @@ button:disabled:hover {
   0%,
   100% {
     background: transparent;
-    color: #000000;
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    color: var(--shade-black);
+    box-shadow: 0 0 0 transparent;
   }
 
   50% {
-    background: rgba(0, 0, 0, 0.12);
-    color: #000000;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
+    background: var(--black-soft);
+    color: var(--shade-black);
+    box-shadow: 0 0 10px var(--black-shadow-mid);
   }
 }

@@ -5,8 +5,8 @@
 .canvasContainer {
   position: relative;
   display: inline-block;
-  --grid-line-color: rgba(255, 255, 255, 0.78);
-  --grid-outline-color: rgba(0, 0, 0, 0.65);
+  --grid-line-color: var(--grid-line-default);
+  --grid-outline-color: var(--grid-outline-default);
 
   width: min(var(--canvas-width), 100%);
   aspect-ratio: 160 / 144;
@@ -24,7 +24,7 @@
 
 .canvasContainer.snapshotPaused {
   border-color: var(--text-yellow);
-  box-shadow: 0 0 0 4px rgba(255, 204, 0, 0.18);
+  box-shadow: 0 0 0 4px var(--yellow-glow);
 }
 
 .canvasContainer.snapshotPaused::after {
@@ -34,9 +34,9 @@
   top: var(--gap-sm);
   right: var(--gap-sm);
   padding: 3px 7px;
-  background: rgba(255, 204, 0, 0.92);
-  color: #000000;
-  border: 1px solid rgba(0, 0, 0, 0.4);
+  background: var(--yellow-label-bg);
+  color: var(--shade-black);
+  border: 1px solid var(--black-border-soft);
   border-radius: var(--radius-small);
   font-size: 12px;
   font-weight: bold;
@@ -168,12 +168,12 @@
   100% {
     border-color: var(--capture-red-dark);
     box-shadow: 0 0 4px var(--capture-red-dark);
-    background-color: rgba(176, 0, 0, 0.02);
+    background-color: var(--capture-red-dark-bg);
   }
 
   50% {
     border-color: var(--capture-red-light);
     box-shadow: 0 0 4px var(--capture-red-light);
-    background-color: rgba(255, 64, 64, 0.05);
+    background-color: var(--capture-red-light-bg);
   }
 }

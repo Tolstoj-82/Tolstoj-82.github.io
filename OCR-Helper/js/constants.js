@@ -57,5 +57,5 @@ const screenColors = [
 
 const tilesetTypes = [
   { value: "text-number", label: "Text/Number" },
-  { value: "counter", label: "Counter" },
+  { value: "counter", label: "Counter (e.g. Hearts)" },
 ];

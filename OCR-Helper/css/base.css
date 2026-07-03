@@ -7,10 +7,12 @@
   --text-green: #00ff66;
   --text-red: #ff4444;
   --text-yellow: #ffcc00;
+  --text-muted: #999;
 
   --border-light: #fff;
   --border-mid: #666;
   --border-panel: #555;
+  --border-section: #e0e0e0;
 
   --shade-black: #000;
   --shade-dark: #555;
@@ -34,8 +36,19 @@
 
   --capture-red-dark: #b00000;
   --capture-red-light: #ff4040;
+  --capture-red-dark-bg: rgba(176, 0, 0, 0.02);
+  --capture-red-light-bg: rgba(255, 64, 64, 0.05);
 
   --accent-blue: #2f8cff;
+  --accent-blue-soft: #eef6ff;
+  --accent-blue-hover: #e2f0ff;
+  --accent-blue-drop-bg: rgba(47, 140, 255, 0.12);
+  --accent-blue-copy-bg: rgba(47, 140, 255, 0.14);
+  --accent-blue-selected-bg: rgba(47, 140, 255, 0.18);
+
+  --accent-orange: #d98c00;
+  --accent-orange-text: #b26b00;
+
   --panel-light: #ffffff;
   --panel-text: #202020;
 
@@ -44,8 +57,35 @@
   --input-warning-bg: #fff0f3;
   --tile-hover-bg: #eef6ff;
 
+  --danger-bg: rgba(255, 68, 68, 0.08);
+  --danger-bg-strong: rgba(255, 68, 68, 0.22);
+  --danger-border-soft: rgba(255, 68, 68, 0.35);
+  --danger-glow: rgba(255, 68, 68, 0.12);
+  --success-drop-bg: rgba(0, 180, 90, 0.12);
   --success-bg: rgba(0, 170, 0, 0.05);
   --success-glow: rgba(0, 170, 0, 0.2);
+
+  --yellow-glow: rgba(255, 204, 0, 0.18);
+  --yellow-label-bg: rgba(255, 204, 0, 0.92);
+
+  --black-faint: rgba(0, 0, 0, 0.08);
+  --black-soft: rgba(0, 0, 0, 0.12);
+  --black-border-soft: rgba(0, 0, 0, 0.4);
+  --black-shadow-soft: rgba(0, 0, 0, 0.25);
+  --black-shadow-mid: rgba(0, 0, 0, 0.35);
+  --black-shadow-strong: rgba(0, 0, 0, 0.45);
+  --modal-overlay-bg: rgba(0, 0, 0, 0.55);
+  --button-muted-text: rgba(0, 0, 0, 0.45);
+  --white-hover-bg: rgba(255, 255, 255, 0.35);
+
+  --json-text: #d6deeb;
+  --json-key: #7fdbca;
+  --json-string: #ecc48d;
+  --json-number: #f78c6c;
+  --json-literal: #c792ea;
+
+  --grid-line-default: rgba(255, 255, 255, 0.78);
+  --grid-outline-default: rgba(0, 0, 0, 0.65);
 }
 
 * {
@@ -96,7 +136,7 @@ h1,
   inset: 0;
   pointer-events: none;
   background: var(--bg-code);
-  color: #d6deeb;
+  color: var(--json-text);
   border: 2px solid var(--border-mid);
   padding: var(--gap-md);
 }
@@ -112,17 +152,44 @@ h1,
 }
 
 .jsonKey {
-  color: #7fdbca;
+  color: var(--json-key);
 }
 
 .jsonString {
-  color: #ecc48d;
+  color: var(--json-string);
 }
 
 .jsonNumber {
-  color: #f78c6c;
+  color: var(--json-number);
 }
 
 .jsonLiteral {
-  color: #c792ea;
+  color: var(--json-literal);
+}
+
+.roiDeleteButton,
+.identifierDeleteButton {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--button-muted-text) !important;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  appearance: none;
+}
+
+.roiDeleteButton:hover,
+.identifierDeleteButton:hover {
+  background: var(--white-hover-bg);
+  color: var(--text-red) !important;
 }
