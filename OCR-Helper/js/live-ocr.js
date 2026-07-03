@@ -51,7 +51,7 @@ function renderROIReadout() {
     if (!tileset) {
       value.textContent = "--";
     } else if (canReadScreen) {
-      const labels = [...roi.tiles]
+      const labels = sortTileKeysByReadingOrder(roi.tiles)
         .map((key) => {
           const [x, y] = key.split(",").map(Number);
           return findTileLabelInTileset(getTile(x, y), tileset);

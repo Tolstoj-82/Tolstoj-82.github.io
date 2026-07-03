@@ -291,7 +291,7 @@ function getRegionValues(player, screen) {
   return (screen.rois || []).map((region) => {
     const tileset = player.game.tilesets.find((item) => item.name === region.tileset);
     const labels = tileset
-      ? (region.tiles || []).map((key) => {
+      ? sortTileKeysByReadingOrder(region.tiles || []).map((key) => {
           const [x, y] = key.split(",").map(Number);
 
           return findTileLabel(getTile(player, x, y), tileset) || "?";
@@ -315,6 +315,15 @@ function getTile(player, tx, ty) {
   }
 
   return pixels;
+}
+
+function sortTileKeysByReadingOrder(keys) {
+  return [...keys].sort((a, b) => {
+    const [ax, ay] = a.split(",").map(Number);
+    const [bx, by] = b.split(",").map(Number);
+
+    return ay - by || ax - bx;
+  });
 }
 
 function tilesEqual(a, b) {

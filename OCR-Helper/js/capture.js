@@ -73,7 +73,7 @@ setInterval(() => {
   );
 
   selectedROIs.forEach((r) => {
-    r.tiles.forEach((id) => {
+    sortTileKeysByReadingOrder(r.tiles).forEach((id) => {
       let [x, y] = id.split(",");
 
       let pixels = getTile(Number(x), Number(y));

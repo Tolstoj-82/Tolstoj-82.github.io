@@ -30,7 +30,7 @@ function getCurrentProjectData() {
 
       rois: screen.rois.map((r) => ({
         name: r.name,
-        tiles: [...r.tiles],
+        tiles: sortTileKeysByReadingOrder(r.tiles),
         tileset:
           tilesets.find((tileset) => tileset.id === r.tilesetId)?.name || null,
       })),

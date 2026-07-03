@@ -22,6 +22,15 @@ function getTile(tx, ty) {
   return arr;
 }
 
+function sortTileKeysByReadingOrder(keys) {
+  return [...keys].sort((a, b) => {
+    const [ax, ay] = a.split(",").map(Number);
+    const [bx, by] = b.split(",").map(Number);
+
+    return ay - by || ax - bx;
+  });
+}
+
 function reorderArrayItem(items, sourceId, targetId, insertAfter, getId) {
   const sourceIndex = items.findIndex((item) => getId(item) === sourceId);
   const targetIndex = items.findIndex((item) => getId(item) === targetId);
