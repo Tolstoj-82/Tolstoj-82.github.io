@@ -30,6 +30,7 @@ function updateWorkflowHint() {
 function updateWorkflowUI() {
   const hasScreen = !!getActiveScreen();
   const hasROIs = hasScreen && getActiveScreen().rois.length > 0;
+  const captureLocked = capturing;
 
   const calibrateButton = document.getElementById("calibrateButton");
   const addScreenButton = document.getElementById("addScreen");
@@ -76,7 +77,7 @@ function updateWorkflowUI() {
         : "",
   );
 
-  toggleCapture.disabled = !hasROIs;
+  toggleCapture.disabled = !capturing && !hasROIs;
   setDisabledReason(
     toggleCapture,
     hasROIs ? "" : "Create at least one region first.",
@@ -86,12 +87,6 @@ function updateWorkflowUI() {
   setDisabledReason(
     addTilesetButton,
     hasROIs ? "" : "Capture tiles before creating tilesets.",
-  );
-
-  sendToTilesetButton.disabled = !hasROIs;
-  setDisabledReason(
-    sendToTilesetButton,
-    hasROIs ? "" : "Create at least one region first.",
   );
 
   updateWorkflowHint();
@@ -117,4 +112,36 @@ function updateWorkflowUI() {
   if (typeof updateStorageButtons === "function") {
     updateStorageButtons();
   }
+
+  setCaptureLockedControls(captureLocked);
+}
+
+function setCaptureLockedControls(locked) {
+  document
+    .querySelectorAll("button, select, input, textarea")
+    .forEach((control) => {
+      if (control === toggleCapture) return;
+      if (control.type === "file") return;
+
+      if (locked) {
+        if (!control.disabled) {
+          control.dataset.captureLocked = "true";
+        }
+
+        control.disabled = true;
+        return;
+      }
+
+      if (control.dataset.captureLocked === "true") {
+        control.disabled = false;
+        delete control.dataset.captureLocked;
+      }
+    });
+
+  if (!locked) {
+    return;
+  }
+
+  toggleCapture.disabled = false;
+  setDisabledReason(toggleCapture, "");
 }

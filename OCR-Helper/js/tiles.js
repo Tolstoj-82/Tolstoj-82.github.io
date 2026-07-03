@@ -97,6 +97,7 @@ function addTileDragHandlers(card) {
 
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", draggedTileKey);
+    e.dataTransfer.setData("application/x-tile-drag", "true");
 
     const tileData = JSON.parse(card.dataset.tileData);
     const payload = getDragTilePayload(tileData);
@@ -120,6 +121,8 @@ function addTileDragHandlers(card) {
   });
 
   card.addEventListener("dragover", (e) => {
+    if (!isTileDrag(e) || isDraggedTileCard(card)) return;
+
     e.preventDefault();
 
     if (!draggedTileKey || draggedTileKey === card.dataset.key) return;
@@ -137,6 +140,8 @@ function addTileDragHandlers(card) {
   });
 
   card.addEventListener("drop", (e) => {
+    if (!isTileDrag(e) || isDraggedTileCard(card)) return;
+
     e.preventDefault();
 
     const targetKey = card.dataset.key;
@@ -155,20 +160,7 @@ function addTileDragHandlers(card) {
 function reorderTiles(sourceKey, targetKey, insertAfter) {
   const entries = [...uniqueTiles.entries()];
 
-  const sourceIndex = entries.findIndex(([key]) => key === sourceKey);
-  const targetIndex = entries.findIndex(([key]) => key === targetKey);
-
-  if (sourceIndex === -1 || targetIndex === -1) return;
-
-  const [movedTile] = entries.splice(sourceIndex, 1);
-
-  let insertIndex = entries.findIndex(([key]) => key === targetKey);
-
-  if (insertAfter) {
-    insertIndex += 1;
-  }
-
-  entries.splice(insertIndex, 0, movedTile);
+  reorderArrayItem(entries, sourceKey, targetKey, insertAfter, ([key]) => key);
 
   uniqueTiles = new Map(entries);
 }
@@ -177,6 +169,8 @@ let draggedTileKey = null;
 let suppressNextTileContainerClick = false;
 
 tileDeleteZone.addEventListener("dragover", (e) => {
+  if (!isTileDrag(e)) return;
+
   e.preventDefault();
   tileDeleteZone.classList.add("drag-over");
 });
@@ -186,6 +180,8 @@ tileDeleteZone.addEventListener("dragleave", () => {
 });
 
 tileDeleteZone.addEventListener("drop", (e) => {
+  if (!isTileDrag(e)) return;
+
   e.preventDefault();
 
   const raw = e.dataTransfer.getData("application/json");
@@ -220,6 +216,16 @@ function animateTileDeletion(refs, onComplete) {
   });
 
   window.setTimeout(onComplete, cards.length > 0 ? 180 : 0);
+}
+
+function isTileDrag(e) {
+  return e.dataTransfer.types.includes("application/x-tile-drag");
+}
+
+function isDraggedTileCard(card) {
+  if (!card.dataset.tileData) return false;
+
+  return isTileSelected(JSON.parse(card.dataset.tileData));
 }
 
 function getTileSelectionId(data) {
@@ -293,6 +299,7 @@ function startTileMarquee(e, container, sourceData) {
     (e.ctrlKey || e.metaKey) &&
     (!tileSelectionSource || tileSelectionSource === sourceGroup);
 
+  // Keep marquee selection scoped to one tile source at a time.
   tileSelectionDrag = {
     startX: e.clientX,
     startY: e.clientY,

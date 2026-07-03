@@ -175,7 +175,7 @@ function updateStorageButtons() {
 
 newProjectButton.onclick = () => {
   showConfirm(
-    "Start a new project?\n\nCurrent screens, regions, tiles and tilesets will be cleared.",
+    "Start a new project?\n\nCurrent settings will be lost.",
     () => {
       game = {
         name: "",

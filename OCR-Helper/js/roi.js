@@ -43,6 +43,7 @@ function renderROIList() {
     dragHandle.addEventListener("dragstart", (e) => {
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", String(r.id));
+      e.dataTransfer.setData("application/x-region-drag", "true");
       e.dataTransfer.setDragImage(
         div,
         div.offsetWidth / 2,
@@ -63,6 +64,8 @@ function renderROIList() {
     });
 
     div.addEventListener("dragover", (e) => {
+      if (!e.dataTransfer.types.includes("application/x-region-drag")) return;
+
       e.preventDefault();
 
       const rect = div.getBoundingClientRect();
@@ -78,6 +81,8 @@ function renderROIList() {
     });
 
     div.addEventListener("drop", (e) => {
+      if (!e.dataTransfer.types.includes("application/x-region-drag")) return;
+
       e.preventDefault();
 
       const draggedId = Number(e.dataTransfer.getData("text/plain"));
@@ -214,21 +219,9 @@ function reorderROIs(sourceId, targetId, insertAfter) {
 
   if (!screen) return;
 
-  const sourceIndex = screen.rois.findIndex((r) => r.id === sourceId);
-  const targetIndex = screen.rois.findIndex((r) => r.id === targetId);
-
-  if (sourceIndex === -1 || targetIndex === -1) return;
-
-  const [moved] = screen.rois.splice(sourceIndex, 1);
-
-  // Recompute after removal so adjacent before/after drops can stay put.
-  let insertIndex = screen.rois.findIndex((r) => r.id === targetId);
-
-  if (insertAfter) {
-    insertIndex += 1;
-  }
-
-  screen.rois.splice(insertIndex, 0, moved);
+  reorderArrayItem(screen.rois, sourceId, targetId, insertAfter, (roi) => {
+    return roi.id;
+  });
 }
 
 function renderCaptureROIPicker() {

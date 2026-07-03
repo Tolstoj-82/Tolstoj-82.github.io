@@ -107,6 +107,7 @@ function renderScreenList() {
     dragHandle.addEventListener("dragstart", (e) => {
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", String(screen.id));
+      e.dataTransfer.setData("application/x-screen-drag", "true");
       e.dataTransfer.setDragImage(
         div,
         div.offsetWidth / 2,
@@ -127,6 +128,8 @@ function renderScreenList() {
     });
 
     div.addEventListener("dragover", (e) => {
+      if (!e.dataTransfer.types.includes("application/x-screen-drag")) return;
+
       e.preventDefault();
 
       const rect = div.getBoundingClientRect();
@@ -142,6 +145,8 @@ function renderScreenList() {
     });
 
     div.addEventListener("drop", (e) => {
+      if (!e.dataTransfer.types.includes("application/x-screen-drag")) return;
+
       e.preventDefault();
 
       const draggedId = Number(e.dataTransfer.getData("text/plain"));
@@ -228,19 +233,11 @@ function autoDetectScreen() {
 }
 
 function reorderScreens(sourceId, targetId, insertAfter) {
-  const sourceIndex = game.screens.findIndex((s) => s.id === sourceId);
-  const targetIndex = game.screens.findIndex((s) => s.id === targetId);
-
-  if (sourceIndex === -1 || targetIndex === -1) return;
-
-  const [moved] = game.screens.splice(sourceIndex, 1);
-
-  // Recompute after removal so adjacent before/after drops can stay put.
-  let insertIndex = game.screens.findIndex((s) => s.id === targetId);
-
-  if (insertAfter) {
-    insertIndex += 1;
-  }
-
-  game.screens.splice(insertIndex, 0, moved);
+  reorderArrayItem(
+    game.screens,
+    sourceId,
+    targetId,
+    insertAfter,
+    (screen) => screen.id,
+  );
 }

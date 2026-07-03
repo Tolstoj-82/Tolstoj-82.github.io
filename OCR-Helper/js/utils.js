@@ -22,6 +22,27 @@ function getTile(tx, ty) {
   return arr;
 }
 
+function reorderArrayItem(items, sourceId, targetId, insertAfter, getId) {
+  const sourceIndex = items.findIndex((item) => getId(item) === sourceId);
+  const targetIndex = items.findIndex((item) => getId(item) === targetId);
+
+  if (sourceIndex === -1 || targetIndex === -1) return;
+
+  const [moved] = items.splice(sourceIndex, 1);
+  let insertIndex = items.findIndex((item) => getId(item) === targetId);
+
+  if (insertAfter) {
+    insertIndex += 1;
+  }
+
+  items.splice(insertIndex, 0, moved);
+}
+
+// Old saved games are folded into the two current tileset modes.
+function normalizeTilesetType(type) {
+  return type === "counter" ? "counter" : "text-number";
+}
+
 function tilesEqual(a, b) {
   return a.length === b.length && a.every((value, i) => value === b[i]);
 }
@@ -30,9 +51,6 @@ function formatROIValue(labels, type) {
   if (labels.length === 0) return "--";
 
   switch (type) {
-    case "integer":
-    case "text":
-    case "tokens":
     case "text-number": {
       const value = labels.join("");
 

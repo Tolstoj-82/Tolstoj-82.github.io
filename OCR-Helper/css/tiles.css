@@ -140,6 +140,7 @@
 
 #tileDeleteZone.drag-over {
   background: rgba(255, 68, 68, 0.22);
+  box-shadow: 0 0 0 4px rgba(255, 68, 68, 0.12);
   transform: scale(1.02);
 }
 

@@ -175,9 +175,11 @@
 
   width: 22px;
   height: 22px;
+  min-height: 22px;
 
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
   padding: 0;
   margin: 0;
@@ -186,10 +188,10 @@
   border-radius: 50%;
   background: transparent;
 
-  color: #000 !important;
+  color: rgba(0, 0, 0, 0.45) !important;
   font-size: 14px;
   font-weight: bold;
-  line-height: 22px;
+  line-height: 1;
 
   cursor: pointer;
 
@@ -198,7 +200,7 @@
 
 .roiDeleteButton:hover {
   background: rgba(255, 255, 255, 0.35);
-  color: #000 !important;
+  color: var(--text-red) !important;
 }
 
 .roiItem.dragging .dragHandle,

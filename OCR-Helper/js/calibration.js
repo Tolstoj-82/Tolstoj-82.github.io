@@ -243,8 +243,6 @@ function drawCalibrationHistogram() {
 
   const max = Math.max(...bins, 1);
 
-  drawHistogramTickGuides(ctx, plotLeft, plotTop, plotBottom, plotWidth);
-
   bins.forEach((count, index) => {
     const x = plotLeft + (index / 255) * plotWidth;
     const barWidth = Math.max(1, plotWidth / 256);
@@ -270,6 +268,7 @@ function drawCalibrationHistogram() {
     plotHeight,
   );
   drawHistogramBaseline(ctx, plotLeft, plotRight, plotBottom);
+  drawHistogramTickMarks(ctx, plotLeft, plotBottom, plotWidth);
   drawHistogramThresholds(
     ctx,
     thresholds,
@@ -293,18 +292,18 @@ function drawHistogramBaseline(ctx, plotLeft, plotRight, plotBottom) {
   ctx.stroke();
 }
 
-function drawHistogramTickGuides(ctx, plotLeft, plotTop, plotBottom, plotWidth) {
+function drawHistogramTickMarks(ctx, plotLeft, plotBottom, plotWidth) {
   ctx.save();
 
-  ctx.strokeStyle = "#d8d8d8";
+  ctx.strokeStyle = "#000000";
   ctx.lineWidth = 1;
 
   HISTOGRAM_TICKS.forEach((value) => {
     const x = Math.round(plotLeft + (value / 255) * plotWidth) + 0.5;
 
     ctx.beginPath();
-    ctx.moveTo(x, plotTop);
-    ctx.lineTo(x, plotBottom + 22);
+    ctx.moveTo(x, plotBottom);
+    ctx.lineTo(x, plotBottom + 8);
     ctx.stroke();
   });
 
@@ -329,13 +328,13 @@ function drawHistogramThresholds(
     const x = Math.round(plotLeft + (threshold / 255) * plotWidth) + 0.5;
 
     ctx.beginPath();
-    ctx.moveTo(x, plotTop);
-    ctx.lineTo(x, plotBottom + 22);
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, HISTOGRAM_HEIGHT);
     ctx.stroke();
 
     ctx.setLineDash([]);
 
-    drawThresholdHandle(ctx, x, plotBottom + 14);
+    drawThresholdHandle(ctx, x, plotBottom + 10);
 
     ctx.setLineDash([4, 4]);
   });
@@ -346,7 +345,7 @@ function drawHistogramThresholds(
 
 function drawThresholdHandle(ctx, x, y) {
   const width = 20;
-  const height = 14;
+  const height = 18;
   const radius = 4;
   const left = x - width / 2;
   const top = y - height / 2;

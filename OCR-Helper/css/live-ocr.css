@@ -44,6 +44,16 @@
   background: var(--success-bg);
 }
 
+#identifierMode {
+  width: 100%;
+}
+
+#identifierInfoContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
 .identifierInfoTitle {
   font-weight: bold;
   font-size: 15px;
@@ -101,6 +111,32 @@
   border-width: 3px;
   border-color: var(--border-calibrated);
   box-shadow: 0 0 6px var(--success-glow);
+}
+
+.identifierDeleteButton {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-left: auto;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.45) !important;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  appearance: none;
+}
+
+.identifierDeleteButton:hover {
+  background: rgba(255, 255, 255, 0.35);
+  color: var(--text-red) !important;
 }
 
 #roiReadout {

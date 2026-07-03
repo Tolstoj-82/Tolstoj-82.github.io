@@ -25,28 +25,40 @@
       <div id="topLayout">
         <div id="main">
           <section class="panel">
-            <div class="row">
-              <label for="cameraSelect">GB Interceptor</label>
-              <select id="cameraSelect"></select>
-              <button id="refreshCamera">Refresh devices</button>
-              <button id="startCamera">Start Camera</button>
-              <button id="newProject" class="pushRight">New project</button>
-            </div>
-          </section>
-
-          <section class="panel savedGamePanel">
-            <div class="savedGameRow">
-              <label for="savedGameDropdownButton">Available Games</label>
-
-              <div id="savedGamePicker" class="savedGamePicker">
-                <button id="savedGameDropdownButton" type="button">
-                  Saved games...
-                </button>
-                <div id="savedGameMenu" class="savedGameMenu hidden"></div>
+            <section class="panelSection">
+              <div class="row">
+                <label for="cameraSelect">GB Interceptor</label>
+                <select id="cameraSelect"></select>
+                <button id="refreshCamera">Refresh devices</button>
+                <button id="startCamera">Start Camera</button>
+                <div class="topActionStack pushRight">
+                  <button id="newProject">New project</button>
+                  <button id="importJSON">Import JSON</button>
+                </div>
+                <input
+                  id="importJSONFile"
+                  type="file"
+                  accept="application/json"
+                  multiple
+                  style="display: none"
+                />
               </div>
+            </section>
 
-              <button id="loadSavedGame">Load</button>
-            </div>
+            <section class="panelSection savedGamePanel">
+              <div class="savedGameRow">
+                <label for="savedGameDropdownButton">Available Games</label>
+
+                <div id="savedGamePicker" class="savedGamePicker">
+                  <button id="savedGameDropdownButton" type="button">
+                    Saved games...
+                  </button>
+                  <div id="savedGameMenu" class="savedGameMenu hidden"></div>
+                </div>
+
+                <button id="loadSavedGame">Load</button>
+              </div>
+            </section>
           </section>
 
           <video id="video" autoplay playsinline muted></video>
@@ -61,16 +73,20 @@
                   <canvas id="gridCanvas" width="160" height="144"></canvas>
                 </div>
 
-                <div class="buttonRow">
-                  <button id="calibrateButton">Calibrate</button>
+                <section class="panelSection calibrationSection">
+                  <div class="buttonRow">
+                    <button id="calibrateButton">Calibrate</button>
 
-                  <span id="calibrationStatus" class="calibrationStatus bad"
-                    >✖</span
-                  >
-                  <button id="openCalibrationModal">Calibration Details</button>
-                </div>
+                    <span id="calibrationStatus" class="calibrationStatus bad"
+                      >✖</span
+                    >
+                    <button id="openCalibrationModal">
+                      Calibration Details
+                    </button>
+                  </div>
+                </section>
 
-                <div class="lutSection">
+                <section class="panelSection lutSection">
                   <h3>LUT</h3>
 
                   <div class="lutControls">
@@ -78,7 +94,7 @@
                   </div>
 
                   <div id="lutSwatches" class="lutSwatches"></div>
-                </div>
+                </section>
               </div>
 
               <div class="sideInfo">
@@ -95,7 +111,10 @@
                 </label>
 
                 <div id="roiReadout"></div>
-                <div id="identifierInfo"></div>
+                <div id="identifierInfo">
+                  <button id="identifierMode">Add Identifier Tile</button>
+                  <div id="identifierInfoContent"></div>
+                </div>
               </div>
             </div>
           </section>
@@ -113,7 +132,6 @@
                 </span>
 
                 <button id="addTileset">+ Tileset</button>
-                <button id="sendToTileset">» Tileset</button>
 
                 <div id="tileDeleteZone">Drop tile here to delete</div>
 
@@ -136,14 +154,6 @@
 
             <div class="buttonRow">
               <button id="downloadJSON">Download JSON</button>
-              <button id="importJSON">Import JSON</button>
-
-              <input
-                id="importJSONFile"
-                type="file"
-                accept="application/json"
-                style="display: none"
-              />
             </div>
 
             <div class="jsonViewer">
@@ -177,8 +187,6 @@
           <section class="panelSection">
             <h2 id="screenSetupTitle">Screen Setup</h2>
 
-            <button id="identifierMode">Add Identifier Tile</button>
-
             <h3>Regions</h3>
             <button id="addROI">+ Add Region</button>
             <div id="roiList"></div>
@@ -189,6 +197,7 @@
 
     <div id="modalOverlay" class="modalOverlay hidden">
       <div class="modalBox">
+        <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
         <div id="modalMessage" class="modalMessage"></div>
 
         <input
@@ -213,6 +222,7 @@
 
     <div id="calibrationModalOverlay" class="modalOverlay hidden">
       <div class="modalBox calibrationModalBox">
+        <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
         <button
           id="discardCalibrationModal"
           class="modalCloseButton"

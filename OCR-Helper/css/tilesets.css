@@ -11,10 +11,11 @@
 }
 
 .tilesetSummary {
-  padding: 10px 40px 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
 
-  cursor: pointer;
-  font-weight: bold;
+  padding: 10px 120px 10px 12px;
 
   white-space: nowrap;
   overflow: hidden;
@@ -27,6 +28,32 @@
   background: #e2f0ff;
 }
 
+.tilesetNameInput {
+  min-width: 0;
+  flex: 1;
+
+  padding: 3px 6px;
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+
+  border: 2px solid transparent;
+  border-radius: var(--radius-small);
+
+  font-weight: bold;
+}
+
+.tilesetNameInput:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
+.tilesetCount {
+  flex: 0 0 auto;
+  font-weight: normal;
+  color: var(--border-panel);
+}
+
 .tilesetDeleteButton {
   position: absolute;
   top: 8px;
@@ -37,7 +64,7 @@
   font-size: 12px;
   font-weight: bold;
 
-  border: 2px solid var(--text-red);
+  border: 2px solid rgba(255, 68, 68, 0.35);
   border-radius: var(--radius-small);
 
   background: var(--shade-white);
@@ -47,13 +74,15 @@
 }
 
 .tilesetDeleteButton:hover:not(.tile-delete-over) {
+  border-color: var(--text-red);
   background: var(--text-red);
   color: var(--shade-white);
 }
 
 body.draggingTiles .tilesetDeleteButton:hover {
-  background: rgba(255, 68, 68, 0.16);
+  background: rgba(255, 68, 68, 0.22);
   color: var(--text-red);
+  transform: scale(1.02);
 }
 
 .tileset > select {
@@ -110,9 +139,14 @@ body.draggingTiles .tilesetDeleteButton:hover {
 }
 
 body.draggingTiles .tilesetDeleteButton {
+  border-color: var(--text-red);
   border-style: dashed;
   background: rgba(255, 68, 68, 0.08);
   color: var(--text-red);
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
 body.draggingTiles .tilesetDeleteButton {
@@ -127,4 +161,6 @@ body.draggingTiles .tilesetDeleteButton::after {
 .tilesetDeleteButton.tile-delete-over {
   background: rgba(255, 68, 68, 0.22);
   color: var(--text-red);
+  box-shadow: 0 0 0 4px rgba(255, 68, 68, 0.12);
+  transform: scale(1.04);
 }

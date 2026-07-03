@@ -25,6 +25,8 @@ function updateCaptureUI() {
   if (!capturing) {
     document.title = APP_TITLE;
   }
+
+  updateWorkflowUI();
 }
 
 setInterval(() => {

@@ -5,12 +5,17 @@ function updateJSONOutput() {
     return;
   }
 
-  const data = {
+  jsonOutput.value = stringifyProjectData(getCurrentProjectData());
+  updateJSONHighlight();
+}
+
+function getCurrentProjectData() {
+  return {
     game: game.name,
 
     tilesets: tilesets.map((tileset) => ({
       name: tileset.name,
-      type: tileset.type || "text-number",
+      type: normalizeTilesetType(tileset.type),
       tiles: tileset.tiles,
     })),
 
@@ -30,7 +35,9 @@ function updateJSONOutput() {
       })),
     })),
   };
+}
 
+function stringifyProjectData(data) {
   let json = JSON.stringify(data, null, 2);
 
   // Keep 8x8 tile pixels compact without changing the exported shape.
@@ -39,8 +46,32 @@ function updateJSONOutput() {
     (_, values) => `"pixels": [${values.replace(/\s+/g, " ").trim()}]`,
   );
 
-  jsonOutput.value = json;
-  updateJSONHighlight();
+  return json;
+}
+
+function getSafeFileName(name) {
+  return (name || "ocr-helper")
+    .replace(/[<>:"/\\|?*]+/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function downloadProjectFile(data, fallbackName = "ocr-helper") {
+  const blob = new Blob([stringifyProjectData(data)], {
+    type: "application/json",
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${getSafeFileName(data.game || fallbackName)}.json`;
+
+  document.body.appendChild(a);
+  a.click();
+
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 function escapeHTML(value) {
@@ -78,48 +109,98 @@ jsonOutput.addEventListener("scroll", () => {
 document.getElementById("downloadJSON").onclick = () => {
   updateJSONOutput();
 
-  const blob = new Blob([jsonOutput.value], {
-    type: "application/json",
-  });
+  const savedGames = typeof getSavedGames === "function" ? getSavedGames() : {};
+  const entries = Object.entries(savedGames);
 
-  const url = URL.createObjectURL(blob);
+  if (entries.length > 0) {
+    entries.forEach(([name, data], index) => {
+      window.setTimeout(() => {
+        downloadProjectFile(data, name);
+      }, index * 100);
+    });
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${game.name || "ocr-helper"}.json`;
+    return;
+  }
 
-  document.body.appendChild(a);
-  a.click();
-
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  if (game.screens.length > 0) {
+    downloadProjectFile(getCurrentProjectData(), game.name);
+  }
 };
 
 importJSONButton.onclick = () => {
   importJSONFile.click();
 };
 
-importJSONFile.onchange = (e) => {
-  const file = e.target.files[0];
+importJSONFile.onchange = async (e) => {
+  const files = [...e.target.files];
 
-  if (!file) return;
+  if (files.length === 0) return;
 
-  const reader = new FileReader();
-
-  reader.onload = () => {
+  if (files.length === 1) {
     try {
-      const data = JSON.parse(reader.result);
+      const data = JSON.parse(await files[0].text());
       importProject(data);
     } catch (err) {
       showAlert("Invalid JSON file.");
       console.error(err);
     }
-  };
 
-  reader.readAsText(file);
+    importJSONFile.value = "";
+    return;
+  }
 
+  importMultipleProjects(files);
   importJSONFile.value = "";
 };
+
+async function importMultipleProjects(files) {
+  const imported = [];
+  const failed = [];
+
+  for (const file of files) {
+    try {
+      const data = JSON.parse(await file.text());
+
+      if (!isValidProjectData(data)) {
+        failed.push(file.name);
+        continue;
+      }
+
+      imported.push({
+        name: data.game || file.name.replace(/\.json$/i, ""),
+        data,
+      });
+    } catch {
+      failed.push(file.name);
+    }
+  }
+
+  if (imported.length === 0) {
+    showAlert("No valid JSON files were found.");
+    return;
+  }
+
+  showConfirm(
+    `Import ${imported.length} JSON file${imported.length === 1 ? "" : "s"} as saved games?`,
+    () => {
+      const savedGames = getSavedGames();
+
+      imported.forEach(({ name, data }) => {
+        savedGames[name] = data;
+      });
+
+      setSavedGames(savedGames);
+      renderSavedGameList();
+
+      if (failed.length > 0) {
+        showAlert(`Imported ${imported.length}. Skipped ${failed.length} invalid file${failed.length === 1 ? "" : "s"}.`);
+      }
+    },
+    null,
+    "Import",
+    "Cancel",
+  );
+}
 
 function applyImportedProject(data) {
   game.name = data.game || "";
@@ -128,7 +209,7 @@ function applyImportedProject(data) {
   tilesets = data.tilesets.map((tileset, index) => ({
     id: Date.now() + index,
     name: tileset.name || `Tileset ${index + 1}`,
-    type: tileset.type || "text-number",
+    type: normalizeTilesetType(tileset.type),
     tiles: Array.isArray(tileset.tiles)
       ? tileset.tiles.map((tile) => ({
           pixels: tile.pixels || [],
@@ -186,7 +267,7 @@ function applyImportedProject(data) {
 }
 
 function importProject(data, options = {}) {
-  if (!data || !Array.isArray(data.screens) || !Array.isArray(data.tilesets)) {
+  if (!isValidProjectData(data)) {
     showAlert("This does not seem to be a valid OCR JSON file.");
     return;
   }
@@ -207,10 +288,14 @@ function importProject(data, options = {}) {
   }
 
   showConfirm(
-    "Import this JSON?\n\nThis will replace the current setup.",
+    "Load these game settings?\n\nThis will replace the current setup without saving your unsaved settings.",
     finishImport,
     null,
     "Import",
     "Cancel",
   );
+}
+
+function isValidProjectData(data) {
+  return data && Array.isArray(data.screens) && Array.isArray(data.tilesets);
 }

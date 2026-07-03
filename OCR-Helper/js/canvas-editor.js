@@ -15,7 +15,10 @@ function drawROIOverlay() {
       const [x, y] = key.split(",").map(Number);
       roiCtx.fillRect(x * TILE, y * TILE, TILE, TILE);
     }
+
+    drawRegionOutline(roi);
   }
+
   const screen = getActiveScreen();
 
   if (screen) {
@@ -41,13 +44,59 @@ function drawROIOverlay() {
   }
 }
 
+function drawRegionOutline(roi) {
+  roiCtx.save();
+  roiCtx.strokeStyle = "rgba(255,255,255,0.82)";
+  roiCtx.lineWidth = 1;
+  roiCtx.shadowColor = "rgba(0,0,0,0.75)";
+  roiCtx.shadowBlur = 1;
+
+  for (const key of roi.tiles) {
+    const [x, y] = key.split(",").map(Number);
+    const px = x * TILE;
+    const py = y * TILE;
+
+    drawRegionBoundaryLine(roi, key, `${x},${y - 1}`, px, py, px + TILE, py);
+    drawRegionBoundaryLine(
+      roi,
+      key,
+      `${x},${y + 1}`,
+      px,
+      py + TILE,
+      px + TILE,
+      py + TILE,
+    );
+    drawRegionBoundaryLine(roi, key, `${x - 1},${y}`, px, py, px, py + TILE);
+    drawRegionBoundaryLine(
+      roi,
+      key,
+      `${x + 1},${y}`,
+      px + TILE,
+      py,
+      px + TILE,
+      py + TILE,
+    );
+  }
+
+  roiCtx.restore();
+}
+
+function drawRegionBoundaryLine(roi, key, neighborKey, x1, y1, x2, y2) {
+  if (!roi.tiles.has(key) || roi.tiles.has(neighborKey)) return;
+
+  roiCtx.beginPath();
+  roiCtx.moveTo(x1, y1);
+  roiCtx.lineTo(x2, y2);
+  roiCtx.stroke();
+}
+
 function renderIdentifierInfo() {
   const screen = getActiveScreen();
 
-  identifierInfo.innerHTML = "";
+  identifierInfoContent.innerHTML = "";
 
   if (!screen) {
-    identifierInfo.textContent = "No screen selected";
+    identifierInfoContent.textContent = "No screen selected";
     identifierInfo.classList.remove("valid");
     return;
   }
@@ -66,16 +115,16 @@ function renderIdentifierInfo() {
 
   identifierInfo.classList.toggle("valid", allVisible);
 
-  identifierInfo.appendChild(title);
+  identifierInfoContent.appendChild(title);
 
   if (screen.identifiers.length === 0) {
     const empty = document.createElement("div");
     empty.textContent = "No identifier tiles";
-    identifierInfo.appendChild(empty);
+    identifierInfoContent.appendChild(empty);
     return;
   }
 
-  screen.identifiers.forEach((identifier, index) => {
+  screen.identifiers.forEach((identifier) => {
     const visible = isIdentifierVisible(identifier);
 
     const row = document.createElement("div");
@@ -85,6 +134,32 @@ function renderIdentifierInfo() {
     const label = document.createElement("div");
     label.className = "identifierInfoLabel";
     label.textContent = `(${identifier.tile})`;
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "identifierDeleteButton";
+    deleteButton.type = "button";
+    deleteButton.textContent = "×";
+    deleteButton.title = "Delete identifier tile";
+
+    deleteButton.onclick = () => {
+      showConfirm(
+        `Delete identifier tile ${identifier.tile} from "${screen.name}"?`,
+        () => {
+          screen.identifiers = screen.identifiers.filter((id) => {
+            return id.tile !== identifier.tile;
+          });
+
+          renderScreenList();
+          updateScreenSetupTitle();
+          drawROIOverlay();
+          renderIdentifierInfo();
+          updateWorkflowUI();
+        },
+        null,
+        "Delete",
+        "Cancel",
+      );
+    };
 
     const card = createTileCard({
       pixels: identifier.pixels,
@@ -115,8 +190,9 @@ function renderIdentifierInfo() {
 
     row.appendChild(label);
     row.appendChild(card);
+    row.appendChild(deleteButton);
 
-    identifierInfo.appendChild(row);
+    identifierInfoContent.appendChild(row);
   });
 }
 
@@ -131,21 +207,12 @@ gridCanvas.addEventListener("mousedown", (e) => {
 
   const existingIdentifier = screen.identifiers.find((id) => id.tile === key);
 
-  if (existingIdentifier) {
-    showConfirm(`Delete identifier tile ${key} from "${screen.name}"?`, () => {
-      screen.identifiers = screen.identifiers.filter((id) => id.tile !== key);
-
-      renderScreenList();
-      updateScreenSetupTitle();
-      drawROIOverlay();
-      renderIdentifierInfo();
-      updateWorkflowUI();
-    });
-
-    return;
-  }
-
   if (selectionMode === "identifier") {
+    if (existingIdentifier) {
+      showAlert("This identifier tile already exists.");
+      return;
+    }
+
     addIdentifierTile(key);
     return;
   }

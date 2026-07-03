@@ -5,6 +5,8 @@
 .canvasContainer {
   position: relative;
   display: inline-block;
+  --grid-line-color: rgba(255, 255, 255, 0.78);
+  --grid-outline-color: rgba(0, 0, 0, 0.65);
 
   width: min(var(--canvas-width), 100%);
   aspect-ratio: 160 / 144;
@@ -44,21 +46,22 @@
 
   opacity: 0;
   transition: opacity 0.15s ease;
+  filter: drop-shadow(0 0 1px var(--grid-outline-color));
 
   background-image:
     repeating-linear-gradient(
       to right,
       transparent 0,
       transparent calc(5% - 1px),
-      rgba(95, 191, 95, 0.6) calc(5% - 1px),
-      rgba(95, 191, 95, 0.6) 5%
+      var(--grid-line-color) calc(5% - 1px),
+      var(--grid-line-color) 5%
     ),
     repeating-linear-gradient(
       to bottom,
       transparent 0,
       transparent calc(5.555555% - 1px),
-      rgba(95, 191, 95, 0.6) calc(5.555555% - 1px),
-      rgba(95, 191, 95, 0.6) 5.555555%
+      var(--grid-line-color) calc(5.555555% - 1px),
+      var(--grid-line-color) 5.555555%
     );
 }
 
@@ -103,9 +106,8 @@
   color: var(--border-calibrated);
 }
 
-.lutSection {
-  margin-top: var(--gap-lg);
-  padding-top: var(--gap-md);
+.calibrationSection .buttonRow {
+  margin-bottom: 0;
 }
 
 .lutControls {

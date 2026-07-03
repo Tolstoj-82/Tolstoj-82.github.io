@@ -1,51 +1,21 @@
 addTilesetButton.onclick = () => {
   showPrompt("Tileset name", "New Tileset", (name) => {
+    const tiles = [...uniqueTiles.values()].map((tile) => ({
+      pixels: [...tile.pixels],
+      label: tile.label,
+    }));
+
     tilesets.push({
       id: Date.now(),
       name: name.trim() || "New Tileset",
       type: "text-number",
-      tiles: [],
+      tiles,
     });
 
-    renderTilesets();
-    renderROIList();
-    renderCaptureROIPicker();
-  });
-};
-
-sendToTilesetButton.onclick = () => {
-  const tiles = [...uniqueTiles.values()];
-
-  if (tiles.length === 0) {
-    showAlert("No captured tiles available yet.");
-    return;
-  }
-
-  showPrompt("Send tiles to tileset", "", (choice) => {
-    const name = choice.trim();
-
-    let tileset = tilesets.find((t) => t.name === name);
-
-    if (!tileset) {
-      tileset = {
-        id: Date.now(),
-        name: name || "New Tileset",
-        type: "text-number",
-        tiles: [],
-      };
-
-      tilesets.push(tileset);
+    if (tiles.length > 0) {
+      uniqueTiles.clear();
+      renderTiles();
     }
-
-    tileset.tiles.push(
-      ...tiles.map((tile) => ({
-        pixels: tile.pixels,
-        label: tile.label,
-      })),
-    );
-
-    uniqueTiles.clear();
-    renderTiles();
 
     renderTilesets();
     renderROIList();
@@ -74,7 +44,26 @@ function renderTilesets() {
     const summary = document.createElement("summary");
 
     summary.className = "tilesetSummary";
-    summary.textContent = `${tileset.name} • ${tileset.tiles.length} tile${tileset.tiles.length === 1 ? "" : "s"}`;
+
+    const nameInput = document.createElement("input");
+    nameInput.className = "tilesetNameInput";
+    nameInput.value = tileset.name;
+
+    nameInput.onclick = (e) => {
+      e.stopPropagation();
+    };
+
+    nameInput.oninput = () => {
+      tileset.name = nameInput.value.trim() || tileset.name;
+      updateWorkflowUI();
+    };
+
+    const count = document.createElement("span");
+    count.className = "tilesetCount";
+    count.textContent = `(${tileset.tiles.length} tile${tileset.tiles.length === 1 ? "" : "s"})`;
+
+    summary.appendChild(nameInput);
+    summary.appendChild(count);
 
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
@@ -112,7 +101,7 @@ function renderTilesets() {
     };
 
     deleteButton.addEventListener("dragover", (e) => {
-      if (!document.body.classList.contains("draggingTiles")) return;
+      if (!isTileDrag(e)) return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -125,7 +114,7 @@ function renderTilesets() {
     });
 
     deleteButton.addEventListener("drop", (e) => {
-      if (!document.body.classList.contains("draggingTiles")) return;
+      if (!isTileDrag(e)) return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -158,8 +147,7 @@ function renderTilesets() {
       typeSelect.appendChild(option);
     });
 
-    typeSelect.value =
-      tileset.type === "counter" ? "counter" : "text-number";
+    typeSelect.value = normalizeTilesetType(tileset.type);
 
     typeSelect.onchange = (e) => {
       e.stopPropagation();
@@ -182,6 +170,8 @@ function renderTilesets() {
     list.dataset.tileset = tileset.id;
 
     list.addEventListener("dragover", (e) => {
+      if (!isTileDrag(e)) return;
+
       e.preventDefault();
 
       const rect = list.getBoundingClientRect();
@@ -197,6 +187,8 @@ function renderTilesets() {
     });
 
     list.addEventListener("drop", (e) => {
+      if (!isTileDrag(e)) return;
+
       e.preventDefault();
 
       const raw = e.dataTransfer.getData("application/json");
@@ -290,6 +282,7 @@ function addTilesetTileDragHandlers(card) {
     card.classList.add("dragging");
 
     e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("application/x-tile-drag", "true");
     e.dataTransfer.setData("application/json", JSON.stringify(payload));
   });
 
@@ -309,6 +302,8 @@ function addTilesetTileDragHandlers(card) {
   });
 
   card.addEventListener("dragover", (e) => {
+    if (!isTileDrag(e) || isDraggedTileCard(card)) return;
+
     e.preventDefault();
 
     const rect = card.getBoundingClientRect();
@@ -324,6 +319,8 @@ function addTilesetTileDragHandlers(card) {
   });
 
   card.addEventListener("drop", (e) => {
+    if (!isTileDrag(e) || isDraggedTileCard(card)) return;
+
     e.preventDefault();
     e.stopPropagation();
 
