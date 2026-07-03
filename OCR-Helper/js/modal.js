@@ -7,6 +7,9 @@ function closeModal() {
   modalSelect.style.display = "none";
   modalSelect.innerHTML = "";
 
+  modalChoices.style.display = "none";
+  modalChoices.innerHTML = "";
+
   modalOk.onclick = null;
   modalCancel.onclick = null;
   modalOverlay.onclick = null;
@@ -74,6 +77,10 @@ function showModal({
 
   modalInput.style.display = input ? "" : "none";
   modalInput.value = defaultValue;
+  modalSelect.style.display = "none";
+  modalChoices.style.display = "none";
+  modalChoices.innerHTML = "";
+  modalOk.style.display = "";
 
   modalOverlay.classList.remove("hidden");
 
@@ -179,6 +186,9 @@ function showSelect(
   modalMessage.textContent = message;
 
   modalInput.style.display = "none";
+  modalChoices.style.display = "none";
+  modalChoices.innerHTML = "";
+  modalOk.style.display = "";
 
   modalSelect.innerHTML = "";
 
@@ -218,4 +228,84 @@ function showSelect(
   };
 
   modalSelect.focus();
+}
+
+function showChoiceList(
+  message,
+  options,
+  onOk,
+  onCancel = null,
+  cancelText = "Cancel",
+) {
+  modalMessage.textContent = message;
+
+  modalInput.style.display = "none";
+  modalSelect.style.display = "none";
+  modalSelect.innerHTML = "";
+
+  modalChoices.innerHTML = "";
+
+  options.forEach((option) => {
+    const item = document.createElement("button");
+
+    item.type = "button";
+    item.className = "modalChoiceButton";
+
+    if (option.variant) {
+      item.classList.add(`modalChoiceButton-${option.variant}`);
+    }
+
+    item.textContent = option.label;
+
+    item.onclick = () => {
+      closeModal();
+
+      if (onOk) {
+        onOk(option.value);
+      }
+    };
+
+    modalChoices.appendChild(item);
+  });
+
+  modalChoices.style.display = "";
+  modalOk.style.display = "none";
+  modalCancel.textContent = cancelText;
+  modalCancel.style.display = "";
+
+  modalOverlay.classList.remove("hidden");
+
+  modalCancel.onclick = () => {
+    closeModal();
+
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
+  modalOverlay.onclick = (e) => {
+    if (e.target !== modalOverlay) return;
+
+    closeModal();
+
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
+  document.onkeydown = (e) => {
+    if (e.key !== "Escape") return;
+
+    closeModal();
+
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
+  const firstChoice = modalChoices.querySelector(".modalChoiceButton");
+
+  if (firstChoice) {
+    firstChoice.focus();
+  }
 }

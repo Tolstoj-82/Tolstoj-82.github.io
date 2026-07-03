@@ -65,10 +65,7 @@ function renderTiles() {
     div.dataset.tileData = JSON.stringify(tileData);
 
     div.classList.toggle("selected", isTileSelected(tileData));
-
-    div.addEventListener("pointerdown", (e) => {
-      handleTileSelectionActionPointer(e, tileData);
-    });
+    div.classList.toggle("tile-action-target", isTileActionRef(tileData));
 
     div.onclick = (e) => {
       handleTileCardClick(e, tileData);
@@ -148,26 +145,64 @@ function addTileDragHandlers(card) {
 
     if (!draggedTileKey || draggedTileKey === targetKey) return;
 
+    const raw = e.dataTransfer.getData("application/json");
+
+    if (!raw) return;
+
     const rect = card.getBoundingClientRect();
     const insertAfter = e.clientX > rect.left + rect.width / 2;
 
-    reorderTiles(draggedTileKey, targetKey, insertAfter);
+    moveTilePayloadToUniquePosition(
+      JSON.parse(raw),
+      targetKey,
+      insertAfter,
+    );
 
     renderTiles();
   });
 }
 
-function reorderTiles(sourceKey, targetKey, insertAfter) {
+function moveTilePayloadToUniquePosition(payload, targetKey, insertAfter) {
+  const refs = payload.kind === "tile-selection" ? payload.tiles : [payload];
+  const uniqueRefs = refs.filter((ref) => ref.source === "unique");
+
+  if (uniqueRefs.length === 0) return;
+
+  reorderTiles(
+    uniqueRefs.map((ref) => ref.key),
+    targetKey,
+    insertAfter,
+  );
+}
+
+function reorderTiles(sourceKeys, targetKey, insertAfter) {
   const entries = [...uniqueTiles.entries()];
+  const movingKeys = sourceKeys.filter((key) => uniqueTiles.has(key));
+  const movingKeySet = new Set(movingKeys);
 
-  reorderArrayItem(entries, sourceKey, targetKey, insertAfter, ([key]) => key);
+  if (movingKeys.length === 0 || movingKeySet.has(targetKey)) return;
 
-  uniqueTiles = new Map(entries);
+  const movingEntries = movingKeys
+    .map((key) => entries.find(([entryKey]) => entryKey === key))
+    .filter(Boolean);
+  const remainingEntries = entries.filter(([key]) => !movingKeySet.has(key));
+  const targetIndex = remainingEntries.findIndex(([key]) => key === targetKey);
+
+  if (targetIndex < 0) return;
+
+  remainingEntries.splice(
+    insertAfter ? targetIndex + 1 : targetIndex,
+    0,
+    ...movingEntries,
+  );
+
+  uniqueTiles = new Map(remainingEntries);
 }
 
 let draggedTileKey = null;
 let suppressNextTileContainerClick = false;
 let pendingTileImageImport = null;
+let tileActionRefIds = new Set();
 
 uploadTileImageButton.onclick = () => {
   uploadTileImageFile.click();
@@ -543,6 +578,10 @@ function isTileSelected(data) {
   return selectedTiles.has(getTileSelectionId(data));
 }
 
+function isTileActionRef(data) {
+  return tileActionRefIds.has(getTileSelectionId(data));
+}
+
 tilesContainer.onclick = () => {
   if (suppressNextTileContainerClick) {
     suppressNextTileContainerClick = false;
@@ -553,6 +592,7 @@ tilesContainer.onclick = () => {
 };
 
 document.addEventListener("contextmenu", (e) => {
+  if (e.button !== 2) return;
   if (selectedTiles.size === 0) return;
   if (!e.target.closest("#tilesContainer, .tilesetTiles")) return;
 
@@ -565,10 +605,6 @@ function handleTileCardClick(e, tileData) {
 
   const additive = e.ctrlKey || e.metaKey || e.shiftKey;
   const wasSelected = isTileSelected(tileData);
-
-  if (!additive && wasSelected && selectedTiles.size > 1) {
-    return;
-  }
 
   if (!additive && wasSelected) {
     clearTileSelection();
@@ -585,23 +621,16 @@ function handleTileCardClick(e, tileData) {
   renderTilesets();
 }
 
-function handleTileSelectionActionPointer(e, tileData) {
-  if (e.button !== 0) return;
-  if (e.ctrlKey || e.metaKey || e.shiftKey) return;
-  if (selectedTiles.size < 2 || !isTileSelected(tileData)) return;
-
-  e.preventDefault();
-  e.stopPropagation();
-  showTileSelectionActionDialog([...selectedTiles.values()]);
-}
-
 function showTileSelectionActionDialog(tileRefs) {
   if (tileRefs.length === 0) return;
+
+  markTileActionRefs(tileRefs);
 
   const options = [
     {
       value: "new-tileset",
       label: "Create new tileset",
+      variant: "primary",
     },
   ];
 
@@ -615,9 +644,10 @@ function showTileSelectionActionDialog(tileRefs) {
   options.push({
     value: "delete",
     label: "Delete tiles",
+    variant: "danger",
   });
 
-  showSelect(
+  showChoiceList(
     "Tile selection",
     options,
     (value) => {
@@ -633,8 +663,7 @@ function showTileSelectionActionDialog(tileRefs) {
 
       deleteTileSelection(tileRefs);
     },
-    null,
-    "OK",
+    clearTileActionRefs,
     "Cancel",
   );
 }
@@ -656,7 +685,7 @@ function showCreateTilesetDialog(tileRefs) {
       tilesets.push(tileset);
       moveSelectedTilesToTileset(tileset, tileRefs);
     },
-    null,
+    clearTileActionRefs,
     "Create",
     "Cancel",
   );
@@ -666,7 +695,7 @@ function showExistingTilesetDialog(tileRefs) {
   if (tileRefs.length === 0) return;
   if (tilesets.length === 0) return;
 
-  showSelect(
+  showChoiceList(
     ">>tileset",
     tilesets.map((tileset) => ({
       value: String(tileset.id),
@@ -682,8 +711,7 @@ function showExistingTilesetDialog(tileRefs) {
 
       moveSelectedTilesToTileset(targetTileset, tileRefs);
     },
-    null,
-    "Move",
+    clearTileActionRefs,
     "Cancel",
   );
 }
@@ -697,6 +725,7 @@ function moveSelectedTilesToTileset(targetTileset, tileRefs) {
   );
 
   clearTileSelection();
+  clearTileActionRefs();
   renderTiles();
   renderTilesets();
   renderROIList();
@@ -708,10 +737,31 @@ function deleteTileSelection(tileRefs) {
   animateTileDeletion(tileRefs, () => {
     removeTileReferences(tileRefs);
     clearTileSelection();
+    clearTileActionRefs();
 
     renderTiles();
     renderTilesets();
     updateWorkflowUI();
+  });
+}
+
+function markTileActionRefs(tileRefs) {
+  tileActionRefIds = new Set(tileRefs.map(getTileSelectionId));
+
+  document.querySelectorAll(".tileCard").forEach((card) => {
+    if (!card.dataset.tileData) return;
+
+    const data = JSON.parse(card.dataset.tileData);
+
+    card.classList.toggle("tile-action-target", isTileActionRef(data));
+  });
+}
+
+function clearTileActionRefs() {
+  tileActionRefIds.clear();
+
+  document.querySelectorAll(".tileCard.tile-action-target").forEach((card) => {
+    card.classList.remove("tile-action-target");
   });
 }
 

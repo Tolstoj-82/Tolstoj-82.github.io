@@ -59,7 +59,7 @@
 
 .tileCard.drag-over {
   transform: translateY(-4px);
-  border-color: var(--border-light);
+  border-color: var(--text-green);
 }
 
 .tileCard.drop-after {
@@ -176,7 +176,8 @@
   display: none;
 }
 
-.tileCard.selected {
+.tileCard.selected,
+.tileCard.tile-action-target {
   outline: 2px solid var(--accent-blue);
   outline-offset: 0;
 
@@ -185,7 +186,8 @@
   transform: scale(1.04);
 }
 
-.tileCard.selected .tileCanvas {
+.tileCard.selected .tileCanvas,
+.tileCard.tile-action-target .tileCanvas {
   box-shadow: 0 0 0 2px var(--accent-blue);
 }
 

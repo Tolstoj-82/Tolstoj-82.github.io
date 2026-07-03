@@ -248,10 +248,7 @@ function renderTilesets() {
       card.dataset.tileData = JSON.stringify(tileData);
 
       card.classList.toggle("selected", isTileSelected(tileData));
-
-      card.addEventListener("pointerdown", (e) => {
-        handleTileSelectionActionPointer(e, tileData);
-      });
+      card.classList.toggle("tile-action-target", isTileActionRef(tileData));
 
       card.onclick = (e) => {
         handleTileCardClick(e, tileData);
@@ -428,11 +425,22 @@ function moveTileSelectionToTileset(
 
   if (movedTiles.length === 0) return;
 
-  if (!copy) {
-    removeTileReferences(tileRefs);
-  }
-
   let insertIndex = insertAfter ? targetIndex + 1 : targetIndex;
+
+  if (!copy) {
+    const removedBeforeTarget = tileRefs
+      .filter((ref) => {
+        return (
+          ref.source === "tileset" &&
+          Number(ref.tilesetId) === targetTilesetId &&
+          Number(ref.index) < insertIndex
+        );
+      })
+      .length;
+
+    removeTileReferences(tileRefs);
+    insertIndex -= removedBeforeTarget;
+  }
 
   insertIndex = Math.max(0, Math.min(targetTileset.tiles.length, insertIndex));
 

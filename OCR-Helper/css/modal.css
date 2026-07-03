@@ -146,6 +146,44 @@
   border-radius: var(--radius-small);
 }
 
+.modalChoiceList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-lg);
+}
+
+.modalChoiceButton {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  background: var(--panel-light);
+}
+
+.modalChoiceButton:hover {
+  background: var(--accent-blue);
+  color: var(--shade-white);
+  border-color: var(--accent-blue);
+}
+
+.modalChoiceButton-primary {
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
+
+.modalChoiceButton-danger {
+  color: var(--text-red);
+  border-color: var(--text-red);
+}
+
+.modalChoiceButton-danger:hover {
+  background: var(--text-red);
+  color: var(--shade-white);
+  border-color: var(--text-red);
+}
+
 .calibrationModalButtons {
   display: flex;
   align-items: center;

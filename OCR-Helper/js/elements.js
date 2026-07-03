@@ -50,6 +50,7 @@ const modalOk = document.getElementById("modalOk");
 const modalCancel = document.getElementById("modalCancel");
 const modalInput = document.getElementById("modalInput");
 const modalSelect = document.getElementById("modalSelect");
+const modalChoices = document.getElementById("modalChoices");
 
 const calibrationModalOverlay = document.getElementById(
   "calibrationModalOverlay",
