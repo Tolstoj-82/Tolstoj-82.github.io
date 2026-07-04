@@ -1,5 +1,6 @@
 function closeModal() {
   modalOverlay.classList.add("hidden");
+  modalMessage.closest(".modalBox")?.classList.remove("importSummaryModalBox");
 
   modalInput.style.display = "none";
   modalInput.value = "";
@@ -176,6 +177,72 @@ function showConfirm(
     onOk,
     onCancel,
   });
+}
+
+function showConfirmContent(
+  content,
+  onOk,
+  onCancel = null,
+  okText = "OK",
+  cancelText = "Cancel",
+) {
+  const modalBox = modalMessage.closest(".modalBox");
+
+  modalBox?.classList.toggle(
+    "importSummaryModalBox",
+    content.classList.contains("importSummary"),
+  );
+
+  modalMessage.replaceChildren(content);
+
+  modalInput.style.display = "none";
+  modalSelect.style.display = "none";
+  modalSelect.innerHTML = "";
+  modalChoices.style.display = "none";
+  modalChoices.innerHTML = "";
+
+  modalOk.style.display = "";
+  modalOk.textContent = okText;
+  modalOk.disabled = false;
+  modalCancel.textContent = cancelText;
+  modalCancel.style.display = "";
+
+  modalOverlay.classList.remove("hidden");
+
+  const confirm = () => {
+    closeModal();
+
+    if (onOk) {
+      onOk();
+    }
+  };
+
+  modalOk.onclick = confirm;
+
+  modalCancel.onclick = () => {
+    closeModal();
+
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
+  modalOverlay.onclick = (e) => {
+    if (e.target !== modalOverlay) return;
+
+    closeModal();
+
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
+  bindModalKeys({
+    onConfirm: confirm,
+    onCancel,
+  });
+
+  modalOk.focus();
 }
 
 function showPrompt(

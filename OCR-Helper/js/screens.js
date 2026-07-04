@@ -70,10 +70,15 @@ function renderScreenList() {
     };
 
     name.oninput = () => {
-      screen.name = name.value.trim() || screen.name;
+      const oldName = screen.name;
+      const newName = name.value.trim() || screen.name;
+
+      screen.name = newName;
+      updateAchievementLifecycleScreenName(oldName, newName);
 
       updateScreenSetupTitle();
       renderIdentifierInfo();
+      renderAchievementList();
       updateWorkflowUI();
     };
 
@@ -89,6 +94,7 @@ function renderScreenList() {
         `Delete screen "${screen.name}"?`,
         () => {
           game.screens = game.screens.filter((s) => s.id !== screen.id);
+          clearMissingAchievementLifecycleScreens();
 
           if (activeScreenId === screen.id) {
             activeScreenId = game.screens[0]?.id || null;

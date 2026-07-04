@@ -140,7 +140,7 @@ function deleteGameFromLocalStorage(name = selectedSavedGameName) {
       renderSavedGameList();
 
       if (selectedSavedGameName === name) {
-        selectedSavedGameName = "";
+        clearCurrentProject();
       }
 
       updateStorageButtons();
@@ -177,44 +177,49 @@ newProjectButton.onclick = () => {
   showConfirm(
     "Start a new project?\n\nCurrent settings will be lost.",
     () => {
-      game = {
-        name: "",
-        screens: [],
-      };
-
-      tilesets = [];
-      uniqueTiles.clear();
-      captureROIIds.clear();
-      lastOCRValues = {};
-      resetAchievementRuntime({ clearQueue: true });
-
-      activeScreenId = null;
-      activeROI = null;
-      selectionMode = "roi";
-
-      document.getElementById("gameName").value = "";
-
-      selectedSavedGameName = "";
-
-      renderScreenList();
-      updateScreenSetupTitle();
-      renderROIList();
-      renderAchievementList();
-      renderCaptureROIPicker();
-      renderIdentifierInfo();
-      renderROIReadout();
-      renderTiles();
-      renderTilesets();
-      drawROIOverlay();
-
-      updateWorkflowUI();
-      updateStorageButtons();
+      clearCurrentProject();
     },
     null,
     "New Project",
     "Cancel",
   );
 };
+
+function clearCurrentProject() {
+  game = {
+    name: "",
+    screens: [],
+  };
+
+  tilesets = [];
+  uniqueTiles.clear();
+  captureROIIds.clear();
+  lastOCRValues = {};
+  resetAchievementRuntime({ clearQueue: true });
+
+  activeScreenId = null;
+  activeROI = null;
+  selectionMode = "roi";
+
+  document.getElementById("gameName").value = "";
+
+  selectedSavedGameName = "";
+
+  renderScreenList();
+  updateScreenSetupTitle();
+  renderROIList();
+  renderAchievementList();
+  renderCaptureROIPicker();
+  renderIdentifierInfo();
+  renderROIReadout();
+  renderTiles();
+  renderTilesets();
+  drawROIOverlay();
+
+  updateWorkflowUI();
+  updateStorageButtons();
+  updateJSONOutput();
+}
 
 function isCurrentProjectEmpty() {
   return (

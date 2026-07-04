@@ -228,7 +228,7 @@
 
 .achievementBody {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(58px, 0.7fr);
+  grid-template-columns: minmax(0, 1fr) 48px minmax(64px, 0.75fr);
   gap: var(--gap-sm);
 
   padding: 0 var(--gap-sm) var(--gap-sm);
@@ -243,14 +243,34 @@
   font-size: 12px;
 }
 
+.achievementComparerSelect {
+  width: 48px;
+}
+
 .achievementMessageInput {
   grid-column: 1 / -1;
 }
 
-.achievementTierSelect {
+.achievementField {
   grid-column: 1 / -1;
-  justify-self: start;
-  width: auto;
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--gap-sm);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.achievementField span {
+  color: var(--text-muted);
+}
+
+.achievementTierSelect {
+  width: 100%;
+}
+
+.achievementLifecycleSelect {
+  width: 100%;
 }
 
 .achievementItem .roiDeleteButton {

@@ -1,3 +1,5 @@
+const PROJECT_EXPORT_VERSION = 1;
+
 function updateJSONOutput() {
   if (game.screens.length === 0) {
     jsonOutput.value = "";
@@ -11,6 +13,8 @@ function updateJSONOutput() {
 
 function getCurrentProjectData() {
   return {
+    exportVersion: PROJECT_EXPORT_VERSION,
+    exportedAt: new Date().toISOString(),
     game: game.name,
 
     tilesets: tilesets.map((tileset) => ({
@@ -41,6 +45,7 @@ function getCurrentProjectData() {
         value: achievement.value,
         message: achievement.message,
         tier: normalizeAchievementTier(achievement.tier),
+        resetScreen: normalizeAchievementResetScreen(achievement.resetScreen),
       })),
     })),
   };
@@ -66,7 +71,8 @@ function getSafeFileName(name) {
 }
 
 function downloadProjectFile(data, fallbackName = "ocr-helper") {
-  const blob = new Blob([stringifyProjectData(data)], {
+  const exportData = addExportMetadata(data);
+  const blob = new Blob([stringifyProjectData(exportData)], {
     type: "application/json",
   });
 
@@ -74,13 +80,145 @@ function downloadProjectFile(data, fallbackName = "ocr-helper") {
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${getSafeFileName(data.game || fallbackName)}.json`;
+  a.download = `${getSafeFileName(exportData.game || fallbackName)}.json`;
 
   document.body.appendChild(a);
   a.click();
 
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+function addExportMetadata(data, exportedAt = new Date().toISOString()) {
+  return {
+    ...data,
+    exportVersion: PROJECT_EXPORT_VERSION,
+    exportedAt,
+  };
+}
+
+function getProjectTimestamp(data, file) {
+  const exportedAt = Date.parse(data.exportedAt || "");
+
+  if (Number.isFinite(exportedAt)) {
+    return exportedAt;
+  }
+
+  return file?.lastModified || 0;
+}
+
+function getProjectTimestampLabel(timestamp) {
+  if (!timestamp) return "no export date";
+
+  return new Date(timestamp).toLocaleString();
+}
+
+function formatImportSummaryItem(item) {
+  const timestamp = getProjectTimestampLabel(item.timestamp);
+
+  return `${item.name}: ${item.fileName} (${timestamp})`;
+}
+
+function appendImportSummaryList(parent, title, items, variant = "") {
+  const sectionTitle = document.createElement("p");
+  const titleLabel = document.createElement("strong");
+
+  sectionTitle.className = "importSummaryTitle";
+
+  if (variant) {
+    sectionTitle.classList.add(`importSummaryTitle-${variant}`);
+  }
+
+  titleLabel.textContent = title;
+  sectionTitle.appendChild(titleLabel);
+  parent.appendChild(sectionTitle);
+
+  const list = document.createElement("ul");
+  list.className = "importSummaryList";
+
+  items.forEach((item) => {
+    const listItem = document.createElement("li");
+
+    listItem.textContent =
+      typeof item === "string" ? item : formatImportSummaryItem(item);
+
+    list.appendChild(listItem);
+  });
+
+  parent.appendChild(list);
+}
+
+function getImportDuplicateResolution(imported) {
+  const byName = new Map();
+  const dropped = [];
+
+  imported.forEach((item, index) => {
+    const current = byName.get(item.name);
+    const rankedItem = { ...item, index };
+
+    if (
+      !current ||
+      rankedItem.timestamp > current.timestamp ||
+      (rankedItem.timestamp === current.timestamp &&
+        rankedItem.index > current.index)
+    ) {
+      if (current) {
+        dropped.push(current);
+      }
+
+      byName.set(rankedItem.name, rankedItem);
+      return;
+    }
+
+    dropped.push(rankedItem);
+  });
+
+  return {
+    kept: [...byName.values()],
+    dropped,
+  };
+}
+
+function buildMultipleImportContent(kept, dropped, failed) {
+  const fileWord = kept.length === 1 ? "file" : "files";
+  const content = document.createElement("div");
+
+  content.className = "importSummary";
+
+  const title = document.createElement("p");
+  title.textContent = `Import ${kept.length} JSON ${fileWord} as saved games?`;
+  content.appendChild(title);
+
+  if (dropped.length > 0) {
+    const info = document.createElement("p");
+
+    info.textContent =
+      "Duplicate game names were found. The latest export for each game will be kept.";
+
+    content.appendChild(info);
+  }
+
+  const listWrapper = document.createElement("div");
+  listWrapper.className = "importSummaryScroll";
+
+  appendImportSummaryList(listWrapper, "Keep", kept, "keep");
+
+  if (dropped.length > 0) {
+    appendImportSummaryList(
+      listWrapper,
+      "Ignore (Duplicates)",
+      dropped,
+      "ignored",
+    );
+  }
+
+  if (failed.length > 0) {
+    appendImportSummaryList(listWrapper, "Invalid files skipped", failed);
+  }
+
+  content.appendChild(listWrapper);
+
+  return content;
 }
 
 function escapeHTML(value) {
@@ -221,7 +359,16 @@ async function importMultipleProjects(files) {
 
       imported.push({
         name: data.game || file.name.replace(/\.json$/i, ""),
-        data,
+        fileName: file.name,
+        timestamp: getProjectTimestamp(data, file),
+        data: data.exportedAt
+          ? data
+          : addExportMetadata(
+              data,
+              file.lastModified
+                ? new Date(file.lastModified).toISOString()
+                : new Date().toISOString(),
+            ),
       });
     } catch {
       failed.push(file.name);
@@ -233,21 +380,19 @@ async function importMultipleProjects(files) {
     return;
   }
 
-  showConfirm(
-    `Import ${imported.length} JSON file${imported.length === 1 ? "" : "s"} as saved games?`,
+  const { kept, dropped } = getImportDuplicateResolution(imported);
+
+  showConfirmContent(
+    buildMultipleImportContent(kept, dropped, failed),
     () => {
       const savedGames = getSavedGames();
 
-      imported.forEach(({ name, data }) => {
+      kept.forEach(({ name, data }) => {
         savedGames[name] = data;
       });
 
       setSavedGames(savedGames);
       renderSavedGameList();
-
-      if (failed.length > 0) {
-        showAlert(`Imported ${imported.length}. Skipped ${failed.length} invalid file${failed.length === 1 ? "" : "s"}.`);
-      }
     },
     null,
     "Import",
@@ -300,6 +445,8 @@ function applyImportedProject(data) {
 
     achievements: normalizeImportedAchievements(screen.achievements),
   }));
+
+  clearMissingAchievementLifecycleScreens();
 
   activeScreenId = game.screens[0]?.id || null;
   activeROI = game.screens[0]?.rois[0]?.id || null;

@@ -6,6 +6,7 @@ function createAchievement(index = 0) {
     value: "",
     message: "",
     tier: "beginner",
+    resetScreen: "self",
     _metricCommitted: false,
   };
 }
@@ -193,7 +194,7 @@ function createAchievementItem(screen, achievement) {
   const message = document.createElement("input");
   message.type = "text";
   message.value = achievement.message;
-  message.placeholder = "Message";
+  message.placeholder = "Achievement Message";
   message.className = "achievementMessageInput";
   message.oninput = () => {
     achievement.message = message.value;
@@ -211,10 +212,32 @@ function createAchievementItem(screen, achievement) {
   );
   tier.className = "achievementTierSelect";
 
-  body.append(metric, comparer, target, message, tier);
+  const lifecycle = createAchievementLifecycleSelect(screen, achievement);
+  lifecycle.className = "achievementLifecycleSelect";
+
+  body.append(
+    metric,
+    comparer,
+    target,
+    message,
+    createAchievementLabeledControl("Tier", tier),
+    createAchievementLabeledControl("Lifecycle", lifecycle),
+  );
   details.append(summary, body);
 
   return details;
+}
+
+function createAchievementLabeledControl(labelText, control) {
+  const label = document.createElement("label");
+  const text = document.createElement("span");
+
+  label.className = "achievementField";
+  text.textContent = labelText;
+
+  label.append(text, control);
+
+  return label;
 }
 
 function bindAchievementToggle(details) {
@@ -424,6 +447,38 @@ function createAchievementMetricSelect(screen, achievement, onMetricChange) {
   );
 }
 
+function createAchievementLifecycleSelect(screen, achievement) {
+  const options = [
+    {
+      value: "self",
+      label: "This screen",
+    },
+    ...game.screens
+      .filter((item) => item.id !== screen.id)
+      .map((item) => ({
+        value: item.name,
+        label: item.name,
+      })),
+  ];
+  const resetScreen = normalizeAchievementResetScreen(achievement.resetScreen);
+
+  if (
+    resetScreen !== "self" &&
+    !options.some((option) => option.value === resetScreen)
+  ) {
+    options.push({
+      value: resetScreen,
+      label: resetScreen,
+    });
+  }
+
+  return createAchievementSelect(options, resetScreen, (value) => {
+    achievement.resetScreen = value;
+    resetAchievementRuntime({ clearQueue: true });
+    updateWorkflowUI();
+  });
+}
+
 function getAchievementTitle(achievement) {
   const metric = achievement.metric || "Metric";
   const comparer = achievement.comparer || "=";
@@ -499,7 +554,7 @@ function updateAchievementScreenRun(screen, canReadScreen) {
   if (achievementReadableScreenId === screen.id) return;
 
   achievementReadableScreenId = screen.id;
-  resetAchievementRuntime({ clearQueue: true });
+  resetAchievementRuntimeForLifecycleScreen(screen, { clearQueue: true });
 }
 
 function resetAchievementRuntime(options = {}) {
@@ -513,7 +568,7 @@ function resetAchievementRuntime(options = {}) {
 }
 
 function getAchievementRuntimeState(screen, achievement) {
-  const key = `${screen.id}:${achievement.id}`;
+  const key = getAchievementRuntimeKey(screen, achievement);
 
   if (!achievementRuntimeStates.has(key)) {
     achievementRuntimeStates.set(key, {
@@ -524,6 +579,71 @@ function getAchievementRuntimeState(screen, achievement) {
   }
 
   return achievementRuntimeStates.get(key);
+}
+
+function resetAchievementRuntimeForLifecycleScreen(
+  lifecycleScreen,
+  options = {},
+) {
+  const { clearQueue = false } = options;
+
+  game.screens.forEach((screen) => {
+    (screen.achievements || []).forEach((achievement) => {
+      if (
+        getAchievementLifecycleScreen(screen, achievement) !== lifecycleScreen
+      ) {
+        return;
+      }
+
+      achievementRuntimeStates.delete(
+        getAchievementRuntimeKey(screen, achievement),
+      );
+    });
+  });
+
+  if (clearQueue) {
+    achievementToastQueue = [];
+  }
+}
+
+function getAchievementRuntimeKey(screen, achievement) {
+  return `${screen.id}:${achievement.id}`;
+}
+
+function getAchievementLifecycleScreen(screen, achievement) {
+  const resetScreen = normalizeAchievementResetScreen(achievement.resetScreen);
+
+  if (resetScreen === "self") return screen;
+
+  return game.screens.find((item) => item.name === resetScreen) || screen;
+}
+
+function updateAchievementLifecycleScreenName(oldName, newName) {
+  if (!oldName || oldName === newName) return;
+
+  game.screens.forEach((screen) => {
+    (screen.achievements || []).forEach((achievement) => {
+      if (achievement.resetScreen === oldName) {
+        achievement.resetScreen = newName;
+      }
+    });
+  });
+}
+
+function clearMissingAchievementLifecycleScreens() {
+  const screenNames = new Set(game.screens.map((screen) => screen.name));
+
+  game.screens.forEach((screen) => {
+    (screen.achievements || []).forEach((achievement) => {
+      const resetScreen = normalizeAchievementResetScreen(
+        achievement.resetScreen,
+      );
+
+      if (resetScreen !== "self" && !screenNames.has(resetScreen)) {
+        achievement.resetScreen = "self";
+      }
+    });
+  });
 }
 
 function getAchievementOCRValue(ocrValues, metric) {
@@ -646,6 +766,10 @@ function normalizeAchievementTier(tier) {
   return achievementTiers.includes(tier) ? tier : "beginner";
 }
 
+function normalizeAchievementResetScreen(resetScreen) {
+  return resetScreen || "self";
+}
+
 function normalizeImportedAchievements(achievements) {
   if (!Array.isArray(achievements)) return [];
 
@@ -660,6 +784,7 @@ function normalizeImportedAchievements(achievements) {
     value: achievement.value ?? "",
     message: achievement.message || "",
     tier: normalizeAchievementTier(achievement.tier),
+    resetScreen: normalizeAchievementResetScreen(achievement.resetScreen),
     _metricCommitted: true,
   }));
 }

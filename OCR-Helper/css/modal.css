@@ -20,7 +20,7 @@
   position: relative;
   width: min(420px, 100%);
 
-  padding: var(--gap-lg);
+  padding: calc(var(--gap-lg) + 24px) var(--gap-lg) var(--gap-lg);
 
   background: var(--panel-light);
   color: var(--panel-text);
@@ -34,9 +34,13 @@
   align-items: center;
   justify-content: center;
 
+  position: absolute;
+  top: var(--gap-sm);
+  left: var(--gap-sm);
+
   min-width: 28px;
   height: 24px;
-  margin: 0 var(--gap-sm) var(--gap-sm) 0;
+  margin: 0;
 
   color: var(--border-mid);
   cursor: grab;
@@ -50,9 +54,8 @@
 
 .modalDragHandle + h2,
 .modalDragHandle + .modalMessage {
-  display: inline-block;
-  width: calc(100% - 42px);
-  vertical-align: middle;
+  display: block;
+  width: auto;
 }
 
 .modalDragHandle + h2 {
@@ -63,6 +66,39 @@
   margin-bottom: var(--gap-lg);
   line-height: 1.4;
   white-space: pre-line;
+}
+
+.importSummaryModalBox {
+  width: min(760px, calc(100vw - (2 * var(--gap-xl))));
+}
+
+.importSummary p {
+  margin: 0 0 var(--gap-md);
+}
+
+.importSummaryScroll {
+  max-height: min(320px, 42vh);
+  overflow-x: auto;
+  overflow-y: auto;
+  padding-right: var(--gap-sm);
+}
+
+.importSummaryList {
+  margin: 0 0 var(--gap-lg) 1.25rem;
+  padding: 0;
+}
+
+.importSummaryList li {
+  margin-bottom: 5px;
+  white-space: nowrap;
+}
+
+.importSummaryTitle-keep {
+  color: var(--border-calibrated);
+}
+
+.importSummaryTitle-ignored {
+  color: var(--text-red);
 }
 
 .modalButtons {

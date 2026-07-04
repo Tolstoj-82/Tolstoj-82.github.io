@@ -10,7 +10,9 @@
 - [ ] Import one JSON into empty project: should load immediately and appear in saved games.
 - [ ] Import one JSON into active project: should confirm overwrite.
 - [ ] Import multiple JSONs: should add all valid ones to saved games.
+- [ ] Import multiple JSONs with duplicate game names: latest export should be kept, dropped files should be listed.
 - [ ] Export JSON with no saved games, with saved games, and with unsaved current changes.
+- [ ] Exported JSON should include exportVersion and exportedAt at the root.
 
 ## Camera/calibration/LUT
 
@@ -44,11 +46,16 @@
 - [ ] Only one achievement accordion should be open at a time.
 - [ ] Editing metric, comparer, value, message, and tier should update JSON on the fly.
 - [ ] Changing tier should update the achievement background/border immediately.
+- [ ] Achievement lifecycle defaults to Reset: This screen.
+- [ ] Tetris-style achievement with Reset: This screen should reset when re-entering that screen.
+- [ ] Mario-style achievement with Reset: another screen should stay fired across world screens and reset when that reset screen is reached.
+- [ ] Renaming a screen should update achievement reset-screen references.
+- [ ] Deleting a referenced reset screen should fall affected achievements back to Reset: This screen.
 - [ ] Achievement groups should be grouped by metric.
 - [ ] Drag reorder achievements within the same metric group.
 - [ ] Drag reorder should not allow moving achievements across metric groups.
 - [ ] Delete achievement, confirm dialog works, JSON updates.
-- [ ] Export JSON includes screen achievements with metric, comparer, value, message, and tier.
+- [ ] Export JSON includes screen achievements with metric, comparer, value, message, tier, and resetScreen.
 - [ ] Import JSON restores achievements into the correct screens and groups.
 - [ ] Runtime trigger state should not be saved to JSON.
 - [ ] Start/read a screen where an achievement condition is already true; it should be ignored as baseline.
