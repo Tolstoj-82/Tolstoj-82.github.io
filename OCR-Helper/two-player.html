@@ -12,26 +12,55 @@
 
   <body>
     <main class="versusApp">
-      <section class="playerPanel" data-player="0">
-        <h1>Player 1</h1>
-
-        <div class="feedFrame">
-          <video id="player1Video" autoplay playsinline muted></video>
-          <canvas id="player1Canvas" width="160" height="144"></canvas>
+      <section class="gameSetup topGameSetup">
+        <div class="buttonRow">
+          <button id="importJSON">Import JSON</button>
+          <input id="importJSONFile" type="file" accept=".json,application/json" multiple hidden />
         </div>
 
-        <details class="settingsAccordion" open>
+        <label class="gameSelectLabel">
+          Game
+          <span class="gameSelectWrap">
+            <select id="sharedGameSelect" class="nativeGameSelect" tabindex="-1" aria-hidden="true"></select>
+            <button id="sharedGameButton" class="gameSelectButton" type="button">Choose game...</button>
+            <span id="sharedGameList" class="gameSelectList" hidden></span>
+          </span>
+        </label>
+
+        <label class="autoDetectToggle topToggle">
+          <input id="fastOCRToggle" type="checkbox" />
+          <span class="slider"></span>
+          <span>Fast OCR</span>
+        </label>
+
+        <button id="showAchievements">Achievements</button>
+        <button id="showDays">Days</button>
+      </section>
+
+      <section class="playerPanel" data-player="0">
+        <h1>Player 1</h1>
+        <div id="player1ScreenBadge" class="screenBadge">No screen</div>
+
+        <div class="screenArea">
+          <div id="player1Achievements" class="playerAchievements"></div>
+          <div id="player1CurrentRank" class="currentRank" hidden></div>
+
+          <div class="feedFrame">
+            <video id="player1Video" autoplay playsinline muted></video>
+            <canvas id="player1Canvas" width="160" height="144"></canvas>
+            <div id="player1InterceptorOverlay" class="interceptorOverlay" hidden></div>
+          </div>
+
+          <div id="player1NameEntry" class="playerNameEntry" hidden></div>
+        </div>
+
+        <details class="settingsAccordion">
           <summary title="Settings" aria-label="Settings"></summary>
 
           <div class="controlStack">
             <label>
               Camera
               <select id="player1Camera"></select>
-            </label>
-
-            <label>
-              Game
-              <select id="player1Game"></select>
             </label>
 
             <label>
@@ -43,34 +72,38 @@
           </div>
         </details>
 
-        <div id="player1Status" class="playerStatus">Choose camera and game.</div>
+        <div id="player1Status" class="playerStatus"></div>
       </section>
 
       <section class="livePanel">
-        <h1>Live</h1>
-        <div id="liveReadout" class="liveReadout"></div>
+        <h1 id="highScoreTitle">High Score</h1>
+        <div id="scoreBoard" class="scoreBoard"></div>
       </section>
 
       <section class="playerPanel" data-player="1">
         <h1>Player 2</h1>
+        <div id="player2ScreenBadge" class="screenBadge">No screen</div>
 
-        <div class="feedFrame">
-          <video id="player2Video" autoplay playsinline muted></video>
-          <canvas id="player2Canvas" width="160" height="144"></canvas>
+        <div class="screenArea">
+          <div id="player2Achievements" class="playerAchievements"></div>
+          <div id="player2CurrentRank" class="currentRank" hidden></div>
+
+          <div class="feedFrame">
+            <video id="player2Video" autoplay playsinline muted></video>
+            <canvas id="player2Canvas" width="160" height="144"></canvas>
+            <div id="player2InterceptorOverlay" class="interceptorOverlay" hidden></div>
+          </div>
+
+          <div id="player2NameEntry" class="playerNameEntry" hidden></div>
         </div>
 
-        <details class="settingsAccordion" open>
+        <details class="settingsAccordion">
           <summary title="Settings" aria-label="Settings"></summary>
 
           <div class="controlStack">
             <label>
               Camera
               <select id="player2Camera"></select>
-            </label>
-
-            <label>
-              Game
-              <select id="player2Game"></select>
             </label>
 
             <label>
@@ -82,9 +115,29 @@
           </div>
         </details>
 
-        <div id="player2Status" class="playerStatus">Choose camera and game.</div>
+        <div id="player2Status" class="playerStatus"></div>
       </section>
     </main>
+
+    <div id="achievementsModal" class="twoPlayerModal hidden">
+      <div class="twoPlayerModalBox">
+        <div class="twoPlayerModalHeader">
+          <h2>Achievements</h2>
+          <button id="closeAchievementsModal" class="modalCloseButton" aria-label="Close">×</button>
+        </div>
+        <div id="achievementsModalContent" class="achievementModalContent"></div>
+      </div>
+    </div>
+
+    <div id="daysModal" class="twoPlayerModal hidden">
+      <div class="twoPlayerModalBox">
+        <div class="twoPlayerModalHeader">
+          <h2>Days</h2>
+          <button id="closeDaysModal" class="modalCloseButton" aria-label="Close">×</button>
+        </div>
+        <div id="daysModalContent" class="daysModalContent"></div>
+      </div>
+    </div>
 
     <script defer src="js/LUT.js"></script>
     <script defer src="js/two-player.js"></script>
