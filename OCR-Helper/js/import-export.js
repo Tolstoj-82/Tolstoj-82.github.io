@@ -119,7 +119,13 @@ function formatImportSummaryItem(item) {
   return `${item.name}: ${item.fileName} (${timestamp})`;
 }
 
-function appendImportSummaryList(parent, title, items, variant = "") {
+function appendImportSummaryList(
+  parent,
+  title,
+  items,
+  variant = "",
+  options = {},
+) {
   const sectionTitle = document.createElement("p");
   const titleLabel = document.createElement("strong");
 
@@ -138,9 +144,18 @@ function appendImportSummaryList(parent, title, items, variant = "") {
 
   items.forEach((item) => {
     const listItem = document.createElement("li");
+    const isOverwrite = options.overwrittenNames?.has(item.name);
 
     listItem.textContent =
       typeof item === "string" ? item : formatImportSummaryItem(item);
+
+    if (isOverwrite) {
+      const marker = document.createElement("span");
+
+      marker.className = "importSummaryOverwriteMarker";
+      marker.textContent = " overwrite";
+      listItem.appendChild(marker);
+    }
 
     list.appendChild(listItem);
   });
@@ -211,22 +226,17 @@ function buildMultipleImportContent(kept, dropped, failed, overwritten) {
   listWrapper.className = "importSummaryScroll";
 
   if (hasDuplicates) {
-    appendImportSummaryList(listWrapper, "Keep", kept, "keep");
+    appendImportSummaryList(listWrapper, "Keep", kept, "keep", {
+      overwrittenNames: new Set(overwritten.map((item) => item.name)),
+    });
   } else {
     const prompt = document.createElement("p");
 
     prompt.textContent = `Import ${kept.length} JSON ${fileWord} as saved games?`;
     listWrapper.appendChild(prompt);
-    appendImportSummaryList(listWrapper, "Games", kept);
-  }
-
-  if (overwritten.length > 0) {
-    appendImportSummaryList(
-      listWrapper,
-      "Overwrite existing",
-      overwritten,
-      "overwrite",
-    );
+    appendImportSummaryList(listWrapper, "Games", kept, "", {
+      overwrittenNames: new Set(overwritten.map((item) => item.name)),
+    });
   }
 
   if (hasDuplicates) {
