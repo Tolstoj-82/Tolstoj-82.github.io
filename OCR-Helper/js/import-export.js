@@ -179,17 +179,26 @@ function getImportDuplicateResolution(imported) {
   };
 }
 
-function buildMultipleImportContent(kept, dropped, failed) {
+function getImportOverwrites(kept, savedGames) {
+  return kept.filter((item) => {
+    return Object.prototype.hasOwnProperty.call(savedGames, item.name);
+  });
+}
+
+function buildMultipleImportContent(kept, dropped, failed, overwritten) {
   const fileWord = kept.length === 1 ? "file" : "files";
+  const hasDuplicates = dropped.length > 0;
   const content = document.createElement("div");
 
   content.className = "importSummary";
 
   const title = document.createElement("p");
-  title.textContent = `Import ${kept.length} JSON ${fileWord} as saved games?`;
+  title.textContent = hasDuplicates
+    ? `Import ${kept.length} JSON ${fileWord} as saved games?`
+    : "Import";
   content.appendChild(title);
 
-  if (dropped.length > 0) {
+  if (hasDuplicates) {
     const info = document.createElement("p");
 
     info.textContent =
@@ -201,9 +210,26 @@ function buildMultipleImportContent(kept, dropped, failed) {
   const listWrapper = document.createElement("div");
   listWrapper.className = "importSummaryScroll";
 
-  appendImportSummaryList(listWrapper, "Keep", kept, "keep");
+  if (hasDuplicates) {
+    appendImportSummaryList(listWrapper, "Keep", kept, "keep");
+  } else {
+    const prompt = document.createElement("p");
 
-  if (dropped.length > 0) {
+    prompt.textContent = `Import ${kept.length} JSON ${fileWord} as saved games?`;
+    listWrapper.appendChild(prompt);
+    appendImportSummaryList(listWrapper, "Games", kept);
+  }
+
+  if (overwritten.length > 0) {
+    appendImportSummaryList(
+      listWrapper,
+      "Overwrite existing",
+      overwritten,
+      "overwrite",
+    );
+  }
+
+  if (hasDuplicates) {
     appendImportSummaryList(
       listWrapper,
       "Ignore (Duplicates)",
@@ -390,9 +416,11 @@ async function importMultipleProjects(files) {
   }
 
   const { kept, dropped } = getImportDuplicateResolution(imported);
+  const savedGames = getSavedGames();
+  const overwritten = getImportOverwrites(kept, savedGames);
 
   showConfirmContent(
-    buildMultipleImportContent(kept, dropped, failed),
+    buildMultipleImportContent(kept, dropped, failed, overwritten),
     () => {
       const savedGames = getSavedGames();
 

@@ -101,6 +101,10 @@
   color: var(--text-red);
 }
 
+.importSummaryTitle-overwrite {
+  color: var(--accent-orange-text);
+}
+
 .modalButtons {
   display: flex;
   justify-content: flex-end;
