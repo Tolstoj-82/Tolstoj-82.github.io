@@ -323,6 +323,7 @@ function applyROITileSelection(key) {
   lastSelectedTile = key;
 
   drawROIOverlay();
+  updateROIAccordionState();
   renderIdentifierInfo();
   updateWorkflowUI();
 }

@@ -417,6 +417,7 @@ function showCheckboxList(
   onCancel = null,
   okText = "Download",
   cancelText = "Cancel",
+  initialSelectedValues = null,
 ) {
   modalMessage.textContent = message;
 
@@ -448,7 +449,9 @@ function showCheckboxList(
   list.className = "modalSelectionList";
   modalChoices.appendChild(list);
 
-  const selected = new Set(options.map((option) => option.value));
+  const selected = new Set(
+    initialSelectedValues || options.map((option) => option.value),
+  );
   const buttons = options.map((option) => {
     const item = document.createElement("button");
 

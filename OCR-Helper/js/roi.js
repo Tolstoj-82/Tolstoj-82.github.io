@@ -1,3 +1,5 @@
+let openROIId = null;
+
 document.getElementById("addROI").onclick = () => {
   const screen = getActiveScreen();
 
@@ -16,6 +18,7 @@ document.getElementById("addROI").onclick = () => {
 
     screen.rois.push(roi);
     activeROI = roi.id;
+    openROIId = roi.id;
 
     renderROIList();
     renderAchievementList();
@@ -29,8 +32,12 @@ document.getElementById("addROI").onclick = () => {
 function renderROIList() {
   roiList.innerHTML = "";
 
+  if (!getActiveScreenROIs().some((roi) => roi.id === openROIId)) {
+    openROIId = null;
+  }
+
   getActiveScreenROIs().forEach((r) => {
-    let div = document.createElement("div");
+    let div = document.createElement("details");
 
     const dragHandle = document.createElement("span");
     dragHandle.className = "dragHandle";
@@ -38,10 +45,18 @@ function renderROIList() {
 
     div.className = "roiItem";
     div.draggable = false;
+    div.open = r.id === openROIId;
     dragHandle.draggable = true;
     div.dataset.roiId = r.id;
+    div.classList.toggle("incomplete", isROIIncomplete(r));
+
+    dragHandle.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
 
     dragHandle.addEventListener("dragstart", (e) => {
+      e.stopPropagation();
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", String(r.id));
       e.dataTransfer.setData("application/x-region-drag", "true");
@@ -109,11 +124,19 @@ function renderROIList() {
     div.style.background = r.color;
 
     let name = document.createElement("input");
-    name.className = "roiNameInput";
+    name.className = "roiNameInput roiSummaryTitle";
     name.value = r.name;
 
     name.onclick = (e) => {
+      e.preventDefault();
       e.stopPropagation();
+    };
+    name.onpointerdown = (e) => {
+      e.stopPropagation();
+      selectRegion();
+    };
+    name.onfocus = () => {
+      selectRegion();
     };
 
     name.oninput = () => {
@@ -140,6 +163,7 @@ function renderROIList() {
     del.title = "Delete region";
 
     del.onclick = (e) => {
+      e.preventDefault();
       e.stopPropagation();
 
       showConfirm(
@@ -151,6 +175,10 @@ function renderROIList() {
 
           if (activeROI === r.id) {
             activeROI = screen.rois.length ? screen.rois[0].id : null;
+          }
+
+          if (openROIId === r.id) {
+            openROIId = null;
           }
 
           renderROIList();
@@ -166,15 +194,36 @@ function renderROIList() {
       );
     };
 
-    div.onclick = () => {
+    const selectRegion = () => {
       activeROI = r.id;
-      renderROIList();
+      roiList.querySelectorAll(".roiItem").forEach((item) => {
+        item.classList.toggle("active", item === div);
+      });
       renderAchievementList();
       renderCaptureROIPicker();
       drawROIOverlay();
       renderIdentifierInfo();
       updateWorkflowUI();
     };
+
+    div.addEventListener("toggle", () => {
+      if (!div.open) {
+        if (openROIId === r.id) {
+          openROIId = null;
+        }
+
+        return;
+      }
+
+      openROIId = r.id;
+      selectRegion();
+
+      roiList.querySelectorAll(".roiItem[open]").forEach((item) => {
+        if (item !== div) {
+          item.open = false;
+        }
+      });
+    });
 
     const select = document.createElement("select");
 
@@ -202,14 +251,23 @@ function renderROIList() {
       r.tilesetId = Number(e.target.value) || null;
 
       select.classList.toggle("missingTileset", !r.tilesetId);
+      updateROIAccordionState(r.id);
+      updateWorkflowUI();
     };
 
     select.onclick = (e) => {
       e.stopPropagation();
+      selectRegion();
+    };
+    select.onfocus = () => {
+      selectRegion();
     };
 
-    const top = document.createElement("div");
-    top.className = "roiItemTop";
+    const top = document.createElement("summary");
+    top.className = "roiItemTop roiSummary";
+    top.onclick = () => {
+      selectRegion();
+    };
 
     const bottom = document.createElement("div");
     bottom.className = "roiItemBottom";
@@ -235,6 +293,19 @@ function reorderROIs(sourceId, targetId, insertAfter) {
   reorderArrayItem(screen.rois, sourceId, targetId, insertAfter, (roi) => {
     return roi.id;
   });
+}
+
+function isROIIncomplete(roi) {
+  return !roi.tilesetId || roi.tiles.size === 0;
+}
+
+function updateROIAccordionState(roiId = activeROI) {
+  const roi = getActiveScreenROIs().find((item) => item.id === roiId);
+  const item = roiList.querySelector(`[data-roi-id="${roiId}"]`);
+
+  if (!roi || !item) return;
+
+  item.classList.toggle("incomplete", isROIIncomplete(roi));
 }
 
 function renderCaptureROIPicker() {

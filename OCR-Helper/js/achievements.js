@@ -6,7 +6,7 @@ function createAchievement(index = 0) {
     value: "",
     message: "",
     tier: "beginner",
-    resetScreen: "self",
+    resetScreens: ["self"],
     _metricCommitted: false,
   };
 }
@@ -111,6 +111,7 @@ function createAchievementItem(screen, achievement) {
   details.dataset.tier = normalizeAchievementTier(achievement.tier);
   details.dataset.achievementId = achievement.id;
   details.open = achievement.id === openAchievementId;
+  details.classList.toggle("incomplete", isAchievementIncomplete(achievement));
 
   const summary = document.createElement("summary");
   summary.className = "achievementSummary";
@@ -164,6 +165,7 @@ function createAchievementItem(screen, achievement) {
 
   const metric = createAchievementMetricSelect(screen, achievement, () => {
     title.textContent = getAchievementTitle(achievement);
+    details.classList.toggle("incomplete", isAchievementIncomplete(achievement));
   });
   metric.className = "achievementMetricSelect";
 
@@ -188,6 +190,7 @@ function createAchievementItem(screen, achievement) {
     achievement.value = target.value;
     resetAchievementRuntime({ clearQueue: true });
     title.textContent = getAchievementTitle(achievement);
+    details.classList.toggle("incomplete", isAchievementIncomplete(achievement));
     updateWorkflowUI();
   };
 
@@ -198,6 +201,7 @@ function createAchievementItem(screen, achievement) {
   message.className = "achievementMessageInput";
   message.oninput = () => {
     achievement.message = message.value;
+    details.classList.toggle("incomplete", isAchievementIncomplete(achievement));
     updateWorkflowUI();
   };
 
@@ -213,7 +217,6 @@ function createAchievementItem(screen, achievement) {
   tier.className = "achievementTierSelect";
 
   const lifecycle = createAchievementLifecycleSelect(screen, achievement);
-  lifecycle.className = "achievementLifecycleSelect";
 
   body.append(
     metric,
@@ -221,21 +224,43 @@ function createAchievementItem(screen, achievement) {
     target,
     message,
     createAchievementLabeledControl("Tier", tier),
-    createAchievementLabeledControl("Lifecycle", lifecycle),
+    createAchievementLabeledControl(
+      "Lifecycle",
+      lifecycle,
+      "Reset on screen(s)",
+    ),
   );
   details.append(summary, body);
 
   return details;
 }
 
-function createAchievementLabeledControl(labelText, control) {
+function isAchievementIncomplete(achievement) {
+  return (
+    !String(achievement.metric || "").trim() ||
+    !String(achievement.value || "").trim() ||
+    !String(achievement.message || "").trim()
+  );
+}
+
+function createAchievementLabeledControl(labelText, control, hintText = "") {
   const label = document.createElement("label");
   const text = document.createElement("span");
 
   label.className = "achievementField";
   text.textContent = labelText;
 
-  label.append(text, control);
+  label.appendChild(text);
+
+  if (hintText) {
+    const hint = document.createElement("span");
+
+    hint.className = "achievementFieldHint";
+    hint.textContent = `(${hintText})`;
+    label.appendChild(hint);
+  }
+
+  label.appendChild(control);
 
   return label;
 }
@@ -460,20 +485,25 @@ function createAchievementLifecycleSelect(screen, achievement) {
         label: item.name,
       })),
   ];
-  const resetScreen = normalizeAchievementResetScreen(achievement.resetScreen);
+  const resetScreens = normalizeAchievementResetScreens(achievement);
 
-  if (
-    resetScreen !== "self" &&
-    !options.some((option) => option.value === resetScreen)
-  ) {
-    options.push({
-      value: resetScreen,
-      label: resetScreen,
+  resetScreens
+    .filter((resetScreen) => {
+      return (
+        resetScreen !== "self" &&
+        !options.some((option) => option.value === resetScreen)
+      );
+    })
+    .forEach((resetScreen) => {
+      options.push({
+        value: resetScreen,
+        label: resetScreen,
+      });
     });
-  }
 
-  return createAchievementSelect(options, resetScreen, (value) => {
-    achievement.resetScreen = value;
+  return createAchievementMultiDropdown(options, resetScreens, (values) => {
+    achievement.resetScreens = values.length > 0 ? values : ["self"];
+    delete achievement.resetScreen;
     resetAchievementRuntime({ clearQueue: true });
     updateWorkflowUI();
   });
@@ -514,6 +544,123 @@ function createAchievementSelect(options, value, onChange) {
   select.onchange = handleChange;
 
   return select;
+}
+
+function createAchievementMultiDropdown(options, values, onChange) {
+  const wrapper = document.createElement("div");
+  const trigger = document.createElement("button");
+  const triggerText = document.createElement("span");
+  const triggerArrow = document.createElement("span");
+  const menu = document.createElement("div");
+  const selected = new Set(values);
+
+  wrapper.className = "achievementMultiDropdown";
+  trigger.type = "button";
+  trigger.className = "achievementLifecycleSelect";
+  triggerText.className = "achievementMultiDropdownText";
+  triggerArrow.className = "achievementMultiDropdownArrow";
+  triggerArrow.textContent = "▾";
+  menu.className = "achievementMultiDropdownMenu";
+  menu.hidden = true;
+
+  const getSelectedValues = () => {
+    if (selected.size === 0) {
+      selected.add("self");
+    }
+
+    return [...selected];
+  };
+
+  const updateTrigger = () => {
+    const labels = options
+      .filter((option) => selected.has(option.value))
+      .map((option) => option.label);
+
+    triggerText.textContent =
+      labels.length > 1 ? "[multi]" : labels[0] || "This screen";
+  };
+  const updateItems = () => {
+    menu.querySelectorAll(".achievementMultiDropdownItem").forEach((item) => {
+      item.classList.toggle("selected", selected.has(item.dataset.value));
+    });
+  };
+  const closeMenu = () => {
+    menu.hidden = true;
+    document.removeEventListener("click", handleOutsideClick);
+  };
+  const openMenu = () => {
+    menu.hidden = false;
+    menu.classList.remove("openUp");
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - triggerRect.bottom;
+    const menuHeight = menu.offsetHeight;
+
+    if (spaceBelow < menuHeight && triggerRect.top > menuHeight) {
+      menu.classList.add("openUp");
+    }
+
+    window.setTimeout(() => {
+      document.addEventListener("click", handleOutsideClick);
+    }, 0);
+  };
+  const handleOutsideClick = (e) => {
+    if (wrapper.contains(e.target)) return;
+
+    closeMenu();
+  };
+
+  options.forEach((option) => {
+    const item = document.createElement("button");
+    const state = document.createElement("span");
+    const label = document.createElement("span");
+
+    item.type = "button";
+    item.className = "achievementMultiDropdownItem";
+    item.dataset.value = option.value;
+    state.className = "achievementMultiDropdownState";
+    label.textContent = option.label;
+
+    item.append(label, state);
+    menu.appendChild(item);
+
+    item.onclick = (e) => {
+      e.preventDefault();
+
+      if (selected.has(option.value)) {
+        selected.delete(option.value);
+      } else {
+        selected.add(option.value);
+      }
+
+      onChange(getSelectedValues());
+      updateItems();
+      updateTrigger();
+    };
+  });
+
+  trigger.onclick = (e) => {
+    e.preventDefault();
+
+    if (menu.hidden) {
+      openMenu();
+    } else {
+      closeMenu();
+    }
+  };
+
+  wrapper.onfocusout = (e) => {
+    if (wrapper.contains(e.relatedTarget)) return;
+
+    closeMenu();
+  };
+
+  updateTrigger();
+  updateItems();
+  trigger.append(triggerText, triggerArrow);
+  wrapper.append(trigger, menu);
+
+  return wrapper;
 }
 
 function evaluateAchievements(screen, ocrValues) {
@@ -590,7 +737,11 @@ function resetAchievementRuntimeForLifecycleScreen(
   game.screens.forEach((screen) => {
     (screen.achievements || []).forEach((achievement) => {
       if (
-        getAchievementLifecycleScreen(screen, achievement) !== lifecycleScreen
+        !achievementResetsOnLifecycleScreen(
+          screen,
+          achievement,
+          lifecycleScreen,
+        )
       ) {
         return;
       }
@@ -610,12 +761,18 @@ function getAchievementRuntimeKey(screen, achievement) {
   return `${screen.id}:${achievement.id}`;
 }
 
-function getAchievementLifecycleScreen(screen, achievement) {
-  const resetScreen = normalizeAchievementResetScreen(achievement.resetScreen);
+function achievementResetsOnLifecycleScreen(
+  screen,
+  achievement,
+  lifecycleScreen,
+) {
+  return normalizeAchievementResetScreens(achievement).some((resetScreen) => {
+    if (resetScreen === "self") return lifecycleScreen === screen;
 
-  if (resetScreen === "self") return screen;
-
-  return game.screens.find((item) => item.name === resetScreen) || screen;
+    return game.screens.some((item) => {
+      return item.name === resetScreen && item === lifecycleScreen;
+    });
+  });
 }
 
 function updateAchievementLifecycleScreenName(oldName, newName) {
@@ -623,9 +780,12 @@ function updateAchievementLifecycleScreenName(oldName, newName) {
 
   game.screens.forEach((screen) => {
     (screen.achievements || []).forEach((achievement) => {
-      if (achievement.resetScreen === oldName) {
-        achievement.resetScreen = newName;
-      }
+      achievement.resetScreens = normalizeAchievementResetScreens(
+        achievement,
+      ).map((resetScreen) => {
+        return resetScreen === oldName ? newName : resetScreen;
+      });
+      delete achievement.resetScreen;
     });
   });
 }
@@ -635,13 +795,15 @@ function clearMissingAchievementLifecycleScreens() {
 
   game.screens.forEach((screen) => {
     (screen.achievements || []).forEach((achievement) => {
-      const resetScreen = normalizeAchievementResetScreen(
-        achievement.resetScreen,
+      const resetScreens = normalizeAchievementResetScreens(achievement).filter(
+        (resetScreen) => {
+          return resetScreen === "self" || screenNames.has(resetScreen);
+        },
       );
 
-      if (resetScreen !== "self" && !screenNames.has(resetScreen)) {
-        achievement.resetScreen = "self";
-      }
+      achievement.resetScreens =
+        resetScreens.length > 0 ? resetScreens : ["self"];
+      delete achievement.resetScreen;
     });
   });
 }
@@ -766,8 +928,13 @@ function normalizeAchievementTier(tier) {
   return achievementTiers.includes(tier) ? tier : "beginner";
 }
 
-function normalizeAchievementResetScreen(resetScreen) {
-  return resetScreen || "self";
+function normalizeAchievementResetScreens(achievement) {
+  const resetScreens = Array.isArray(achievement?.resetScreens)
+    ? achievement.resetScreens
+    : [achievement?.resetScreen || "self"];
+  const normalized = resetScreens.filter(Boolean);
+
+  return normalized.length > 0 ? [...new Set(normalized)] : ["self"];
 }
 
 function normalizeImportedAchievements(achievements) {
@@ -784,7 +951,7 @@ function normalizeImportedAchievements(achievements) {
     value: achievement.value ?? "",
     message: achievement.message || "",
     tier: normalizeAchievementTier(achievement.tier),
-    resetScreen: normalizeAchievementResetScreen(achievement.resetScreen),
+    resetScreens: normalizeAchievementResetScreens(achievement),
     _metricCommitted: true,
   }));
 }

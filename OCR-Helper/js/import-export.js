@@ -45,7 +45,7 @@ function getCurrentProjectData() {
         value: achievement.value,
         message: achievement.message,
         tier: normalizeAchievementTier(achievement.tier),
-        resetScreen: normalizeAchievementResetScreen(achievement.resetScreen),
+        resetScreens: normalizeAchievementResetScreens(achievement),
       })),
     })),
   };
@@ -271,6 +271,11 @@ document.getElementById("downloadJSON").onclick = () => {
 
 function showSavedGameDownloadDialog(entries) {
   const sortedEntries = entries.sort(([a], [b]) => a.localeCompare(b));
+  const savedNames = new Set(sortedEntries.map(([name]) => name));
+  const initialSelection =
+    !isCurrentProjectEmpty() && savedNames.has(selectedSavedGameName)
+      ? [selectedSavedGameName]
+      : null;
 
   showCheckboxList(
     "Download saved game JSONs",
@@ -292,6 +297,7 @@ function showSavedGameDownloadDialog(entries) {
     null,
     "Download",
     "Cancel",
+    initialSelection,
   );
 }
 
@@ -335,6 +341,9 @@ async function importSingleProjectFile(file) {
         renderSavedGameList();
 
         selectedSavedGameName = name;
+        if (typeof markLocalSaveClean === "function") {
+          markLocalSaveClean(name);
+        }
         updateStorageButtons();
       },
     });

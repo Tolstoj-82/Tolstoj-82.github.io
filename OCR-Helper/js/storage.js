@@ -1,4 +1,6 @@
 const LOCAL_STORAGE_KEY = "gbOcrHelper.games";
+let localSaveCleanName = "";
+let localSaveCleanSnapshot = "";
 
 function getSavedGames() {
   try {
@@ -89,6 +91,7 @@ function saveCurrentGameToLocalStorage() {
         renderSavedGameList();
 
         selectedSavedGameName = name;
+        markLocalSaveClean(name);
         updateStorageButtons();
       },
       null,
@@ -105,6 +108,7 @@ function saveCurrentGameToLocalStorage() {
   renderSavedGameList();
 
   selectedSavedGameName = name;
+  markLocalSaveClean(name);
   updateStorageButtons();
 }
 function loadGameFromLocalStorage() {
@@ -121,6 +125,7 @@ function loadGameFromLocalStorage() {
     confirm: !isCurrentProjectEmpty(),
     onComplete: () => {
       selectedSavedGameName = name;
+      markLocalSaveClean(name);
       updateStorageButtons();
     },
   });
@@ -166,12 +171,18 @@ document.addEventListener("click", (e) => {
 function updateStorageButtons() {
   const canSaveGame = game.name.trim() !== "" && game.screens.length > 0;
   const hasSelectedSavedGame = selectedSavedGameName !== "";
+  const hasLocalChanges = canSaveGame && hasUnsavedLocalChanges();
+  const needsSelectedGameLoad = selectedSavedGameNeedsLoad();
 
   savedGameDropdownButton.textContent =
     selectedSavedGameName || "Saved games...";
   newProjectButton.disabled = isCurrentProjectEmpty();
   saveGameLocalButton.disabled = !canSaveGame;
   loadSavedGameButton.disabled = !hasSelectedSavedGame;
+  saveGameLocalButton.classList.toggle("needsLocalSave", hasLocalChanges);
+  saveGameLocalButton.classList.toggle("needsAction", hasLocalChanges);
+  loadSavedGameButton.classList.toggle("needsLoad", needsSelectedGameLoad);
+  loadSavedGameButton.classList.toggle("needsAction", needsSelectedGameLoad);
 }
 
 newProjectButton.onclick = () => {
@@ -207,6 +218,8 @@ function clearCurrentProject() {
   document.getElementById("gameName").value = "";
 
   selectedSavedGameName = "";
+  localSaveCleanName = "";
+  localSaveCleanSnapshot = "";
 
   renderScreenList();
   updateScreenSetupTitle();
@@ -231,4 +244,64 @@ function isCurrentProjectEmpty() {
     tilesets.length === 0 &&
     uniqueTiles.size === 0
   );
+}
+
+function hasUnsavedLocalChanges() {
+  if (isCurrentProjectEmpty() || typeof getCurrentProjectData !== "function") {
+    return false;
+  }
+
+  const name = game.name.trim();
+
+  if (!name) return false;
+
+  const currentSnapshot = getComparableProjectJSON(getCurrentProjectData());
+
+  if (
+    localSaveCleanName === name &&
+    localSaveCleanSnapshot === currentSnapshot
+  ) {
+    return false;
+  }
+
+  const savedGames = getSavedGames();
+  const saved = savedGames[name];
+
+  if (!saved) return true;
+
+  return (
+    getComparableProjectJSON(saved) !==
+    currentSnapshot
+  );
+}
+
+function selectedSavedGameNeedsLoad() {
+  return (
+    selectedSavedGameName !== "" &&
+    !isCurrentProjectEmpty() &&
+    selectedSavedGameName !== localSaveCleanName
+  );
+}
+
+function markLocalSaveClean(name = game.name.trim()) {
+  if (!name || typeof getCurrentProjectData !== "function") {
+    localSaveCleanName = "";
+    localSaveCleanSnapshot = "";
+    return;
+  }
+
+  localSaveCleanName = name;
+  localSaveCleanSnapshot = getComparableProjectJSON(getCurrentProjectData());
+}
+
+function getComparableProjectJSON(data) {
+  return JSON.stringify(stripProjectExportMetadata(data));
+}
+
+function stripProjectExportMetadata(data) {
+  if (!data || typeof data !== "object") return data;
+
+  const { exportedAt, exportVersion, ...projectData } = data;
+
+  return projectData;
 }

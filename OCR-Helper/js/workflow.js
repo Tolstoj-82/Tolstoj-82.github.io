@@ -39,14 +39,14 @@ function updateWorkflowUI() {
   const workflowHeader = document.querySelector(".workflowHeader");
 
   calibrateButton.disabled = !cameraReady || snapshotPaused;
-  calibrateButton.classList.toggle(
-    "needsInput",
+  const calibrationNeedsInput =
     cameraReady &&
-      !snapshotPaused &&
-      (!calibrated ||
-        calibrationQuality === "bad" ||
-        calibrationQuality === "none"),
-  );
+    !snapshotPaused &&
+    (!calibrated ||
+      calibrationQuality === "bad" ||
+      calibrationQuality === "none");
+  calibrateButton.classList.toggle("needsInput", calibrationNeedsInput);
+  calibrateButton.classList.toggle("needsAction", calibrationNeedsInput);
   setDisabledReason(
     calibrateButton,
     !cameraReady
