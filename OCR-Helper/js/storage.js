@@ -169,11 +169,14 @@ function updateStorageButtons() {
 
   savedGameDropdownButton.textContent =
     selectedSavedGameName || "Saved games...";
+  newProjectButton.disabled = isCurrentProjectEmpty();
   saveGameLocalButton.disabled = !canSaveGame;
   loadSavedGameButton.disabled = !hasSelectedSavedGame;
 }
 
 newProjectButton.onclick = () => {
+  if (isCurrentProjectEmpty()) return;
+
   showConfirm(
     "Start a new project?\n\nCurrent settings will be lost.",
     () => {
