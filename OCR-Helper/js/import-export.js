@@ -366,27 +366,68 @@ async function importSingleProjectFile(file) {
     }
 
     const name = data.game || file.name.replace(/\.json$/i, "");
+    const savedGames = getSavedGames();
+    const overwritesSavedGame = Object.prototype.hasOwnProperty.call(
+      savedGames,
+      name,
+    );
+    const replacesCurrentSetup = !isCurrentProjectEmpty();
 
-    importProject(data, {
-      confirm: !isCurrentProjectEmpty(),
-      onComplete: () => {
-        const savedGames = getSavedGames();
+    const finishSingleImport = () => {
+      importProject(data, {
+        confirm: false,
+        onComplete: () => {
+          const savedGames = getSavedGames();
 
-        savedGames[name] = data;
-        setSavedGames(savedGames);
-        renderSavedGameList();
+          savedGames[name] = data;
+          setSavedGames(savedGames);
+          renderSavedGameList();
 
-        selectedSavedGameName = name;
-        if (typeof markLocalSaveClean === "function") {
-          markLocalSaveClean(name);
-        }
-        updateStorageButtons();
-      },
-    });
+          selectedSavedGameName = name;
+          if (typeof markLocalSaveClean === "function") {
+            markLocalSaveClean(name);
+          }
+          updateStorageButtons();
+        },
+      });
+    };
+
+    if (overwritesSavedGame || replacesCurrentSetup) {
+      showConfirm(
+        getSingleImportConfirmMessage(name, {
+          overwritesSavedGame,
+          replacesCurrentSetup,
+        }),
+        finishSingleImport,
+        null,
+        "Import",
+        "Cancel",
+      );
+      return;
+    }
+
+    finishSingleImport();
   } catch (err) {
     showAlert("Invalid JSON file.");
     console.error(err);
   }
+}
+
+function getSingleImportConfirmMessage(
+  name,
+  { overwritesSavedGame, replacesCurrentSetup },
+) {
+  const details = [];
+
+  if (overwritesSavedGame) {
+    details.push(`- Saved game: "${name}" already exists and will be overwritten.`);
+  }
+
+  if (replacesCurrentSetup) {
+    details.push("- Current setup: current settings will be lost.");
+  }
+
+  return `Load these game settings?\n\n${details.join("\n")}`;
 }
 
 async function importMultipleProjects(files) {
