@@ -78,6 +78,17 @@ button:hover {
   color: var(--shade-white);
 }
 
+button.button-primary {
+  background: var(--panel-light);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+button.button-primary:hover:not(:disabled) {
+  background: var(--accent-blue);
+  color: var(--shade-white);
+}
+
 button:disabled {
   opacity: 0.35;
   cursor: not-allowed;
@@ -88,21 +99,29 @@ button:disabled:hover {
   color: var(--accent-blue);
 }
 
-button.needsAction {
+button.needsAction,
+button.button-warning {
   animation: needsActionPulse 1.4s ease-in-out infinite;
   background: var(--panel-light);
   border-color: var(--accent-orange);
   color: var(--accent-orange-text);
 }
 
-button.needsAction:hover:not(:disabled) {
+button.needsAction:hover:not(:disabled),
+button.button-warning:hover:not(:disabled) {
   background: var(--accent-orange);
   border-color: var(--accent-orange);
   color: var(--shade-white);
 }
 
-button.needsAction:disabled {
+button.needsAction:disabled,
+button.needsAction:disabled:hover,
+button.button-warning:disabled,
+button.button-warning:disabled:hover {
   animation: none;
+  background: var(--panel-light);
+  border-color: var(--accent-orange);
+  color: var(--accent-orange-text);
 }
 
 .savedGamePicker {
@@ -203,16 +222,46 @@ button.needsAction:disabled {
   white-space: nowrap;
 }
 
+button.button-black,
 #importJSON,
 #downloadJSON {
   border-color: var(--shade-black);
   color: var(--shade-black);
 }
 
+button.button-black:hover:not(:disabled),
 #importJSON:hover:not(:disabled),
 #downloadJSON:hover:not(:disabled) {
   background: var(--shade-black);
   color: var(--shade-white);
+}
+
+button.button-black:disabled,
+button.button-black:disabled:hover,
+#importJSON:disabled,
+#importJSON:disabled:hover,
+#downloadJSON:disabled,
+#downloadJSON:disabled:hover {
+  background: var(--panel-light);
+  border-color: var(--shade-black);
+  color: var(--shade-black);
+}
+
+button.button-danger {
+  border-color: var(--text-red);
+  color: var(--text-red);
+}
+
+button.button-danger:hover:not(:disabled) {
+  background: var(--text-red);
+  color: var(--shade-white);
+}
+
+button.button-danger:disabled,
+button.button-danger:disabled:hover {
+  background: var(--panel-light);
+  border-color: var(--text-red);
+  color: var(--text-red);
 }
 
 #saveGameLocal {

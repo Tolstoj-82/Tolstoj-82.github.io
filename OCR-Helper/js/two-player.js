@@ -2459,9 +2459,11 @@ function renderDaysExportButton(gameName) {
   };
 
   importButton.textContent = "Import Days Data";
+  importButton.className = "button-black";
   importButton.onclick = () => input.click();
 
   exportButton.textContent = "Export Days Data";
+  exportButton.className = "button-black";
   exportButton.disabled = !gameName;
   exportButton.onclick = () => exportLeaderboardDaysData(gameName);
 

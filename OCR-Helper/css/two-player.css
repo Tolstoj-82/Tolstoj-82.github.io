@@ -18,8 +18,8 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(220px, 320px) minmax(0, 1fr);
   align-items: stretch;
-  gap: var(--gap-lg);
-  padding: var(--gap-lg);
+  gap: var(--gap-md);
+  padding: var(--gap-md);
   overflow: hidden;
 }
 
@@ -27,8 +27,8 @@ body {
   position: fixed;
   z-index: 50;
   top: 0;
-  left: var(--gap-lg);
-  right: var(--gap-lg);
+  left: var(--gap-md);
+  right: var(--gap-md);
   display: flex;
   flex-wrap: wrap;
   align-items: end;
@@ -226,7 +226,7 @@ body {
   min-width: 0;
   min-height: 0;
   height: 100%;
-  max-height: calc(100vh - (2 * var(--gap-lg)));
+  max-height: calc(100vh - (2 * var(--gap-md)));
   padding: var(--gap-md);
   background: var(--bg-panel-dark);
   color: var(--panel-text);
@@ -236,7 +236,7 @@ body {
 }
 
 .playerPanel {
-  --feed-max-height: calc(100vh - (2 * var(--gap-lg)) - 198px);
+  --feed-max-height: calc(100vh - (2 * var(--gap-md)) - 178px);
 
   display: flex;
   flex-direction: column;
@@ -250,7 +250,7 @@ body {
 
 .playerPanel h1,
 .livePanel h1 {
-  margin: 0 0 var(--gap-md);
+  margin: 0 0 var(--gap-sm);
   font-size: clamp(16px, 2vw, 22px);
 }
 
@@ -302,7 +302,7 @@ body {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding-top: 36px;
+  padding-top: 28px;
 }
 
 .playerAchievements {
@@ -656,7 +656,7 @@ body {
   width: min(100%, calc(var(--feed-max-height) * 160 / 144));
   height: 32px;
   min-height: 32px;
-  margin: 0 auto var(--gap-sm);
+  margin: 0 auto 4px;
   display: block;
   padding: 5px 8px;
   background: var(--panel-light);
@@ -1403,7 +1403,7 @@ body {
   }
 
   .playerPanel {
-    --feed-max-height: calc(100vh - (2 * var(--gap-sm)) - 178px);
+    --feed-max-height: calc(100vh - (2 * var(--gap-sm)) - 166px);
 
     padding-bottom: 34px;
   }
@@ -1413,7 +1413,7 @@ body {
   }
 
   .screenArea {
-    padding-top: 32px;
+    padding-top: 24px;
   }
 
   .feedFrame {
