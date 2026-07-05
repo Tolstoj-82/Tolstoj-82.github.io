@@ -2444,13 +2444,28 @@ function renderDaysModal(openKeys = getOpenDaysModalKeys()) {
 
 function renderDaysExportButton(gameName) {
   const row = document.createElement("div");
-  const button = document.createElement("button");
+  const importButton = document.createElement("button");
+  const exportButton = document.createElement("button");
+  const input = document.createElement("input");
 
   row.className = "daysModalActions";
-  button.textContent = "Export Days Data";
-  button.disabled = !gameName;
-  button.onclick = () => exportLeaderboardDaysData(gameName);
-  row.appendChild(button);
+  input.type = "file";
+  input.accept = ".json,application/json";
+  input.multiple = true;
+  input.hidden = true;
+  input.onchange = () => {
+    importLeaderboardDaysDataFiles([...input.files]);
+    input.value = "";
+  };
+
+  importButton.textContent = "Import Days Data";
+  importButton.onclick = () => input.click();
+
+  exportButton.textContent = "Export Days Data";
+  exportButton.disabled = !gameName;
+  exportButton.onclick = () => exportLeaderboardDaysData(gameName);
+
+  row.append(importButton, exportButton, input);
   daysModalContent.appendChild(row);
 }
 
@@ -2633,7 +2648,7 @@ function exportLeaderboardDaysData(gameName) {
   const days = getStoredLeaderboardDays().map((dateKey) => {
     return {
       date: dateKey,
-    entries: getLeaderboardEntriesForDay(dateKey).filter((entry) => {
+      entries: getLeaderboardEntriesForDay(dateKey).filter((entry) => {
         return entry.game === gameName && isLeaderboardScore(entry);
       }),
     };
@@ -2656,6 +2671,144 @@ function exportLeaderboardDaysData(gameName) {
   link.download = `${gameName || "leaderboard"}-days.json`;
   link.click();
   URL.revokeObjectURL(link.href);
+}
+
+async function importLeaderboardDaysDataFiles(files) {
+  if (files.length === 0) return;
+
+  const result = {
+    days: new Set(),
+    entries: 0,
+    files: 0,
+  };
+
+  try {
+    for (const file of files) {
+      const data = JSON.parse(await file.text());
+
+      importLeaderboardDaysData(data, result);
+      result.files += 1;
+    }
+  } catch (error) {
+    window.alert(`Could not import day data.\n${error.message}`);
+    return;
+  }
+
+  rebuildAllTimeLeaderboardFromDays();
+  scoreBoardSignature = "";
+  renderDaysModal();
+  renderScoreBoard();
+  window.alert(
+    `Imported ${result.entries} score${result.entries === 1 ? "" : "s"} from ${result.days.size} day${result.days.size === 1 ? "" : "s"}.`,
+  );
+}
+
+function importLeaderboardDaysData(data, result) {
+  const gameName = String(data?.game || selectedGameName || "").trim();
+
+  if (!gameName) {
+    throw new Error("The imported file does not contain a game name.");
+  }
+
+  if (!Array.isArray(data?.days)) {
+    throw new Error("The imported file does not contain day data.");
+  }
+
+  data.days.forEach((day) => {
+    const dateKey = String(day?.date || "").trim();
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey) || !Array.isArray(day?.entries)) {
+      throw new Error("One of the imported days has an invalid format.");
+    }
+
+    const importedEntries = day.entries
+      .map((entry) => normalizeImportedLeaderboardEntry(entry, gameName, dateKey))
+      .filter(Boolean);
+
+    if (importedEntries.length === 0) return;
+
+    mergeLeaderboardDayEntries(dateKey, importedEntries);
+    result.days.add(dateKey);
+    result.entries += importedEntries.length;
+  });
+}
+
+function normalizeImportedLeaderboardEntry(entry, gameName, dateKey) {
+  const score = Number(entry?.score);
+
+  if (!Number.isFinite(score) || score < MIN_LEADERBOARD_SCORE) return null;
+
+  const startedAt = Number(entry.startedAt) || Date.now();
+  const id = Number(entry.id) || startedAt;
+  const name = String(entry.name || entry.player || "")
+    .trim()
+    .slice(0, MAX_SCORE_NAME_LENGTH);
+  const player = name || String(entry.player || "Player").trim() || "Player";
+  const color = entry.color === "red" ? "red" : "blue";
+  const normalized = {
+    id,
+    key: entry.key,
+    date: dateKey,
+    game: gameName,
+    player,
+    name,
+    color,
+    score,
+    startedAt,
+  };
+
+  normalized.key = getScoreEntryKey(normalized);
+
+  return normalized;
+}
+
+function mergeLeaderboardDayEntries(dateKey, importedEntries) {
+  const byKey = new Map(
+    getLeaderboardEntriesForDay(dateKey).map((entry) => [
+      getScoreEntryKey(entry),
+      entry,
+    ]),
+  );
+  const serializedEntries = importedEntries.map(serializeScoreEntry);
+
+  serializedEntries.forEach((entry) => {
+    byKey.set(getScoreEntryKey(entry), entry);
+  });
+
+  localStorage.setItem(
+    getLeaderboardStorageKey(dateKey),
+    JSON.stringify([...byKey.values()]),
+  );
+
+  if (dateKey === getTodayDateKey()) {
+    mergeImportedTodaySessionEntries(serializedEntries);
+  }
+}
+
+function mergeImportedTodaySessionEntries(importedEntries) {
+  const byKey = new Map(
+    sessionScores.map((entry) => [getScoreEntryKey(entry), entry]),
+  );
+
+  importedEntries.forEach((entry) => {
+    const key = getScoreEntryKey(entry);
+    const existing = byKey.get(key);
+
+    if (existing?.active || existing?.nameEntry) return;
+
+    byKey.set(key, {
+      ...entry,
+      id: Number(entry.id) || ++sessionScoreId,
+      active: false,
+      demo: false,
+      startedAt: Number(entry.startedAt) || Date.now(),
+    });
+  });
+
+  sessionScores = [...byKey.values()];
+  sessionScoreId = sessionScores.reduce((max, entry) => {
+    return Math.max(max, Number(entry.id) || 0);
+  }, sessionScoreId);
 }
 
 function deleteStoredLeaderboardEntry(dateKey, entry) {

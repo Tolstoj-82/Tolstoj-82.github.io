@@ -1,4 +1,4 @@
-# Manual Test Checklist
+# index.html Manual Test Checklist
 
 ## Project/storage
 
@@ -113,12 +113,3 @@
 - [ ] Rename tileset title.
 - [ ] Change tileset type: Text/Number and Counter.
 - [ ] Delete tileset updates region assignments.
-
-## Two-player page
-
-- [ ] Both camera selectors populate.
-- [ ] Selecting camera auto-starts feed.
-- [ ] Saved games from same local storage appear.
-- [ ] LUT selection works per player.
-- [ ] Calibration works per player.
-- [ ] Active screen and live region values update independently.

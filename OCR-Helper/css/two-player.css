@@ -1192,6 +1192,8 @@ body {
 
 .daysModalActions {
   display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
   justify-content: flex-end;
 }
 
