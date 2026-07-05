@@ -2235,8 +2235,7 @@ function getRankChangeDirection(player, rank) {
 
 function renderCurrentRankCard(container, entry, rank, direction = "") {
   const podiumRank = rank >= 1 && rank <= 3 ? rank - 1 : null;
-  const keepRise = !direction && container.classList.contains("rankRise");
-  const keepDrop = !direction && container.classList.contains("rankDrop");
+  const keepChange = !direction && container.classList.contains("rankChanged");
   const text = document.createElement("div");
 
   container.className = "currentRank";
@@ -2244,8 +2243,7 @@ function renderCurrentRankCard(container, entry, rank, direction = "") {
   container.classList.toggle("podiumGold", podiumRank === 0);
   container.classList.toggle("podiumSilver", podiumRank === 1);
   container.classList.toggle("podiumBronze", podiumRank === 2);
-  container.classList.toggle("rankRise", keepRise);
-  container.classList.toggle("rankDrop", keepDrop);
+  container.classList.toggle("rankChanged", keepChange);
 
   text.className = "currentRankText";
   text.textContent = rank > 0 ? `Current Rank: #${rank}` : "Current Rank: ?";
@@ -2253,19 +2251,17 @@ function renderCurrentRankCard(container, entry, rank, direction = "") {
   container.replaceChildren(text);
 
   if (direction) {
-    triggerRankChangeAnimation(container, direction);
+    triggerRankChangeAnimation(container);
   }
 }
 
-function triggerRankChangeAnimation(container, direction) {
-  const className = direction === "up" ? "rankRise" : "rankDrop";
-
+function triggerRankChangeAnimation(container) {
   window.clearTimeout(container.rankAnimationTimer);
-  container.classList.remove("rankRise", "rankDrop");
+  container.classList.remove("rankChanged");
   void container.offsetWidth;
-  container.classList.add(className);
+  container.classList.add("rankChanged");
   container.rankAnimationTimer = window.setTimeout(() => {
-    container.classList.remove("rankRise", "rankDrop");
+    container.classList.remove("rankChanged");
   }, 900);
 }
 

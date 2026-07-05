@@ -788,16 +788,8 @@ body {
   transform-origin: center;
 }
 
-.currentRank.rankRise {
-  color: var(--accent-blue);
-  border-color: var(--accent-blue);
-  animation: currentRankColorRise 0.9s ease;
-}
-
-.currentRank.rankDrop {
-  color: var(--text-red);
-  border-color: var(--text-red);
-  animation: currentRankColorDrop 0.9s ease;
+.currentRank.rankChanged {
+  animation: currentRankChanged 0.9s ease;
 }
 
 .scoreBoard {
@@ -1289,35 +1281,14 @@ body {
   }
 }
 
-@keyframes currentRankColorRise {
-  0%,
-  100% {
-    background: var(--panel-light);
-    color: var(--panel-text);
-  }
-
+@keyframes currentRankChanged {
   18%,
   58% {
     background:
-      linear-gradient(rgba(47, 140, 255, 0.28), rgba(47, 140, 255, 0.28)),
+      linear-gradient(rgba(217, 140, 0, 0.3), rgba(217, 140, 0, 0.3)),
       var(--panel-light);
-    color: var(--accent-blue);
-  }
-}
-
-@keyframes currentRankColorDrop {
-  0%,
-  100% {
-    background: var(--panel-light);
-    color: var(--panel-text);
-  }
-
-  18%,
-  58% {
-    background:
-      linear-gradient(rgba(196, 0, 0, 0.2), rgba(196, 0, 0, 0.2)),
-      var(--panel-light);
-    color: var(--text-red);
+    border-color: var(--accent-orange);
+    color: var(--accent-orange-text);
   }
 }
 

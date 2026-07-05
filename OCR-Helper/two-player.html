@@ -15,14 +15,31 @@
       <section class="gameSetup topGameSetup">
         <div class="buttonRow">
           <button id="importJSON" class="button-black">Import JSON</button>
-          <input id="importJSONFile" type="file" accept=".json,application/json" multiple hidden />
+          <input
+            id="importJSONFile"
+            type="file"
+            accept=".json,application/json"
+            multiple
+            hidden
+          />
         </div>
 
         <label class="gameSelectLabel">
           Game
           <span class="gameSelectWrap">
-            <select id="sharedGameSelect" class="nativeGameSelect" tabindex="-1" aria-hidden="true"></select>
-            <button id="sharedGameButton" class="gameSelectButton" type="button">Choose game...</button>
+            <select
+              id="sharedGameSelect"
+              class="nativeGameSelect"
+              tabindex="-1"
+              aria-hidden="true"
+            ></select>
+            <button
+              id="sharedGameButton"
+              class="gameSelectButton"
+              type="button"
+            >
+              Choose game...
+            </button>
             <span id="sharedGameList" class="gameSelectList" hidden></span>
           </span>
         </label>
@@ -33,8 +50,11 @@
           <span>Fast OCR</span>
         </label>
 
-        <button id="showAchievements" class="button-primary">Achievements</button>
+        <button id="showAchievements" class="button-primary">
+          Achievements
+        </button>
         <button id="showDays" class="button-primary">Days</button>
+        Version Beta 1.0
       </section>
 
       <section class="playerPanel" data-player="0">
@@ -48,7 +68,11 @@
           <div class="feedFrame">
             <video id="player1Video" autoplay playsinline muted></video>
             <canvas id="player1Canvas" width="160" height="144"></canvas>
-            <div id="player1InterceptorOverlay" class="interceptorOverlay" hidden></div>
+            <div
+              id="player1InterceptorOverlay"
+              class="interceptorOverlay"
+              hidden
+            ></div>
           </div>
 
           <div id="player1NameEntry" class="playerNameEntry" hidden></div>
@@ -91,7 +115,11 @@
           <div class="feedFrame">
             <video id="player2Video" autoplay playsinline muted></video>
             <canvas id="player2Canvas" width="160" height="144"></canvas>
-            <div id="player2InterceptorOverlay" class="interceptorOverlay" hidden></div>
+            <div
+              id="player2InterceptorOverlay"
+              class="interceptorOverlay"
+              hidden
+            ></div>
           </div>
 
           <div id="player2NameEntry" class="playerNameEntry" hidden></div>
@@ -123,9 +151,18 @@
       <div class="twoPlayerModalBox">
         <div class="twoPlayerModalHeader">
           <h2>Achievements</h2>
-          <button id="closeAchievementsModal" class="modalCloseButton" aria-label="Close">×</button>
+          <button
+            id="closeAchievementsModal"
+            class="modalCloseButton"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
-        <div id="achievementsModalContent" class="achievementModalContent"></div>
+        <div
+          id="achievementsModalContent"
+          class="achievementModalContent"
+        ></div>
       </div>
     </div>
 
@@ -133,7 +170,13 @@
       <div class="twoPlayerModalBox">
         <div class="twoPlayerModalHeader">
           <h2>Days</h2>
-          <button id="closeDaysModal" class="modalCloseButton" aria-label="Close">×</button>
+          <button
+            id="closeDaysModal"
+            class="modalCloseButton"
+            aria-label="Close"
+          >
+            ×
+          </button>
         </div>
         <div id="daysModalContent" class="daysModalContent"></div>
       </div>
