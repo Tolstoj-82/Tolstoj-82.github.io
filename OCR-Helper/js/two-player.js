@@ -1847,7 +1847,7 @@ function normalizeProjectData(data) {
       : data.boxartImage
         ? [String(data.boxartImage)]
         : [],
-    demoDetector: normalizeDemoDetectorConfig(data.demoDetector),
+    demoDetector: normalizeImportedGameDemoDetector(data.demoDetector),
     recognitionScreen: String(data.recognitionScreen || ""),
     settings: normalizeGameSettings(data.settings),
     tilesets: (data.tilesets || []).map((tileset) => ({
@@ -5914,12 +5914,16 @@ function updateActiveScoreEntryMetadata() {
 }
 
 function exportGameScoreSettings() {
+  const record = getGameScoreSettingsRecord();
   const data = {
+    exportVersion: 2,
     exportedAt: new Date().toISOString(),
     game: selectedGameName,
-    fastOCR: getGameScoreSettingsRecord().fastOCR !== false,
-    settings: getGameScoreSettingsRecord().items,
-    selectedId: getGameScoreSettingsRecord().selectedId,
+    fastOCR: record.fastOCR !== false,
+    demoDetector: serializeDemoDetectorConfig(selectedGame?.demoDetector),
+    screenDemoDetectors: getScreenDemoDetectorExportMap(selectedGame),
+    settings: record.items.map(serializeScoreSetting),
+    selectedId: record.selectedId,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], {
     type: "application/json",
@@ -5930,6 +5934,54 @@ function exportGameScoreSettings() {
   link.download = `${selectedGameName || "game"}-score-settings.json`;
   link.click();
   URL.revokeObjectURL(link.href);
+}
+
+function serializeScoreSetting(item) {
+  return {
+    ...item,
+    stopScreens: normalizeScoreStopScreens(item.stopScreens ?? item.stopScreen),
+    fireworkScreens: normalizeScoreFireworkScreens(item.fireworkScreens),
+    demoMetric: normalizeScoreDemoMetric(item.demoMetric, item.screen),
+    demoSequence: normalizeScoreDemoSequenceInput(item.demoSequence),
+    demoStartValue: normalizeScoreDemoStartValue(
+      item.demoStartValue,
+      item.demoSequence,
+    ),
+    demoDetectorCreated: item.demoDetectorCreated === true,
+    demoDetectorEnabled: item.demoDetectorCreated === true ||
+      Boolean(item.demoMetric && item.demoSequence),
+    moduleConfig: item.moduleConfig || {},
+  };
+}
+
+function serializeDemoDetectorConfig(config = {}) {
+  const metric = String(config?.metric ?? config?.demoMetric ?? "").trim();
+  const sequence = normalizeScoreDemoSequenceInput(
+    config?.sequence ?? config?.demoSequence,
+  );
+  const startValue = normalizeScoreDemoStartValue(
+    config?.startValue ?? config?.demoStartValue,
+    sequence,
+  );
+  const created = config?.created === true ||
+    config?.demoDetectorCreated === true;
+
+  return {
+    created,
+    enabled: created || Boolean(metric && sequence),
+    metric,
+    sequence,
+    startValue,
+  };
+}
+
+function getScreenDemoDetectorExportMap(gameData) {
+  return Object.fromEntries((gameData?.screens || []).map((screen) => {
+    return [
+      screen.name || "",
+      serializeDemoDetectorConfig(screen.demoDetector),
+    ];
+  }));
 }
 
 async function importGameScoreSettingsFile(file) {
@@ -5948,6 +6000,7 @@ async function importGameScoreSettingsFile(file) {
 
     const record = getGameScoreSettingsRecord();
     record.fastOCR = data.fastOCR !== false;
+    importGameDemoDetectorSettings(data);
     record.items = data.settings.map((item) => ({
       id: item.id || `score-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       name: "",
@@ -5976,10 +6029,40 @@ async function importGameScoreSettingsFile(file) {
     selectedScoreSettingId = record.selectedId;
     applySelectedScoreSetting();
     syncScoreSettingsAfterEdit({ resetRuns: true });
+    persistSelectedGameData();
     renderGameSettingsModal();
   } catch (error) {
     showAlert(`Could not import game settings.\n${error.message}`);
   }
+}
+
+function importGameDemoDetectorSettings(data) {
+  if (!selectedGame) return;
+
+  if (Object.prototype.hasOwnProperty.call(data, "demoDetector")) {
+    selectedGame.demoDetector = normalizeImportedGameDemoDetector(
+      data.demoDetector,
+    );
+  }
+
+  if (data.screenDemoDetectors && typeof data.screenDemoDetectors === "object") {
+    (selectedGame.screens || []).forEach((screen) => {
+      if (!Object.prototype.hasOwnProperty.call(
+        data.screenDemoDetectors,
+        screen.name,
+      )) {
+        return;
+      }
+
+      screen.demoDetector = normalizeImportedGameDemoDetector(
+        data.screenDemoDetectors[screen.name],
+      );
+    });
+  }
+}
+
+function normalizeImportedGameDemoDetector(config) {
+  return serializeDemoDetectorConfig(config);
 }
 
 function openAchievementsModal() {
