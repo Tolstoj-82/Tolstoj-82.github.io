@@ -6,6 +6,51 @@ function getActiveScreenROIs() {
   return getActiveScreen()?.rois || [];
 }
 
+function normalizeGameSettings(settings = {}) {
+  const grace = Number(settings.screenDetectionGraceMs);
+
+  return {
+    screenDetectionGraceMs: Number.isFinite(grace)
+      ? Math.max(0, Math.min(1000, Math.round(grace)))
+      : DEFAULT_SCREEN_DETECTION_GRACE_MS,
+    stallOcrOnUnknownTiles: Boolean(settings.stallOcrOnUnknownTiles),
+  };
+}
+
+function getScreenDetectionGraceMs(gameData = game) {
+  return normalizeGameSettings(gameData?.settings).screenDetectionGraceMs;
+}
+
+function getRequiredIdentifierCount(screen) {
+  const identifierCount = screen?.identifiers?.length || 0;
+
+  if (identifierCount === 0) return 0;
+
+  if (screen.identifierMatchCount === "all") return identifierCount;
+
+  const configured = Number(screen.identifierMatchCount);
+
+  if (!Number.isFinite(configured)) return identifierCount;
+
+  return Math.max(1, Math.min(identifierCount, Math.round(configured)));
+}
+
+function countVisibleIdentifiers(screen, tileGetter = getTile) {
+  if (!Array.isArray(screen?.identifiers)) return 0;
+
+  return screen.identifiers.filter((identifier) => {
+    const [x, y] = identifier.tile.split(",").map(Number);
+
+    return tilesEqual(tileGetter(x, y), identifier.pixels || []);
+  }).length;
+}
+
+function screenMatchesByIdentifiers(screen, tileGetter = getTile) {
+  const required = getRequiredIdentifierCount(screen);
+
+  return required > 0 && countVisibleIdentifiers(screen, tileGetter) >= required;
+}
+
 function roiOverlayColor(color) {
   return color.replace("rgb(", "rgba(").replace(")", ",0.35)");
 }

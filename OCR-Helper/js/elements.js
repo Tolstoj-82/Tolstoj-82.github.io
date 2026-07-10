@@ -8,9 +8,11 @@ const useOptimizedScanToggle = document.getElementById(
   "useOptimizedScanToggle",
 );
 const snapshotToggle = document.getElementById("snapshotToggle");
+const snapshotLibraryButton = document.getElementById("snapshotLibraryButton");
 const calibrationStatus = document.getElementById("calibrationStatus");
 const activeScreenTitle = document.getElementById("activeScreenTitle");
 const identifierInfo = document.getElementById("identifierInfo");
+const identifierSection = document.getElementById("identifierSection");
 const identifierInfoContent = document.getElementById("identifierInfoContent");
 const video = document.getElementById("video");
 const cameraSelect = document.getElementById("cameraSelect");
@@ -46,9 +48,25 @@ const savedGameDropdownButton = document.getElementById(
 const savedGameMenu = document.getElementById("savedGameMenu");
 const loadSavedGameButton = document.getElementById("loadSavedGame");
 const saveGameLocalButton = document.getElementById("saveGameLocal");
+const gameNameInput = document.getElementById("gameName");
+const gameNameSuggestions = document.getElementById("gameNameSuggestions");
+const gameBoxartButton = document.getElementById("gameBoxartButton");
+const gameRecognitionScreenInput = document.getElementById(
+  "gameRecognitionScreen",
+);
 const jsonHighlight = document.getElementById("jsonHighlight");
 const lutPaletteSelect = document.getElementById("lutPaletteSelect");
 const lutSwatches = document.getElementById("lutSwatches");
+const screenGraceMsInput = document.getElementById("screenGraceMs");
+const stallOcrOnUnknownTilesToggle = document.getElementById(
+  "stallOcrOnUnknownTiles",
+);
+const identifierMatchCountInput = document.getElementById(
+  "identifierMatchCount",
+);
+const snapshotModalOverlay = document.getElementById("snapshotModalOverlay");
+const closeSnapshotModalButton = document.getElementById("closeSnapshotModal");
+const snapshotList = document.getElementById("snapshotList");
 
 const modalOverlay = document.getElementById("modalOverlay");
 const modalMessage = document.getElementById("modalMessage");

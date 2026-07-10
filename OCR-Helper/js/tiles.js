@@ -783,6 +783,7 @@ function startTileMarquee(e, container, sourceData) {
 
   if (!container.contains(e.target)) return;
 
+  e.preventDefault();
   e.stopPropagation();
 
   const sourceGroup = getTileSelectionGroup(sourceData);
@@ -878,12 +879,19 @@ window.addEventListener("mousemove", (e) => {
 window.addEventListener("mouseup", () => {
   if (!tileSelectionDrag) return;
 
+  const scrollX = window.scrollX;
+  const scrollY = window.scrollY;
+
   suppressNextTileContainerClick = tileSelectionDrag.container === tilesContainer;
   tileSelectionDrag = null;
   tileSelectionBoxElement.classList.add("hidden");
 
   renderTiles();
   renderTilesets();
+
+  window.requestAnimationFrame(() => {
+    window.scrollTo(scrollX, scrollY);
+  });
 });
 
 document.addEventListener("mousedown", (e) => {

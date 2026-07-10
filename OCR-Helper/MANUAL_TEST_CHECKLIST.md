@@ -3,6 +3,7 @@
 ## Project/storage
 
 - [ ] New project from empty and non-empty state.
+- [ ] New project button says "+Add Game".
 - [ ] Save locally, overwrite saved game, delete saved game.
 - [ ] Saved games dropdown hidden when empty, visible when entries exist.
 - [ ] Select saved game when current project is empty: should load directly.
@@ -12,7 +13,12 @@
 - [ ] Import multiple JSONs: should add all valid ones to saved games.
 - [ ] Import multiple JSONs with duplicate game names: latest export should be kept, dropped files should be listed.
 - [ ] Export JSON with no saved games, with saved games, and with unsaved current changes.
+- [ ] Export JSON button says "Export JSON".
+- [ ] Export JSON saves unsaved current settings to local storage first when exporting that unsaved game.
 - [ ] Exported JSON should include exportVersion and exportedAt at the root.
+- [ ] Game name field offers autosuggest from known game names without forcing a selection.
+- [ ] Selecting a known game name can associate the available boxart metadata.
+- [ ] Boxart image metadata exports/imports with the game JSON when present.
 
 ## Camera/calibration/LUT
 
@@ -21,8 +27,18 @@
 - [ ] Try calibrating on flat/low-contrast image; verify it fails visibly, not "success with bad thresholds."
 - [ ] Snapshot button enabled only after calibration.
 - [ ] Calibrate blocked while snapshot paused.
+- [ ] Take Snapshot and Snapshots buttons sit next to each other.
+- [ ] Snapshots button appears only after at least one snapshot exists.
+- [ ] Returning from a loaded snapshot to live feed does not create a duplicate snapshot.
+- [ ] Snapshot modal stores up to 10 snapshots and lets each one be restored.
 - [ ] LUT dropdown changes canvas, tiles, identifier tiles, and grid contrast.
 - [ ] Manual LUT color picker updates all rendered surfaces.
+- [ ] LUT area is an initially closed accordion.
+- [ ] OCR Stability area is an initially closed accordion.
+- [ ] Ignore artefacts (ms) accepts only integers from 0 to 1000.
+- [ ] Retain value while unknown keeps the last OCR value when an ROI contains unknown tiles.
+- [ ] Fast OCR toggle is inside OCR Stability.
+- [ ] Camera refresh remains stable after camera permission errors or unplug/replug cycles.
 
 ## Screens/regions/identifiers
 
@@ -30,11 +46,25 @@
 - [ ] Drag reorder screens, including first/last.
 - [ ] Add identifier tile, delete from identifier panel, confirm dialog works.
 - [ ] Switch screens: identifier panel updates immediately.
+- [ ] Identifiers area is its own accordion and starts closed when identifiers exist.
+- [ ] Screen with no identifier tiles forces Identifiers accordion open.
+- [ ] Screen with no identifier tiles shows the identifier plus button in orange.
+- [ ] Identifiers accordion cannot stay closed until at least one identifier tile exists.
+- [ ] Identify at least dropdown is hidden until at least one identifier tile exists.
+- [ ] Identify at least dropdown offers all/1/2/... and disables when only one identifier exists.
+- [ ] Clicking identifier plus enters tile-pick mode for 10 seconds, shows tooltip, and can be cancelled by clicking again.
+- [ ] After selecting an identifier tile, the Identifiers accordion opens.
+- [ ] Identifier matching respects "Identify at least" when detecting screens.
 - [ ] Add, rename, delete regions.
+- [ ] Renaming a tileset updates every tileset dropdown, including region-panel dropdowns.
 - [ ] Draw/remove region tiles on canvas.
 - [ ] Show Regions toggle hides/shows regions and identifier outlines.
+- [ ] Auto Detect Screens bridges short detection gaps using Ignore artefacts (ms).
+- [ ] Stalled OCR values appear orange in Live OCR.
 - [ ] Region picker: select multiple regions, then rename/select another region and confirm multi-selection is not unexpectedly lost.
 - [ ] Assign tileset to region, then delete that tileset; region should become unassigned.
+- [ ] Workflow hints remain visible and show a compact checklist.
+- [ ] Workflow Tiles hint is OK when either discovered tiles or saved tileset tiles exist.
 
 ## Achievements
 

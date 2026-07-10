@@ -296,6 +296,24 @@ function bindAchievementToggle(details) {
   });
 }
 
+function closeOpenAchievementAccordion(screen = getActiveScreen()) {
+  if (openAchievementId === null) return;
+
+  const achievement = screen?.achievements?.find((item) => {
+    return item.id === openAchievementId;
+  });
+
+  if (achievement?.metric && !achievement._metricCommitted) {
+    achievement._metricCommitted = true;
+  }
+
+  achievementList.querySelectorAll(".achievementItem[open]").forEach((item) => {
+    item.open = false;
+  });
+
+  openAchievementId = null;
+}
+
 function bindAchievementDrag(details, dragHandle, screen, achievement) {
   dragHandle.addEventListener("click", (e) => {
     e.preventDefault();

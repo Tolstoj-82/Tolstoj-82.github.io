@@ -16,7 +16,7 @@
 }
 
 .panelSection {
-  margin-top: var(--gap-lg);
+  margin-top: 0;
   padding: var(--gap-md);
 
   background: var(--bg-panel-dark);
@@ -24,8 +24,8 @@
   border-radius: var(--radius-small);
 }
 
-.panelSection:first-of-type {
-  margin-top: 0;
+.panelSection + .panelSection {
+  margin-top: var(--gap-lg);
 }
 
 .topSourceLayout {
@@ -106,10 +106,9 @@
 }
 
 .workflowHint {
+  max-height: 118px;
   min-height: 56px;
-
-  display: flex;
-  align-items: center;
+  overflow-y: auto;
 
   padding: 12px 14px;
 
@@ -121,4 +120,198 @@
   color: var(--panel-text);
   font-weight: normal;
   line-height: 1.4;
+  scrollbar-width: thin;
+}
+
+.workflowHintList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 6px 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workflowHintItem {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.workflowHintCheck {
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.workflowHintItem.done {
+  color: var(--border-calibrated);
+}
+
+.workflowHintItem.pending {
+  color: var(--accent-orange-text);
+}
+
+.gameNamePicker {
+  position: relative;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-md);
+}
+
+.gameNamePicker > input {
+  width: 100%;
+}
+
+.gameNameSuggestions {
+  position: absolute;
+  z-index: 70;
+  top: calc(100% + 4px);
+  left: calc(54px + var(--gap-sm));
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+  background: var(--panel-light);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  box-shadow: 0 8px 18px var(--black-shadow-soft);
+}
+
+.gameNameSuggestions[hidden] {
+  display: none;
+}
+
+.gameNameSuggestion {
+  min-height: 30px;
+  justify-content: flex-start;
+  padding: 5px 8px;
+  overflow: hidden;
+  border-color: transparent;
+  background: transparent;
+  color: var(--panel-text);
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: normal;
+}
+
+.gameNameSuggestion:hover,
+.gameNameSuggestion:focus-visible {
+  background: var(--black-faint);
+}
+
+.gameBoxartButton {
+  position: relative;
+  display: block;
+  width: 54px;
+  min-width: 54px;
+  height: var(--control-height);
+  min-height: var(--control-height);
+  padding: 2px;
+  overflow: visible;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  background: var(--panel-light);
+  cursor: pointer;
+}
+
+.gameBoxartButton::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(var(--radius-small) - 2px);
+  background:
+    linear-gradient(45deg, transparent 46%, var(--border-mid) 47%, var(--border-mid) 53%, transparent 54%),
+    linear-gradient(-45deg, transparent 46%, var(--border-mid) 47%, var(--border-mid) 53%, transparent 54%);
+  opacity: 0.45;
+}
+
+.gameBoxartButton.hasBoxart::before {
+  display: none;
+}
+
+.gameBoxartButton img:not(.gameBoxartPreview) {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.gameBoxartPreview {
+  position: absolute;
+  z-index: 60;
+  left: 0;
+  top: calc(100% + 8px);
+  width: min(220px, 40vw);
+  max-height: 300px;
+  object-fit: contain;
+  padding: 6px;
+  background: var(--panel-light);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  box-shadow: 0 8px 18px var(--black-shadow-soft);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.gameBoxartCarousel {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  width: 16px;
+  height: 22px;
+  min-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: var(--radius-small);
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--panel-text);
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1;
+}
+
+.gameBoxartCarousel:hover {
+  background: var(--panel-light);
+  color: var(--panel-text);
+}
+
+.gameBoxartCarousel-prev {
+  left: 2px;
+}
+
+.gameBoxartCarousel-next {
+  right: 2px;
+}
+
+.gameBoxartButton.hasBoxart:hover .gameBoxartPreview,
+.gameBoxartButton.hasBoxart:focus-visible .gameBoxartPreview {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.gameRecognitionField {
+  margin-bottom: var(--gap-md);
 }

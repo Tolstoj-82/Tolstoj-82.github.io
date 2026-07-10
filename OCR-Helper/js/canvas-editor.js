@@ -90,10 +90,22 @@ function drawRegionBoundaryLine(roi, key, neighborKey, x1, y1, x2, y2) {
   roiCtx.stroke();
 }
 
+function syncIdentifierSectionState() {
+  const screen = getActiveScreen();
+  const needsIdentifier = Boolean(screen && screen.identifiers.length === 0);
+
+  identifierSection.classList.toggle("lockedOpen", needsIdentifier);
+
+  if (needsIdentifier) {
+    identifierSection.open = true;
+  }
+}
+
 function renderIdentifierInfo() {
   const screen = getActiveScreen();
 
   identifierInfoContent.innerHTML = "";
+  syncIdentifierSectionState();
 
   if (!screen) {
     identifierInfoContent.textContent = "No screen selected";
@@ -106,12 +118,10 @@ function renderIdentifierInfo() {
 
   identifierInfo.style.setProperty("--identifier-screen-color", screen.color);
 
-  const allVisible =
-    screen.identifiers.length > 0 &&
-    screen.identifiers.every((identifier) => isIdentifierVisible(identifier));
+  const visibleEnough = screenMatchesByIdentifiers(screen);
 
-  identifierInfo.classList.toggle("valid", allVisible);
-  renderActiveScreenTitle(screen, allVisible);
+  identifierInfo.classList.toggle("valid", visibleEnough);
+  renderActiveScreenTitle(screen, visibleEnough);
 
   if (screen.identifiers.length === 0) {
     const empty = document.createElement("div");
@@ -186,11 +196,19 @@ function renderIdentifierInfo() {
   });
 }
 
-function renderActiveScreenTitle(screen, allVisible) {
+identifierSection.addEventListener("toggle", () => {
+  const screen = getActiveScreen();
+
+  if (screen && screen.identifiers.length === 0 && !identifierSection.open) {
+    identifierSection.open = true;
+  }
+});
+
+function renderActiveScreenTitle(screen, visibleEnough) {
   activeScreenTitle.innerHTML = `${screen.name} <span class="screenOk">${
-    allVisible ? "✓" : ""
+    visibleEnough ? "✓" : ""
   }</span>`;
-  activeScreenTitle.classList.toggle("valid", allVisible);
+  activeScreenTitle.classList.toggle("valid", visibleEnough);
 }
 
 function updateIdentifierInfoStatus() {
@@ -198,12 +216,10 @@ function updateIdentifierInfoStatus() {
 
   if (!screen) return;
 
-  const allVisible =
-    screen.identifiers.length > 0 &&
-    screen.identifiers.every((identifier) => isIdentifierVisible(identifier));
+  const visibleEnough = screenMatchesByIdentifiers(screen);
 
-  identifierInfo.classList.toggle("valid", allVisible);
-  renderActiveScreenTitle(screen, allVisible);
+  identifierInfo.classList.toggle("valid", visibleEnough);
+  renderActiveScreenTitle(screen, visibleEnough);
 
   identifierInfoContent
     .querySelectorAll(".identifierInfoItem")
@@ -224,6 +240,9 @@ function deleteIdentifierTile(screen, tileKey) {
       screen.identifiers = screen.identifiers.filter((identifier) => {
         return identifier.tile !== tileKey;
       });
+      if (Number(screen.identifierMatchCount) > screen.identifiers.length) {
+        screen.identifierMatchCount = "all";
+      }
 
       renderScreenList();
       updateScreenSetupTitle();
@@ -283,9 +302,10 @@ function addIdentifierTile(key) {
     tile: key,
     pixels: getTile(x, y),
   });
+  screen.identifierMatchCount ||= "all";
 
-  selectionMode = "roi";
-  identifierModeButton.textContent = "Add Identifier Tile";
+  stopIdentifierTileMode();
+  identifierSection.open = true;
 
   renderScreenList();
   updateScreenSetupTitle();
@@ -296,12 +316,46 @@ function addIdentifierTile(key) {
 
 const identifierModeButton = document.getElementById("identifierMode");
 
-identifierModeButton.onclick = () => {
+function setIdentifierModeButtonLabel(label) {
+  identifierModeButton.textContent = "+";
+  identifierModeButton.setAttribute("aria-label", label);
+}
+
+function stopIdentifierTileMode() {
+  window.clearTimeout(identifierModeTimer);
+  identifierModeTimer = null;
+  selectionMode = "roi";
+  setIdentifierModeButtonLabel("Add Identifier Tile");
+  identifierModeButton.classList.remove("identifierAwaiting");
+  drawROIOverlay();
+}
+
+function startIdentifierTileMode() {
+  window.clearTimeout(identifierModeTimer);
   showRegions = true;
   showRegionsToggle.checked = true;
   selectionMode = "identifier";
-  identifierModeButton.textContent = "Click a tile.";
+  setIdentifierModeButtonLabel("Click a tile");
+  identifierModeButton.classList.add("identifierAwaiting");
   drawROIOverlay();
+
+  identifierModeTimer = window.setTimeout(() => {
+    if (selectionMode === "identifier") {
+      stopIdentifierTileMode();
+    }
+  }, 10000);
+}
+
+identifierModeButton.onclick = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (selectionMode === "identifier") {
+    stopIdentifierTileMode();
+    return;
+  }
+
+  startIdentifierTileMode();
 };
 
 window.addEventListener("mouseup", () => {

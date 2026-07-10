@@ -56,9 +56,15 @@
               </div>
 
               <div class="topActionStack">
-                <button id="newProject" class="button-primary">+New Project</button>
-                <button id="importJSON" class="button-black">Import JSON(s)</button>
-                <button id="downloadJSON" class="button-black">Download JSON(s)</button>
+                <button id="newProject" class="button-primary">
+                  +Add Game
+                </button>
+                <button id="importJSON" class="button-black">
+                  Import JSON(s)
+                </button>
+                <button id="downloadJSON" class="button-black">
+                  Export JSON
+                </button>
               </div>
 
               <input
@@ -97,15 +103,15 @@
                   </div>
                 </section>
 
-                <section class="panelSection lutSection">
-                  <h3>LUT</h3>
+                <details class="panelSection lutSection">
+                  <summary>LUT</summary>
 
                   <div class="lutControls">
                     <select id="lutPaletteSelect"></select>
                   </div>
 
                   <div id="lutSwatches" class="lutSwatches"></div>
-                </section>
+                </details>
               </div>
 
               <div class="sideInfo">
@@ -121,12 +127,51 @@
                   <span>Show Regions</span>
                 </label>
 
-                <label class="autoDetectToggle">
-                  <input id="useOptimizedScanToggle" type="checkbox" />
-                  <span class="slider"></span>
-                  <span>Fast OCR</span>
-                </label>
-                <button id="snapshotToggle" type="button">Take Snapshot</button>
+                <div class="snapshotControls">
+                  <button id="snapshotToggle" type="button">
+                    Take Snapshot
+                  </button>
+                  <button
+                    id="snapshotLibraryButton"
+                    class="snapshotLibraryButton"
+                    type="button"
+                    title="Snapshots"
+                    aria-label="Snapshots"
+                    hidden
+                  >
+                    ▦
+                  </button>
+                </div>
+
+                <details class="panelSection ocrReliabilitySection">
+                  <summary>OCR Stability</summary>
+
+                  <label class="settingsField identifierMatchField">
+                    Ignore artefacts for (ms)
+                    <input
+                      id="screenGraceMs"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="off"
+                    />
+                  </label>
+
+                  <label class="settingsField identifierMatchField">
+                    <span>Retain value while unknown</span>
+                    <span class="autoDetectToggle settingsToggle">
+                      <input id="stallOcrOnUnknownTiles" type="checkbox" />
+                      <span class="slider"></span>
+                    </span>
+                  </label>
+
+                  <label class="settingsField identifierMatchField">
+                    <span>Fast OCR</span>
+                    <span class="autoDetectToggle settingsToggle">
+                      <input id="useOptimizedScanToggle" type="checkbox" />
+                      <span class="slider"></span>
+                    </span>
+                  </label>
+                </details>
 
                 <section class="panelSection liveOcrSection">
                   <div id="activeScreenTitle" class="activeScreenTitle">
@@ -134,11 +179,31 @@
                   </div>
 
                   <div id="roiReadout"></div>
+                </section>
+
+                <details
+                  id="identifierSection"
+                  class="panelSection identifierSection"
+                >
+                  <summary>
+                    <span>Identifiers</span>
+                    <button
+                      id="identifierMode"
+                      class="addActionButton"
+                      data-add-icon="+"
+                      aria-label="Add Identifier Tile"
+                    >
+                      +
+                    </button>
+                  </summary>
                   <div id="identifierInfo">
-                    <button id="identifierMode">Add Identifier Tile</button>
                     <div id="identifierInfoContent"></div>
                   </div>
-                </section>
+                  <label class="settingsField identifierMatchField">
+                    Identify at least:
+                    <select id="identifierMatchCount"></select>
+                  </label>
+                </details>
               </div>
             </div>
           </section>
@@ -146,24 +211,30 @@
           <section class="panel">
             <h2>Tiles</h2>
             <section class="panelSection">
-              <h3>Tile discoverer</h3>
-              <div class="buttonRow">
-                <button id="toggleCapture">▶</button>
+              <div class="sectionHeader">
+                <h3>Tile discoverer</h3>
+              </div>
+              <div class="buttonRow tileDiscovererControls">
+                <div class="captureControlGroup">
+                  <button id="toggleCapture">▶</button>
 
-                <span>
-                  Tiles found:
-                  <strong id="tileCount">0</strong>
-                </span>
+                  <span class="tileCountLabel">
+                    Tiles found:
+                    <strong id="tileCount">0</strong>
+                  </span>
+                </div>
 
-                <button id="uploadTileImage" type="button">
-                  Upload Tiles PNG
-                </button>
-                <input
-                  id="uploadTileImageFile"
-                  type="file"
-                  accept="image/png"
-                  style="display: none"
-                />
+                <div class="tileUploadGroup">
+                  <button id="uploadTileImage" type="button">
+                    Upload Tiles PNG
+                  </button>
+                  <input
+                    id="uploadTileImageFile"
+                    type="file"
+                    accept="image/png"
+                    style="display: none"
+                  />
+                </div>
 
                 <div id="tileDeleteZone">Drop tile here to delete</div>
 
@@ -172,6 +243,9 @@
                 </div>
               </div>
 
+              <div class="sectionHeader">
+                <h3>Discovered Tiles</h3>
+              </div>
               <div id="tilesContainer"></div>
               <button id="addTileset">+ Tileset</button>
             </section>
@@ -199,25 +273,73 @@
 
           <section class="panelSection">
             <h2>Game</h2>
-            <input id="gameName" type="text" placeholder="Game name..." />
+            <div class="gameNamePicker">
+              <div
+                id="gameBoxartButton"
+                class="gameBoxartButton"
+                role="button"
+                tabindex="0"
+                aria-label="Select boxart"
+              ></div>
+              <input
+                id="gameName"
+                type="text"
+                placeholder="Game name..."
+                autocomplete="off"
+              />
+              <div id="gameNameSuggestions" class="gameNameSuggestions" hidden></div>
+            </div>
+
+            <label class="settingsField gameRecognitionField">
+              Recognize game on screen
+              <select id="gameRecognitionScreen"></select>
+            </label>
+
             <button id="saveGameLocal">Save locally</button>
           </section>
 
           <section class="panelSection">
-            <h2>Screens</h2>
-            <button id="addScreen">+ Add Screen</button>
+            <div class="sectionHeader">
+              <h2>Screens</h2>
+              <button
+                id="addScreen"
+                class="addActionButton"
+                data-add-icon="+"
+                aria-label="Add Screen"
+              >
+                +
+              </button>
+            </div>
             <div id="screenList"></div>
           </section>
 
           <section class="panelSection">
             <h2 id="screenSetupTitle">Screen Setup</h2>
 
-            <h3>Regions</h3>
-            <button id="addROI">+ Add Region</button>
+            <div class="sectionHeader">
+              <h3>Regions</h3>
+              <button
+                id="addROI"
+                class="addActionButton"
+                data-add-icon="+"
+                aria-label="Add Region"
+              >
+                +
+              </button>
+            </div>
             <div id="roiList"></div>
 
-            <h3>Achievements</h3>
-            <button id="addAchievement">+ Add Achievement</button>
+            <div class="sectionHeader">
+              <h3>Achievements</h3>
+              <button
+                id="addAchievement"
+                class="addActionButton"
+                data-add-icon="+"
+                aria-label="Add Achievement"
+              >
+                +
+              </button>
+            </div>
             <div id="achievementList"></div>
           </section>
         </div>
@@ -311,13 +433,31 @@
     </div>
 
     <div id="tileSelectionBox" class="tileSelectionBox hidden"></div>
-    Version Beta 1.01
+    <div id="snapshotModalOverlay" class="modalOverlay hidden">
+      <div class="modalBox snapshotModalBox">
+        <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+        <button
+          id="closeSnapshotModal"
+          class="modalCloseButton"
+          type="button"
+          title="Close"
+        >
+          ×
+        </button>
+
+        <h2>Snapshots</h2>
+        <div id="snapshotList" class="snapshotList"></div>
+      </div>
+    </div>
+    Version Beta 1.2
     <script defer src="js/LUT.js"></script>
     <script defer src="js/constants.js"></script>
     <script defer src="js/elements.js"></script>
     <script defer src="js/modal.js"></script>
     <script defer src="js/model.js"></script>
     <script defer src="js/utils.js"></script>
+    <script defer src="js/boxart-list.js"></script>
+    <script defer src="js/game-metadata.js"></script>
     <script defer src="js/live-ocr.js"></script>
     <script defer src="js/screens.js"></script>
     <script defer src="js/workflow.js"></script>

@@ -16,6 +16,11 @@ function getCurrentProjectData() {
     exportVersion: PROJECT_EXPORT_VERSION,
     exportedAt: new Date().toISOString(),
     game: game.name,
+    boxartImage: game.boxartImage || "",
+    boxartImages: Array.isArray(game.boxartImages) ? game.boxartImages : [],
+    demoDetector: game.demoDetector || {},
+    recognitionScreen: game.recognitionScreen || "",
+    settings: normalizeGameSettings(game.settings),
 
     tilesets: tilesets.map((tileset) => ({
       name: tileset.name,
@@ -26,6 +31,8 @@ function getCurrentProjectData() {
 
     screens: game.screens.map((screen) => ({
       name: screen.name,
+      identifierMatchCount: screen.identifierMatchCount || "all",
+      demoDetector: screen.demoDetector || {},
 
       identifiers: screen.identifiers.map((id) => ({
         tile: id.tile,
@@ -46,6 +53,7 @@ function getCurrentProjectData() {
         message: achievement.message,
         tier: normalizeAchievementTier(achievement.tier),
         resetScreens: normalizeAchievementResetScreens(achievement),
+        enabled: achievement.enabled !== false,
       })),
     })),
   };
@@ -61,6 +69,23 @@ function stringifyProjectData(data) {
   );
 
   return json;
+}
+
+function normalizeImportedDemoDetector(value = {}) {
+  const metric = String(value.metric || value.demoMetric || "");
+  const sequence = Array.isArray(value.sequence || value.demoSequence)
+    ? (value.sequence || value.demoSequence).join(", ")
+    : String(value.sequence || value.demoSequence || "");
+  const startValue = String(value.startValue || value.demoStartValue || "");
+  const created = value.created === true || value.demoDetectorCreated === true;
+
+  return {
+    created,
+    enabled: created || Boolean(metric && sequence),
+    metric,
+    sequence,
+    startValue,
+  };
 }
 
 function getSafeFileName(name) {
@@ -293,7 +318,7 @@ document.getElementById("downloadJSON").onclick = () => {
   updateJSONOutput();
 
   const savedGames = typeof getSavedGames === "function" ? getSavedGames() : {};
-  const entries = Object.entries(savedGames);
+  const entries = getExportableGameEntries(savedGames);
 
   if (entries.length > 0) {
     showSavedGameDownloadDialog(entries);
@@ -301,37 +326,88 @@ document.getElementById("downloadJSON").onclick = () => {
   }
 
   if (game.screens.length > 0) {
-    downloadProjectFile(getCurrentProjectData(), game.name);
+    const currentData = getCurrentProjectData();
+
+    saveCurrentProjectBeforeExport(savedGames, currentData);
+    downloadProjectFile(currentData, game.name);
   }
 };
+
+function getExportableGameEntries(savedGames) {
+  const entries = Object.entries(savedGames);
+  const currentName = game.name.trim();
+
+  if (!currentName || game.screens.length === 0 || !hasUnsavedLocalChanges()) {
+    return entries;
+  }
+
+  const currentData = getCurrentProjectData();
+  const existingIndex = entries.findIndex(([name]) => name === currentName);
+
+  if (existingIndex >= 0) {
+    entries[existingIndex] = [currentName, currentData];
+  } else {
+    entries.push([currentName, currentData]);
+  }
+
+  return entries;
+}
+
+function saveCurrentProjectBeforeExport(savedGames, currentData = null) {
+  const name = game.name.trim();
+
+  if (!name || game.screens.length === 0 || !hasUnsavedLocalChanges()) {
+    return false;
+  }
+
+  savedGames[name] = currentData || getCurrentProjectData();
+  setSavedGames(savedGames);
+  renderSavedGameList();
+  selectedSavedGameName = name;
+
+  if (typeof markLocalSaveClean === "function") {
+    markLocalSaveClean(name);
+  }
+
+  updateStorageButtons();
+  return true;
+}
 
 function showSavedGameDownloadDialog(entries) {
   const sortedEntries = entries.sort(([a], [b]) => a.localeCompare(b));
   const savedNames = new Set(sortedEntries.map(([name]) => name));
   const initialSelection =
-    !isCurrentProjectEmpty() && savedNames.has(selectedSavedGameName)
-      ? [selectedSavedGameName]
+    !isCurrentProjectEmpty() && savedNames.has(game.name.trim() || selectedSavedGameName)
+      ? [game.name.trim() || selectedSavedGameName]
       : null;
 
   showCheckboxList(
-    "Download saved game JSONs",
+    "Export saved game JSONs",
     sortedEntries.map(([name]) => ({
       value: name,
       label: name,
     })),
     (selectedNames) => {
       const selected = new Set(selectedNames);
+      const selectedCurrentProject = selected.has(game.name.trim());
+      const savedGames = typeof getSavedGames === "function" ? getSavedGames() : {};
+
+      if (selectedCurrentProject) {
+        saveCurrentProjectBeforeExport(savedGames);
+      }
 
       sortedEntries
         .filter(([name]) => selected.has(name))
         .forEach(([name, data], index) => {
+          const exportData = name === game.name.trim() ? getCurrentProjectData() : data;
+
           window.setTimeout(() => {
-            downloadProjectFile(data, name);
+            downloadProjectFile(exportData, name);
           }, index * 100);
         });
     },
     null,
-    "Download",
+    "Export",
     "Cancel",
     initialSelection,
   );
@@ -490,7 +566,15 @@ async function importMultipleProjects(files) {
 
 function applyImportedProject(data) {
   game.name = data.game || "";
-  document.getElementById("gameName").value = game.name;
+  game.boxartImage = String(data.boxartImage || "");
+  game.boxartImages = Array.isArray(data.boxartImages)
+    ? data.boxartImages.map((item) => String(item || "")).filter(Boolean)
+    : game.boxartImage
+      ? [game.boxartImage]
+      : [];
+  game.demoDetector = normalizeImportedDemoDetector(data.demoDetector);
+  game.recognitionScreen = String(data.recognitionScreen || "");
+  game.settings = normalizeGameSettings(data.settings);
 
   tilesets = data.tilesets.map((tileset, index) => ({
     id: Date.now() + index,
@@ -513,6 +597,12 @@ function applyImportedProject(data) {
     id: Date.now() + 1000 + screenIndex,
     name: screen.name || `Screen ${screenIndex + 1}`,
     color: screenColors[screenIndex % screenColors.length],
+    identifierMatchCount:
+      screen.identifierMatchCount === "all" ||
+      Number.isFinite(Number(screen.identifierMatchCount))
+        ? screen.identifierMatchCount
+        : "all",
+    demoDetector: normalizeImportedDemoDetector(screen.demoDetector),
 
     identifiers: Array.isArray(screen.identifiers)
       ? screen.identifiers.map((identifier) => ({
@@ -534,9 +624,14 @@ function applyImportedProject(data) {
     achievements: normalizeImportedAchievements(screen.achievements),
   }));
 
+  if (!game.screens.some((screen) => screen.name === game.recognitionScreen)) {
+    game.recognitionScreen = "";
+  }
+
   clearMissingAchievementLifecycleScreens();
 
   activeScreenId = game.screens[0]?.id || null;
+  activeScreenLastVisibleAt = 0;
   activeROI = game.screens[0]?.rois[0]?.id || null;
 
   uniqueTiles.clear();
@@ -545,6 +640,7 @@ function applyImportedProject(data) {
   resetAchievementRuntime({ clearQueue: true });
 
   renderScreenList();
+  updateGameMetadataControls();
   updateScreenSetupTitle();
   renderROIList();
   renderAchievementList();

@@ -160,10 +160,16 @@
   color: var(--shade-white);
 }
 
-#addROI,
-#addScreen,
+#addScreen {
+  --add-action-expanded-width: 148px;
+}
+
+#addROI {
+  --add-action-expanded-width: 148px;
+}
+
 #addAchievement {
-  margin-bottom: var(--gap-xl);
+  --add-action-expanded-width: 190px;
 }
 
 #achievementList {

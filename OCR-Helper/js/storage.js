@@ -202,6 +202,15 @@ newProjectButton.onclick = () => {
 function clearCurrentProject() {
   game = {
     name: "",
+    boxartImage: "",
+    boxartImages: [],
+    demoDetector: {
+      metric: "",
+      sequence: "",
+      startValue: "",
+    },
+    recognitionScreen: "",
+    settings: normalizeGameSettings(),
     screens: [],
   };
 
@@ -212,10 +221,11 @@ function clearCurrentProject() {
   resetAchievementRuntime({ clearQueue: true });
 
   activeScreenId = null;
+  activeScreenLastVisibleAt = 0;
   activeROI = null;
   selectionMode = "roi";
 
-  document.getElementById("gameName").value = "";
+  updateGameMetadataControls();
 
   selectedSavedGameName = "";
   localSaveCleanName = "";

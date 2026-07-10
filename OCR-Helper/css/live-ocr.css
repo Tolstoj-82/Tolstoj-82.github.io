@@ -15,12 +15,110 @@
   justify-self: start;
   display: flex;
   flex-direction: column;
-  gap: var(--gap-md);
+  gap: var(--gap-lg);
   width: 100%;
+}
+
+.sideInfo .panelSection + .panelSection {
+  margin-top: 0;
+}
+
+.snapshotControls {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+.snapshotLibraryButton {
+  width: var(--control-height);
+  min-width: var(--control-height);
+  padding: 0;
+  border-color: var(--accent-orange);
+  color: var(--accent-orange-text);
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.snapshotLibraryButton:hover:not(:disabled) {
+  background: var(--accent-orange);
+  border-color: var(--accent-orange);
+  color: var(--shade-white);
 }
 
 .liveOcrSection {
   width: 100%;
+}
+
+.lutSection,
+.ocrReliabilitySection,
+.identifierSection {
+  width: 100%;
+}
+
+.lutSection summary,
+.ocrReliabilitySection summary,
+.identifierSection summary {
+  cursor: pointer;
+  font-weight: bold;
+  list-style: none;
+}
+
+.lutSection summary::before,
+.ocrReliabilitySection summary::before,
+.identifierSection summary::before {
+  content: "▸";
+  display: inline-block;
+  width: 16px;
+  transition: transform 0.15s ease;
+}
+
+.lutSection[open] summary::before,
+.ocrReliabilitySection[open] summary::before,
+.identifierSection[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.lutSection summary::-webkit-details-marker,
+.ocrReliabilitySection summary::-webkit-details-marker,
+.identifierSection summary::-webkit-details-marker {
+  display: none;
+}
+
+.identifierSection summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+}
+
+.identifierSection summary::before {
+  flex: 0 0 16px;
+}
+
+.identifierSection summary > span {
+  flex: 1;
+}
+
+.identifierSection.lockedOpen summary {
+  cursor: default;
+}
+
+.identifierSection.lockedOpen summary::before {
+  opacity: 0.35;
+}
+
+.lutSection[open] summary,
+.ocrReliabilitySection[open] summary,
+.identifierSection[open] summary {
+  margin-bottom: var(--gap-lg);
+}
+
+.identifierMatchField {
+  gap: 4px;
+  margin-top: var(--gap-md);
+  margin-bottom: 0;
+  font-size: 12px;
 }
 
 .activeScreenTitle {
@@ -34,6 +132,10 @@
 
 .activeScreenTitle.valid {
   color: var(--border-calibrated);
+}
+
+.identifierHeader {
+  margin-bottom: var(--gap-xl);
 }
 
 #identifierInfo {
@@ -61,7 +163,6 @@
 }
 
 #identifierMode {
-  width: 100%;
   border-color: var(--identifier-screen-color, var(--accent-blue));
   color: var(--identifier-screen-color, var(--accent-blue));
   background: var(--panel-light);
@@ -71,6 +172,27 @@
   background: var(--identifier-screen-color, var(--accent-blue));
   border-color: var(--identifier-screen-color, var(--accent-blue));
   color: var(--shade-white);
+}
+
+#identifierMode.needsAction:not(.identifierAwaiting) {
+  animation: needsActionPulse 1.4s ease-in-out infinite;
+  background: var(--panel-light);
+  border-color: var(--accent-orange);
+  color: var(--accent-orange-text);
+}
+
+#identifierMode.needsAction:not(.identifierAwaiting):hover:not(:disabled) {
+  background: var(--accent-orange);
+  border-color: var(--accent-orange);
+  color: var(--shade-white);
+}
+
+#identifierMode.identifierAwaiting,
+#identifierMode.identifierAwaiting:hover:not(:disabled) {
+  background: var(--accent-orange);
+  border-color: var(--accent-orange);
+  color: var(--shade-white);
+  box-shadow: 0 0 0 3px var(--yellow-glow);
 }
 
 #identifierInfoContent {
@@ -152,6 +274,11 @@
   margin-bottom: var(--gap-sm);
 }
 
+.roiReadoutValueStalled {
+  color: var(--accent-orange-text);
+  font-weight: bold;
+}
+
 .roiReadoutWarning {
   color: var(--text-red);
   font-weight: bold;
@@ -183,7 +310,9 @@
 .autoDetectToggle .slider {
   position: relative;
 
+  flex: 0 0 46px;
   width: 46px;
+  min-width: 46px;
   height: 24px;
 
   background: var(--shade-light);

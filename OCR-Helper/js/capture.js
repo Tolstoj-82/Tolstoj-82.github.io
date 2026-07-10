@@ -34,13 +34,109 @@ snapshotToggle.onclick = () => {
     processFrame(frame);
   }
 
-  snapshotPaused = !snapshotPaused;
+  if (snapshotPaused) {
+    if (!snapshotFrameRestored) {
+      storeCurrentSnapshot();
+    }
+    snapshotPaused = false;
+    snapshotFrameData = null;
+    snapshotFrameRestored = false;
+  } else {
+    snapshotPaused = true;
+    snapshotFrameData = captureCurrentSnapshotFrame();
+    snapshotFrameRestored = false;
+  }
+
   updateSnapshotUI();
+};
+
+snapshotLibraryButton.onclick = () => {
+  renderSnapshotList();
+  snapshotModalOverlay.classList.remove("hidden");
+};
+
+closeSnapshotModalButton.onclick = () => {
+  snapshotModalOverlay.classList.add("hidden");
+};
+
+snapshotModalOverlay.onclick = (e) => {
+  if (e.target === snapshotModalOverlay) {
+    snapshotModalOverlay.classList.add("hidden");
+  }
 };
 
 function updateSnapshotUI() {
   snapshotToggle.textContent = snapshotPaused ? "Resume Live" : "Take Snapshot";
   canvasContainer.classList.toggle("snapshotPaused", snapshotPaused);
+  snapshotLibraryButton.hidden = snapshots.length === 0;
+}
+
+function captureCurrentSnapshotFrame() {
+  return {
+    imageData: ctx.getImageData(0, 0, WIDTH, HEIGHT),
+    quantized: quantized.slice(),
+    createdAt: Date.now(),
+  };
+}
+
+function storeCurrentSnapshot() {
+  if (!snapshotFrameData) return;
+
+  snapshots.unshift(snapshotFrameData);
+  snapshots = snapshots.slice(0, 10);
+  renderSnapshotList();
+}
+
+function restoreSnapshot(snapshot) {
+  snapshotPaused = true;
+  snapshotFrameRestored = true;
+  snapshotFrameData = {
+    imageData: new ImageData(
+      new Uint8ClampedArray(snapshot.imageData.data),
+      snapshot.imageData.width,
+      snapshot.imageData.height,
+    ),
+    quantized: snapshot.quantized.slice(),
+    createdAt: snapshot.createdAt,
+  };
+  quantized = snapshot.quantized.slice();
+  ctx.putImageData(snapshot.imageData, 0, 0);
+  drawROIOverlay();
+  renderROIReadout();
+  updateSnapshotUI();
+  snapshotModalOverlay.classList.add("hidden");
+}
+
+function renderSnapshotList() {
+  snapshotList.replaceChildren();
+
+  if (snapshots.length === 0) {
+    const empty = document.createElement("div");
+
+    empty.className = "snapshotEmpty";
+    empty.textContent = "No snapshots yet";
+    snapshotList.appendChild(empty);
+    return;
+  }
+
+  snapshots.forEach((snapshot, index) => {
+    const button = document.createElement("button");
+    const preview = document.createElement("canvas");
+    const label = document.createElement("span");
+    const previewCtx = preview.getContext("2d");
+
+    button.type = "button";
+    button.className = "snapshotItem";
+    preview.width = WIDTH;
+    preview.height = HEIGHT;
+    previewCtx.putImageData(snapshot.imageData, 0, 0);
+    label.textContent = `Snapshot ${index + 1}`;
+
+    button.onclick = () => restoreSnapshot(snapshot);
+
+    button.append(preview, label);
+    snapshotList.appendChild(button);
+  });
 }
 
 function updateCaptureUI() {

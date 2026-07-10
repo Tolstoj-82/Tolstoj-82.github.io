@@ -30,6 +30,17 @@ function cleanCameraLabel(label, index) {
   );
 }
 
+function waitForCameraRelease(ms = 250) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function isCameraAllocationError(err) {
+  return (
+    err?.name === "NotReadableError" ||
+    /allocate|videosource|in use/i.test(err?.message || "")
+  );
+}
+
 async function loadCameras() {
   try {
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -83,15 +94,25 @@ async function startCamera() {
 
   if (stream) {
     stream.getTracks().forEach((track) => track.stop());
+    video.srcObject = null;
   }
 
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
+    const constraints = {
       video: {
         deviceId: { exact: cameraSelect.value },
       },
       audio: false,
-    });
+    };
+
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (err) {
+      if (!isCameraAllocationError(err)) throw err;
+
+      await waitForCameraRelease();
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+    }
 
     video.srcObject = stream;
 

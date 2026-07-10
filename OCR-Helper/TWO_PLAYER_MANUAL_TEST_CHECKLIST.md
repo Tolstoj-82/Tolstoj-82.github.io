@@ -3,18 +3,39 @@
 ## Project/game setup
 
 - [ ] Header hides into the top edge and opens on hover.
-- [ ] Header stays open while interacting with controls and closes after clicking outside.
-- [ ] Saved games from the same local storage as index.html appear in the game dropdown.
-- [ ] Game dropdown visually matches the custom dropdown style and closes when the header closes.
-- [ ] Delete game x is only visible in the open game dropdown list.
-- [ ] Deleting the selected game clears the loaded game state cleanly.
+- [ ] Saved games from the same local storage as index.html appear in the single Game dropdown.
+- [ ] There is only one Game dropdown in the header.
 - [ ] Import JSON adds valid game settings to local storage.
+- [ ] Top header first row is Game, Active Leaderboard, Game Settings, Import JSON.
+- [ ] Top header second row contains Player Names, High Score Data, Show available Achievements, and the info button.
+- [ ] Info button is pinned in the top-right corner of the header.
 - [ ] Imported games appear immediately in the game dropdown.
 - [ ] Selecting a game loads it for both players.
+- [ ] Active Leaderboard dropdown shows the selected game's high-score tracking settings.
+- [ ] Selecting an Active Leaderboard chooses the Screen/Metric combination for the current session.
+- [ ] Selected Active Leaderboard persists after reload.
+- [ ] Active Leaderboard falls back safely when the saved setting no longer exists.
+- [ ] Game Settings button opens the game-settings modal.
+- [ ] Game Settings modal can add a new Screen/Metric tracking setting.
+- [ ] Game Settings groups all Screen/Metric settings by screen section.
+- [ ] Game Settings can edit screen, metric, label, min leaderboard score, track-until screens, fireworks screens, and demo detector.
+- [ ] Screen/Metric setting name is generated as Screen -> Metric and is read-only.
+- [ ] Game Settings modal can delete a setting while keeping at least one setting.
+- [ ] Deleting a setting asks for confirmation.
+- [ ] Game Settings modal can export settings for the selected game.
+- [ ] Game Settings modal can import settings for the selected game.
+- [ ] Importing settings for another game shows an error.
 - [ ] High score panel title shows only the loaded game name in uppercase.
-- [ ] Missing setup text appears only while game/cameras/calibration are missing.
-- [ ] Fast OCR toggle uses the same visual toggle style as index.html.
-- [ ] Fast OCR on/off changes OCR behavior without breaking screen detection.
+- [ ] High score panel subtitle shows the active leaderboard in brackets, e.g. "(A-Type -> Score)".
+- [ ] Setup checklist appears inside each player's settings accordion.
+- [ ] Game-level Fast OCR setting uses the same visual toggle style as index.html.
+- [ ] Game-level Fast OCR on/off changes OCR behavior without breaking screen detection.
+- [ ] Player Names button opens the Player Names modal.
+- [ ] Player Names modal has Import Names and Export Names above the Name/Add row.
+- [ ] Player Names modal can import a plain name array or exported name-data JSON.
+- [ ] Player Names modal exports name data as player-names.json.
+- [ ] Use name list toggle is inside the Player Names modal.
+- [ ] Button text in the top header and Player Names modal does not wrap.
 
 ## Cameras/calibration/LUT
 
@@ -23,12 +44,17 @@
 - [ ] The same camera cannot be selected for both players.
 - [ ] Camera choice persists after reload.
 - [ ] LUT choice persists per player after reload.
+- [ ] LUT color squares are visible for each player.
+- [ ] LUT color squares open a color picker.
+- [ ] Custom LUT colors persist per player after reload.
 - [ ] Calibration persists per player after reload.
 - [ ] Calibration works independently for both players.
 - [ ] A lost camera/video signal attempts to recover automatically.
 - [ ] Replugging a cable resumes the video feed without manual reload.
 - [ ] Cable-loss overlay appears on top of the canvas with the red message.
 - [ ] Startup/offline interceptor screens show the correct overlay and clear when normal gameplay returns.
+- [ ] Startup interceptor screen changes to restart-required message after 10 seconds.
+- [ ] Interceptor overlays do not show the old red x badge.
 
 ## Layout/responsiveness
 
@@ -44,14 +70,26 @@
 - [ ] Settings accordion opens upward and closes when clicking outside.
 - [ ] Accordion trigger does not exceed the panel width.
 - [ ] Accordion content scrolls internally if needed.
+- [ ] Player name input is inside each settings accordion.
+- [ ] Player names default to Player 1 and Player 2.
+- [ ] Changing player name updates the player title and future score entries.
+- [ ] Player names persist after reload.
 - [ ] Achievement toast area above each canvas has enough headroom.
 
 ## Screen/OCR behavior
 
 - [ ] Active screen name appears on the white player panel, not on the canvas.
 - [ ] OCR reads all regions needed for the selected game.
-- [ ] Scores are only tracked while the recognized screen is A-Type.
-- [ ] Leaving A-Type ends the current run.
+- [ ] Scores are tracked from the active leaderboard screen/metric.
+- [ ] If Track until screens are configured, score tracking continues through intermediate screens until one of those screens appears.
+- [ ] Reaching a Track until screen finalizes the current score and resets tracking.
+- [ ] Interceptor screens before Track until finalize the current score as interrupted and do not leave an active score behind.
+- [ ] Changing the active leaderboard resets in-progress scoring runs cleanly.
+- [ ] Screen detection respects required identifier counts from the exported game JSON.
+- [ ] OCR value retention on unknown tiles is respected from the exported game JSON.
+- [ ] Short screen-detection artefacts are bridged using the exported game grace setting.
+- [ ] A fully recognized lower OCR value replaces a previously misread higher value.
+- [ ] Duplicate score entries are blocked when the same finalized score is seen again after interceptor/offline screens.
 - [ ] Numbers are formatted with commas, e.g. 12,345 and 1,234,567.
 - [ ] Current Rank panel appears only when there is rank content.
 - [ ] Current Rank panel says "Current Rank: #n".
@@ -59,11 +97,21 @@
 - [ ] Current Rank panel updates when the player rank changes.
 - [ ] Rank-change animation is obvious but does not change panel height or position.
 - [ ] Top 3 current rank styling uses the podium appearance only when appropriate.
+- [ ] Fireworks trigger only for screens selected in the active leaderboard's Fireworks multiselect.
+- [ ] Fireworks overlay is transparent and does not hide the game screen.
+- [ ] Game recognition starts after interceptor screens clear, not while they are active.
+- [ ] If no game is recognized within the recognition window, the previous selected game is restored and the user is told to select manually.
 
 ## Achievements
 
 - [ ] Achievements button opens a modal listing achievements from the loaded game JSON.
 - [ ] Modal clearly shows achievement conditions, tiers, and messages.
+- [ ] Each achievement in the modal has an Active checkbox.
+- [ ] Disabling an achievement mutes it visually in the modal.
+- [ ] Disabled achievements do not trigger toasts for either player.
+- [ ] Re-enabling an achievement allows it to trigger again after the normal baseline/reset logic.
+- [ ] Achievement enabled/disabled state persists in local storage.
+- [ ] Achievement enabled/disabled state exports/imports with the game JSON.
 - [ ] Each player has an independent achievement toast area above their screen.
 - [ ] Player 1 and Player 2 achievement state is tracked separately.
 - [ ] Achievements use the same trigger/baseline logic as index.html.
@@ -101,31 +149,47 @@
 
 ## Demo handling
 
-- [ ] Demo detection follows the sequence 0, 1, 6, 14, 17, 21, 28, 33, 34, 38, 42, 48, 12048.
-- [ ] Demo label appears after 28 is reached.
+- [ ] Demo detector can be configured globally, per screen, and per Screen/Metric setting.
+- [ ] Demo detector controls are created only after pressing + Demo detector.
+- [ ] Empty demo detector can be removed immediately without confirmation.
+- [ ] Non-empty demo detector asks for confirmation before removal.
+- [ ] Demo detector sequence input has no placeholder; example sequence appears in the label.
+- [ ] Demo detector Label-as-Demo control has no placeholder.
+- [ ] Demo detection follows the configured sequence.
+- [ ] Demo label appears only after the configured "Label as Demo from" value is reached.
 - [ ] Demo box is visually fainter than real score boxes.
-- [ ] Demo disappears when it reaches 12048.
-- [ ] A real score of 12048 can still be tracked once if it did not follow the demo sequence.
-- [ ] Scores above 12048 are kept if they are not a completed demo.
+- [ ] Demo box is discarded when the configured sequence completes.
+- [ ] A real score equal to the final configured demo value can still be tracked once if it did not follow the demo sequence.
+- [ ] Scores above the final configured demo value are kept if they are not a completed demo.
+
+## Game modules
+
+- [ ] Game Settings Screen/Metric accordion shows the module + button inside the accordion content on the right.
+- [ ] Module + opens matching module choices.
+- [ ] Module choices close when clicking outside without selecting a module.
+- [ ] Module + uses the shared black tooltip style without an arrowhead.
+- [ ] Adding a module creates a module accordion inside the Screen/Metric setting.
+- [ ] Module accordion starts open when newly added.
+- [ ] Only one module accordion is open at a time.
+- [ ] Module config dropdowns autofill when matching ROI names exist.
+- [ ] Already selected ROI values disappear from sibling ROI dropdowns.
+- [ ] Complete module config clears the incomplete red border.
+- [ ] Detaching a module asks for confirmation.
+- [ ] The same module can be added independently to multiple Screen/Metric settings.
+- [ ] Tetris A-Type leaderboard-name module reads the name from the matching scoreboard row.
+- [ ] If the scoreboard/rocket/offline sequence interrupts module name listening, the same score is not added again with the assigned fallback name.
 
 ## Name entry
 
-- [ ] Every finalized score of 10 or more offers name entry, not only top 20.
-- [ ] Name entry panel is below the correct player's canvas and inside the visible viewport.
-- [ ] Name entry panel is prominent and green-toned.
-- [ ] Panel says "Schreib deinen Namen".
-- [ ] Input is fully inside the panel and does not overlap.
-- [ ] Placeholder says "Benutze das Keyboard...".
-- [ ] Initial timer is 30 seconds before user action.
-- [ ] Timer is prominent and animates once per second.
-- [ ] Timer hides after the player starts typing.
-- [ ] After the last typed character, idle timeout is 10 seconds.
-- [ ] Pressing Enter saves the name immediately.
-- [ ] Name entry accepts letters, numbers, spaces, and special characters.
+- [ ] Player can use static accordion names or the random name list.
+- [ ] Random name list avoids repeats where possible.
+- [ ] Assigned fallback name is used when no module scoreboard name is read.
+- [ ] Tetris A-Type module overwrites the fallback name in real time when the matching scoreboard name appears.
+- [ ] Scoreboard-name listening survives Rocket screen before the scoreboard.
+- [ ] Turning the Game Boy off while module name listening is pending must not add the same score again with the assigned fallback name.
 - [ ] Name is limited to 12 characters.
-- [ ] Player 1 and Player 2 names are uppercase in the ranked list if unchanged.
-- [ ] Two simultaneous name entries can be queued/handled without blocking gameplay.
-- [ ] A player can start a new run while their previous name entry is still open.
+- [ ] Custom player names appear in new ranked score entries when static names are used.
+- [ ] Two simultaneous module name entries can be queued/handled without blocking gameplay.
 
 ## Daily/all-time storage
 
@@ -134,20 +198,27 @@
 - [ ] All-time top 20 persists in local storage.
 - [ ] Daily data is game-specific; scores from other games do not mix in.
 - [ ] All-time data is game-specific; scores from other games do not mix in.
-- [ ] Days button opens the days modal.
-- [ ] Days modal has a stable tall height and does not jump while accordions open.
-- [ ] Days modal has an internal vertical scrollbar when content is long.
+- [ ] Local storage score data for unknown/deleted games is cleaned up.
+- [ ] High Score Data button opens the high-score data modal.
+- [ ] High-score data modal has its own Game dropdown.
+- [ ] High-score data Game dropdown can inspect a game other than the currently loaded game.
+- [ ] High-score data modal has a stable tall height and does not jump while accordions open.
+- [ ] High-score data modal has an internal vertical scrollbar when content is long.
 - [ ] Each day accordion lists rank numbers.
 - [ ] Day accordion headers show arrows.
 - [ ] Day entries do not repeat the game name in the middle.
 - [ ] Names can be edited inside day entries without closing the accordion.
 - [ ] Individual day entries can be deleted.
+- [ ] Multiple day/all-time entries can be selected with checkboxes.
+- [ ] Delete Selected asks for confirmation and removes all selected entries.
+- [ ] Delete Selected does nothing and shows a message when no entries are selected.
 - [ ] Whole day/game data can be deleted after confirmation.
 - [ ] All Time Top 20 appears as an accordion in a distinct style.
 - [ ] All-time entries can be edited and deleted.
 - [ ] Export Days Data downloads only the selected game's day/all-time data.
 - [ ] Import Days Data accepts an exported day-data JSON.
 - [ ] Import Days Data accepts multiple files.
+- [ ] Import Days Data rejects data for unknown games.
 - [ ] Imported day entries merge with existing days instead of clearing unrelated games.
 - [ ] Imported duplicate score keys overwrite the matching score.
 - [ ] Importing today's data refreshes the leaderboard without interrupting an active run.

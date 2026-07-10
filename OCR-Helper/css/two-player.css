@@ -29,11 +29,9 @@ body {
   top: 0;
   left: var(--gap-md);
   right: var(--gap-md);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
+  display: grid;
   gap: var(--gap-md);
-  padding: var(--gap-md);
+  padding: var(--gap-md) calc(var(--gap-md) + var(--control-height) + var(--gap-sm)) var(--gap-md) var(--gap-md);
   background: var(--bg-panel-dark);
   color: var(--panel-text);
   border: 2px solid var(--border-panel);
@@ -44,7 +42,29 @@ body {
   transition: transform 0.22s ease;
 }
 
+.topGameSetup button,
+.namePoolToolbar button {
+  white-space: nowrap;
+}
+
+.topSetupRow {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  min-width: 0;
+}
+
+.topSetupPrimaryRow {
+  flex-wrap: nowrap;
+}
+
+.topSetupSecondaryRow {
+  flex-wrap: wrap;
+}
+
 .topGameSetup.open,
+.topGameSetup:hover,
 .topGameSetup:focus-within {
   transform: translateY(0);
 }
@@ -67,111 +87,36 @@ body {
   min-width: min(280px, 100%);
 }
 
-.gameSelectLabel {
-  position: relative;
-}
-
-.gameSelectWrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  width: 100%;
-}
-
-.nativeGameSelect {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.gameSelectButton {
-  width: 100%;
-  justify-content: space-between;
-  background: var(--panel-light);
-  border-color: var(--border-mid);
-  color: var(--panel-text);
-  font-weight: normal;
-}
-
-.gameSelectButton::after {
-  content: "▾";
-  font-size: 11px;
-}
-
-.gameSelectList {
-  position: absolute;
-  z-index: 70;
-  left: 0;
-  right: 0;
-  top: calc(100% + 3px);
-  max-height: min(42vh, 320px);
-  overflow-y: auto;
-  padding: 4px 0;
-  background: var(--panel-light);
-  border: 1px solid var(--border-mid);
-  border-radius: var(--radius-small);
-  box-shadow: 0 10px 22px var(--black-shadow-soft);
-}
-
-.gameSelectList[hidden] {
-  display: none;
-}
-
-.gameSelectOption {
-  width: 100%;
-  min-height: 30px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 24px;
-  align-items: center;
-  gap: var(--gap-sm);
-  padding: 4px 7px 4px 9px;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  color: var(--panel-text);
-  font-weight: normal;
-  text-align: left;
-  box-shadow: none;
-}
-
-.gameSelectOption:hover {
-  background: rgba(0, 0, 0, 0.055);
-  border-color: transparent;
-  color: var(--panel-text);
-  transform: none;
-}
-
-.gameSelectOption.selected {
-  background: rgba(0, 0, 0, 0.035);
-  color: var(--panel-text);
-}
-
-.gameSelectOption span:first-child {
+.topSetupGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--gap-md);
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.topSetupPrimaryRow .topSetupGroup {
+  flex-wrap: nowrap;
+}
+
+.topGameSetup .topConfigLabel {
+  display: grid;
+  gap: var(--gap-sm);
+  min-width: min(190px, 100%);
+}
+
+.topConfigSelect {
+  min-width: 160px;
+}
+
+.topSetupVersion {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: bold;
   white-space: nowrap;
 }
 
-.gameSelectDelete {
-  width: 22px;
-  height: 22px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  color: var(--text-red);
-  font-size: 18px;
-  line-height: 1;
-}
-
-.gameSelectDelete:hover {
-  background: rgba(196, 0, 0, 0.12);
-  color: var(--text-red);
-}
-
-.topGameSetup .topToggle {
+.topToggle {
   min-width: auto;
   display: inline-flex;
   align-items: center;
@@ -181,6 +126,10 @@ body {
   cursor: pointer;
   user-select: none;
   font-weight: normal;
+}
+
+.nameSourceToggle {
+  align-self: center;
 }
 
 .topToggle input {
@@ -214,10 +163,6 @@ body {
 
 .topToggle input:checked + .slider::before {
   transform: translateX(22px);
-}
-
-.topGameSetup .buttonRow {
-  margin-bottom: 0;
 }
 
 .playerPanel,
@@ -287,7 +232,7 @@ body {
     linear-gradient(rgba(196, 0, 0, 0.14), rgba(196, 0, 0, 0.14)),
     var(--panel-light);
   border-width: 4px;
-  border-color: var(--text-red);
+  border-color: transparent;
 }
 
 .playerPanel[data-player="1"] h1 {
@@ -402,12 +347,33 @@ body {
 }
 
 .controlStack select,
+.controlStack input,
 .controlStack button {
   width: 100%;
 }
 
 .controlStack .buttonRow {
   margin-bottom: 0;
+}
+
+.lutSwatches {
+  display: flex;
+  gap: var(--gap-sm);
+}
+
+.lutSwatch {
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.lutSwatch input {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .feedFrame {
@@ -480,18 +446,21 @@ body {
 .interceptorOverlay {
   position: absolute;
   z-index: 6;
-  inset: 9%;
+  left: calc(100% * 13.6 / 21.5);
+  right: 2%;
+  top: 30%;
+  bottom: 4%;
   display: grid;
   place-items: center;
   align-content: center;
-  gap: var(--gap-sm);
-  padding: var(--gap-md);
+  gap: 4px;
+  padding: 6px;
   background: var(--panel-light);
-  border: 4px solid var(--border-mid);
+  border: 3px solid var(--border-mid);
   border-radius: var(--radius-small);
   color: var(--panel-text);
   text-align: center;
-  box-shadow: 0 12px 28px var(--black-shadow-strong);
+  box-shadow: 0 8px 18px var(--black-shadow-strong);
 }
 
 .interceptorOverlay[hidden] {
@@ -513,30 +482,33 @@ body {
 }
 
 .interceptorOverlay strong {
-  font-size: clamp(18px, 3vw, 30px);
+  font-size: clamp(12px, 1.25vw, 18px);
+  line-height: 1;
 }
 
 .interceptorOverlay span {
-  font-size: clamp(13px, 1.7vw, 18px);
+  font-size: clamp(9px, 0.95vw, 13px);
   font-weight: bold;
+  line-height: 1.1;
 }
 
-.interceptorX {
+.fireworksOverlay {
   position: absolute;
-  top: var(--gap-sm);
-  right: var(--gap-sm);
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-red);
-  background: var(--panel-light);
-  border: 3px solid var(--text-red);
-  border-radius: 50%;
-  font-size: 30px;
-  font-weight: bold;
-  line-height: 1;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.fireworksCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.fireworksOverlay[hidden] {
+  display: none;
 }
 
 .screenBadge {
@@ -563,15 +535,141 @@ body {
   color: var(--border-calibrated);
 }
 
-.playerStatus {
+.gameRecognitionToast {
   position: absolute;
-  left: var(--gap-md);
-  right: var(--gap-md);
-  bottom: 9px;
-  min-height: 18px;
+  z-index: 9;
+  top: calc(var(--gap-md) + 28px);
+  left: 50%;
+  max-width: min(340px, calc(100% - (2 * var(--gap-lg))));
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--gap-sm);
+  transform: translateX(-50%);
+  padding: 7px 10px;
+  background: var(--panel-light);
+  color: var(--panel-text);
+  border: 2px solid var(--border-calibrated);
+  border-radius: var(--radius-small);
+  box-shadow: 0 10px 22px var(--black-shadow-soft);
   font-weight: bold;
+  pointer-events: none;
+}
+
+.gameRecognitionToast.recognizedGame {
+  background:
+    linear-gradient(var(--success-drop-bg), var(--success-drop-bg)),
+    var(--panel-light);
+  border-color: var(--border-calibrated);
+}
+
+.gameRecognitionToast.wrongGame {
+  background:
+    linear-gradient(var(--danger-bg-strong), var(--danger-bg-strong)),
+    var(--panel-light);
+  border-color: var(--text-red);
+}
+
+.gameRecognitionToast.unknownGame {
+  width: min(300px, calc(100% - (2 * var(--gap-lg))));
+  height: 74px;
+  box-sizing: border-box;
+  grid-template-columns: 54px minmax(0, 1fr);
+  text-align: left;
+}
+
+.gameRecognitionToast[hidden] {
+  display: none;
+}
+
+.gameRecognitionToast img {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+}
+
+.gameRecognitionUnknownImageBox {
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--panel-light);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-small);
+}
+
+.gameRecognitionToast .gameRecognitionUnknownImageBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.gameRecognitionToast span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playerStatus {
+  max-height: 92px;
+  min-height: 30px;
+  overflow-y: auto;
+  padding: 5px 7px;
+  background: var(--panel-light);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  color: var(--panel-text);
   font-size: 12px;
-  text-align: center;
+  scrollbar-width: thin;
+}
+
+.playerStatusChecklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: 4px 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.playerStatusItem {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.playerStatusCheck {
+  flex: 0 0 15px;
+  width: 15px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.playerStatusItem.done {
+  color: var(--border-calibrated);
+}
+
+.playerStatusItem.pending {
+  color: var(--accent-orange-text);
+}
+
+.playerStatusMessage {
+  margin-top: 4px;
+  color: var(--text-red);
+  font-weight: bold;
+  line-height: 1.2;
 }
 
 .settingsAccordion {
@@ -644,11 +742,11 @@ body {
 }
 
 .playerStatus.good {
-  color: var(--border-calibrated);
+  border-color: var(--border-calibrated);
 }
 
 .playerStatus.bad {
-  color: var(--text-red);
+  border-color: var(--text-red);
 }
 
 .currentRank {
@@ -800,12 +898,21 @@ body {
   overflow: hidden;
 }
 
+.highScoreSubtitle {
+  margin-top: -6px;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  text-align: center;
+}
+
 .scoreBoardTop {
   flex: 0 0 auto;
   z-index: 1;
   display: grid;
   gap: 5px;
-  padding-bottom: 5px;
+  padding: 0 16px 5px;
   background: var(--bg-panel-dark);
 }
 
@@ -818,7 +925,7 @@ body {
   gap: 5px;
   overflow-y: hidden;
   overscroll-behavior: contain;
-  padding-right: 2px;
+  padding: 0 16px;
   scroll-behavior: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -829,6 +936,7 @@ body {
 }
 
 .highScoreBox {
+  position: relative;
   min-width: 0;
   display: grid;
   grid-template-columns: 32px minmax(0, 1fr) auto;
@@ -856,11 +964,48 @@ body {
   animation: scoreBoxMovePulse 0.36s ease;
 }
 
+.highScoreBox.currentScore::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: translateY(-50%);
+}
+
+.highScoreBox-blue.currentScore::before {
+  left: -15px;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 0;
+  border-right: 12px solid var(--accent-blue);
+}
+
+.highScoreBox-red.currentScore::before {
+  right: -15px;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 12px solid var(--text-red);
+  border-right: 0;
+}
+
 .highScoreBox.finalized {
   background: var(--border-section);
   border-color: var(--border-mid);
   color: var(--text-muted);
   box-shadow: none;
+}
+
+.highScoreBox.finalized.rankBandTop10 {
+  background: #2f3336;
+  border-color: #4a5054;
+  color: var(--shade-white);
+}
+
+.highScoreBox.finalized.rankBandTop20 {
+  background: #17462d;
+  border-color: #23643f;
+  color: var(--shade-white);
 }
 
 .highScoreBox.podium {
@@ -924,6 +1069,27 @@ body {
   animation: nameEntryPulse 1.15s ease-in-out infinite;
 }
 
+.scoreInterruptedMarker {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 12px;
+  height: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--text-red);
+  color: var(--shade-white);
+  border: 2px solid var(--panel-light);
+  border-radius: 50%;
+  box-shadow: 0 1px 4px var(--black-shadow-soft);
+  font-family: Consolas, monospace;
+  font-size: 0;
+  font-weight: bold;
+  line-height: 1;
+  pointer-events: none;
+}
+
 .highScoreRank {
   display: inline-flex;
   align-items: center;
@@ -948,7 +1114,15 @@ body {
   min-width: 0;
 }
 
+.highScoreBox.podium .highScoreMeta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+}
+
 .highScorePlayer {
+  display: inline;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -960,6 +1134,18 @@ body {
 
 .highScoreBox.finalized:not(.podium) .highScorePlayer {
   color: var(--shade-black);
+}
+
+.highScoreBox.finalized.rankBandTop10 .highScorePlayer,
+.highScoreBox.finalized.rankBandTop20 .highScorePlayer {
+  color: var(--shade-white);
+}
+
+.highScoreBox.finalized.rankBandTop10 .highScoreRank,
+.highScoreBox.finalized.rankBandTop20 .highScoreRank,
+.highScoreBox.finalized.rankBandTop10 .highScoreValue,
+.highScoreBox.finalized.rankBandTop20 .highScoreValue {
+  color: var(--shade-white);
 }
 
 .highScoreBox.podium .highScorePlayer {
@@ -984,36 +1170,26 @@ body {
 }
 
 .allTimeRank {
-  grid-column: 2 / -1;
-  grid-row: 1;
-  justify-self: end;
-  align-self: start;
-  padding: 2px 5px;
+  display: inline-flex;
+  margin-left: 6px;
+  padding: 1px 5px;
+  vertical-align: baseline;
   background: var(--panel-light);
   border: 1px solid var(--border-mid);
   border-radius: var(--radius-small);
   color: var(--text-muted);
   font-size: 10px;
-  font-weight: bold;
+  font-weight: normal;
+}
+
+.highScoreBox.podium .allTimeRank {
+  justify-self: end;
+  margin-left: 0;
 }
 
 .liveHint {
   color: var(--border-panel);
   font-weight: bold;
-}
-
-.twoPlayerModal {
-  position: fixed;
-  z-index: 300;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: var(--gap-lg);
-  background: var(--modal-overlay-bg);
-}
-
-.twoPlayerModal.hidden {
-  display: none;
 }
 
 .twoPlayerModalBox {
@@ -1022,11 +1198,8 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--panel-light);
-  color: var(--panel-text);
+  padding: 0;
   border: 2px solid var(--border-panel);
-  border-radius: var(--radius-panel);
-  box-shadow: 0 16px 38px var(--black-shadow-strong);
 }
 
 #daysModal .twoPlayerModalBox {
@@ -1034,16 +1207,48 @@ body {
 }
 
 .twoPlayerModalHeader {
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, max-content) minmax(0, 1fr) 28px;
   align-items: center;
-  justify-content: space-between;
   gap: var(--gap-md);
   padding: var(--gap-md);
   border-bottom: 1px solid var(--border-section);
 }
 
+#gameSettingsModal .twoPlayerModalHeader {
+  grid-template-columns: 32px minmax(0, max-content) minmax(0, 1fr) 32px;
+}
+
+#gameSettingsModal .twoPlayerModalHeader h2 {
+  min-width: 0;
+}
+
+.twoPlayerModalHeader .modalDragHandle,
+.gameSettingsDragHandle {
+  position: static;
+  grid-column: 1;
+  grid-row: 1;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: none;
+  cursor: move;
+}
+
 .twoPlayerModalHeader h2 {
+  grid-column: 2;
+  justify-self: start;
   margin: 0;
+}
+
+.twoPlayerModalHeader .modalCloseButton {
+  grid-column: 4;
+  grid-row: 1;
+  justify-self: end;
+  position: static;
 }
 
 .modalCloseButton {
@@ -1065,7 +1270,33 @@ body {
 
 .modalCloseButton:hover {
   background: var(--black-faint);
-  color: var(--text-red);
+  color: var(--panel-text);
+}
+
+.twoPlayerModalHeader .modalCloseButton {
+  font-size: 0;
+}
+
+.twoPlayerModalHeader .modalCloseButton::before {
+  position: static;
+  transform: none;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.infoButton {
+  position: absolute;
+  top: var(--gap-md);
+  right: var(--gap-md);
+  flex: 0 0 var(--control-height);
+  width: var(--control-height);
+  min-width: var(--control-height);
+  padding: 0;
+  border-radius: 50%;
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1;
 }
 
 .achievementModalContent {
@@ -1083,6 +1314,683 @@ body {
   gap: var(--gap-sm);
   padding: var(--gap-md);
   overflow-y: auto;
+}
+
+.gameSettingsModalBox {
+  width: min(920px, 100%);
+  height: min(86vh, 820px);
+  padding-top: 0;
+}
+
+.gameSettingsModalContent {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--gap-md);
+  padding: var(--gap-md);
+  overflow-y: auto;
+}
+
+.namePoolModalBox {
+  width: min(520px, calc(100vw - 32px));
+  height: min(680px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+}
+
+.namePoolToolbar {
+  display: grid;
+  gap: var(--gap-sm);
+  padding: var(--gap-md);
+  border-bottom: 1px solid var(--border-section);
+}
+
+.namePoolEntryTools,
+.namePoolDataTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  align-items: center;
+}
+
+.namePoolEntryTools {
+  justify-content: flex-start;
+}
+
+.namePoolEntryTools input {
+  flex: 1 1 220px;
+}
+
+.namePoolDataTools {
+  justify-content: flex-end;
+}
+
+.namePoolToolbar .nameSourceToggle {
+  justify-self: start;
+}
+
+.namePoolList {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--gap-sm);
+  padding: var(--gap-md);
+  overflow-y: auto;
+}
+
+.namePoolRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--gap-sm);
+  align-items: center;
+}
+
+.namePoolEmpty {
+  color: var(--text-muted);
+  font-weight: bold;
+}
+
+.namePoolDeleteButton {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-red);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.namePoolDeleteButton:hover:not(:disabled) {
+  background: var(--black-faint);
+  color: var(--text-red);
+}
+
+.infoModalBox {
+  width: min(460px, calc(100vw - 32px));
+}
+
+.infoModalContent {
+  display: grid;
+  gap: var(--gap-md);
+  padding: var(--gap-md);
+  color: var(--panel-text);
+}
+
+.infoModalContent h3,
+.infoModalContent p {
+  margin: 0;
+}
+
+.infoModalContent ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.infoModalContent p {
+  color: var(--text-muted);
+  font-weight: bold;
+}
+
+.gameSettingsToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--gap-sm);
+}
+
+.gameSettingsSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+}
+
+.gameSettingsSectionHeader h3 {
+  margin: 0;
+  color: var(--panel-text);
+  font-size: 16px;
+}
+
+.gameSettingsList {
+  display: grid;
+  gap: var(--gap-sm);
+}
+
+.screenSettingsSection {
+  display: grid;
+  gap: var(--gap-sm);
+  padding: var(--gap-sm);
+  background: var(--bg-panel-dark);
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-small);
+}
+
+.screenSettingsSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+}
+
+.screenSettingsSectionHeader h3 {
+  margin: 0;
+  color: var(--panel-text);
+  font-size: 15px;
+}
+
+.screenSettingsList {
+  display: grid;
+  gap: var(--gap-sm);
+}
+
+.gameDemoDetectorSettings {
+  display: grid;
+  gap: var(--gap-sm);
+  padding: var(--gap-sm);
+  background: var(--bg-panel-dark);
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-small);
+}
+
+.gameDemoDetectorSettings h3 {
+  margin: 0;
+  color: var(--panel-text);
+  font-size: 16px;
+}
+
+.demoDetectorArea {
+  display: grid;
+  gap: var(--gap-sm);
+}
+
+.demoDetectorArea.empty {
+  justify-items: start;
+}
+
+.demoDetectorCreateButton {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.demoDetectorAreaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  color: var(--panel-text);
+}
+
+.demoDetectorBlock {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px;
+  align-items: start;
+  gap: var(--gap-sm);
+  padding: var(--gap-sm);
+  background: rgba(217, 140, 0, 0.22);
+  border: 1px solid var(--accent-orange);
+  border-radius: var(--radius-small);
+}
+
+.demoDetectorRemove {
+  justify-self: end;
+}
+
+.gameSettingBlock {
+  position: relative;
+  display: grid;
+  gap: var(--gap-sm);
+  padding: var(--gap-sm);
+  background: var(--bg-panel-dark);
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-small);
+}
+
+.gameSettingBlock.selected {
+  border: 4px solid var(--shade-black);
+  padding: calc(var(--gap-sm) - 3px);
+}
+
+.gameSettingBlock > summary {
+  list-style: none;
+}
+
+.gameSettingBlock > summary::-webkit-details-marker {
+  display: none;
+}
+
+.gameSettingSummary {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: var(--gap-sm);
+  cursor: pointer;
+}
+
+.gameSettingSummary::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.16s ease;
+}
+
+.gameSettingBlock[open] > .gameSettingSummary::before {
+  transform: rotate(45deg);
+}
+
+.gameSettingAccordionContent {
+  display: grid;
+  gap: var(--gap-sm);
+  margin-top: var(--gap-sm);
+}
+
+.gameSettingContentTools {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.gameSettingsRow {
+  display: grid;
+  grid-template-columns: minmax(108px, 1fr) minmax(96px, 1fr) minmax(96px, 1fr) 58px minmax(76px, 0.8fr) minmax(112px, 1fr) minmax(112px, 1fr) 48px 28px;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: var(--gap-sm);
+  background: var(--bg-panel-dark);
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-small);
+}
+
+.gameSettingBlock .gameSettingsRow {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.gameSettingForm {
+  display: grid;
+  align-items: start;
+  gap: var(--gap-md);
+}
+
+.gameSettingFormHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px 28px;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+.gameSettingTitleText {
+  min-width: 0;
+  color: var(--panel-text);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.gameSettingFormGrid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--gap-sm);
+  max-width: 100%;
+}
+
+.gameSettingField {
+  display: inline-grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 3px;
+  width: max-content;
+  max-width: 100%;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.gameSettingField > input,
+.gameSettingField > select,
+.gameSettingField > .multiSelectDropdown {
+  min-width: 0;
+  width: 180px;
+  max-width: 100%;
+}
+
+.gameSettingField > select[multiple] {
+  width: 240px;
+  min-height: 72px;
+  padding: 4px;
+}
+
+.demoDetectorGrid .gameSettingField:first-child > input {
+  width: 320px;
+}
+
+.multiSelectDropdown {
+  position: relative;
+}
+
+.multiSelectDropdownButton {
+  position: relative;
+  width: 100%;
+  min-height: var(--control-height);
+  justify-content: flex-start;
+  padding: 6px 28px 6px 10px;
+  overflow: hidden;
+  border-color: var(--border-mid);
+  background: var(--panel-light);
+  color: var(--panel-text);
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: normal;
+}
+
+.multiSelectDropdownButton::after {
+  content: "▾";
+  position: absolute;
+  right: 10px;
+  color: var(--text-muted);
+}
+
+.multiSelectDropdownMenu {
+  position: absolute;
+  z-index: 80;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  max-height: 180px;
+  overflow-y: auto;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+  background: var(--panel-light);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  box-shadow: 0 8px 18px var(--black-shadow-soft);
+}
+
+.multiSelectDropdownMenu[hidden] {
+  display: none;
+}
+
+.multiSelectDropdownOption {
+  display: block;
+  min-width: 160px;
+  min-height: 28px;
+  padding: 5px 8px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--panel-text);
+  font-size: 12px;
+  font-weight: normal;
+  text-align: left;
+  cursor: pointer;
+}
+
+.multiSelectDropdownOption:hover {
+  background: var(--black-faint);
+  color: var(--panel-text);
+}
+
+.multiSelectDropdownOption.selected {
+  background: var(--accent-blue-selected-bg);
+  color: var(--panel-text);
+}
+
+.multiSelectDropdownOption.selected:hover {
+  background: var(--accent-blue-selected-bg);
+  color: var(--panel-text);
+}
+
+.gameSettingFieldHint {
+  min-height: var(--control-height);
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.gameSettingsRow input,
+.gameSettingsRow select {
+  width: 100%;
+}
+
+.gameSettingsRow select[multiple] {
+  min-height: 72px;
+  padding: 4px;
+}
+
+.gameSettingsRow input:disabled {
+  color: #333333;
+  opacity: 1;
+  background: #eeeeee;
+  cursor: default;
+}
+
+.gameModuleAddCell {
+  position: relative;
+  min-width: 0;
+}
+
+.tooltipButton {
+  position: relative;
+}
+
+.tooltipButton[data-tooltip]::before {
+  content: none;
+}
+
+.tooltipButton[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  z-index: 500;
+  right: calc(100% + 7px);
+  top: 50%;
+  width: max-content;
+  max-width: 180px;
+  padding: 5px 8px;
+  transform: translate(3px, -50%);
+  background: var(--shade-black);
+  color: var(--shade-white);
+  border-radius: var(--radius-small);
+  box-shadow: 0 4px 12px var(--black-shadow-soft);
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+
+.tooltipButton[data-tooltip]:hover::before,
+.tooltipButton[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+.addModuleButton {
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: var(--shade-white);
+  font-weight: bold;
+  line-height: 1;
+}
+
+.addModuleButton:hover:not(:disabled) {
+  background: #1f6fd0;
+  border-color: #1f6fd0;
+  color: var(--shade-white);
+}
+
+.addModuleButton.active {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: var(--shade-white);
+}
+
+.addModuleMenu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 190px;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+  background: var(--panel-light);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  box-shadow: 0 8px 18px var(--black-shadow-soft);
+}
+
+.addModuleMenu button {
+  min-height: 30px;
+  justify-content: flex-start;
+  padding: 4px 8px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.gameModuleSettingsRow {
+  padding: var(--gap-sm);
+  background: rgba(92, 96, 105, 0.16);
+  border: 1px solid rgba(92, 96, 105, 0.48);
+  border-radius: var(--radius-small);
+  color: var(--panel-text);
+}
+
+.gameModuleSettingsRow.incomplete {
+  border-color: var(--text-red);
+  box-shadow: 0 0 0 1px var(--text-red);
+}
+
+.gameModuleSettingsRow summary {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--gap-sm);
+  cursor: pointer;
+  list-style: none;
+}
+
+.gameModuleSettingsRow summary::-webkit-details-marker {
+  display: none;
+}
+
+.gameModuleSettingsRow summary::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.16s ease;
+}
+
+.gameModuleSettingsRow[open] summary::before {
+  transform: rotate(45deg);
+}
+
+.gameModuleSettingsRow strong {
+  font-size: 12px;
+}
+
+.gameModuleDetachButton {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  padding: 0;
+  border-color: transparent;
+  border-radius: 50%;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.gameModuleDetachButton:hover:not(:disabled) {
+  background: var(--black-faint);
+  color: var(--text-red);
+}
+
+.gameModuleSettingsFields {
+  display: grid;
+  grid-template-columns: minmax(0, 170px) minmax(0, 170px);
+  gap: var(--gap-sm);
+  margin-top: var(--gap-sm);
+}
+
+.gameModuleSettingsFields label {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.gameModuleSettingsFields input,
+.gameModuleSettingsFields select {
+  width: 100%;
+}
+
+.gameModuleSettingsFields .validModuleValue {
+  background: #e5f6df;
+  border-color: #66a85a;
+}
+
+.gameModuleFieldFull {
+  grid-column: 1 / -1;
+}
+
+.gameSettingsFastToggle {
+  grid-column: 3;
+  min-width: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-self: end;
+  gap: 8px;
+  min-height: 28px;
+  color: var(--panel-text);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.gameSettingsDeleteButton {
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  padding: 0;
+  border-color: transparent;
+  border-radius: 50%;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.gameSettingsDeleteButton:hover:not(:disabled) {
+  background: var(--black-faint);
+  color: var(--text-red);
 }
 
 .dayHistoryItem {
@@ -1149,6 +2057,20 @@ body {
   grid-template-columns: 34px minmax(0, 1fr) auto auto;
 }
 
+.scoreHistoryRow.selectable {
+  grid-template-columns: 22px 34px minmax(0, 1fr) minmax(0, 1fr) auto auto;
+}
+
+.scoreHistoryRow.selectable.noGame {
+  grid-template-columns: 22px 34px minmax(0, 1fr) auto auto;
+}
+
+.scoreHistorySelect {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
 .scoreHistoryRank,
 .scoreHistoryScore {
   font-family: Consolas, monospace;
@@ -1189,6 +2111,12 @@ body {
   justify-content: flex-end;
 }
 
+.daysGamePicker {
+  display: grid;
+  gap: var(--gap-sm);
+  font-weight: bold;
+}
+
 .dayDeleteButton {
   border-color: var(--text-red);
   color: var(--text-red);
@@ -1204,7 +2132,7 @@ body {
   height: 22px;
   min-height: 22px;
   padding: 0;
-  border-color: transparent;
+  border-color: var(--text-red);
   border-radius: 50%;
   color: var(--text-red);
   line-height: 1;
@@ -1238,19 +2166,77 @@ body {
 }
 
 .achievementModalItem {
+  --achievement-color: var(--tier-beginner);
+  --achievement-bg: var(--tier-beginner-bg);
+
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--gap-sm);
-  padding: 5px 0;
-  border-top: 1px solid var(--border-section);
+  margin-top: var(--gap-sm);
+  padding: var(--gap-sm);
+  background: var(--achievement-bg);
+  border: 2px solid var(--achievement-color);
+  border-radius: var(--radius-small);
+}
+
+.achievementModalItem.disabled {
+  opacity: 0.58;
+  filter: grayscale(0.35);
 }
 
 .achievementModalItem:first-of-type {
-  border-top: none;
+  margin-top: 0;
+}
+
+.achievementModalItem[data-tier="novice"] {
+  --achievement-color: var(--tier-novice);
+  --achievement-bg: var(--tier-novice-bg);
+}
+
+.achievementModalItem[data-tier="intermediate"] {
+  --achievement-color: var(--tier-intermediate);
+  --achievement-bg: var(--tier-intermediate-bg);
+}
+
+.achievementModalItem[data-tier="advanced"] {
+  --achievement-color: var(--tier-advanced);
+  --achievement-bg: var(--tier-advanced-bg);
+}
+
+.achievementModalItem[data-tier="expert"] {
+  --achievement-color: var(--tier-expert);
+  --achievement-bg: var(--tier-expert-bg);
+}
+
+.achievementModalItem[data-tier="pro"] {
+  --achievement-color: var(--tier-pro);
+  --achievement-bg: var(--tier-pro-bg);
+}
+
+.achievementModalItem[data-tier="god-tier"] {
+  --achievement-color: var(--tier-god);
+  --achievement-bg: var(--tier-god-bg);
 }
 
 .achievementModalCondition {
   font-weight: bold;
+}
+
+.achievementModalToggle {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: var(--gap-sm);
+  color: var(--panel-text);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.achievementModalToggle input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
 }
 
 .achievementModalMessage {
@@ -1258,7 +2244,8 @@ body {
 }
 
 .achievementModalTier {
-  color: var(--text-muted);
+  color: var(--achievement-color);
+  font-weight: bold;
   white-space: nowrap;
 }
 
@@ -1407,11 +2394,26 @@ body {
   .topGameSetup {
     left: var(--gap-sm);
     right: var(--gap-sm);
+    padding: var(--gap-sm) calc(var(--gap-sm) + var(--control-height) + var(--gap-sm)) var(--gap-sm) var(--gap-sm);
     align-items: stretch;
+  }
+
+  .topSetupRow,
+  .topSetupGroup,
+  .topSetupPrimaryRow .topSetupGroup {
+    flex-wrap: wrap;
+  }
+
+  .topSetupVersion {
+    width: 100%;
   }
 
   .topGameSetup button,
   .topGameSetup select {
+    width: 100%;
+  }
+
+  .namePoolDataTools .button-black {
     width: 100%;
   }
 }

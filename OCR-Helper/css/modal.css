@@ -325,3 +325,40 @@
   align-items: center;
   gap: var(--gap-md);
 }
+
+.snapshotModalBox {
+  width: min(760px, 100%);
+}
+
+.snapshotList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--gap-md);
+}
+
+.snapshotItem {
+  display: grid;
+  gap: var(--gap-sm);
+  padding: var(--gap-sm);
+  color: var(--panel-text);
+  border-color: var(--border-mid);
+}
+
+.snapshotItem:hover {
+  background: var(--accent-blue-hover);
+  color: var(--panel-text);
+}
+
+.snapshotItem canvas {
+  width: 100%;
+  aspect-ratio: 160 / 144;
+  background: var(--shade-black);
+  border: 1px solid var(--border-mid);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.snapshotEmpty {
+  color: var(--text-muted);
+  font-weight: bold;
+}

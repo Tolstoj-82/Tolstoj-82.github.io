@@ -7,6 +7,7 @@ const TILES_X = WIDTH / TILE;
 const TILES_Y = HEIGHT / TILE;
 
 const SCALE = 4;
+const DEFAULT_SCREEN_DETECTION_GRACE_MS = 300;
 
 const DEFAULT_DISPLAY_PALETTE = ["#f0f0f0", "#a0a0a0", "#505050", "#000000"];
 let displayPalette = DEFAULT_DISPLAY_PALETTE.slice();

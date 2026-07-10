@@ -13,9 +13,19 @@ function closeModal() {
 
   modalOk.onclick = null;
   modalOk.disabled = false;
+  modalOk.classList.remove("button-danger");
   modalCancel.onclick = null;
   modalOverlay.onclick = null;
   document.onkeydown = null;
+}
+
+function updateModalOkButtonVariant(okText) {
+  const dangerActions = new Set(["delete", "detach"]);
+
+  modalOk.classList.toggle(
+    "button-danger",
+    dangerActions.has(String(okText || "").trim().toLowerCase()),
+  );
 }
 
 function bindModalKeys({ onConfirm, onCancel = null, allowEnter = true }) {
@@ -98,6 +108,7 @@ function showModal({
   modalMessage.textContent = message;
 
   modalOk.textContent = okText;
+  updateModalOkButtonVariant(okText);
 
   modalCancel.textContent = cancelText;
   modalCancel.style.display = showCancel ? "" : "none";
@@ -203,6 +214,7 @@ function showConfirmContent(
 
   modalOk.style.display = "";
   modalOk.textContent = okText;
+  updateModalOkButtonVariant(okText);
   modalOk.disabled = false;
   modalCancel.textContent = cancelText;
   modalCancel.style.display = "";
@@ -294,6 +306,7 @@ function showSelect(
   modalSelect.style.display = "";
 
   modalOk.textContent = okText;
+  updateModalOkButtonVariant(okText);
   modalCancel.textContent = cancelText;
   modalCancel.style.display = "";
 
@@ -367,6 +380,7 @@ function showChoiceList(
 
   modalChoices.style.display = "";
   modalOk.style.display = "none";
+  modalOk.classList.remove("button-danger");
   modalCancel.textContent = cancelText;
   modalCancel.style.display = "";
 
@@ -504,6 +518,7 @@ function showCheckboxList(
   modalChoices.style.display = "";
   modalOk.style.display = "";
   modalOk.textContent = okText;
+  updateModalOkButtonVariant(okText);
   modalOk.disabled = false;
   modalCancel.textContent = cancelText;
   modalCancel.style.display = "";

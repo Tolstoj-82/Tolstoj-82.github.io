@@ -1,11 +1,55 @@
-document.getElementById("gameName").oninput = (e) => {
-  game.name = e.target.value;
+screenGraceMsInput.oninput = () => {
+  const raw = screenGraceMsInput.value.trim();
+  const value = Number(raw);
+  const valid =
+    raw !== "" &&
+    Number.isInteger(value) &&
+    value >= 0 &&
+    value <= 1000;
+
+  screenGraceMsInput.classList.toggle("invalid", !valid);
+
+  if (!valid) {
+    updateStorageButtons();
+    return;
+  }
+
+  game.settings = normalizeGameSettings({
+    ...game.settings,
+    screenDetectionGraceMs: value,
+  });
+  updateJSONOutput();
+  updateStorageButtons();
+};
+
+stallOcrOnUnknownTilesToggle.onchange = () => {
+  game.settings = normalizeGameSettings({
+    ...game.settings,
+    stallOcrOnUnknownTiles: stallOcrOnUnknownTilesToggle.checked,
+  });
+  renderROIReadout();
+  updateJSONOutput();
+  updateStorageButtons();
+};
+
+identifierMatchCountInput.oninput = () => {
+  const screen = getActiveScreen();
+
+  if (!screen) return;
+
+  screen.identifierMatchCount = identifierMatchCountInput.value;
+
+  renderIdentifierInfo();
+  renderROIReadout();
   updateWorkflowUI();
+  updateJSONOutput();
   updateStorageButtons();
 };
 
 document.getElementById("addScreen").onclick = () => {
   showPrompt("Screen name", "Screen " + (game.screens.length + 1), (name) => {
+    closeOpenAchievementAccordion();
+
     const screen = {
       id: Date.now(),
       name: name.trim() || "Screen " + (game.screens.length + 1),
@@ -17,9 +61,11 @@ document.getElementById("addScreen").onclick = () => {
 
     game.screens.push(screen);
     activeScreenId = screen.id;
+    activeScreenLastVisibleAt = 0;
     activeROI = null;
 
     renderScreenList();
+    updateGameRecognitionScreenOptions();
     updateScreenSetupTitle();
     renderROIList();
     renderAchievementList();
@@ -37,6 +83,47 @@ function updateScreenSetupTitle() {
 
   title.textContent = screen ? screen.name : "Screen Setup";
   title.style.borderBottomColor = screen ? screen.color : "";
+  updateSettingsControls();
+}
+
+function updateSettingsControls() {
+  game.settings = normalizeGameSettings(game.settings);
+  screenGraceMsInput.value = game.settings.screenDetectionGraceMs;
+  stallOcrOnUnknownTilesToggle.checked = game.settings.stallOcrOnUnknownTiles;
+
+  const screen = getActiveScreen();
+  const identifierCount = screen?.identifiers?.length || 0;
+  const configured = screen?.identifierMatchCount ?? "all";
+  const identifierMatchField = identifierMatchCountInput.closest(
+    ".identifierMatchField",
+  );
+
+  identifierMatchField.hidden = identifierCount === 0;
+  identifierMatchCountInput.disabled = !screen || identifierCount === 0;
+  identifierMatchCountInput.replaceChildren();
+
+  if (identifierCount === 0) {
+    return;
+  }
+
+  const all = document.createElement("option");
+  all.value = "all";
+  all.textContent = "all identifiers";
+  identifierMatchCountInput.appendChild(all);
+
+  for (let count = 1; count <= identifierCount; count++) {
+    const option = document.createElement("option");
+
+    option.value = String(count);
+    option.textContent = `${count} of ${identifierCount}`;
+    identifierMatchCountInput.appendChild(option);
+  }
+
+  identifierMatchCountInput.value =
+    configured === "all" || !Number.isFinite(Number(configured))
+      ? "all"
+      : String(Math.min(identifierCount, Math.max(1, Number(configured))));
+  identifierMatchCountInput.disabled = identifierCount <= 1;
 }
 
 function renderScreenList() {
@@ -75,8 +162,12 @@ function renderScreenList() {
 
       screen.name = newName;
       updateAchievementLifecycleScreenName(oldName, newName);
+      if (game.recognitionScreen === oldName) {
+        game.recognitionScreen = newName;
+      }
 
       updateScreenSetupTitle();
+      updateGameRecognitionScreenOptions();
       renderIdentifierInfo();
       renderAchievementList();
       updateWorkflowUI();
@@ -98,10 +189,16 @@ function renderScreenList() {
 
           if (activeScreenId === screen.id) {
             activeScreenId = game.screens[0]?.id || null;
+            activeScreenLastVisibleAt = 0;
             activeROI = getActiveScreen()?.rois[0]?.id || null;
           }
 
+          if (game.recognitionScreen === screen.name) {
+            game.recognitionScreen = "";
+          }
+
           renderScreenList();
+          updateGameRecognitionScreenOptions();
           updateScreenSetupTitle();
           renderROIList();
           renderAchievementList();
@@ -180,10 +277,13 @@ function renderScreenList() {
     });
 
     div.onclick = () => {
+      closeOpenAchievementAccordion();
+
       autoDetectEnabled = false;
       autoDetectScreens.checked = false;
 
       activeScreenId = screen.id;
+      activeScreenLastVisibleAt = 0;
       activeROI = screen.rois[0]?.id || null;
 
       renderScreenList();
@@ -225,21 +325,37 @@ useOptimizedScanToggle.onchange = () => {
 };
 
 function screenMatchesLiveImage(screen) {
-  return (
-    screen.identifiers.length > 0 &&
-    screen.identifiers.every((identifier) => isIdentifierVisible(identifier))
-  );
+  return screenMatchesByIdentifiers(screen);
 }
 
 function autoDetectScreen() {
   if (!autoDetectEnabled) return;
   if (game.screens.length < 2) return;
 
+  const now = Date.now();
+  const currentScreen = getActiveScreen();
+
+  if (currentScreen && screenMatchesLiveImage(currentScreen)) {
+    activeScreenLastVisibleAt = now;
+    return;
+  }
+
+  if (
+    currentScreen &&
+    activeScreenLastVisibleAt > 0 &&
+    now - activeScreenLastVisibleAt <= getScreenDetectionGraceMs()
+  ) {
+    return;
+  }
+
   const match = game.screens.find((screen) => screenMatchesLiveImage(screen));
 
   if (!match || match.id === activeScreenId) return;
 
+  closeOpenAchievementAccordion();
+
   activeScreenId = match.id;
+  activeScreenLastVisibleAt = Date.now();
   activeROI = match.rois[0]?.id || null;
 
   renderScreenList();

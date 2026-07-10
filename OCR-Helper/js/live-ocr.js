@@ -1,11 +1,7 @@
 function isCurrentScreenVisible() {
   const screen = getActiveScreen();
 
-  return (
-    screen &&
-    screen.identifiers.length > 0 &&
-    screen.identifiers.every((identifier) => isIdentifierVisible(identifier))
-  );
+  return Boolean(screen && screenMatchesByIdentifiers(screen));
 }
 
 function isIdentifierVisible(identifier) {
@@ -31,8 +27,18 @@ function renderROIReadout() {
 
   roiReadout.appendChild(title);
 
+  const now = Date.now();
   const screenVisible = isCurrentScreenVisible();
-  const canReadScreen = screenVisible || screen.identifiers.length === 0;
+
+  if (screenVisible) {
+    activeScreenLastVisibleAt = now;
+  }
+
+  const canReadScreen =
+    screenVisible ||
+    screen.identifiers.length === 0 ||
+    (activeScreenLastVisibleAt > 0 &&
+      now - activeScreenLastVisibleAt <= getScreenDetectionGraceMs());
   const ocrValues = {};
 
   updateAchievementScreenRun(screen, canReadScreen);
@@ -45,30 +51,48 @@ function renderROIReadout() {
     label.textContent = `${roi.name}: `;
 
     const value = document.createElement("span");
+    let stalled = false;
 
     const tileset = tilesets.find((t) => t.id === roi.tilesetId);
 
     if (!tileset) {
       value.textContent = "--";
     } else if (canReadScreen) {
-      const labels = sortTileKeysByReadingOrder(roi.tiles)
-        .map((key) => {
+      const labels = [];
+      let hasUnknownTile = false;
+
+      sortTileKeysByReadingOrder(roi.tiles).forEach((key) => {
           const [x, y] = key.split(",").map(Number);
-          return findTileLabelInTileset(getTile(x, y), tileset);
-        })
-        .filter((label) => label !== null && label !== "");
+          const label = findTileLabelInTileset(getTile(x, y), tileset);
 
-      const found = formatROIValue(labels, tileset.type || "text-number");
+          if (label === null) {
+            hasUnknownTile = true;
+            return;
+          }
 
-      if (found !== "--") {
+          if (label !== "") {
+            labels.push(label);
+          }
+        });
+
+      const shouldStall =
+        game.settings?.stallOcrOnUnknownTiles && hasUnknownTile;
+      stalled = shouldStall;
+
+      const found = shouldStall
+        ? lastOCRValues[roi.id] || "--"
+        : formatROIValue(labels, tileset.type || "text-number");
+
+      if (!shouldStall && found !== "--") {
         lastOCRValues[roi.id] = found;
-        ocrValues[roi.name] = found;
       }
 
       value.textContent = lastOCRValues[roi.id] || "--";
     } else {
       value.textContent = lastOCRValues[roi.id] || "--";
     }
+
+    value.classList.toggle("roiReadoutValueStalled", stalled);
 
     if (value.textContent !== "--") {
       ocrValues[roi.name] = value.textContent;

@@ -7,6 +7,27 @@
   margin-bottom: var(--gap-lg);
 }
 
+.sectionHeader {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-lg);
+}
+
+.sectionHeader:has(.addActionButton:hover),
+.sectionHeader:has(.addActionButton:focus-visible) {
+  z-index: 300;
+}
+
+.sectionHeader h2,
+.sectionHeader h3 {
+  min-width: 0;
+  margin: 0;
+}
+
 .rowSpacer {
   flex: 1;
 }
@@ -33,6 +54,32 @@ label {
   margin-bottom: 0;
 }
 
+.settingsField {
+  display: grid;
+  gap: var(--gap-sm);
+  margin-top: var(--gap-md);
+  color: var(--panel-text);
+}
+
+.settingsField input {
+  width: 100%;
+}
+
+.settingsField input.invalid {
+  border-color: var(--text-red);
+  background: var(--input-warning-bg);
+}
+
+.settingsToggle {
+  display: flex;
+  margin-top: var(--gap-md);
+  margin-bottom: 0;
+}
+
+.stabilityToggleField .settingsToggle {
+  margin-top: 0;
+}
+
 select,
 button,
 input,
@@ -50,11 +97,21 @@ input {
   padding: var(--gap-sm);
 }
 
-select {
+select,
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+textarea {
   background: var(--panel-light);
   color: var(--panel-text);
   border: 2px solid var(--border-mid);
   border-radius: var(--radius-small);
+}
+
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 2px;
 }
 
 input[type="text"] {
@@ -262,6 +319,91 @@ button.button-danger:disabled:hover {
   background: var(--panel-light);
   border-color: var(--text-red);
   color: var(--text-red);
+}
+
+.addActionButton {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--control-height);
+  max-width: var(--control-height);
+  min-width: var(--control-height);
+  min-height: var(--control-height);
+  padding: 0;
+  border-radius: 999px;
+  text-indent: 0;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.addActionButton::before {
+  content: "";
+}
+
+.addActionButton::after {
+  content: attr(aria-label);
+  position: absolute;
+  z-index: 500;
+  right: calc(100% + 7px);
+  top: 50%;
+  width: max-content;
+  max-width: 180px;
+  padding: 5px 8px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(3px, -50%);
+  background: var(--shade-black);
+  color: var(--shade-white);
+  border-radius: var(--radius-small);
+  box-shadow: 0 4px 12px var(--black-shadow-soft);
+  text-indent: 0;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+
+.addActionButton.identifierAwaiting {
+  background: var(--accent-orange);
+  border-color: var(--accent-orange);
+  color: var(--shade-white);
+}
+
+.addActionButton.identifierAwaiting::before {
+  content: "";
+  position: absolute;
+  z-index: 501;
+  left: calc(100% + 2px);
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  background: var(--shade-black);
+  transform: translateY(-50%) rotate(45deg);
+  pointer-events: none;
+}
+
+.addActionButton.identifierAwaiting::after {
+  right: auto;
+  left: calc(100% + 7px);
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+.addActionButton:hover:not(:disabled),
+.addActionButton:focus-visible:not(:disabled) {
+  z-index: 300;
+  transform: translateY(-1px);
+}
+
+.addActionButton:hover:not(:disabled)::after,
+.addActionButton:focus-visible:not(:disabled)::after {
+  opacity: 1;
+  transform: translate(0, -50%);
 }
 
 #saveGameLocal {

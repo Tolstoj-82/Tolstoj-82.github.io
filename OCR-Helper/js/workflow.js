@@ -3,33 +3,63 @@ function setDisabledReason(button, reason) {
 }
 
 function updateWorkflowHint() {
-  const hasScreen = !!getActiveScreen();
-  const hasROIs = hasScreen && getActiveScreen().rois.length > 0;
+  const activeScreen = getActiveScreen();
+  const hasScreen = !!activeScreen;
+  const hasTiles = uniqueTiles.size > 0 || tilesets.some((tileset) => {
+    return Array.isArray(tileset.tiles) && tileset.tiles.length > 0;
+  });
+  const items = [
+    {
+      label: "Camera",
+      done: cameraReady,
+    },
+    {
+      label: "Calibrated",
+      done: calibrated,
+    },
+    {
+      label: "Screen",
+      done: hasScreen,
+    },
+    {
+      label: "Identifiers",
+      done: hasScreen && activeScreen.identifiers.length > 0,
+    },
+    {
+      label: "Regions",
+      done: hasScreen && activeScreen.rois.length > 0,
+    },
+    {
+      label: "Tiles",
+      done: hasTiles,
+    },
+  ];
+  const list = document.createElement("ul");
 
-  let message = "";
+  list.className = "workflowHintList";
 
-  if (!cameraReady) {
-    message = "Start the capture.";
-  } else if (!calibrated) {
-    message = "Choose GB capture then calibrate.";
-  } else if (!hasScreen) {
-    message = "Create a screen.";
-  } else if (getActiveScreen().identifiers.length === 0) {
-    message = "Add at least one identifier tile.";
-  } else if (!hasROIs) {
-    message = "Add at least one region.";
-  } else if (uniqueTiles.size === 0) {
-    message = "Start capturing tiles.";
-  } else {
-    message = "OK!";
-  }
+  items.forEach((item) => {
+    const row = document.createElement("li");
+    const marker = document.createElement("span");
+    const label = document.createElement("span");
 
-  workflowHint.textContent = message;
+    row.className = `workflowHintItem ${item.done ? "done" : "pending"}`;
+    marker.className = "workflowHintCheck";
+    marker.textContent = item.done ? "✓" : "!";
+    label.textContent = item.label;
+
+    row.append(marker, label);
+    list.appendChild(row);
+  });
+
+  workflowHint.replaceChildren(list);
 }
 
 function updateWorkflowUI() {
-  const hasScreen = !!getActiveScreen();
-  const hasROIs = hasScreen && getActiveScreen().rois.length > 0;
+  const activeScreen = getActiveScreen();
+  const hasScreen = !!activeScreen;
+  const hasIdentifiers = hasScreen && activeScreen.identifiers.length > 0;
+  const hasROIs = hasScreen && activeScreen.rois.length > 0;
   const captureLocked = capturing;
 
   const calibrateButton = document.getElementById("calibrateButton");
@@ -57,6 +87,7 @@ function updateWorkflowUI() {
   );
 
   snapshotToggle.disabled = !cameraReady || !calibrated;
+  snapshotLibraryButton.hidden = snapshots.length === 0;
   setDisabledReason(
     snapshotToggle,
     !cameraReady
@@ -73,6 +104,10 @@ function updateWorkflowUI() {
   );
 
   identifierButton.disabled = !calibrated || !hasScreen;
+  identifierButton.classList.toggle(
+    "needsAction",
+    calibrated && hasScreen && !hasIdentifiers,
+  );
   setDisabledReason(
     identifierButton,
     !calibrated
@@ -103,12 +138,7 @@ function updateWorkflowUI() {
 
   updateWorkflowHint();
 
-  const hasUsableTileset = tilesets.some((t) => t.tiles.length > 0);
-
-  workflowHeader.classList.toggle(
-    "hidden",
-    hasUsableTileset,
-  );
+  workflowHeader.classList.remove("hidden");
 
   autoDetectScreens.disabled = game.screens.length < 2;
 
@@ -134,6 +164,7 @@ function setCaptureLockedControls(locked) {
     .forEach((control) => {
       if (control === toggleCapture) return;
       if (control === snapshotToggle) return;
+      if (control === snapshotLibraryButton) return;
       if (control.type === "file") return;
       if (control.classList.contains("identifierDeleteButton")) return;
 

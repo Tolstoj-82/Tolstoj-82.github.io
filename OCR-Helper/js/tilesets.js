@@ -32,6 +32,12 @@ function updateAddTilesetButtonText() {
     uniqueTiles.size > 0 ? ">> Tileset" : "+ Tileset";
 }
 
+function syncTilesetReferencesAfterRename() {
+  renderROIList();
+  renderROIReadout();
+  updateWorkflowUI();
+}
+
 function renderTilesets() {
   updateAddTilesetButtonText();
 
@@ -65,12 +71,12 @@ function renderTilesets() {
 
     nameInput.oninput = () => {
       tileset.name = nameInput.value.trim() || tileset.name;
-      updateWorkflowUI();
+      syncTilesetReferencesAfterRename();
     };
 
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
-    deleteButton.className = "tilesetDeleteButton";
+    deleteButton.className = "tilesetDeleteButton button-danger";
     deleteButton.textContent = "Delete Tileset";
 
     deleteButton.onclick = (e) => {

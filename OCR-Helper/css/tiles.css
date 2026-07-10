@@ -7,6 +7,41 @@
   flex-wrap: wrap;
   gap: clamp(var(--gap-sm), 2cqi, var(--gap-lg));
   padding: clamp(var(--gap-md), 3cqi, var(--gap-xl));
+  overflow-anchor: none;
+}
+
+.tileDiscovererControls {
+  align-items: stretch;
+}
+
+.captureControlGroup,
+.tileUploadGroup {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--gap-sm);
+  background: var(--panel-light);
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-small);
+}
+
+.tileUploadGroup {
+  margin-left: var(--gap-md);
+}
+
+.tileCountLabel {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+#tileCount {
+  display: inline-block;
+  min-width: 4ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 #uploadTileImage.tile-upload-over {
