@@ -23,8 +23,6 @@ const DEFAULT_TRACKED_SCREEN_NAME = "A-Type";
 const DEFAULT_SCREEN_DETECTION_GRACE_MS = 300;
 const STARTUP_RESTART_REQUIRED_MS = 10000;
 const TOP_GAME_SETUP_CLOSE_DELAY_MS = 1800;
-const SUPER_MARIO_LAND_DEMO_TIME = 400;
-const SUPER_MARIO_LAND_DEMO_HOLD_MS = 2000;
 const GAME_RECOGNITION_WINDOW_MS = 20000;
 const GAME_RECOGNITION_PENDING_MS = 5000;
 const GAME_RECOGNITION_COUNTDOWN_MS = 10000;
@@ -186,6 +184,11 @@ let gameRecognitionActive = false;
 let gameRecognitionStartedAt = 0;
 let gameRecognitionDeadline = 0;
 let gameRecognitionFallbackGameName = "";
+let scoreBoardPointerInside = false;
+let highScoreUndoTimer = null;
+let pendingHighScoreUndo = null;
+const historySelectionState = createRowSelectionState();
+const namePoolSelectionState = createRowSelectionState();
 
 const sharedGameSelect = document.getElementById("sharedGameSelect");
 const scoreSettingSelect = document.getElementById("scoreSettingSelect");
@@ -195,6 +198,7 @@ const importJSONFile = document.getElementById("importJSONFile");
 const scoreBoard = document.getElementById("scoreBoard");
 const highScoreTitle = document.getElementById("highScoreTitle");
 const highScoreSubtitle = document.getElementById("highScoreSubtitle");
+const highScoreUndoToast = document.getElementById("highScoreUndoToast");
 const openGameSettingsButton = document.getElementById("openGameSettings");
 const openNamePoolButton = document.getElementById("openNamePool");
 const useNamePoolForRunsToggle = document.getElementById("useNamePoolForRuns");
@@ -227,6 +231,9 @@ const namePoolInput = document.getElementById("namePoolInput");
 const addNamePoolEntryButton = document.getElementById("addNamePoolEntry");
 const importNamePoolButton = document.getElementById("importNamePool");
 const exportNamePoolButton = document.getElementById("exportNamePool");
+const deleteSelectedNamesButton = document.getElementById(
+  "deleteSelectedNames",
+);
 const importNamePoolFile = document.getElementById("importNamePoolFile");
 const gameSettingsFastOCR = document.getElementById("gameSettingsFastOCR");
 const gameSettingsTitle = gameSettingsModal?.querySelector("h2");
@@ -307,6 +314,8 @@ function createPlayerState(number, label, color) {
     trackedScoreScreenLastVisibleAt: 0,
     calibrated: false,
     runActive: false,
+    assignedRunName: "",
+    resolvedRunName: "",
     currentScore: null,
     currentGameScore: null,
     lastScore: null,
@@ -321,6 +330,7 @@ function createPlayerState(number, label, color) {
     demoKnown: false,
     demoLastValue: null,
     demoTime400Since: null,
+    demoHeldMatched: false,
     achievementReadableScreen: null,
     achievementRuntimeStates: new Map(),
     achievementToastQueue: [],
@@ -371,6 +381,7 @@ function saveTwoPlayerSettings() {
     })),
   };
 
+  persistedSettings = settings;
   localStorage.setItem(TWO_PLAYER_SETTINGS_KEY, JSON.stringify(settings));
 }
 
@@ -496,17 +507,17 @@ function normalizeScoreValueLabel(value) {
   return String(value || "").trim().slice(0, 24);
 }
 
-function normalizeScoreStopScreen(value) {
+function normalizeScoreStopScreen(value, gameData = selectedGame) {
   const screenName = String(value || "");
 
   if (!screenName) return "";
 
-  return (selectedGame?.screens || []).some((screen) => screen.name === screenName)
+  return (gameData?.screens || []).some((screen) => screen.name === screenName)
     ? screenName
     : "";
 }
 
-function normalizeScoreStopScreens(value) {
+function normalizeScoreStopScreens(value, gameData = selectedGame) {
   const values = Array.isArray(value)
     ? value
     : String(value || "")
@@ -515,7 +526,7 @@ function normalizeScoreStopScreens(value) {
   const seen = new Set();
 
   return values
-    .map(normalizeScoreStopScreen)
+    .map((item) => normalizeScoreStopScreen(item, gameData))
     .filter((screenName) => {
       if (!screenName || seen.has(screenName)) return false;
 
@@ -543,12 +554,14 @@ function normalizeScoreFireworkScreens(value) {
     });
 }
 
-function normalizeScoreDemoMetric(value, screenName) {
+function normalizeScoreDemoMetric(value, screenName, gameData = selectedGame) {
   const metricName = String(value || "").trim();
 
   if (!metricName) return "";
 
-  return getMetricNamesForScreen(screenName).includes(metricName) ? metricName : "";
+  return getMetricNamesForGameScreen(gameData, screenName).includes(metricName)
+    ? metricName
+    : "";
 }
 
 function normalizeScoreDemoSequenceInput(value) {
@@ -582,27 +595,49 @@ function normalizeScoreDemoStartValue(value, sequenceInput) {
   return String(sequence[0]);
 }
 
-function normalizeDemoDetectorConfig(value, screenName = selectedScoreScreenName) {
+function normalizeDemoDetectorConfig(
+  value,
+  screenName = selectedScoreScreenName,
+  gameData = selectedGame,
+) {
+  const mode = value?.mode === "held" ? "held" : "sequence";
   const sequence = normalizeScoreDemoSequenceInput(
     value?.sequence ?? value?.demoSequence,
   );
   const rawMetric = String(value?.metric ?? value?.demoMetric ?? "").trim();
   const metric = screenName
-    ? normalizeScoreDemoMetric(rawMetric, screenName)
+    ? normalizeScoreDemoMetric(rawMetric, screenName, gameData)
     : rawMetric;
   const startValue = normalizeScoreDemoStartValue(
     value?.startValue ?? value?.demoStartValue,
     sequence,
   );
-  const hasUsableDetector = Boolean(metric && sequence);
   const created = value?.created === true || value?.demoDetectorCreated === true;
+  const stopScreens = normalizeScoreStopScreens(
+    value?.stopScreens ?? value?.trackUntilScreens ?? value?.stopScreen,
+    gameData,
+  );
+  const heldValue = String(value?.heldValue ?? value?.targetValue ?? "").trim();
+  const holdMsValue = Number(value?.holdMs ?? value?.holdDurationMs);
+  const holdMs = Number.isFinite(holdMsValue)
+    ? Math.max(0, Math.round(holdMsValue))
+    : 2000;
+  const confirmOnScreenExit = value?.confirmOnScreenExit !== false;
+  const hasUsableDetector = Boolean(
+    metric && (mode === "held" ? heldValue : sequence),
+  );
 
   return {
     created,
     enabled: created || hasUsableDetector,
+    mode,
     metric,
     sequence,
     startValue,
+    stopScreens,
+    heldValue,
+    holdMs,
+    confirmOnScreenExit,
   };
 }
 
@@ -611,16 +646,36 @@ function getScoreDemoDetectorConfig(setting = getSelectedScoreSetting()) {
   const sequence = parseScoreDemoSequence(config?.sequence);
   const metric = normalizeScoreDemoMetric(config?.metric, selectedScoreScreenName);
   const startValue = Number(config?.startValue);
+  const heldValue = Number(config?.heldValue);
 
-  if (!metric || sequence.length === 0 || !Number.isFinite(startValue)) {
+  if (!metric) {
     return null;
   }
 
+  if (config.mode === "held") {
+    if (!String(config.heldValue ?? "").trim() || !Number.isFinite(heldValue)) {
+      return null;
+    }
+
+    return {
+      mode: "held",
+      metric,
+      heldValue,
+      holdMs: config.holdMs,
+      confirmOnScreenExit: config.confirmOnScreenExit,
+      stopScreens: config.stopScreens || [],
+    };
+  }
+
+  if (sequence.length === 0 || !Number.isFinite(startValue)) return null;
+
   return {
+    mode: "sequence",
     metric,
     sequence,
     startValue,
     startIndex: Math.max(0, sequence.indexOf(startValue)),
+    stopScreens: config.stopScreens || [],
   };
 }
 
@@ -630,6 +685,11 @@ function getResolvedDemoDetectorConfig(setting = getSelectedScoreSetting()) {
       metric: setting?.demoMetric,
       sequence: setting?.demoSequence,
       startValue: setting?.demoStartValue,
+      stopScreens: setting?.demoStopScreens,
+      mode: setting?.demoMode,
+      heldValue: setting?.demoHeldValue,
+      holdMs: setting?.demoHoldMs,
+      confirmOnScreenExit: setting?.demoConfirmOnScreenExit,
     },
     setting?.screen || selectedScoreScreenName,
   );
@@ -639,7 +699,10 @@ function getResolvedDemoDetectorConfig(setting = getSelectedScoreSetting()) {
   }
 
   const screen = getSelectedScoreScreen();
-  const screenConfig = normalizeDemoDetectorConfig(screen?.demoDetector, screen?.name);
+  const screenConfig = normalizeDemoDetectorConfig(
+    screen?.demoDetector,
+    screen?.name,
+  );
 
   if (screenConfig.metric && screenConfig.sequence) {
     return screenConfig;
@@ -1136,6 +1199,11 @@ function createScoreSetting(screenName, metricName) {
     demoMetric: "",
     demoSequence: "",
     demoStartValue: "",
+    demoStopScreens: [],
+    demoMode: "sequence",
+    demoHeldValue: "",
+    demoHoldMs: 2000,
+    demoConfirmOnScreenExit: true,
     demoDetectorCreated: false,
     demoDetectorEnabled: false,
     moduleConfig: {},
@@ -1395,6 +1463,13 @@ function normalizeScoreSettingsRecord(record) {
       item.demoStartValue,
       item.demoSequence,
     );
+    item.demoStopScreens = normalizeScoreStopScreens(item.demoStopScreens);
+    item.demoMode = item.demoMode === "held" ? "held" : "sequence";
+    item.demoHeldValue = String(item.demoHeldValue ?? "").trim();
+    item.demoHoldMs = Number.isFinite(Number(item.demoHoldMs))
+      ? Math.max(0, Math.round(Number(item.demoHoldMs)))
+      : 2000;
+    item.demoConfirmOnScreenExit = item.demoConfirmOnScreenExit !== false;
     item.demoDetectorCreated = item.demoDetectorCreated === true;
     item.demoDetectorEnabled = item.demoDetectorCreated ||
       Boolean(item.demoMetric && item.demoSequence);
@@ -1847,7 +1922,7 @@ function normalizeProjectData(data) {
       : data.boxartImage
         ? [String(data.boxartImage)]
         : [],
-    demoDetector: normalizeImportedGameDemoDetector(data.demoDetector),
+    demoDetector: normalizeImportedGameDemoDetector(data.demoDetector, data),
     recognitionScreen: String(data.recognitionScreen || ""),
     settings: normalizeGameSettings(data.settings),
     tilesets: (data.tilesets || []).map((tileset) => ({
@@ -1861,7 +1936,11 @@ function normalizeProjectData(data) {
       identifierMatchCount: Number.isFinite(Number(screen.identifierMatchCount))
         ? Number(screen.identifierMatchCount)
         : "all",
-      demoDetector: normalizeDemoDetectorConfig(screen.demoDetector, screen.name),
+      demoDetector: normalizeDemoDetectorConfig(
+        screen.demoDetector,
+        screen.name,
+        data,
+      ),
       identifiers: Array.isArray(screen.identifiers) ? screen.identifiers : [],
       rois: Array.isArray(screen.rois) ? screen.rois : [],
       achievements: normalizeImportedAchievements(screen.achievements),
@@ -2524,6 +2603,21 @@ function isScoreStopScreen(screen) {
   );
 }
 
+function isDemoDetectorStopScreen(screen) {
+  const screenName = screen?.name || "";
+
+  if (!screenName) return false;
+
+  return getScoreDemoDetectorConfig()?.stopScreens.includes(screenName) || false;
+}
+
+function isEffectiveRunStopScreen(player, screen) {
+  if (isScoreStopScreen(screen)) return true;
+  if (!player.demoKnown) return false;
+
+  return isDemoDetectorStopScreen(screen);
+}
+
 function isTrackedScoreReadAllowed(player) {
   if (isTrackedScreen(player.activeScreen)) return true;
   if (isScoreStopScreen(player.activeScreen)) return false;
@@ -2648,12 +2742,18 @@ function markScoreInterruptedBeforeStopScreen(player) {
   if (selectedScoreStopScreenNames.length === 0) return;
   if (isScoreStopScreen(player.activeScreen)) return;
 
-  const entry = getActiveSessionScoreForPlayer(player);
+  // A module name-entry row is finalized, but it still represents this run.
+  const entry = getPendingModuleNameEntry(player) ||
+    getFinalizedGuardEntry(player) ||
+    getActiveSessionScoreForPlayer(player);
 
   if (!entry || entry.interruptedBeforeStopScreen) return;
 
   if (entry.demo) {
     sessionScores = sessionScores.filter((item) => item.id !== entry.id);
+    if (player.finalizedScoreGuard?.entryId === entry.id) {
+      player.finalizedScoreGuard = null;
+    }
     player.scoreEntryId = null;
     player.runActive = false;
     player.currentScore = null;
@@ -2667,6 +2767,7 @@ function markScoreInterruptedBeforeStopScreen(player) {
     return;
   }
 
+  settleInterruptedScoreEntry(player, entry);
   entry.interruptedBeforeStopScreen = true;
   entry.active = false;
   player.scoreEntryId = null;
@@ -2680,6 +2781,95 @@ function markScoreInterruptedBeforeStopScreen(player) {
   saveTodayLeaderboard();
   scoreBoardSignature = "";
   renderScoreBoard();
+}
+
+function getPendingModuleNameEntry(player) {
+  return sessionScores
+    .filter((entry) => {
+      return (
+        entry.nameEntry?.source === "module" &&
+        entry.color === player.color &&
+        entry.game === selectedGameName &&
+        getScoreEntrySettingKey(entry) === getSelectedScoreSettingKey()
+      );
+    })
+    .sort((a, b) => b.startedAt - a.startedAt || b.id - a.id)[0] || null;
+}
+
+function getFinalizedGuardEntry(player) {
+  const guard = player.finalizedScoreGuard;
+
+  if (!guard) return null;
+
+  return sessionScores.find((entry) => {
+    return (
+      entry.id === guard.entryId &&
+      entry.game === guard.game &&
+      Number(entry.score) === Number(guard.score) &&
+      getScoreEntrySettingKey(entry) === guard.settingKey
+    );
+  }) || null;
+}
+
+function settleInterruptedScoreEntry(player, keepEntry) {
+  const partialName = keepEntry.nameEntry?.value?.trim();
+
+  if (partialName) {
+    keepEntry.name = partialName;
+    keepEntry.player = partialName;
+    player.resolvedRunName = partialName;
+  }
+
+  if (keepEntry.nameEntry?.timer) {
+    window.clearInterval(keepEntry.nameEntry.timer);
+  }
+  delete keepEntry.nameEntry;
+
+  const duplicateKeys = new Set();
+
+  // The only removable duplicate is the player's other currently tracked
+  // entry. Equal historical scores are never treated as the same run.
+  sessionScores = sessionScores.filter((entry) => {
+    if (entry === keepEntry) return true;
+    if (entry.removingDemo || entry.demo) return true;
+    if (entry.date !== keepEntry.date) return true;
+    if (entry.game !== keepEntry.game) return true;
+    if (entry.color !== keepEntry.color) return true;
+    if (Number(entry.score) !== Number(keepEntry.score)) return true;
+    if (getScoreEntrySettingKey(entry) !== getScoreEntrySettingKey(keepEntry)) {
+      return true;
+    }
+
+    const sameRun = entry.id === player.scoreEntryId;
+
+    if (sameRun && entry.nameEntry?.timer) {
+      window.clearInterval(entry.nameEntry.timer);
+    }
+
+    if (sameRun) {
+      duplicateKeys.add(getScoreEntryKey(entry));
+    }
+
+    return !sameRun;
+  });
+
+  if (duplicateKeys.size > 0) {
+    const allTimeEntries = getAllTimeLeaderboard().filter((entry) => {
+      return !duplicateKeys.has(getScoreEntryKey(entry));
+    });
+
+    localStorage.setItem(
+      TWO_PLAYER_ALL_TIME_KEY,
+      JSON.stringify(allTimeEntries),
+    );
+  }
+
+  player.finalizedScoreGuard = {
+    entryId: keepEntry.id,
+    score: keepEntry.score,
+    game: keepEntry.game,
+    settingKey: getScoreEntrySettingKey(keepEntry),
+  };
 }
 
 function updateStartupScreenTimer(player, screenName) {
@@ -2745,6 +2935,7 @@ function resetPlayerRun(player) {
   player.currentScore = null;
   player.currentGameScore = null;
   player.assignedRunName = "";
+  player.resolvedRunName = "";
   player.label = player.staticLabel || player.defaultLabel;
   player.title.textContent = player.label;
   player.lastScore = null;
@@ -2762,6 +2953,7 @@ function resetPlayerRun(player) {
   player.demoKnown = false;
   player.demoLastValue = null;
   player.demoTime400Since = null;
+  player.demoHeldMatched = false;
 }
 
 function resetScoringRuns() {
@@ -2773,18 +2965,20 @@ function resetScoringRuns() {
   renderScoreBoard();
 }
 
-function updateDemoTracking(player) {
-  if (isSuperMarioLandGame()) {
-    updateSuperMarioLandDemoTracking(player);
-    return;
-  }
-
+function updateDemoTracking(player, previousScreen) {
   const config = getScoreDemoDetectorConfig();
 
   if (!config) {
     player.demoIndex = 0;
     player.demoKnown = false;
     player.demoLastValue = null;
+    player.demoTime400Since = null;
+    player.demoHeldMatched = false;
+    return;
+  }
+
+  if (config.mode === "held") {
+    updateHeldValueDemoTracking(player, config, previousScreen);
     return;
   }
 
@@ -2809,38 +3003,37 @@ function updateDemoTracking(player) {
   }
 }
 
-function updateSuperMarioLandDemoTracking(player) {
-  if (!isSuperMarioLandGame()) return;
+function updateHeldValueDemoTracking(player, config, previousScreen) {
+  const value = getPlayerMetricNumber(player, config.metric);
+  const screenChanged = Boolean(
+    previousScreen && previousScreen !== player.activeScreen,
+  );
 
-  const time = getPlayerMetricNumber(player, "Time");
+  if (
+    screenChanged &&
+    config.confirmOnScreenExit &&
+    player.demoHeldMatched
+  ) {
+    player.demoKnown = true;
+    return;
+  }
 
-  if (time === SUPER_MARIO_LAND_DEMO_TIME) {
+  if (value === config.heldValue) {
     if (player.demoTime400Since === null) {
       player.demoTime400Since = Date.now();
     }
-
-    if (Date.now() - player.demoTime400Since > SUPER_MARIO_LAND_DEMO_HOLD_MS) {
+    player.demoHeldMatched = true;
+    if (Date.now() - player.demoTime400Since >= config.holdMs) {
       player.demoKnown = true;
     }
     return;
   }
 
-  if (time !== null && time < SUPER_MARIO_LAND_DEMO_TIME) {
+  if (value !== null) {
     player.demoTime400Since = null;
+    player.demoHeldMatched = false;
     player.demoKnown = false;
-    return;
   }
-
-  if (time !== null) {
-    player.demoTime400Since = null;
-  }
-}
-
-function isSuperMarioLandGame() {
-  return String(selectedGameName || "")
-    .trim()
-    .toLowerCase()
-    .includes("super mario land");
 }
 
 function updateSessionScore(player, score, options = {}) {
@@ -4214,6 +4407,24 @@ function createHighScoreBox(entry, index, displayRank) {
 
   box.append(rank, meta, score);
 
+  if (!entry.active && !entry.nameEntry && !entry.demo && !entry.removingDemo) {
+    const deleteButton = document.createElement("button");
+
+    deleteButton.type = "button";
+    deleteButton.className = "highScoreDeleteButton";
+    deleteButton.textContent = "×";
+    deleteButton.title = "Delete high score";
+    deleteButton.setAttribute(
+      "aria-label",
+      `Delete ${getScoreEntryName(entry)} score ${formatScore(entry.score)}`,
+    );
+    deleteButton.onclick = (event) => {
+      event.stopPropagation();
+      deleteLeaderboardEntryWithUndo(entry);
+    };
+    box.appendChild(deleteButton);
+  }
+
   if (entry.interruptedBeforeStopScreen) {
     const marker = document.createElement("div");
 
@@ -4224,6 +4435,78 @@ function createHighScoreBox(entry, index, displayRank) {
   }
 
   return box;
+}
+
+function deleteLeaderboardEntryWithUndo(entry) {
+  const dateKey = entry.date || getTodayDateKey();
+
+  pendingHighScoreUndo = {
+    dateKey,
+    entry: serializeScoreEntry(entry),
+  };
+  deleteStoredLeaderboardEntry(dateKey, entry);
+  showHighScoreUndoToast(entry);
+  scoreBoardSignature = "";
+  renderScoreBoard();
+  if (!daysModal.classList.contains("hidden")) renderDaysModal();
+}
+
+function showHighScoreUndoToast(entry) {
+  const text = document.createElement("span");
+  const undo = document.createElement("button");
+
+  window.clearTimeout(highScoreUndoTimer);
+  text.textContent = `${getScoreEntryName(entry)} — ${formatScoreValue(entry)} deleted`;
+  undo.type = "button";
+  undo.className = "button-primary";
+  undo.textContent = "Undo";
+  undo.onclick = restorePendingHighScoreEntry;
+  highScoreUndoToast.replaceChildren(text, undo);
+  highScoreUndoToast.hidden = false;
+  highScoreUndoTimer = window.setTimeout(clearHighScoreUndoToast, 6500);
+}
+
+function clearHighScoreUndoToast() {
+  window.clearTimeout(highScoreUndoTimer);
+  highScoreUndoTimer = null;
+  pendingHighScoreUndo = null;
+  highScoreUndoToast.hidden = true;
+  highScoreUndoToast.replaceChildren();
+}
+
+function restorePendingHighScoreEntry() {
+  if (!pendingHighScoreUndo) return;
+
+  const { dateKey, entry } = pendingHighScoreUndo;
+  const key = getScoreEntryKey(entry);
+  const stored = getLeaderboardEntriesForDay(dateKey);
+
+  if (!stored.some((item) => getScoreEntryKey(item) === key)) {
+    stored.push(entry);
+    localStorage.setItem(
+      getLeaderboardStorageKey(dateKey),
+      JSON.stringify(stored),
+    );
+  }
+
+  if (
+    dateKey === getTodayDateKey() &&
+    !sessionScores.some((item) => getScoreEntryKey(item) === key)
+  ) {
+    sessionScores.push({
+      ...entry,
+      active: false,
+      demo: false,
+      removingDemo: false,
+    });
+    sessionScoreId = Math.max(sessionScoreId, Number(entry.id) || 0);
+  }
+
+  rebuildAllTimeLeaderboardFromDays();
+  clearHighScoreUndoToast();
+  scoreBoardSignature = "";
+  renderScoreBoard();
+  if (!daysModal.classList.contains("hidden")) renderDaysModal();
 }
 
 function resetScoreBoardAutoScroll() {
@@ -4238,6 +4521,11 @@ function updateScoreBoardAutoScroll() {
 
   if (!scroller || scroller.scrollHeight <= scroller.clientHeight + 1) {
     resetScoreBoardAutoScroll();
+    return;
+  }
+
+  if (scoreBoardPointerInside) {
+    scoreScrollLastTime = now;
     return;
   }
 
@@ -4599,6 +4887,7 @@ function closeInfoModalDialog() {
 
 function renderNamePoolModal() {
   namePoolList.replaceChildren();
+  updateDeleteSelectedNamePoolButton();
 
   if (randomPlayerNames.length === 0) {
     const empty = document.createElement("div");
@@ -4611,10 +4900,19 @@ function renderNamePoolModal() {
 
   randomPlayerNames.forEach((name, index) => {
     const row = document.createElement("div");
+    const number = document.createElement("span");
     const input = document.createElement("input");
     const del = document.createElement("button");
 
     row.className = "namePoolRow";
+    row.dataset.nameIndex = String(index);
+    row.tabIndex = 0;
+    row.draggable = true;
+    row.setAttribute("role", "checkbox");
+    row.setAttribute("aria-checked", "false");
+    row.setAttribute("aria-label", `Select name ${name}`);
+    number.className = "namePoolNumber";
+    number.textContent = `#${index + 1}`;
     input.type = "text";
     input.maxLength = MAX_SCORE_NAME_LENGTH;
     input.value = name;
@@ -4632,9 +4930,112 @@ function renderNamePoolModal() {
       renderNamePoolModal();
     };
 
-    row.append(input, del);
+    row.onpointerdown = (event) => startWindowsRowSelection(
+      event,
+      row,
+      namePoolList,
+      ".namePoolRow",
+      namePoolSelectionState,
+      setNamePoolRowSelected,
+      true,
+    );
+    row.onpointerenter = (event) => {
+      continueWindowsRowSelection(
+        event,
+        row,
+        namePoolList,
+        ".namePoolRow",
+        namePoolSelectionState,
+        setNamePoolRowSelected,
+      );
+    };
+    row.onkeydown = (event) => {
+      if (event.key !== " " && event.key !== "Enter") return;
+
+      event.preventDefault();
+      setNamePoolRowSelected(row, !row.classList.contains("selected"));
+    };
+    row.ondragstart = (event) => {
+      if (!row.classList.contains("selected")) {
+        clearNamePoolSelection();
+        setNamePoolRowSelected(row, true);
+      }
+
+      namePoolSelectionState.pendingSingle = null;
+      namePoolSelectionState.pendingDeselect = false;
+      namePoolSelectionState.nativeDragging = true;
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData(
+        "application/x-ocr-helper-name-selection",
+        "selected-player-names",
+      );
+      setSelectionDragGhost(
+        event.dataTransfer,
+        namePoolList.querySelectorAll(".namePoolRow.selected").length,
+        "name",
+      );
+      setNamePoolDeleteDropMode(true);
+    };
+    row.ondragend = () => {
+      namePoolSelectionState.nativeDragging = false;
+      setNamePoolDeleteDropMode(false);
+    };
+
+    row.append(number, input, del);
     namePoolList.appendChild(row);
   });
+}
+
+function setNamePoolRowSelected(row, selected) {
+  row.classList.toggle("selected", selected);
+  row.setAttribute("aria-checked", String(selected));
+  updateDeleteSelectedNamePoolButton();
+}
+
+function updateDeleteSelectedNamePoolButton() {
+  if (!deleteSelectedNamesButton) return;
+
+  const hasSelection = Boolean(
+    namePoolList.querySelector(".namePoolRow.selected"),
+  );
+
+  deleteSelectedNamesButton.disabled = !hasSelection;
+  deleteSelectedNamesButton.classList.toggle("visible", hasSelection);
+}
+
+function setNamePoolDeleteDropMode(active) {
+  if (!deleteSelectedNamesButton) return;
+
+  deleteSelectedNamesButton.classList.toggle("dropReady", active);
+  deleteSelectedNamesButton.textContent = active
+    ? "Drop here to delete"
+    : "Delete selected";
+}
+
+function setSelectionDragGhost(dataTransfer, count, itemLabel) {
+  const ghost = document.createElement("div");
+  const label = count === 1 ? itemLabel : `${itemLabel}s`;
+
+  ghost.className = "selectionDragGhost";
+  ghost.textContent = `${count} selected ${label}`;
+  document.body.appendChild(ghost);
+  dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, ghost.offsetHeight / 2);
+  window.setTimeout(() => ghost.remove(), 0);
+}
+
+function deleteSelectedNamePoolEntries() {
+  const indexes = [...namePoolList.querySelectorAll(".namePoolRow.selected")]
+    .map((row) => Number(row.dataset.nameIndex))
+    .filter((index) => Number.isInteger(index));
+
+  if (indexes.length === 0) return;
+
+  const selected = new Set(indexes);
+  setStoredRandomPlayerNames(
+    randomPlayerNames.filter((name, index) => !selected.has(index)),
+  );
+  setNamePoolDeleteDropMode(false);
+  renderNamePoolModal();
 }
 
 function addNamePoolEntry() {
@@ -4810,6 +5211,7 @@ function createGlobalDemoDetectorSettings() {
   const globalArea = createDemoDetectorArea({
     title: "Global",
     config: selectedGame.demoDetector,
+    screenName: null,
     metricNames: getMetricNamesForGame(selectedGame),
     onCreate: () => {
       selectedGame.demoDetector = createEmptyDemoDetectorConfig();
@@ -4817,7 +5219,11 @@ function createGlobalDemoDetectorSettings() {
       renderGameSettingsModal();
     },
     onChange: (config) => {
-      selectedGame.demoDetector = config;
+      selectedGame.demoDetector = normalizeDemoDetectorConfig(
+        config,
+        null,
+        selectedGame,
+      );
       persistSelectedGameData();
     },
     onRemove: () => {
@@ -4874,6 +5280,7 @@ function createScreenSettingsSection(screenName, settings) {
     section.appendChild(createDemoDetectorArea({
       title: "Screen demo detector",
       config: screen.demoDetector,
+      screenName: screen.name,
       metricNames: getMetricNamesForScreen(screen.name),
       onCreate: () => {
         screen.demoDetector = createEmptyDemoDetectorConfig();
@@ -4881,7 +5288,11 @@ function createScreenSettingsSection(screenName, settings) {
         renderGameSettingsModal();
       },
       onChange: (config) => {
-        screen.demoDetector = config;
+        screen.demoDetector = normalizeDemoDetectorConfig(
+          config,
+          screen.name,
+          selectedGame,
+        );
         persistSelectedGameData();
       },
       onRemove: () => {
@@ -4909,13 +5320,13 @@ function getMetricNamesForGame(gameData) {
   }))];
 }
 
-function createEmptyDemoDetectorConfig() {
+function createEmptyDemoDetectorConfig(metric = "") {
   return {
     created: true,
     enabled: true,
     sequence: "",
     startValue: "",
-    metric: "",
+    metric,
   };
 }
 
@@ -5125,9 +5536,13 @@ function createGameScoreSettingRow(setting) {
   const demoArea = createDemoDetectorArea({
     title: "Demo detector",
     config: getSettingDemoDetectorConfig(setting),
+    screenName: setting.screen,
     metricNames: getMetricNamesForScreen(setting.screen),
     onCreate: () => {
-      setSettingDemoDetectorConfig(setting, createEmptyDemoDetectorConfig());
+      setSettingDemoDetectorConfig(
+        setting,
+        createEmptyDemoDetectorConfig(),
+      );
       syncScoreSettingsAfterEdit();
       renderGameSettingsModal();
     },
@@ -5172,6 +5587,7 @@ function updateMetricLabelExample(node, metricName, labelValue) {
 function createDemoDetectorArea({
   title,
   config,
+  screenName = null,
   metricNames,
   onCreate,
   onChange,
@@ -5179,7 +5595,7 @@ function createDemoDetectorArea({
 }) {
   const area = document.createElement("div");
   const addButton = document.createElement("button");
-  const normalized = normalizeDemoDetectorConfig(config);
+  const normalized = normalizeDemoDetectorConfig(config, screenName);
   const hasDetector = isDemoDetectorConfigPresent(normalized);
 
   area.className = "demoDetectorArea";
@@ -5207,7 +5623,11 @@ function createDemoDetectorArea({
 }
 
 function isDemoDetectorConfigPresent(config) {
-  return Boolean(config?.created || (config?.metric && config?.sequence));
+  return Boolean(
+    config?.created ||
+      (config?.metric &&
+        (config?.mode === "held" ? config?.heldValue : config?.sequence)),
+  );
 }
 
 function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
@@ -5217,16 +5637,49 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
   const sequence = document.createElement("input");
   const startValue = document.createElement("select");
   const metric = document.createElement("select");
+  const mode = document.createElement("select");
+  const heldValue = document.createElement("input");
+  const holdMs = document.createElement("input");
+  const confirmOnExit = document.createElement("select");
+  const stopScreens = createScreenMultiSelectDropdown({
+    values: config.stopScreens,
+    emptyText: "No stop screen",
+    onChange: (values) => {
+      current.stopScreens = normalizeScoreStopScreens(values);
+      onChange(current);
+      updateDemoDetectorValidation(block, current, sequence, metric, stopScreens);
+    },
+  });
   let current = {
     created: true,
     enabled: true,
     metric: config.metric || "",
     sequence: normalizeScoreDemoSequenceInput(config.sequence),
     startValue: normalizeScoreDemoStartValue(config.startValue, config.sequence),
+    stopScreens: normalizeScoreStopScreens(config.stopScreens),
+    mode: config.mode === "held" ? "held" : "sequence",
+    heldValue: String(config.heldValue ?? ""),
+    holdMs: Number.isFinite(Number(config.holdMs))
+      ? Math.max(0, Number(config.holdMs))
+      : 2000,
+    confirmOnScreenExit: config.confirmOnScreenExit !== false,
   };
 
   block.className = "demoDetectorBlock";
   fields.className = "gameSettingFormGrid demoDetectorGrid";
+  [["sequence", "Sequence"], ["held", "Held value"]].forEach(([value, label]) => {
+    const option = document.createElement("option");
+
+    option.value = value;
+    option.textContent = label;
+    mode.appendChild(option);
+  });
+  mode.value = current.mode;
+  mode.onchange = () => {
+    current.mode = mode.value;
+    onChange(current);
+    renderGameSettingsModal();
+  };
   sequence.type = "text";
   sequence.placeholder = "";
   sequence.value = current.sequence;
@@ -5253,6 +5706,35 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
   metric.onchange = () => {
     current.metric = metric.value;
     onChange(current);
+    updateDemoDetectorValidation(block, current, sequence, metric, stopScreens);
+  };
+  heldValue.type = "text";
+  heldValue.inputMode = "numeric";
+  heldValue.value = current.heldValue;
+  heldValue.onchange = () => {
+    current.heldValue = heldValue.value.trim();
+    onChange(current);
+    renderGameSettingsModal();
+  };
+  holdMs.type = "number";
+  holdMs.min = "0";
+  holdMs.step = "100";
+  holdMs.value = String(current.holdMs);
+  holdMs.onchange = () => {
+    current.holdMs = Math.max(0, Math.round(Number(holdMs.value) || 0));
+    onChange(current);
+  };
+  [["true", "Yes"], ["false", "No"]].forEach(([value, label]) => {
+    const option = document.createElement("option");
+
+    option.value = value;
+    option.textContent = label;
+    confirmOnExit.appendChild(option);
+  });
+  confirmOnExit.value = String(current.confirmOnScreenExit);
+  confirmOnExit.onchange = () => {
+    current.confirmOnScreenExit = confirmOnExit.value === "true";
+    onChange(current);
   };
 
   remove.type = "button";
@@ -5274,36 +5756,86 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
     );
   };
 
-  fields.append(
-    createSettingField("Demo detector (0, 1, 6, 14, 17)", sequence),
-    createSettingField("Label as \"Demo\" starting at value", startValue),
-    createSettingField("Metric", metric),
-  );
+  fields.append(createSettingField("Detector mode", mode));
+  if (current.mode === "held") {
+    fields.append(
+      createSettingField("Metric", metric),
+      createSettingField("Held value", heldValue),
+      createSettingField("Hold duration (ms)", holdMs),
+      createSettingField("Confirm on screen exit", confirmOnExit),
+      createSettingField("Track until", stopScreens),
+    );
+  } else {
+    fields.append(
+      createSettingField("Demo detector (0, 1, 6, 14, 17)", sequence),
+      createSettingField("Label as \"Demo\" starting at value", startValue),
+      createSettingField("Metric", metric),
+      createSettingField("Track until", stopScreens),
+    );
+  }
   block.append(fields, remove);
+  updateDemoDetectorValidation(block, current, sequence, metric, stopScreens);
   return block;
+}
+
+function updateDemoDetectorValidation(block, config, sequence, metric, stopScreens) {
+  const heldMode = config.mode === "held";
+  const sequenceMissing = !heldMode &&
+    parseScoreDemoSequence(config.sequence).length === 0;
+  const metricMissing = !String(config.metric || "").trim();
+  const heldValueMissing = heldMode &&
+    !String(config.heldValue ?? "").trim();
+
+  block.classList.toggle(
+    "incomplete",
+    sequenceMissing || metricMissing || heldValueMissing,
+  );
+  sequence.classList.toggle("invalid", sequenceMissing);
+  metric.classList.toggle("invalid", metricMissing);
+  stopScreens.classList.remove("invalid");
 }
 
 function getSettingDemoDetectorConfig(setting) {
   return {
     created: setting.demoDetectorCreated === true,
     enabled: setting.demoDetectorCreated === true ||
-      Boolean(setting.demoMetric && setting.demoSequence),
+      Boolean(
+        setting.demoMetric &&
+          (setting.demoMode === "held"
+            ? setting.demoHeldValue
+            : setting.demoSequence),
+      ),
     metric: setting.demoMetric || "",
     sequence: setting.demoSequence || "",
     startValue: setting.demoStartValue || "",
+    stopScreens: setting.demoStopScreens || [],
+    mode: setting.demoMode || "sequence",
+    heldValue: setting.demoHeldValue || "",
+    holdMs: setting.demoHoldMs ?? 2000,
+    confirmOnScreenExit: setting.demoConfirmOnScreenExit !== false,
   };
 }
 
 function setSettingDemoDetectorConfig(setting, config) {
   setting.demoDetectorCreated = config.created === true || config.enabled === true;
   setting.demoDetectorEnabled = setting.demoDetectorCreated ||
-    Boolean(config.metric && config.sequence);
+    Boolean(
+      config.metric &&
+        (config.mode === "held" ? config.heldValue : config.sequence),
+    );
   setting.demoMetric = config.metric || "";
   setting.demoSequence = normalizeScoreDemoSequenceInput(config.sequence);
   setting.demoStartValue = normalizeScoreDemoStartValue(
     config.startValue,
     setting.demoSequence,
   );
+  setting.demoStopScreens = normalizeScoreStopScreens(config.stopScreens);
+  setting.demoMode = config.mode === "held" ? "held" : "sequence";
+  setting.demoHeldValue = String(config.heldValue ?? "").trim();
+  setting.demoHoldMs = Number.isFinite(Number(config.holdMs))
+    ? Math.max(0, Math.round(Number(config.holdMs)))
+    : 2000;
+  setting.demoConfirmOnScreenExit = config.confirmOnScreenExit !== false;
 }
 
 function clearSettingDemoDetectorConfig(setting) {
@@ -5312,6 +5844,11 @@ function clearSettingDemoDetectorConfig(setting) {
   setting.demoMetric = "";
   setting.demoSequence = "";
   setting.demoStartValue = "";
+  setting.demoStopScreens = [];
+  setting.demoMode = "sequence";
+  setting.demoHeldValue = "";
+  setting.demoHoldMs = 2000;
+  setting.demoConfirmOnScreenExit = true;
 }
 
 function createScreenMultiSelectDropdown({ values, emptyText, onChange }) {
@@ -5915,13 +6452,21 @@ function updateActiveScoreEntryMetadata() {
 
 function exportGameScoreSettings() {
   const record = getGameScoreSettingsRecord();
+  const gameDemoDetector = serializeDemoDetectorConfig(
+    selectedGame?.demoDetector,
+  );
+  const screenDemoDetectors = getScreenDemoDetectorExportMap(selectedGame);
   const data = {
     exportVersion: 2,
     exportedAt: new Date().toISOString(),
     game: selectedGameName,
     fastOCR: record.fastOCR !== false,
-    demoDetector: serializeDemoDetectorConfig(selectedGame?.demoDetector),
-    screenDemoDetectors: getScreenDemoDetectorExportMap(selectedGame),
+    ...(hasSerializedDemoDetector(gameDemoDetector)
+      ? { demoDetector: gameDemoDetector }
+      : {}),
+    ...(Object.keys(screenDemoDetectors).length > 0
+      ? { screenDemoDetectors }
+      : {}),
     settings: record.items.map(serializeScoreSetting),
     selectedId: record.selectedId,
   };
@@ -5947,6 +6492,11 @@ function serializeScoreSetting(item) {
       item.demoStartValue,
       item.demoSequence,
     ),
+    demoStopScreens: normalizeScoreStopScreens(item.demoStopScreens),
+    demoMode: item.demoMode === "held" ? "held" : "sequence",
+    demoHeldValue: String(item.demoHeldValue ?? "").trim(),
+    demoHoldMs: Number(item.demoHoldMs) || 2000,
+    demoConfirmOnScreenExit: item.demoConfirmOnScreenExit !== false,
     demoDetectorCreated: item.demoDetectorCreated === true,
     demoDetectorEnabled: item.demoDetectorCreated === true ||
       Boolean(item.demoMetric && item.demoSequence),
@@ -5954,7 +6504,7 @@ function serializeScoreSetting(item) {
   };
 }
 
-function serializeDemoDetectorConfig(config = {}) {
+function serializeDemoDetectorConfig(config = {}, gameData = selectedGame) {
   const metric = String(config?.metric ?? config?.demoMetric ?? "").trim();
   const sequence = normalizeScoreDemoSequenceInput(
     config?.sequence ?? config?.demoSequence,
@@ -5965,23 +6515,55 @@ function serializeDemoDetectorConfig(config = {}) {
   );
   const created = config?.created === true ||
     config?.demoDetectorCreated === true;
+  const stopScreens = normalizeScoreStopScreens(
+    config?.stopScreens ?? config?.trackUntilScreens ?? config?.stopScreen,
+    gameData,
+  );
+  const mode = config?.mode === "held" ? "held" : "sequence";
+  const heldValue = String(config?.heldValue ?? config?.targetValue ?? "").trim();
+  const holdMs = Number.isFinite(Number(config?.holdMs))
+    ? Math.max(0, Math.round(Number(config.holdMs)))
+    : 2000;
+  const confirmOnScreenExit = config?.confirmOnScreenExit !== false;
 
   return {
     created,
-    enabled: created || Boolean(metric && sequence),
+    enabled: created || Boolean(
+      metric && (mode === "held" ? heldValue : sequence),
+    ),
     metric,
     sequence,
     startValue,
+    stopScreens,
+    mode,
+    heldValue,
+    holdMs,
+    confirmOnScreenExit,
   };
 }
 
 function getScreenDemoDetectorExportMap(gameData) {
-  return Object.fromEntries((gameData?.screens || []).map((screen) => {
-    return [
-      screen.name || "",
-      serializeDemoDetectorConfig(screen.demoDetector),
-    ];
+  return Object.fromEntries((gameData?.screens || []).flatMap((screen) => {
+    const config = serializeDemoDetectorConfig(screen.demoDetector, gameData);
+
+    return hasSerializedDemoDetector(config)
+      ? [[screen.name || "", config]]
+      : [];
   }));
+}
+
+function hasSerializedDemoDetector(config = {}) {
+  const metric = String(config.metric || "").trim();
+  const sequence = String(config.sequence || "").trim();
+  const heldValue = String(config.heldValue || "").trim();
+  const usable = config.mode === "held"
+    ? Boolean(metric && heldValue)
+    : Boolean(metric && sequence);
+  const hasDraftValues = Boolean(
+    metric || sequence || heldValue || normalizeScoreStopScreens(config.stopScreens).length,
+  );
+
+  return Boolean((config.created === true && hasDraftValues) || usable);
 }
 
 async function importGameScoreSettingsFile(file) {
@@ -6017,6 +6599,11 @@ async function importGameScoreSettingsFile(file) {
         item.demoStartValue,
         item.demoSequence,
       ),
+      demoStopScreens: normalizeScoreStopScreens(item.demoStopScreens),
+      demoMode: item.demoMode === "held" ? "held" : "sequence",
+      demoHeldValue: String(item.demoHeldValue ?? "").trim(),
+      demoHoldMs: Number(item.demoHoldMs) || 2000,
+      demoConfirmOnScreenExit: item.demoConfirmOnScreenExit !== false,
       demoDetectorCreated: item.demoDetectorCreated === true,
       demoDetectorEnabled: item.demoDetectorCreated === true ||
         Boolean(item.demoMetric && item.demoSequence),
@@ -6039,30 +6626,30 @@ async function importGameScoreSettingsFile(file) {
 function importGameDemoDetectorSettings(data) {
   if (!selectedGame) return;
 
-  if (Object.prototype.hasOwnProperty.call(data, "demoDetector")) {
-    selectedGame.demoDetector = normalizeImportedGameDemoDetector(
-      data.demoDetector,
-    );
-  }
+  selectedGame.demoDetector = Object.prototype.hasOwnProperty.call(
+    data,
+    "demoDetector",
+  )
+    ? normalizeImportedGameDemoDetector(data.demoDetector)
+    : {};
 
-  if (data.screenDemoDetectors && typeof data.screenDemoDetectors === "object") {
-    (selectedGame.screens || []).forEach((screen) => {
-      if (!Object.prototype.hasOwnProperty.call(
-        data.screenDemoDetectors,
-        screen.name,
-      )) {
-        return;
-      }
+  const screenConfigs =
+    data.screenDemoDetectors && typeof data.screenDemoDetectors === "object"
+      ? data.screenDemoDetectors
+      : {};
 
-      screen.demoDetector = normalizeImportedGameDemoDetector(
-        data.screenDemoDetectors[screen.name],
-      );
-    });
-  }
+  (selectedGame.screens || []).forEach((screen) => {
+    screen.demoDetector = Object.prototype.hasOwnProperty.call(
+      screenConfigs,
+      screen.name,
+    )
+      ? normalizeImportedGameDemoDetector(screenConfigs[screen.name])
+      : {};
+  });
 }
 
-function normalizeImportedGameDemoDetector(config) {
-  return serializeDemoDetectorConfig(config);
+function normalizeImportedGameDemoDetector(config, gameData = selectedGame) {
+  return serializeDemoDetectorConfig(config, gameData);
 }
 
 function openAchievementsModal() {
@@ -6358,20 +6945,40 @@ function renderDaysExportButton(gameName, settingKey) {
   exportButton.onclick = () => exportLeaderboardDaysData(gameName, settingKey);
 
   deleteSelectedButton.textContent = "Delete Selected";
-  deleteSelectedButton.className = "button-danger";
-  deleteSelectedButton.disabled = !gameName || !settingKey;
+  deleteSelectedButton.className =
+    "button-danger historySelectionDelete historySelectionDeleteZone";
+  deleteSelectedButton.disabled = true;
   deleteSelectedButton.onclick = deleteSelectedHistoryEntries;
+  deleteSelectedButton.addEventListener("dragover", (event) => {
+    if (!historySelectionState.nativeDragging) return;
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    deleteSelectedButton.classList.add("dragOver");
+  });
+  deleteSelectedButton.addEventListener("dragleave", () => {
+    deleteSelectedButton.classList.remove("dragOver");
+  });
+  deleteSelectedButton.addEventListener("drop", (event) => {
+    if (!historySelectionState.nativeDragging) return;
+
+    event.preventDefault();
+    historySelectionState.nativeDragging = false;
+    deleteSelectedButton.classList.remove("dragOver");
+    setHistoryDeleteDropMode(false);
+    deleteSelectedHistoryEntries();
+  });
 
   row.append(importButton, exportButton, deleteSelectedButton, input);
   daysModalContent.appendChild(row);
 }
 
 function getSelectedHistoryEntries() {
-  return [...daysModalContent.querySelectorAll(".scoreHistorySelect:checked")]
-    .map((checkbox) => {
+  return [...daysModalContent.querySelectorAll(".scoreHistoryRow.selectable.selected")]
+    .map((row) => {
       return {
-        dateKey: checkbox.dataset.dateKey,
-        entryKey: checkbox.dataset.entryKey,
+        dateKey: row.dataset.dateKey,
+        entryKey: row.dataset.entryKey,
       };
     })
     .filter((item) => item.dateKey && item.entryKey);
@@ -6549,14 +7156,68 @@ function createScoreHistoryRow(entry, rankText = "", options = {}) {
   score.textContent = formatScoreValue(entry);
 
   if (options.selectable) {
-    const select = document.createElement("input");
+    row.dataset.dateKey = options.dateKey || entry.date || getTodayDateKey();
+    row.dataset.entryKey = getScoreEntryKey(entry);
+    row.tabIndex = 0;
+    row.draggable = true;
+    row.setAttribute("role", "checkbox");
+    row.setAttribute("aria-checked", "false");
+    row.setAttribute("aria-label", `Select score ${formatScore(entry.score)}`);
+    row.onpointerdown = (event) => startWindowsRowSelection(
+      event,
+      row,
+      daysModalContent,
+      ".scoreHistoryRow.selectable",
+      historySelectionState,
+      setHistoryRowSelected,
+      true,
+    );
+    row.onpointerenter = (event) => {
+      continueWindowsRowSelection(
+        event,
+        row,
+        daysModalContent,
+        ".scoreHistoryRow.selectable",
+        historySelectionState,
+        setHistoryRowSelected,
+      );
+    };
+    row.onkeydown = (event) => {
+      if (event.key !== " " && event.key !== "Enter") return;
 
-    select.type = "checkbox";
-    select.className = "scoreHistorySelect";
-    select.dataset.dateKey = options.dateKey || entry.date || getTodayDateKey();
-    select.dataset.entryKey = getScoreEntryKey(entry);
-    select.setAttribute("aria-label", `Select score ${formatScore(entry.score)}`);
-    row.appendChild(select);
+      event.preventDefault();
+      setHistoryRowSelected(row, !row.classList.contains("selected"));
+    };
+    row.ondragstart = (event) => {
+      if (!row.classList.contains("selected")) {
+        clearHistorySelection();
+        setHistoryRowSelected(row, true);
+      }
+
+      historySelectionState.pendingSingle = null;
+      historySelectionState.pendingDeselect = false;
+      historySelectionState.nativeDragging = true;
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData(
+        "application/x-ocr-helper-score-selection",
+        "selected-high-scores",
+      );
+      setSelectionDragGhost(
+        event.dataTransfer,
+        daysModalContent.querySelectorAll(
+          ".scoreHistoryRow.selectable.selected",
+        ).length,
+        "score",
+      );
+      setHistoryDeleteDropMode(true);
+    };
+    row.ondragend = () => {
+      historySelectionState.nativeDragging = false;
+      setHistoryDeleteDropMode(false);
+      daysModalContent
+        .querySelector(".historySelectionDeleteZone")
+        ?.classList.remove("dragOver");
+    };
   }
 
   row.append(rank, name);
@@ -6568,6 +7229,189 @@ function createScoreHistoryRow(entry, rankText = "", options = {}) {
   row.appendChild(score);
 
   return row;
+}
+
+function setHistoryRowSelected(row, selected) {
+  row.classList.toggle("selected", selected);
+  row.setAttribute("aria-checked", String(selected));
+  updateHistorySelectionDeleteZone();
+}
+
+function createRowSelectionState() {
+  return {
+    active: false,
+    anchor: null,
+    dragStart: null,
+    baseline: new Set(),
+    dragValue: true,
+    pendingSingle: null,
+    pendingDeselect: false,
+    nativeDragging: false,
+  };
+}
+
+function startWindowsRowSelection(
+  event,
+  row,
+  container,
+  selector,
+  state,
+  setSelected,
+  allowNativeDrag = false,
+) {
+  if (event.button !== 0 || isHistorySelectionInteractiveTarget(event.target)) {
+    return;
+  }
+
+  const rows = [...container.querySelectorAll(selector)];
+  const additive = event.ctrlKey || event.metaKey || event.shiftKey;
+  const selectedBefore = new Set(rows.filter((item) => {
+    return item.classList.contains("selected");
+  }));
+
+  if (
+    allowNativeDrag &&
+    !additive &&
+    !event.shiftKey &&
+    selectedBefore.has(row)
+  ) {
+    state.active = false;
+    state.pendingSingle = row;
+    state.pendingDeselect = selectedBefore.size === 1;
+    row.focus();
+    return;
+  }
+
+  if (!allowNativeDrag) event.preventDefault();
+  state.pendingSingle = null;
+  state.pendingDeselect = false;
+
+  state.active = true;
+  state.dragStart = row;
+  state.baseline = additive ? selectedBefore : new Set();
+  state.dragValue = additive
+    ? !row.classList.contains("selected")
+    : true;
+  applyWindowsRowDragRange(rows, row, state, setSelected);
+  state.anchor = row;
+
+  row.focus();
+}
+
+function continueWindowsRowSelection(
+  event,
+  row,
+  container,
+  selector,
+  state,
+  setSelected,
+) {
+  if (!state.active || !(event.buttons & 1)) return;
+
+  applyWindowsRowDragRange(
+    [...container.querySelectorAll(selector)],
+    row,
+    state,
+    setSelected,
+  );
+}
+
+function applyWindowsRowDragRange(rows, row, state, setSelected) {
+  const start = rows.indexOf(state.dragStart);
+  const end = rows.indexOf(row);
+
+  if (start < 0 || end < 0) return;
+
+  const rangeStart = Math.min(start, end);
+  const rangeEnd = Math.max(start, end);
+
+  rows.forEach((item, index) => {
+    const inRange = index >= rangeStart && index <= rangeEnd;
+    setSelected(
+      item,
+      inRange ? state.dragValue : state.baseline.has(item),
+    );
+  });
+}
+
+function updateHistorySelectionDeleteZone() {
+  const zone = daysModalContent.querySelector(".historySelectionDeleteZone");
+
+  if (zone) {
+    const hasSelection = Boolean(daysModalContent.querySelector(
+      ".scoreHistoryRow.selectable.selected",
+    ));
+
+    zone.disabled = !hasSelection;
+    zone.classList.toggle("visible", hasSelection);
+  }
+}
+
+function setHistoryDeleteDropMode(active) {
+  const zone = daysModalContent.querySelector(".historySelectionDeleteZone");
+
+  if (!zone) return;
+
+  zone.classList.toggle("dropReady", active);
+  zone.textContent = active ? "Drop here to delete" : "Delete Selected";
+}
+
+function clearNamePoolSelection() {
+  namePoolList.querySelectorAll(".namePoolRow.selected").forEach((row) => {
+    setNamePoolRowSelected(row, false);
+  });
+  namePoolSelectionState.anchor = null;
+  namePoolSelectionState.pendingSingle = null;
+  namePoolSelectionState.pendingDeselect = false;
+}
+
+function clearHistorySelection() {
+  daysModalContent
+    .querySelectorAll(".scoreHistoryRow.selectable.selected")
+    .forEach((row) => setHistoryRowSelected(row, false));
+  historySelectionState.anchor = null;
+  historySelectionState.pendingSingle = null;
+  historySelectionState.pendingDeselect = false;
+}
+
+function isHistorySelectionInteractiveTarget(target) {
+  return Boolean(target.closest("input, button, select, textarea, a"));
+}
+
+function stopHistorySelectionDrag() {
+  if (
+    namePoolSelectionState.pendingSingle &&
+    !namePoolSelectionState.nativeDragging
+  ) {
+    const keepRow = namePoolSelectionState.pendingSingle;
+
+    namePoolList.querySelectorAll(".namePoolRow").forEach((row) => {
+      setNamePoolRowSelected(
+        row,
+        row === keepRow && !namePoolSelectionState.pendingDeselect,
+      );
+    });
+    namePoolSelectionState.anchor = keepRow;
+  }
+
+  namePoolSelectionState.pendingSingle = null;
+  namePoolSelectionState.pendingDeselect = false;
+  if (
+    historySelectionState.pendingSingle &&
+    !historySelectionState.nativeDragging
+  ) {
+    const keepRow = historySelectionState.pendingSingle;
+
+    daysModalContent
+      .querySelectorAll(".scoreHistoryRow.selectable")
+      .forEach((row) => setHistoryRowSelected(row, row === keepRow));
+    historySelectionState.anchor = keepRow;
+  }
+
+  historySelectionState.pendingSingle = null;
+  historySelectionState.pendingDeselect = false;
+  historySelectionState.active = false;
+  namePoolSelectionState.active = false;
 }
 
 function updateStoredLeaderboardEntryName(dateKey, entry, nextName) {
@@ -6911,30 +7755,42 @@ function renderAchievementsModal() {
 
     screen.achievements.forEach((achievement) => {
       const item = document.createElement("div");
-      const toggle = document.createElement("label");
-      const toggleInput = document.createElement("input");
-      const toggleText = document.createElement("span");
+      const status = document.createElement("span");
       const condition = document.createElement("div");
       const tier = document.createElement("div");
       const message = document.createElement("div");
 
       item.className = "achievementModalItem";
       item.dataset.tier = normalizeAchievementTier(achievement.tier);
-      item.classList.toggle("disabled", achievement.enabled === false);
-      toggle.className = "achievementModalToggle";
-      toggleInput.type = "checkbox";
-      toggleInput.checked = achievement.enabled !== false;
-      toggleInput.onchange = () => {
-        achievement.enabled = toggleInput.checked;
-        item.classList.toggle("disabled", !toggleInput.checked);
+      item.tabIndex = 0;
+      item.setAttribute("role", "switch");
+      status.className = "achievementModalStatus";
+
+      const updateState = () => {
+        const active = achievement.enabled !== false;
+
+        item.classList.toggle("disabled", !active);
+        item.setAttribute("aria-checked", String(active));
+        status.textContent = "Inactive";
+        status.hidden = active;
+      };
+      const toggleAchievement = () => {
+        achievement.enabled = achievement.enabled === false;
+        updateState();
         persistSelectedGameData();
         players.forEach((player) => {
           player.achievementRuntimeStates.clear();
           player.achievementToastQueue = [];
         });
       };
-      toggleText.textContent = "Active";
-      toggle.append(toggleInput, toggleText);
+      item.onclick = toggleAchievement;
+      item.onkeydown = (event) => {
+        if (event.key !== " " && event.key !== "Enter") return;
+
+        event.preventDefault();
+        toggleAchievement();
+      };
+      updateState();
       condition.className = "achievementModalCondition";
       condition.textContent = `${achievement.metric || "Metric"} ${achievement.comparer || "="} ${achievement.value ?? ""}`;
 
@@ -6944,7 +7800,7 @@ function renderAchievementsModal() {
       message.className = "achievementModalMessage";
       message.textContent = achievement.message || "Achievement unlocked!";
 
-      item.append(toggle, condition, tier, message);
+      item.append(status, condition, tier, message);
       section.appendChild(item);
     });
 
@@ -7157,7 +8013,79 @@ function setupSharedControls() {
   importNamePoolButton.onclick = () => {
     importNamePoolFile.click();
   };
+  importNamePoolButton.addEventListener("dragenter", (event) => {
+    if (!event.dataTransfer?.types?.includes("Files")) return;
+
+    event.preventDefault();
+    importNamePoolButton.classList.add("dragOver");
+  });
+  importNamePoolButton.addEventListener("dragover", (event) => {
+    if (!event.dataTransfer?.types?.includes("Files")) return;
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    importNamePoolButton.classList.add("dragOver");
+  });
+  importNamePoolButton.addEventListener("dragleave", () => {
+    importNamePoolButton.classList.remove("dragOver");
+  });
+  importNamePoolButton.addEventListener("drop", async (event) => {
+    event.preventDefault();
+    importNamePoolButton.classList.remove("dragOver");
+    await importNamePoolDataFile(event.dataTransfer?.files?.[0]);
+  });
   exportNamePoolButton.onclick = exportNamePoolData;
+  deleteSelectedNamesButton.onclick = deleteSelectedNamePoolEntries;
+  deleteSelectedNamesButton.addEventListener("dragover", (event) => {
+    if (!namePoolSelectionState.nativeDragging) return;
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    deleteSelectedNamesButton.classList.add("dragOver");
+  });
+  deleteSelectedNamesButton.addEventListener("dragleave", () => {
+    deleteSelectedNamesButton.classList.remove("dragOver");
+  });
+  deleteSelectedNamesButton.addEventListener("drop", (event) => {
+    if (!namePoolSelectionState.nativeDragging) return;
+
+    event.preventDefault();
+    deleteSelectedNamesButton.classList.remove("dragOver");
+    namePoolSelectionState.nativeDragging = false;
+    deleteSelectedNamePoolEntries();
+  });
+  namePoolList.addEventListener("dragover", (event) => {
+    if (!namePoolSelectionState.nativeDragging) return;
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "none";
+  });
+  namePoolList.addEventListener("drop", (event) => {
+    if (!namePoolSelectionState.nativeDragging) return;
+
+    event.preventDefault();
+  });
+  daysModalContent.addEventListener("dragover", (event) => {
+    if (
+      !historySelectionState.nativeDragging ||
+      event.target.closest(".historySelectionDeleteZone")
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "none";
+  });
+  daysModalContent.addEventListener("drop", (event) => {
+    if (
+      !historySelectionState.nativeDragging ||
+      event.target.closest(".historySelectionDeleteZone")
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+  });
   importNamePoolFile.onchange = async () => {
     await importNamePoolDataFile(importNamePoolFile.files?.[0]);
     importNamePoolFile.value = "";
@@ -7221,6 +8149,19 @@ function setupSharedControls() {
   });
 
   document.addEventListener("pointerdown", (e) => {
+    if (
+      !e.target.closest(".namePoolRow") &&
+      !e.target.closest("#deleteSelectedNames")
+    ) {
+      clearNamePoolSelection();
+    }
+    if (
+      !e.target.closest(".scoreHistoryRow.selectable") &&
+      !e.target.closest(".historySelectionDeleteZone")
+    ) {
+      clearHistorySelection();
+    }
+
     closeOpenAddModuleMenus(e.target);
 
     if (topGameSetup && !topGameSetup.contains(e.target)) {
@@ -7232,6 +8173,17 @@ function setupSharedControls() {
         details.open = false;
       }
     });
+  });
+  document.addEventListener("pointerup", stopHistorySelectionDrag);
+  document.addEventListener("pointercancel", stopHistorySelectionDrag);
+  window.addEventListener("blur", stopHistorySelectionDrag);
+  scoreBoard.addEventListener("pointerenter", () => {
+    scoreBoardPointerInside = true;
+    scoreScrollLastTime = performance.now();
+  });
+  scoreBoard.addEventListener("pointerleave", () => {
+    scoreBoardPointerInside = false;
+    scoreScrollLastTime = performance.now();
   });
 }
 

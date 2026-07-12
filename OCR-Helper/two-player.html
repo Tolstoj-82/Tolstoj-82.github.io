@@ -51,7 +51,7 @@
               Show available Achievements
             </button>
           </div>
-          <div class="topSetupVersion">Version Beta 1.2</div>
+          <div class="topSetupVersion">Version Beta 1.2.1</div>
         </div>
         <button
           id="openInfoModal"
@@ -124,6 +124,7 @@
         <h1 id="highScoreTitle">High Score</h1>
         <div id="highScoreSubtitle" class="highScoreSubtitle"></div>
         <div id="scoreBoard" class="scoreBoard"></div>
+        <div id="highScoreUndoToast" class="highScoreUndoToast" role="status" aria-live="polite" hidden></div>
       </section>
 
       <section class="playerPanel" data-player="1">
@@ -280,13 +281,25 @@
             />
             <button id="addNamePoolEntry" class="button-primary">Add</button>
           </div>
-          <label class="topToggle nameSourceToggle">
-            <input id="useNamePoolForRuns" type="checkbox" />
-            <span class="slider"></span>
-            <span>Use name list</span>
-          </label>
+          <div class="namePoolSelectionTools">
+            <label class="topToggle nameSourceToggle">
+              <input id="useNamePoolForRuns" type="checkbox" />
+              <span class="slider"></span>
+              <span>Use name list</span>
+            </label>
+            <button
+              id="deleteSelectedNames"
+              class="namePoolSelectionDelete button-danger"
+              type="button"
+              disabled
+            >
+              Delete selected
+            </button>
+          </div>
         </div>
-        <div id="namePoolList" class="namePoolList"></div>
+        <section class="namePoolPanel">
+          <div id="namePoolList" class="namePoolList"></div>
+        </section>
       </div>
     </div>
 
@@ -345,8 +358,8 @@
     <script defer src="js/LUT.js"></script>
     <script defer src="js/boxart.js"></script>
     <script defer src="js/modal.js"></script>
-    <script defer src="modules/registry.js"></script>
-    <script defer src="modules/Tetris-A_Type-Score.js"></script>
-    <script defer src="js/two-player.js"></script>
+    <script defer src="modules/registry.js?v=1.2.1-scorefix"></script>
+    <script defer src="modules/Tetris-A_Type-Score.js?v=1.2.1-scorefix"></script>
+    <script defer src="js/two-player.js?v=1.2.1-scorefix"></script>
   </body>
 </html>

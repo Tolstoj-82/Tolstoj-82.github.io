@@ -12,13 +12,17 @@ function updateJSONOutput() {
 }
 
 function getCurrentProjectData() {
+  const gameDemoDetector = game.demoDetector || {};
+
   return {
     exportVersion: PROJECT_EXPORT_VERSION,
     exportedAt: new Date().toISOString(),
     game: game.name,
     boxartImage: game.boxartImage || "",
     boxartImages: Array.isArray(game.boxartImages) ? game.boxartImages : [],
-    demoDetector: game.demoDetector || {},
+    ...(hasExportableDemoDetector(gameDemoDetector)
+      ? { demoDetector: gameDemoDetector }
+      : {}),
     recognitionScreen: game.recognitionScreen || "",
     settings: normalizeGameSettings(game.settings),
 
@@ -32,7 +36,9 @@ function getCurrentProjectData() {
     screens: game.screens.map((screen) => ({
       name: screen.name,
       identifierMatchCount: screen.identifierMatchCount || "all",
-      demoDetector: screen.demoDetector || {},
+      ...(hasExportableDemoDetector(screen.demoDetector)
+        ? { demoDetector: screen.demoDetector }
+        : {}),
 
       identifiers: screen.identifiers.map((id) => ({
         tile: id.tile,
@@ -59,6 +65,25 @@ function getCurrentProjectData() {
   };
 }
 
+function hasExportableDemoDetector(value = {}) {
+  const metric = String(value.metric || value.demoMetric || "").trim();
+  const sequence = String(value.sequence || value.demoSequence || "").trim();
+  const mode = value.mode === "held" ? "held" : "sequence";
+  const heldValue = String(value.heldValue || value.targetValue || "").trim();
+  const stopScreens = value.stopScreens || value.trackUntilScreens;
+  const hasDraftValues = Boolean(
+    metric || sequence || heldValue ||
+      (Array.isArray(stopScreens) && stopScreens.length),
+  );
+  const created = value.created === true || value.demoDetectorCreated === true;
+
+  const usable = mode === "held"
+    ? Boolean(metric && heldValue)
+    : Boolean(metric && sequence);
+
+  return Boolean((created && hasDraftValues) || usable);
+}
+
 function stringifyProjectData(data) {
   let json = JSON.stringify(data, null, 2);
 
@@ -78,13 +103,31 @@ function normalizeImportedDemoDetector(value = {}) {
     : String(value.sequence || value.demoSequence || "");
   const startValue = String(value.startValue || value.demoStartValue || "");
   const created = value.created === true || value.demoDetectorCreated === true;
+  const stopScreens = Array.isArray(value.stopScreens || value.trackUntilScreens)
+    ? (value.stopScreens || value.trackUntilScreens)
+        .map((item) => String(item || "").trim())
+        .filter(Boolean)
+    : [];
+  const mode = value.mode === "held" ? "held" : "sequence";
+  const heldValue = String(value.heldValue || value.targetValue || "");
+  const holdMs = Number.isFinite(Number(value.holdMs))
+    ? Math.max(0, Math.round(Number(value.holdMs)))
+    : 2000;
+  const confirmOnScreenExit = value.confirmOnScreenExit !== false;
 
   return {
     created,
-    enabled: created || Boolean(metric && sequence),
+    enabled: created || Boolean(
+      metric && (mode === "held" ? heldValue : sequence),
+    ),
     metric,
     sequence,
     startValue,
+    stopScreens,
+    mode,
+    heldValue,
+    holdMs,
+    confirmOnScreenExit,
   };
 }
 

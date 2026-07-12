@@ -898,6 +898,37 @@ body {
   overflow: hidden;
 }
 
+.highScoreUndoToast {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  bottom: var(--gap-md);
+  width: max-content;
+  max-width: calc(100% - (2 * var(--gap-md)));
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: 8px 10px;
+  transform: translateX(-50%);
+  background: #20242a;
+  color: #ffffff;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.highScoreUndoToast[hidden] {
+  display: none;
+}
+
+.highScoreUndoToast button {
+  min-height: 30px;
+  height: 30px;
+  padding: 3px 9px;
+}
+
 .highScoreSubtitle {
   margin-top: -6px;
   margin-bottom: 8px;
@@ -953,6 +984,42 @@ body {
 .highScoreBox-blue {
   background: rgba(0, 102, 204, 0.16);
   border-color: var(--accent-blue);
+}
+
+.highScoreDeleteButton {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--text-red);
+  border-radius: 50%;
+  background: var(--bg-panel-dark);
+  color: var(--text-red);
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease, background 0.14s ease;
+}
+
+.highScoreBox:hover .highScoreDeleteButton,
+.highScoreDeleteButton:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.highScoreDeleteButton:hover {
+  background: var(--text-red);
+  color: var(--shade-white);
 }
 
 .highScoreBox-red {
@@ -1290,6 +1357,8 @@ body {
   right: var(--gap-md);
   flex: 0 0 var(--control-height);
   width: var(--control-height);
+  height: var(--control-height);
+  aspect-ratio: 1;
   min-width: var(--control-height);
   padding: 0;
   border-radius: 50%;
@@ -1366,8 +1435,104 @@ body {
   justify-content: flex-end;
 }
 
+.namePoolSelectionTools {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
 .namePoolToolbar .nameSourceToggle {
-  justify-self: start;
+  flex: 0 0 auto;
+}
+
+.namePoolSelectionDelete {
+  min-height: var(--control-height);
+  height: var(--control-height);
+  flex: 0 0 auto;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease;
+}
+
+.namePoolSelectionDelete.visible {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.namePoolSelectionDelete.dropReady {
+  border-style: dashed;
+  background: rgba(196, 0, 0, 0.12);
+}
+
+.namePoolSelectionDelete.dropReady.dragOver {
+  background: var(--text-red);
+  color: var(--shade-white);
+}
+
+.namePoolPanel {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  margin: var(--gap-md);
+  padding: var(--gap-md);
+  background: var(--black-faint);
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+}
+
+.selectionDeleteZone {
+  flex: 1 0 100%;
+  width: 100%;
+  min-height: 48px;
+  border: 2px dashed var(--text-red);
+  border-radius: var(--radius-small);
+  background: rgba(196, 0, 0, 0.1);
+  color: var(--text-red);
+}
+
+.selectionDeleteZone:hover:not(:disabled) {
+  background: var(--text-red);
+  color: var(--shade-white);
+}
+
+.selectionDeleteZone.dragOver {
+  background: var(--text-red);
+  color: var(--shade-white);
+}
+
+.selectionDeleteZone[hidden] {
+  display: none;
+}
+
+.historySelectionDelete {
+  min-height: var(--control-height);
+  height: var(--control-height);
+  flex: 0 0 auto;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease;
+}
+
+.historySelectionDelete.visible {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.historySelectionDelete.dropReady {
+  border-style: dashed;
+  background: rgba(196, 0, 0, 0.12);
+}
+
+.historySelectionDelete.dropReady.dragOver {
+  background: var(--text-red);
+  color: var(--shade-white);
 }
 
 .namePoolList {
@@ -1376,15 +1541,51 @@ body {
   display: grid;
   align-content: start;
   gap: var(--gap-sm);
-  padding: var(--gap-md);
+  box-sizing: border-box;
+  padding: 0 24px 0 0;
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .namePoolRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
   gap: var(--gap-sm);
   align-items: center;
+  padding: 5px 7px;
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+  user-select: none;
+}
+
+.namePoolRow[draggable="true"] {
+  cursor: grab;
+}
+
+.namePoolRow[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.namePoolRow:hover {
+  border-color: var(--accent-blue);
+}
+
+.namePoolRow.selected {
+  background: rgba(47, 140, 255, 0.28);
+  border-color: var(--accent-blue);
+}
+
+.namePoolRow:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 1px;
+}
+
+.namePoolNumber {
+  color: var(--text-muted);
+  font-family: Consolas, monospace;
+  font-weight: bold;
+  text-align: right;
 }
 
 .namePoolEmpty {
@@ -1540,6 +1741,19 @@ body {
   background: rgba(217, 140, 0, 0.22);
   border: 1px solid var(--accent-orange);
   border-radius: var(--radius-small);
+}
+
+.demoDetectorBlock.incomplete {
+  border-color: var(--text-red);
+  box-shadow: 0 0 0 1px var(--text-red);
+}
+
+.demoDetectorBlock input.invalid,
+.demoDetectorBlock select.invalid,
+.demoDetectorBlock .multiSelectDropdown.invalid > .multiSelectDropdownButton {
+  border-color: var(--text-red);
+  background: rgba(196, 0, 0, 0.1);
+  box-shadow: 0 0 0 1px var(--text-red);
 }
 
 .demoDetectorRemove {
@@ -2058,17 +2272,35 @@ body {
 }
 
 .scoreHistoryRow.selectable {
-  grid-template-columns: 22px 34px minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  grid-template-columns: 34px minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  cursor: pointer;
+  user-select: none;
+}
+
+.scoreHistoryRow.selectable[draggable="true"] {
+  cursor: grab;
+}
+
+.scoreHistoryRow.selectable[draggable="true"]:active {
+  cursor: grabbing;
 }
 
 .scoreHistoryRow.selectable.noGame {
-  grid-template-columns: 22px 34px minmax(0, 1fr) auto auto;
+  grid-template-columns: 34px minmax(0, 1fr) auto auto;
 }
 
-.scoreHistorySelect {
-  width: 16px;
-  height: 16px;
-  margin: 0;
+.scoreHistoryRow.selectable:hover {
+  border-color: var(--accent-blue);
+}
+
+.scoreHistoryRow.selectable.selected {
+  background: rgba(47, 140, 255, 0.28);
+  border-color: var(--accent-blue);
+}
+
+.scoreHistoryRow.selectable:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 1px;
 }
 
 .scoreHistoryRank,
@@ -2177,11 +2409,21 @@ body {
   background: var(--achievement-bg);
   border: 2px solid var(--achievement-color);
   border-radius: var(--radius-small);
+  cursor: pointer;
+  position: relative;
+}
+
+.achievementModalItem:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
 }
 
 .achievementModalItem.disabled {
-  opacity: 0.58;
   filter: grayscale(0.35);
+}
+
+.achievementModalItem.disabled > :not(.achievementModalStatus) {
+  opacity: 0.48;
 }
 
 .achievementModalItem:first-of-type {
@@ -2222,21 +2464,42 @@ body {
   font-weight: bold;
 }
 
-.achievementModalToggle {
-  grid-column: 1 / -1;
-  display: inline-flex;
-  align-items: center;
-  justify-self: start;
-  gap: var(--gap-sm);
-  color: var(--panel-text);
-  font-size: 12px;
+.achievementModalStatus {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  padding: 5px 10px;
+  transform: translate(-50%, -50%);
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: #20242a;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.48);
+  font-size: 13px;
   font-weight: bold;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-.achievementModalToggle input {
-  width: 16px;
-  height: 16px;
-  margin: 0;
+.achievementModalItem.disabled .achievementModalStatus {
+  color: #ffffff;
+}
+
+.selectionDragGhost {
+  position: fixed;
+  z-index: -1;
+  top: -200px;
+  left: -200px;
+  min-width: 150px;
+  padding: 9px 13px;
+  border: 2px solid var(--accent-blue);
+  border-radius: var(--radius-small);
+  background: #20242a;
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+  font-weight: bold;
+  text-align: center;
 }
 
 .achievementModalMessage {
@@ -2411,6 +2674,12 @@ body {
   .topGameSetup button,
   .topGameSetup select {
     width: 100%;
+  }
+
+  .topGameSetup .infoButton {
+    width: var(--control-height);
+    min-width: var(--control-height);
+    height: var(--control-height);
   }
 
   .namePoolDataTools .button-black {
