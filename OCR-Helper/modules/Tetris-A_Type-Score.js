@@ -76,8 +76,16 @@
 
       if (context.activeScreenName !== config.scoreboardScreen) return;
 
+      // Name-entry cursor/blink pixels can break full 8x8 tile matching.
+      // This module deliberately uses the tilesets' stable scan pixels even
+      // when the game's global Fast OCR toggle is disabled.
+      const scoreboardValues = context.getScreenValues(
+        config.scoreboardScreen,
+        { fastOCR: true },
+      );
+
       const matchedIndex = findMatchingScoreIndex(
-        context.values,
+        scoreboardValues,
         context.entry.gameScore ?? context.entry.score,
         config,
       );
@@ -103,7 +111,7 @@
 
       context.keepNameEntryAlive();
 
-      const name = getValue(context.values, config[`name${matchedIndex}`]);
+      const name = getValue(scoreboardValues, config[`name${matchedIndex}`]);
 
       if (!name || name === "--" || /^[-\s]+$/.test(name)) return;
 

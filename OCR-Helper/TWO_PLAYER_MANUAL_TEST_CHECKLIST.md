@@ -32,7 +32,7 @@
 - [ ] Game-level Fast OCR setting uses the same visual toggle style as index.html.
 - [ ] Game-level Fast OCR on/off changes OCR behavior without breaking screen detection.
 - [ ] Fast OCR uses scan pixels while disabled Fast OCR requires full 8x8 tile matches.
-- [ ] Tetris A-Leaderboard name OCR is tested with Fast OCR enabled and with full-tile OCR so cursor/blink behavior is understood.
+- [ ] Tetris A-Leaderboard module reads names with scan pixels whether the global Fast OCR toggle is enabled or disabled.
 - [ ] Player Names button opens the Player Names modal.
 - [ ] Player Names modal has Import Names and Export Names above the Name/Add row.
 - [ ] Player Names modal can import a plain name array or exported name-data JSON.
@@ -200,6 +200,7 @@
 - [ ] Detaching a module asks for confirmation.
 - [ ] The same module can be added independently to multiple Screen/Metric settings.
 - [ ] Tetris A-Type leaderboard-name module reads the name from the matching scoreboard row.
+- [ ] Tetris A-Type leaderboard-name module forces Fast OCR only for its configured scoreboard ROIs without changing normal score/metric OCR.
 - [ ] Module configuration fields persist after reload and score-settings export/import.
 - [ ] If the scoreboard/rocket/offline sequence interrupts module name listening, the same score is not added again with the assigned fallback name.
 

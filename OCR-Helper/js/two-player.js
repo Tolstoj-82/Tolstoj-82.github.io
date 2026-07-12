@@ -3730,6 +3730,13 @@ function createModuleContext(player, entry = null, options = {}) {
 
       return getModuleValue(values, name);
     },
+    getScreenValues(screenName, readOptions = {}) {
+      const screen = (player.game?.screens || []).find((item) => {
+        return item.name === screenName;
+      });
+
+      return screen ? getRegionValues(player, screen, readOptions) : [];
+    },
     getModuleConfig(module) {
       const setting = getSelectedScoreSetting();
 
@@ -3873,7 +3880,7 @@ function countVisibleIdentifiers(player, screen) {
   }).length;
 }
 
-function getRegionValues(player, screen) {
+function getRegionValues(player, screen, options = {}) {
   return (screen.rois || []).map((region) => {
     const tileset = player.game.tilesets.find(
       (item) => item.name === region.tileset,
@@ -3884,7 +3891,7 @@ function getRegionValues(player, screen) {
     if (tileset) {
       sortTileKeysByReadingOrder(region.tiles || []).forEach((key) => {
         const [x, y] = key.split(",").map(Number);
-        const label = findTileLabel(getTile(player, x, y), tileset);
+        const label = findTileLabel(getTile(player, x, y), tileset, options);
 
         if (label === null) {
           hasUnknownTile = true;
@@ -3949,9 +3956,10 @@ function tilesEqualByScanPixels(a, b, scanPixels = null) {
   return scanPixels.every((index) => a[index] === b[index]);
 }
 
-function findTileLabel(pixels, tileset) {
+function findTileLabel(pixels, tileset, options = {}) {
+  const fastOCR = options.fastOCR ?? useFastOCR;
   const scanPixels =
-    useFastOCR && isUsableScanPixelSet(tileset.scanPixels)
+    fastOCR && isUsableScanPixelSet(tileset.scanPixels)
       ? tileset.scanPixels
       : null;
   const match = (tileset.tiles || []).find((tile) => {
