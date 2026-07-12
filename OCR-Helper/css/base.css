@@ -109,6 +109,33 @@
   box-sizing: border-box;
 }
 
+.siteNav {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.siteNavLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-height);
+  padding: 6px 12px;
+  color: var(--panel-text);
+  background: var(--panel-light);
+  border: 2px solid var(--shade-black);
+  border-radius: var(--radius-small);
+  font-weight: bold;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.siteNavLink:hover,
+.siteNavLink:focus-visible {
+  color: var(--shade-white);
+  background: var(--shade-black);
+}
+
 h1,
 .panel h2,
 #roiPanel h2 {

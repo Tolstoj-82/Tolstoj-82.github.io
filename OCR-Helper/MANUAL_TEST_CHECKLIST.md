@@ -1,4 +1,4 @@
-# index.html Manual Test Checklist
+# config.html Manual Test Checklist
 
 ## Project/storage
 

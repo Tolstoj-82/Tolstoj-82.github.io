@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GB OCR Configuration</title>
+
+    <!--<link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />-->
+
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/controls.css" />
+    <link rel="stylesheet" href="css/canvas.css" />
+    <link rel="stylesheet" href="css/panels.css" />
+    <link rel="stylesheet" href="css/tiles.css" />
+    <link rel="stylesheet" href="css/tilesets.css" />
+    <link rel="stylesheet" href="css/roi.css" />
+    <link rel="stylesheet" href="css/live-ocr.css" />
+    <link rel="stylesheet" href="css/modal.css" />
+  </head>
+
+  <body>
+    <div id="app">
+      <div id="topLayout">
+        <div id="main">
+          <section class="panel topSourcePanel">
+            <div class="topSourceLayout">
+              <div class="topSourceControls">
+                <section class="panelSection">
+                  <div class="row">
+                    <label for="cameraSelect">GB Interceptor</label>
+                    <select id="cameraSelect"></select>
+                    <button id="refreshCamera">Refresh devices</button>
+                    <button id="startCamera">Start Camera</button>
+                  </div>
+                </section>
+
+                <section class="panelSection savedGamePanel">
+                  <div class="savedGameRow">
+                    <label for="savedGameDropdownButton">Available Games</label>
+
+                    <div id="savedGamePicker" class="savedGamePicker">
+                      <button id="savedGameDropdownButton" type="button">
+                        Saved games...
+                      </button>
+                      <div
+                        id="savedGameMenu"
+                        class="savedGameMenu hidden"
+                      ></div>
+                    </div>
+
+                    <button id="loadSavedGame">Load</button>
+                  </div>
+                </section>
+              </div>
+
+              <div class="topActionStack">
+                <nav class="siteNav" aria-label="Site navigation">
+                  <a class="siteNavLink" href="index.html">Two Player</a>
+                </nav>
+                <button id="newProject" class="button-primary">
+                  +Add Game
+                </button>
+                <button id="importJSON" class="button-black">
+                  Import JSON(s)
+                </button>
+                <button id="downloadJSON" class="button-black">
+                  Export JSON
+                </button>
+              </div>
+
+              <input
+                id="importJSONFile"
+                type="file"
+                accept="application/json"
+                multiple
+                style="display: none"
+              />
+            </div>
+          </section>
+
+          <video id="video" autoplay playsinline muted></video>
+
+          <section class="panel">
+            <div class="imageRow">
+              <div class="captureMain">
+                <div class="canvasContainer">
+                  <canvas id="canvas" width="160" height="144"></canvas>
+                  <canvas id="roiCanvas" width="160" height="144"></canvas>
+                  <div id="gridOverlay"></div>
+                  <canvas id="gridCanvas" width="160" height="144"></canvas>
+                  <div id="achievementToastLayer"></div>
+                </div>
+
+                <section class="panelSection calibrationSection">
+                  <div class="buttonRow">
+                    <button id="calibrateButton">Calibrate</button>
+
+                    <span id="calibrationStatus" class="calibrationStatus bad"
+                      >✖</span
+                    >
+                    <button id="openCalibrationModal">
+                      Calibration Details
+                    </button>
+                  </div>
+                </section>
+
+                <details class="panelSection lutSection">
+                  <summary>LUT</summary>
+
+                  <div class="lutControls">
+                    <select id="lutPaletteSelect"></select>
+                  </div>
+
+                  <div id="lutSwatches" class="lutSwatches"></div>
+                </details>
+              </div>
+
+              <div class="sideInfo">
+                <label class="autoDetectToggle">
+                  <input id="autoDetectScreens" type="checkbox" />
+                  <span class="slider"></span>
+                  <span>Auto Detect Screens</span>
+                </label>
+
+                <label class="autoDetectToggle">
+                  <input id="showRegionsToggle" type="checkbox" checked />
+                  <span class="slider"></span>
+                  <span>Show Regions</span>
+                </label>
+
+                <div class="snapshotControls">
+                  <button id="snapshotToggle" type="button">
+                    Take Snapshot
+                  </button>
+                  <button
+                    id="snapshotLibraryButton"
+                    class="snapshotLibraryButton"
+                    type="button"
+                    title="Snapshots"
+                    aria-label="Snapshots"
+                    hidden
+                  >
+                    ▦
+                  </button>
+                </div>
+
+                <details class="panelSection ocrReliabilitySection">
+                  <summary>OCR Stability</summary>
+
+                  <label class="settingsField identifierMatchField">
+                    Ignore artefacts for (ms)
+                    <input
+                      id="screenGraceMs"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="off"
+                    />
+                  </label>
+
+                  <label class="settingsField identifierMatchField">
+                    <span>Retain value while unknown</span>
+                    <span class="autoDetectToggle settingsToggle">
+                      <input id="stallOcrOnUnknownTiles" type="checkbox" />
+                      <span class="slider"></span>
+                    </span>
+                  </label>
+
+                  <label class="settingsField identifierMatchField">
+                    <span>Fast OCR</span>
+                    <span class="autoDetectToggle settingsToggle">
+                      <input id="useOptimizedScanToggle" type="checkbox" />
+                      <span class="slider"></span>
+                    </span>
+                  </label>
+                </details>
+
+                <section class="panelSection liveOcrSection">
+                  <div id="activeScreenTitle" class="activeScreenTitle">
+                    No screen selected
+                  </div>
+
+                  <div id="roiReadout"></div>
+                </section>
+
+                <details
+                  id="identifierSection"
+                  class="panelSection identifierSection"
+                >
+                  <summary>
+                    <span>Identifiers</span>
+                    <button
+                      id="identifierMode"
+                      class="addActionButton"
+                      data-add-icon="+"
+                      aria-label="Add Identifier Tile"
+                    >
+                      +
+                    </button>
+                  </summary>
+                  <div id="identifierInfo">
+                    <div id="identifierInfoContent"></div>
+                  </div>
+                  <label class="settingsField identifierMatchField">
+                    Identify at least:
+                    <select id="identifierMatchCount"></select>
+                  </label>
+                </details>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Tiles</h2>
+            <section class="panelSection">
+              <div class="sectionHeader">
+                <h3>Tile discoverer</h3>
+              </div>
+              <div class="buttonRow tileDiscovererControls">
+                <div class="captureControlGroup">
+                  <button id="toggleCapture">▶</button>
+
+                  <span class="tileCountLabel">
+                    Tiles found:
+                    <strong id="tileCount">0</strong>
+                  </span>
+                </div>
+
+                <div class="tileUploadGroup">
+                  <button id="uploadTileImage" type="button">
+                    Upload Tiles PNG
+                  </button>
+                  <input
+                    id="uploadTileImageFile"
+                    type="file"
+                    accept="image/png"
+                    style="display: none"
+                  />
+                </div>
+
+                <div id="tileDeleteZone">Drop tile here to delete</div>
+
+                <div class="captureROIPickerRow">
+                  <div id="captureROIPicker" class="captureROIPicker"></div>
+                </div>
+              </div>
+
+              <div class="sectionHeader">
+                <h3>Discovered Tiles</h3>
+              </div>
+              <div id="tilesContainer"></div>
+              <button id="addTileset">+ Tileset</button>
+            </section>
+
+            <section class="panelSection">
+              <h3>Tilesets</h3>
+              <div id="tilesetContainer"></div>
+            </section>
+          </section>
+
+          <section class="panel">
+            <h2>JSON</h2>
+
+            <div class="jsonViewer">
+              <pre id="jsonHighlight" aria-hidden="true"></pre>
+              <textarea id="jsonOutput" rows="18" spellcheck="false"></textarea>
+            </div>
+          </section>
+        </div>
+
+        <div id="roiPanel">
+          <div class="workflowHeader">
+            <div id="workflowHint" class="workflowHint"></div>
+          </div>
+
+          <section class="panelSection">
+            <h2>Game</h2>
+            <div class="gameNamePicker">
+              <div
+                id="gameBoxartButton"
+                class="gameBoxartButton"
+                role="button"
+                tabindex="0"
+                aria-label="Select boxart"
+              ></div>
+              <input
+                id="gameName"
+                type="text"
+                placeholder="Game name..."
+                autocomplete="off"
+              />
+              <div id="gameNameSuggestions" class="gameNameSuggestions" hidden></div>
+            </div>
+
+            <label class="settingsField gameRecognitionField">
+              Recognize game on screen
+              <select id="gameRecognitionScreen"></select>
+            </label>
+
+            <button id="saveGameLocal">Save locally</button>
+          </section>
+
+          <section class="panelSection">
+            <div class="sectionHeader">
+              <h2>Screens</h2>
+              <button
+                id="addScreen"
+                class="addActionButton"
+                data-add-icon="+"
+                aria-label="Add Screen"
+              >
+                +
+              </button>
+            </div>
+            <div id="screenList"></div>
+          </section>
+
+          <section class="panelSection">
+            <h2 id="screenSetupTitle">Screen Setup</h2>
+
+            <div class="sectionHeader">
+              <h3>Regions</h3>
+              <button
+                id="addROI"
+                class="addActionButton"
+                data-add-icon="+"
+                aria-label="Add Region"
+              >
+                +
+              </button>
+            </div>
+            <div id="roiList"></div>
+
+            <div class="sectionHeader">
+              <h3>Achievements</h3>
+              <button
+                id="addAchievement"
+                class="addActionButton"
+                data-add-icon="+"
+                aria-label="Add Achievement"
+              >
+                +
+              </button>
+            </div>
+            <div id="achievementList"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalOverlay" class="modalOverlay hidden">
+      <div class="modalBox">
+        <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+        <div id="modalMessage" class="modalMessage"></div>
+
+        <input
+          id="modalInput"
+          class="modalInput"
+          type="text"
+          style="display: none"
+        />
+
+        <select
+          id="modalSelect"
+          class="modalInput"
+          style="display: none"
+        ></select>
+
+        <div
+          id="modalChoices"
+          class="modalChoiceList"
+          style="display: none"
+        ></div>
+
+        <div class="modalButtons">
+          <button id="modalCancel">Cancel</button>
+          <button id="modalOk">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="calibrationModalOverlay" class="modalOverlay hidden">
+      <div class="modalBox calibrationModalBox">
+        <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+        <button
+          id="discardCalibrationModal"
+          class="modalCloseButton"
+          type="button"
+          title="Close"
+        >
+          ×
+        </button>
+
+        <h2>Calibration Details</h2>
+
+        <canvas id="calibrationHistogram" width="512" height="260"></canvas>
+
+        <div class="thresholdRow">
+          <span>Thresholds:</span>
+          <strong id="thresholdValues"></strong>
+        </div>
+
+        <div class="calibrationModalButtons">
+          <button id="resetCalibrationAuto">Reset to Auto</button>
+
+          <div class="calibrationModalButtonGroup">
+            <button id="saveCalibrationModal">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tileImageModalOverlay" class="modalOverlay hidden">
+      <div class="modalBox tileImageModalBox">
+        <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+
+        <h2>Import Tiles PNG</h2>
+
+        <div class="tileImagePreviewFrame">
+          <canvas id="tileImagePreview"></canvas>
+        </div>
+
+        <div class="tileImageOptions">
+          <label>
+            <input id="tileImageInvert" type="checkbox" />
+            Invert
+          </label>
+        </div>
+
+        <div class="modalButtons">
+          <button id="cancelTileImageImport">Cancel</button>
+          <button id="confirmTileImageImport">Import</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tileSelectionBox" class="tileSelectionBox hidden"></div>
+    <div id="snapshotModalOverlay" class="modalOverlay hidden">
+      <div class="modalBox snapshotModalBox">
+        <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+        <button
+          id="closeSnapshotModal"
+          class="modalCloseButton"
+          type="button"
+          title="Close"
+        >
+          ×
+        </button>
+
+        <h2>Snapshots</h2>
+        <div id="snapshotList" class="snapshotList"></div>
+      </div>
+    </div>
+    Version Beta 1.2.2
+    <script defer src="js/LUT.js"></script>
+    <script defer src="js/constants.js"></script>
+    <script defer src="js/elements.js"></script>
+    <script defer src="js/modal.js"></script>
+    <script defer src="js/model.js"></script>
+    <script defer src="js/utils.js"></script>
+    <script defer src="js/boxart-list.js"></script>
+    <script defer src="js/game-metadata.js"></script>
+    <script defer src="js/live-ocr.js"></script>
+    <script defer src="js/screens.js"></script>
+    <script defer src="js/workflow.js"></script>
+    <script defer src="js/import-export.js"></script>
+    <script defer src="js/storage.js"></script>
+    <script defer src="js/lut-controls.js"></script>
+    <script defer src="js/achievements.js"></script>
+    <script defer src="js/camera.js"></script>
+    <script defer src="js/calibration.js"></script>
+    <script defer src="js/tiles.js"></script>
+    <script defer src="js/tilesets.js"></script>
+    <script defer src="js/roi.js"></script>
+    <script defer src="js/canvas-editor.js"></script>
+    <script defer src="js/capture.js"></script>
+    <script defer src="js/app.js"></script>
+  </body>
+</html>

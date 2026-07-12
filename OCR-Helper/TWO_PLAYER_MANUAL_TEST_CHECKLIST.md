@@ -1,9 +1,9 @@
-# two-player.html Manual Test Checklist
+# index.html (Two Player) Manual Test Checklist
 
 ## Project/game setup
 
 - [ ] Header hides into the top edge and opens on hover.
-- [ ] Saved games from the same local storage as index.html appear in the single Game dropdown.
+- [ ] Saved games from the same local storage as config.html appear in the single Game dropdown.
 - [ ] There is only one Game dropdown in the header.
 - [ ] Import JSON adds valid game settings to local storage.
 - [ ] Top header first row is Game, Active Leaderboard, Game Settings, Import JSON.
@@ -29,7 +29,7 @@
 - [ ] High score panel title shows only the loaded game name in uppercase.
 - [ ] High score panel subtitle shows the active leaderboard in brackets, e.g. "(A-Type -> Score)".
 - [ ] Setup checklist appears inside each player's settings accordion.
-- [ ] Game-level Fast OCR setting uses the same visual toggle style as index.html.
+- [ ] Game-level Fast OCR setting uses the same visual toggle style as config.html.
 - [ ] Game-level Fast OCR on/off changes OCR behavior without breaking screen detection.
 - [ ] Fast OCR uses scan pixels while disabled Fast OCR requires full 8x8 tile matches.
 - [ ] Tetris A-Leaderboard module reads names with scan pixels whether the global Fast OCR toggle is enabled or disabled.
@@ -125,7 +125,7 @@
 - [ ] Achievement enabled/disabled state exports/imports with the game JSON.
 - [ ] Each player has an independent achievement toast area above their screen.
 - [ ] Player 1 and Player 2 achievement state is tracked separately.
-- [ ] Achievements use the same trigger/baseline logic as index.html.
+- [ ] Achievements use the same trigger/baseline logic as config.html.
 - [ ] Conditions already true at the start of a run are ignored as baseline.
 - [ ] False-to-true condition transitions trigger a toast.
 - [ ] Multiple achievements queue instead of overlapping.

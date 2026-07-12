@@ -5670,6 +5670,7 @@ function isDemoDetectorConfigPresent(config) {
 function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
   const block = document.createElement("div");
   const fields = document.createElement("div");
+  const divider = document.createElement("hr");
   const remove = document.createElement("button");
   const sequence = document.createElement("input");
   const startValue = document.createElement("select");
@@ -5704,6 +5705,7 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
 
   block.className = "demoDetectorBlock";
   fields.className = "gameSettingFormGrid demoDetectorGrid";
+  divider.className = "demoDetectorDivider";
   [["sequence", "Sequence"], ["held", "Held value"]].forEach(([value, label]) => {
     const option = document.createElement("option");
 
@@ -5793,7 +5795,9 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
     );
   };
 
-  fields.append(createSettingField("Detector mode", mode));
+  const modeField = createSettingField("Detector mode", mode);
+  modeField.classList.add("demoDetectorModeField");
+  fields.append(modeField, divider);
   if (current.mode === "held") {
     fields.append(
       createSettingField("Metric", metric),
