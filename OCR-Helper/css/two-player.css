@@ -1306,6 +1306,9 @@ body {
 
 .highScoreMeta {
   min-width: 0;
+  height: 24px;
+  display: flex;
+  align-items: center;
 }
 
 .highScoreBox.podium .highScoreMeta {
@@ -1328,12 +1331,6 @@ body {
 
 .highScorePlayer.editable {
   cursor: text;
-}
-
-.highScorePlayer.editable:hover,
-.highScorePlayer.editable:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 2px;
 }
 
 .highScorePlayerInput {

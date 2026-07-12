@@ -7,8 +7,9 @@
 - [ ] Changing either center dropdown updates the active game or leaderboard state.
 - [ ] The slide-down header no longer contains duplicate Game, Active Leaderboard, or Game Settings controls.
 - [ ] The header button is labeled Achievements.
-- [ ] Clicking a finalized center-panel leaderboard name opens a same-height inline editor; Enter/blur saves and Escape cancels.
+- [ ] Clicking a finalized center-panel leaderboard name opens an inline editor without underlining the name or changing the panel height; Enter/blur saves and Escape cancels.
 - [ ] Inline leaderboard name edits persist to today's stored scores and the rebuilt all-time leaderboard.
+- [ ] Center-panel inline leaderboard names accept at most 10 characters and save in uppercase on blur or Enter.
 - [ ] The Configuration link is top-aligned with the Info button in the slide-down header.
 - [ ] Player 1 has the same transparent outer panel border treatment as Player 2.
 

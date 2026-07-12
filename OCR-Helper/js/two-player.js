@@ -19,6 +19,7 @@ const NAME_ENTRY_SECONDS = 30;
 const NAME_ENTRY_IDLE_SECONDS = 10;
 const MODULE_NAME_ENTRY_KEEPALIVE_SECONDS = 30;
 const MAX_SCORE_NAME_LENGTH = 12;
+const MAX_INLINE_LEADERBOARD_NAME_LENGTH = 10;
 const DEFAULT_TRACKED_SCREEN_NAME = "A-Type";
 const DEFAULT_SCREEN_DETECTION_GRACE_MS = 300;
 const STARTUP_RESTART_REQUIRED_MS = 10000;
@@ -4520,8 +4521,8 @@ function startHighScoreNameEdit(entry, label) {
 
   input.type = "text";
   input.className = "highScorePlayerInput";
-  input.value = originalName;
-  input.maxLength = MAX_SCORE_NAME_LENGTH;
+  input.value = originalName.slice(0, MAX_INLINE_LEADERBOARD_NAME_LENGTH);
+  input.maxLength = MAX_INLINE_LEADERBOARD_NAME_LENGTH;
   input.setAttribute("aria-label", "Leaderboard name");
   input.onclick = (event) => event.stopPropagation();
   input.onkeydown = (event) => {
@@ -4540,7 +4541,10 @@ function startHighScoreNameEdit(entry, label) {
   input.onblur = () => {
     if (!input.isConnected) return;
 
-    const nextName = input.value.trim().slice(0, MAX_SCORE_NAME_LENGTH);
+    const nextName = input.value
+      .trim()
+      .slice(0, MAX_INLINE_LEADERBOARD_NAME_LENGTH)
+      .toUpperCase();
 
     if (canceled || nextName === originalName || !nextName) {
       input.replaceWith(label);
