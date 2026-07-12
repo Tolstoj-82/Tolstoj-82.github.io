@@ -40,7 +40,9 @@
             />
           </div>
           <nav class="siteNav" aria-label="Site navigation">
-            <a class="siteNavLink" href="config.html">Configuration</a>
+            <a class="siteNavLink" href="config.html" title="Open Configuration"
+              >Configuration</a
+            >
           </nav>
         </div>
 
@@ -49,12 +51,14 @@
             <button id="openNamePool" class="button-primary">
               Player Names
             </button>
-            <button id="showDays" class="button-primary">High Score Data</button>
+            <button id="showDays" class="button-primary">
+              High Score Data
+            </button>
             <button id="showAchievements" class="button-primary">
               Show available Achievements
             </button>
           </div>
-          <div class="topSetupVersion">Version Beta 1.2.2</div>
+          <div class="topSetupVersion">Version Beta 1.2.3</div>
         </div>
         <button
           id="openInfoModal"
@@ -69,11 +73,7 @@
       <section class="playerPanel" data-player="0">
         <h1 id="player1Title">Player 1</h1>
         <div id="player1ScreenBadge" class="screenBadge">No screen</div>
-        <div
-          id="player1GameToast"
-          class="gameRecognitionToast"
-          hidden
-        ></div>
+        <div id="player1GameToast" class="gameRecognitionToast" hidden></div>
 
         <div class="screenArea">
           <div id="player1Achievements" class="playerAchievements"></div>
@@ -87,11 +87,7 @@
               class="interceptorOverlay"
               hidden
             ></div>
-            <div
-              id="player1Fireworks"
-              class="fireworksOverlay"
-              hidden
-            ></div>
+            <div id="player1Fireworks" class="fireworksOverlay" hidden></div>
           </div>
 
           <div id="player1NameEntry" class="playerNameEntry" hidden></div>
@@ -127,17 +123,19 @@
         <h1 id="highScoreTitle">High Score</h1>
         <div id="highScoreSubtitle" class="highScoreSubtitle"></div>
         <div id="scoreBoard" class="scoreBoard"></div>
-        <div id="highScoreUndoToast" class="highScoreUndoToast" role="status" aria-live="polite" hidden></div>
+        <div
+          id="highScoreUndoToast"
+          class="highScoreUndoToast"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></div>
       </section>
 
       <section class="playerPanel" data-player="1">
         <h1 id="player2Title">Player 2</h1>
         <div id="player2ScreenBadge" class="screenBadge">No screen</div>
-        <div
-          id="player2GameToast"
-          class="gameRecognitionToast"
-          hidden
-        ></div>
+        <div id="player2GameToast" class="gameRecognitionToast" hidden></div>
 
         <div class="screenArea">
           <div id="player2Achievements" class="playerAchievements"></div>
@@ -151,11 +149,7 @@
               class="interceptorOverlay"
               hidden
             ></div>
-            <div
-              id="player2Fireworks"
-              class="fireworksOverlay"
-              hidden
-            ></div>
+            <div id="player2Fireworks" class="fireworksOverlay" hidden></div>
           </div>
 
           <div id="player2NameEntry" class="playerNameEntry" hidden></div>
@@ -247,7 +241,10 @@
             ×
           </button>
         </div>
-        <div id="gameSettingsModalContent" class="gameSettingsModalContent"></div>
+        <div
+          id="gameSettingsModalContent"
+          class="gameSettingsModalContent"
+        ></div>
       </div>
     </div>
 
@@ -266,8 +263,12 @@
         </div>
         <div class="namePoolToolbar">
           <div class="namePoolDataTools">
-            <button id="importNamePool" class="button-black">Import Names</button>
-            <button id="exportNamePool" class="button-black">Export Names</button>
+            <button id="importNamePool" class="button-black">
+              Import Names
+            </button>
+            <button id="exportNamePool" class="button-black">
+              Export Names
+            </button>
             <input
               id="importNamePoolFile"
               type="file"

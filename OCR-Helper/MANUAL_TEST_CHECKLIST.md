@@ -1,5 +1,16 @@
 # config.html Manual Test Checklist
 
+- [ ] The purple Two Player link opens index.html and shows a link symbol.
+- [ ] The Two Player link warns before discarding named or unnamed unsaved configuration changes.
+- [ ] The Two Player link navigates immediately when the current configuration has no unsaved changes.
+- [ ] All circular × delete controls use the same size and borderless muted style, turning red on hover or keyboard focus.
+- [ ] Captured snapshots persist after reloading config.html and retain their preview palette.
+- [ ] Snapshot names persist after editing and pressing Enter or leaving the field.
+- [ ] Snapshots can be rearranged by their drag handles and retain the new order after reload.
+- [ ] Snapshot drag targets show a yellow insertion bar on the left or right side, matching tile-card reordering.
+- [ ] Deleting a snapshot removes it from the library and local storage after confirmation.
+- [ ] The Snapshot modal header keeps the drag handle, title, and close × aligned on one row like the other application modals.
+
 ## Project/storage
 
 - [ ] New project from empty and non-empty state.

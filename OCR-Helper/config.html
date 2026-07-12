@@ -57,7 +57,13 @@
 
               <div class="topActionStack">
                 <nav class="siteNav" aria-label="Site navigation">
-                  <a class="siteNavLink" href="index.html">Two Player</a>
+                  <a
+                    id="twoPlayerPageLink"
+                    class="siteNavLink"
+                    href="index.html"
+                    title="Open Two Player"
+                    >Two Player</a
+                  >
                 </nav>
                 <button id="newProject" class="button-primary">
                   +Add Game
@@ -290,7 +296,11 @@
                 placeholder="Game name..."
                 autocomplete="off"
               />
-              <div id="gameNameSuggestions" class="gameNameSuggestions" hidden></div>
+              <div
+                id="gameNameSuggestions"
+                class="gameNameSuggestions"
+                hidden
+              ></div>
             </div>
 
             <label class="settingsField gameRecognitionField">
@@ -438,21 +448,23 @@
     <div id="tileSelectionBox" class="tileSelectionBox hidden"></div>
     <div id="snapshotModalOverlay" class="modalOverlay hidden">
       <div class="modalBox snapshotModalBox">
-        <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
-        <button
-          id="closeSnapshotModal"
-          class="modalCloseButton"
-          type="button"
-          title="Close"
-        >
-          ×
-        </button>
-
-        <h2>Snapshots</h2>
+        <div class="modalHeader">
+          <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+          <h2>Snapshots</h2>
+          <button
+            id="closeSnapshotModal"
+            class="modalCloseButton"
+            type="button"
+            title="Close"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
         <div id="snapshotList" class="snapshotList"></div>
       </div>
     </div>
-    Version Beta 1.2.2
+    Version Beta 1.2.3
     <script defer src="js/LUT.js"></script>
     <script defer src="js/constants.js"></script>
     <script defer src="js/elements.js"></script>

@@ -159,7 +159,7 @@ function renderROIList() {
     let del = document.createElement("button");
 
     del.textContent = "×";
-    del.className = "roiDeleteButton";
+    del.className = "roiDeleteButton roundDeleteButton";
     del.title = "Delete region";
 
     del.onclick = (e) => {

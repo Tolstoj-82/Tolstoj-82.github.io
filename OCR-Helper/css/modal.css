@@ -16,6 +16,10 @@
   display: none;
 }
 
+#modalOverlay {
+  z-index: 10000;
+}
+
 .modalBox {
   position: relative;
   width: min(420px, 100%);
@@ -328,34 +332,141 @@
 
 .snapshotModalBox {
   width: min(760px, 100%);
+  height: min(86vh, 820px);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid var(--border-panel);
+}
+
+.modalHeader {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, max-content) minmax(0, 1fr) 30px;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--gap-md);
+  border-bottom: 1px solid var(--border-section);
+}
+
+.modalHeader .modalDragHandle {
+  position: static;
+  grid-column: 1;
+  grid-row: 1;
+  width: 24px;
+  height: 24px;
+  transform: none;
+  cursor: move;
+}
+
+.modalHeader h2 {
+  grid-column: 2;
+  margin: 0;
+}
+
+.modalHeader .modalCloseButton {
+  position: relative;
+  top: auto;
+  right: auto;
+  grid-column: 4;
+  grid-row: 1;
+  justify-self: end;
 }
 
 .snapshotList {
+  min-height: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  align-content: start;
   gap: var(--gap-md);
+  padding: var(--gap-md);
+  overflow-y: auto;
 }
 
 .snapshotItem {
   display: grid;
   gap: var(--gap-sm);
   padding: var(--gap-sm);
+  background: var(--panel-light);
   color: var(--panel-text);
-  border-color: var(--border-mid);
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  transition: border-color 0.12s ease, opacity 0.12s ease;
 }
 
 .snapshotItem:hover {
-  background: var(--accent-blue-hover);
-  color: var(--panel-text);
+  border-color: var(--accent-blue);
 }
 
-.snapshotItem canvas {
-  width: 100%;
-  aspect-ratio: 160 / 144;
+.snapshotItem.dragOver {
+  border-color: var(--text-yellow);
+}
+
+.snapshotItem.dropBefore {
+  box-shadow: -8px 0 0 var(--text-yellow);
+}
+
+.snapshotItem.dropAfter {
+  box-shadow: 8px 0 0 var(--text-yellow);
+}
+
+.snapshotItem.dragging {
+  opacity: 0.45;
+}
+
+.snapshotPreviewButton {
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
   background: var(--shade-black);
   border: 1px solid var(--border-mid);
+  border-radius: var(--radius-small);
+}
+
+.snapshotPreviewButton:hover:not(:disabled) {
+  background: var(--shade-black);
+  border-color: var(--accent-blue);
+}
+
+.snapshotPreviewButton canvas {
+  width: 100%;
+  aspect-ratio: 160 / 144;
+  display: block;
+  background: var(--shade-black);
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+.snapshotItemControls {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+.snapshotDragHandle {
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: grab;
+  line-height: 1;
+}
+
+.snapshotDragHandle:active {
+  cursor: grabbing;
+}
+
+.snapshotNameInput {
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  height: 32px;
 }
 
 .snapshotEmpty {

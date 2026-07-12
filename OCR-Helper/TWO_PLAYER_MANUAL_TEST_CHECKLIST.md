@@ -1,5 +1,14 @@
 # index.html (Two Player) Manual Test Checklist
 
+- [ ] The purple Configuration link opens config.html and shows a link symbol.
+- [ ] Get leaderboard name (A-Type) can be attached from every Screen → Metric setting for a Tetris game.
+- [ ] Available achievements remain grouped by screen, then by metric with metric headings in alphabetical order.
+- [ ] Achievement values within each metric are numeric ascending when numeric, otherwise alphabetical.
+- [ ] Numeric values in the Achievements modal use comma thousands separators (for example, 1000 displays as 1,000).
+- [ ] All circular × delete controls use the same size and borderless muted style, turning red on hover or keyboard focus.
+- [ ] Every leaderboard-panel × keeps its original overlay placement and uses the same slightly transparent white circular background with a subtle shadow.
+- [ ] The leaderboard × is geometrically centered from two CSS bars; podium delete circles sit at the card's top-right.
+
 ## Project/game setup
 
 - [ ] Header hides into the top edge and opens on hover.

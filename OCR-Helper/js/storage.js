@@ -36,7 +36,7 @@ function renderSavedGameList() {
     label.textContent = name;
 
     const deleteButton = document.createElement("span");
-    deleteButton.className = "savedGameDelete";
+    deleteButton.className = "savedGameDelete roundDeleteButton";
     deleteButton.textContent = "×";
     deleteButton.title = "Delete saved game";
 
@@ -158,6 +158,23 @@ function deleteGameFromLocalStorage(name = selectedSavedGameName) {
 saveGameLocalButton.onclick = saveCurrentGameToLocalStorage;
 loadSavedGameButton.onclick = loadGameFromLocalStorage;
 
+const twoPlayerPageLink = document.getElementById("twoPlayerPageLink");
+
+twoPlayerPageLink?.addEventListener("click", (event) => {
+  if (!hasUnsavedLocalChanges()) return;
+
+  event.preventDefault();
+  showConfirm(
+    "Open Two Player?\n\nYour unsaved configuration changes will be lost.",
+    () => {
+      window.location.assign(twoPlayerPageLink.href);
+    },
+    null,
+    "Open Two Player",
+    "Stay Here",
+  );
+});
+
 savedGameDropdownButton.onclick = () => {
   savedGameMenu.classList.toggle("hidden");
 };
@@ -263,7 +280,7 @@ function hasUnsavedLocalChanges() {
 
   const name = game.name.trim();
 
-  if (!name) return false;
+  if (!name) return true;
 
   const currentSnapshot = getComparableProjectJSON(getCurrentProjectData());
 

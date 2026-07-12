@@ -143,7 +143,7 @@ function renderIdentifierInfo() {
     label.textContent = `(${identifier.tile})`;
 
     const deleteButton = document.createElement("button");
-    deleteButton.className = "identifierDeleteButton";
+    deleteButton.className = "identifierDeleteButton roundDeleteButton";
     deleteButton.type = "button";
     deleteButton.textContent = "×";
     deleteButton.title = "Delete identifier tile";

@@ -1011,15 +1011,46 @@ body {
   transition: opacity 0.14s ease, background 0.14s ease;
 }
 
+.highScoreDeleteButton.roundDeleteButton {
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 1px 2px var(--black-shadow-soft);
+  font-size: 0;
+}
+
+.highScoreDeleteButton.roundDeleteButton::before,
+.highScoreDeleteButton.roundDeleteButton::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 11px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.highScoreDeleteButton.roundDeleteButton::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.highScoreDeleteButton.roundDeleteButton::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.highScoreBox.podium .highScoreDeleteButton {
+  top: 4px;
+  transform: none;
+}
+
 .highScoreBox:hover .highScoreDeleteButton,
 .highScoreDeleteButton:focus-visible {
   opacity: 1;
   pointer-events: auto;
 }
 
-.highScoreDeleteButton:hover {
-  background: var(--text-red);
-  color: var(--shade-white);
+.highScoreDeleteButton.roundDeleteButton.roundDeleteButton:hover:not(:disabled),
+.highScoreDeleteButton.roundDeleteButton.roundDeleteButton:focus-visible {
+  background: rgba(255, 255, 255, 0.9) !important;
 }
 
 .highScoreBox-red {
@@ -2415,6 +2446,18 @@ body {
   margin: 0 0 var(--gap-sm);
 }
 
+.achievementModalMetricGroup + .achievementModalMetricGroup {
+  margin-top: var(--gap-md);
+}
+
+.achievementModalMetricGroup h4 {
+  margin: 0;
+  padding-bottom: 4px;
+  color: var(--panel-text);
+  border-bottom: 2px solid var(--border-section);
+  font-size: 14px;
+}
+
 .achievementModalItem {
   --achievement-color: var(--tier-beginner);
   --achievement-bg: var(--tier-beginner-bg);
@@ -2446,6 +2489,10 @@ body {
 
 .achievementModalItem:first-of-type {
   margin-top: 0;
+}
+
+.achievementModalMetricGroup h4 + .achievementModalItem {
+  margin-top: var(--gap-sm);
 }
 
 .achievementModalItem[data-tier="novice"] {
@@ -2487,21 +2534,21 @@ body {
   z-index: 2;
   top: 50%;
   left: 50%;
-  padding: 5px 10px;
+  padding: 3px 7px;
   transform: translate(-50%, -50%);
-  border: 2px solid #ffffff;
-  border-radius: 999px;
-  background: #20242a;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.48);
-  font-size: 13px;
+  border: 1px solid #aeb4ba;
+  border-radius: var(--radius-small);
+  background: #e5e7eb;
+  color: #5f6368;
+  box-shadow: none;
+  font-size: 12px;
   font-weight: bold;
-  letter-spacing: 0.06em;
+  letter-spacing: normal;
   text-transform: uppercase;
 }
 
 .achievementModalItem.disabled .achievementModalStatus {
-  color: #ffffff;
+  color: #5f6368;
 }
 
 .selectionDragGhost {

@@ -118,11 +118,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 7px;
   min-height: var(--control-height);
   padding: 6px 12px;
-  color: var(--panel-text);
-  background: var(--panel-light);
-  border: 2px solid var(--shade-black);
+  color: var(--shade-white);
+  background: var(--tier-advanced);
+  border: 2px solid var(--tier-advanced);
   border-radius: var(--radius-small);
   font-weight: bold;
   line-height: 1;
@@ -130,10 +131,17 @@
   white-space: nowrap;
 }
 
+.siteNavLink::before {
+  content: "↗";
+  font-size: 16px;
+  line-height: 1;
+}
+
 .siteNavLink:hover,
 .siteNavLink:focus-visible {
   color: var(--shade-white);
-  background: var(--shade-black);
+  background: #6d3bd1;
+  border-color: var(--shade-white);
 }
 
 h1,
@@ -235,5 +243,34 @@ h1,
 .roiDeleteButton:hover,
 .identifierDeleteButton:hover {
   background: var(--white-hover-bg);
+  color: var(--text-red) !important;
+}
+
+.roundDeleteButton.roundDeleteButton {
+  flex: 0 0 24px;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none !important;
+  border-radius: 50%;
+  background: transparent !important;
+  color: var(--button-muted-text) !important;
+  box-shadow: none;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  appearance: none;
+}
+
+.roundDeleteButton.roundDeleteButton:hover:not(:disabled),
+.roundDeleteButton.roundDeleteButton:focus-visible {
+  border: none !important;
+  background: var(--black-faint) !important;
   color: var(--text-red) !important;
 }

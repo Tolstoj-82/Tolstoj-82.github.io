@@ -127,7 +127,7 @@ function createAchievementItem(screen, achievement) {
 
   const del = document.createElement("button");
   del.textContent = "×";
-  del.className = "roiDeleteButton";
+  del.className = "roiDeleteButton roundDeleteButton";
   del.title = "Delete achievement";
   del.onclick = (e) => {
     e.preventDefault();

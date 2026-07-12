@@ -1285,6 +1285,10 @@ function getModulesForSetting(setting) {
   };
 
   return (window.OcrGameModules?.items || []).filter((module) => {
+    if (module.attachAnywhere === true) {
+      return typeof module.canAttach !== "function" || module.canAttach(context);
+    }
+
     if (
       typeof module.matches === "function" &&
       !module.matches(context)
@@ -4448,7 +4452,7 @@ function createHighScoreBox(entry, index, displayRank) {
     const deleteButton = document.createElement("button");
 
     deleteButton.type = "button";
-    deleteButton.className = "highScoreDeleteButton";
+    deleteButton.className = "highScoreDeleteButton roundDeleteButton";
     deleteButton.textContent = "×";
     deleteButton.title = "Delete high score";
     deleteButton.setAttribute(
@@ -4957,7 +4961,7 @@ function renderNamePoolModal() {
       updateNamePoolEntry(index, input.value);
     };
     del.type = "button";
-    del.className = "namePoolDeleteButton";
+    del.className = "namePoolDeleteButton roundDeleteButton";
     del.textContent = "×";
     del.title = "Delete name";
     del.setAttribute("aria-label", `Delete ${name}`);
@@ -5431,7 +5435,7 @@ function createGameSettingDeleteButton(setting) {
   const del = document.createElement("button");
 
   del.textContent = "×";
-  del.className = "gameSettingsDeleteButton";
+  del.className = "gameSettingsDeleteButton roundDeleteButton";
   del.title = "Delete setting";
   del.onclick = (event) => {
     event.preventDefault();
@@ -5777,7 +5781,7 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
   };
 
   remove.type = "button";
-  remove.className = "gameSettingsDeleteButton demoDetectorRemove";
+  remove.className = "gameSettingsDeleteButton demoDetectorRemove roundDeleteButton";
   remove.textContent = "×";
   remove.title = "Remove demo detector";
   remove.onclick = () => {
@@ -6090,7 +6094,7 @@ function createGameModuleSettingsRow(setting, module) {
   });
   title.textContent = `Module: ${module.name || module.id}`;
   detach.type = "button";
-  detach.className = "gameModuleDetachButton";
+  detach.className = "gameModuleDetachButton roundDeleteButton";
   detach.textContent = "×";
   detach.title = "Detach module";
   detach.onclick = (event) => {
@@ -7104,7 +7108,7 @@ function createAllTimeEntryRow(entry, rankText) {
   });
   const del = document.createElement("button");
 
-  del.className = "entryDeleteButton";
+  del.className = "entryDeleteButton roundDeleteButton";
   del.textContent = "×";
   del.title = "Delete score";
   del.onclick = () => {
@@ -7135,7 +7139,7 @@ function createDayEntryRow(dateKey, entry, rankText) {
   });
   const del = document.createElement("button");
 
-  del.className = "entryDeleteButton";
+  del.className = "entryDeleteButton roundDeleteButton";
   del.textContent = "×";
   del.title = "Delete score";
   del.onclick = () => {
@@ -7795,59 +7799,122 @@ function renderAchievementsModal() {
     title.textContent = screen.name || "Unnamed screen";
     section.appendChild(title);
 
-    screen.achievements.forEach((achievement) => {
-      const item = document.createElement("div");
-      const status = document.createElement("span");
-      const condition = document.createElement("div");
-      const tier = document.createElement("div");
-      const message = document.createElement("div");
+    getAchievementModalMetricGroups(screen.achievements).forEach((group) => {
+      const metricGroup = document.createElement("div");
+      const metricTitle = document.createElement("h4");
 
-      item.className = "achievementModalItem";
-      item.dataset.tier = normalizeAchievementTier(achievement.tier);
-      item.tabIndex = 0;
-      item.setAttribute("role", "switch");
-      status.className = "achievementModalStatus";
-
-      const updateState = () => {
-        const active = achievement.enabled !== false;
-
-        item.classList.toggle("disabled", !active);
-        item.setAttribute("aria-checked", String(active));
-        status.textContent = "Inactive";
-        status.hidden = active;
-      };
-      const toggleAchievement = () => {
-        achievement.enabled = achievement.enabled === false;
-        updateState();
-        persistSelectedGameData();
-        players.forEach((player) => {
-          player.achievementRuntimeStates.clear();
-          player.achievementToastQueue = [];
-        });
-      };
-      item.onclick = toggleAchievement;
-      item.onkeydown = (event) => {
-        if (event.key !== " " && event.key !== "Enter") return;
-
-        event.preventDefault();
-        toggleAchievement();
-      };
-      updateState();
-      condition.className = "achievementModalCondition";
-      condition.textContent = `${achievement.metric || "Metric"} ${achievement.comparer || "="} ${achievement.value ?? ""}`;
-
-      tier.className = "achievementModalTier";
-      tier.textContent = normalizeAchievementTier(achievement.tier);
-
-      message.className = "achievementModalMessage";
-      message.textContent = achievement.message || "Achievement unlocked!";
-
-      item.append(status, condition, tier, message);
-      section.appendChild(item);
+      metricGroup.className = "achievementModalMetricGroup";
+      metricTitle.textContent = group.metric;
+      metricGroup.appendChild(metricTitle);
+      group.achievements.forEach((achievement) => {
+        metricGroup.appendChild(createAchievementModalItem(achievement));
+      });
+      section.appendChild(metricGroup);
     });
 
     achievementsModalContent.appendChild(section);
   });
+}
+
+function getAchievementModalMetricGroups(achievements) {
+  const groups = new Map();
+
+  achievements.forEach((achievement, sourceIndex) => {
+    const metric = String(achievement.metric || "").trim() || "Unassigned";
+
+    if (!groups.has(metric)) groups.set(metric, []);
+    groups.get(metric).push({ achievement, sourceIndex });
+  });
+
+  return [...groups.entries()]
+    .sort(([a], [b]) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+    .map(([metric, entries]) => ({
+      metric,
+      achievements: entries
+        .sort(compareAchievementModalEntries)
+        .map((entry) => entry.achievement),
+    }));
+}
+
+function compareAchievementModalEntries(a, b) {
+  const aValue = String(a.achievement.value ?? "").trim();
+  const bValue = String(b.achievement.value ?? "").trim();
+  const aNumber = aValue === "" ? null : Number(aValue);
+  const bNumber = bValue === "" ? null : Number(bValue);
+  const aIsNumber = Number.isFinite(aNumber);
+  const bIsNumber = Number.isFinite(bNumber);
+
+  if (aIsNumber && bIsNumber && aNumber !== bNumber) return aNumber - bNumber;
+  if (aIsNumber !== bIsNumber) return aIsNumber ? -1 : 1;
+
+  const valueOrder = aValue.localeCompare(bValue, undefined, {
+    sensitivity: "base",
+  });
+
+  return valueOrder || a.sourceIndex - b.sourceIndex;
+}
+
+function formatAchievementModalValue(value) {
+  const text = String(value ?? "").trim();
+  const number = Number(text);
+
+  if (!text || !Number.isFinite(number)) return text;
+
+  return number.toLocaleString("en-US", {
+    maximumFractionDigits: 20,
+  });
+}
+
+function createAchievementModalItem(achievement) {
+  const item = document.createElement("div");
+  const status = document.createElement("span");
+  const condition = document.createElement("div");
+  const tier = document.createElement("div");
+  const message = document.createElement("div");
+
+  item.className = "achievementModalItem";
+  item.dataset.tier = normalizeAchievementTier(achievement.tier);
+  item.tabIndex = 0;
+  item.setAttribute("role", "switch");
+  status.className = "achievementModalStatus";
+
+  const updateState = () => {
+    const active = achievement.enabled !== false;
+
+    item.classList.toggle("disabled", !active);
+    item.setAttribute("aria-checked", String(active));
+    status.textContent = "Inactive";
+    status.hidden = active;
+  };
+  const toggleAchievement = () => {
+    achievement.enabled = achievement.enabled === false;
+    updateState();
+    persistSelectedGameData();
+    players.forEach((player) => {
+      player.achievementRuntimeStates.clear();
+      player.achievementToastQueue = [];
+    });
+  };
+
+  item.onclick = toggleAchievement;
+  item.onkeydown = (event) => {
+    if (event.key !== " " && event.key !== "Enter") return;
+
+    event.preventDefault();
+    toggleAchievement();
+  };
+  updateState();
+  condition.className = "achievementModalCondition";
+  condition.textContent = `${achievement.metric || "Metric"} ${achievement.comparer || "="} ${formatAchievementModalValue(achievement.value)}`;
+
+  tier.className = "achievementModalTier";
+  tier.textContent = normalizeAchievementTier(achievement.tier);
+
+  message.className = "achievementModalMessage";
+  message.textContent = achievement.message || "Achievement unlocked!";
+
+  item.append(status, condition, tier, message);
+  return item;
 }
 
 function animateScoreRankChanges(previousPositions) {
