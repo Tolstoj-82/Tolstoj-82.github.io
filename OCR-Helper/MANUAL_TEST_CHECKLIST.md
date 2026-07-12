@@ -38,6 +38,8 @@
 - [ ] Ignore artefacts (ms) accepts only integers from 0 to 1000.
 - [ ] Retain value while unknown keeps the last OCR value when an ROI contains unknown tiles.
 - [ ] Fast OCR toggle is inside OCR Stability.
+- [ ] Fast OCR uses tileset scan pixels; disabling it uses full 8x8 tile matching.
+- [ ] Animated/blinking tiles visibly demonstrate whether scan-pixel matching is required for stable OCR.
 - [ ] Camera refresh remains stable after camera permission errors or unplug/replug cycles.
 
 ## Screens/regions/identifiers
@@ -65,6 +67,18 @@
 - [ ] Assign tileset to region, then delete that tileset; region should become unassigned.
 - [ ] Workflow hints remain visible and show a compact checklist.
 - [ ] Workflow Tiles hint is OK when either discovered tiles or saved tileset tiles exist.
+
+## Demo detectors
+
+- [ ] Global and per-screen demo detector areas show only the + Demo detector action until created.
+- [ ] Empty detector sections are omitted from exported game JSON.
+- [ ] Sequence mode persists metric, sequence, starting value, and Track until screens after reload.
+- [ ] Held value mode persists metric, held value, hold duration, Confirm on screen exit, and Track until screens after reload.
+- [ ] Track until may remain empty in both detector modes without showing an invalid/red state.
+- [ ] Removing a completely empty detector does not ask for confirmation.
+- [ ] Removing a detector with metric, sequence, held value, or Track until data asks for confirmation.
+- [ ] Export/import round-trip preserves both sequence and held-value detector modes.
+- [ ] Importing older demo-detector JSON without mode fields falls back to sequence mode.
 
 ## Achievements
 

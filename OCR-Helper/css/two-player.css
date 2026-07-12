@@ -1513,16 +1513,22 @@ body {
   min-height: var(--control-height);
   height: var(--control-height);
   flex: 0 0 auto;
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.14s ease;
+  visibility: visible;
+  transition:
+    opacity 0.14s ease,
+    filter 0.14s ease;
 }
 
-.historySelectionDelete.visible {
-  visibility: visible;
+.historySelectionDelete.active {
   opacity: 1;
   pointer-events: auto;
+  filter: none;
+}
+
+.historySelectionDelete.inactive {
+  opacity: 0.42;
+  pointer-events: none;
+  filter: grayscale(0.7);
 }
 
 .historySelectionDelete.dropReady {

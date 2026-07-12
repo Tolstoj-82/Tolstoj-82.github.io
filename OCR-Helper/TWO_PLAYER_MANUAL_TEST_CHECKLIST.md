@@ -9,6 +9,7 @@
 - [ ] Top header first row is Game, Active Leaderboard, Game Settings, Import JSON.
 - [ ] Top header second row contains Player Names, High Score Data, Show available Achievements, and the info button.
 - [ ] Info button is pinned in the top-right corner of the header.
+- [ ] Info button remains a perfect circle in narrow/mobile viewports.
 - [ ] Imported games appear immediately in the game dropdown.
 - [ ] Selecting a game loads it for both players.
 - [ ] Active Leaderboard dropdown shows the selected game's high-score tracking settings.
@@ -30,10 +31,20 @@
 - [ ] Setup checklist appears inside each player's settings accordion.
 - [ ] Game-level Fast OCR setting uses the same visual toggle style as index.html.
 - [ ] Game-level Fast OCR on/off changes OCR behavior without breaking screen detection.
+- [ ] Fast OCR uses scan pixels while disabled Fast OCR requires full 8x8 tile matches.
+- [ ] Tetris A-Leaderboard name OCR is tested with Fast OCR enabled and with full-tile OCR so cursor/blink behavior is understood.
 - [ ] Player Names button opens the Player Names modal.
 - [ ] Player Names modal has Import Names and Export Names above the Name/Add row.
 - [ ] Player Names modal can import a plain name array or exported name-data JSON.
 - [ ] Player Names modal exports name data as player-names.json.
+- [ ] Imported, added, edited, and deleted names persist in local storage after reload.
+- [ ] Each name row shows its number before the editable text input.
+- [ ] Name-list scrollbar has a separate gutter and does not overlap name panels or delete buttons.
+- [ ] Import Names accepts file drop without changing the controls' height or shifting the modal.
+- [ ] Name rows support click, Ctrl/Shift, and held-pointer range selection without checkboxes.
+- [ ] Clicking outside the name rows clears their selection.
+- [ ] Dragging selected names shows a useful drag ghost and temporarily turns Delete selected into a drop target.
+- [ ] Dropping selected names back over the list does not insert browser drag text into an input.
 - [ ] Use name list toggle is inside the Player Names modal.
 - [ ] Button text in the top header and Player Names modal does not wrap.
 
@@ -106,8 +117,8 @@
 
 - [ ] Achievements button opens a modal listing achievements from the loaded game JSON.
 - [ ] Modal clearly shows achievement conditions, tiers, and messages.
-- [ ] Each achievement in the modal has an Active checkbox.
-- [ ] Disabling an achievement mutes it visually in the modal.
+- [ ] Clicking an achievement panel toggles it without a checkbox; Space/Enter does the same when focused.
+- [ ] Disabled achievements are muted and show a bordered INACTIVE badge centered in the panel with readable contrast.
 - [ ] Disabled achievements do not trigger toasts for either player.
 - [ ] Re-enabling an achievement allows it to trigger again after the normal baseline/reset logic.
 - [ ] Achievement enabled/disabled state persists in local storage.
@@ -130,6 +141,7 @@
 - [ ] Scrollbar in the rank list is invisible.
 - [ ] Ranks #4+ auto-scroll smoothly up and down when there are too many to fit.
 - [ ] Auto-scroll speed is readable.
+- [ ] Auto-scroll pauses while the pointer is inside the leaderboard and resumes after it leaves.
 - [ ] User cannot manually disturb the auto-scroll position.
 - [ ] Ranking order is correct for all visible and hidden ranks.
 - [ ] Rank numbers are correct after many rank changes.
@@ -146,6 +158,10 @@
 - [ ] Removing a demo box leaves no visual artifacts on other rank panels.
 - [ ] Rank swap animation appears when one score surpasses another.
 - [ ] Top 3 rank swaps animate like lower-rank swaps.
+- [ ] Finalized score panels show a vertically centered delete × only on hover.
+- [ ] Deleting a finalized score shows a bottom undo toast without shifting the leaderboard.
+- [ ] Undo restores the exact deleted entry to today's and all-time data before the toast expires.
+- [ ] Letting the undo toast expire permanently keeps the entry deleted.
 
 ## Demo handling
 
@@ -155,6 +171,13 @@
 - [ ] Non-empty demo detector asks for confirmation before removal.
 - [ ] Demo detector sequence input has no placeholder; example sequence appears in the label.
 - [ ] Demo detector Label-as-Demo control has no placeholder.
+- [ ] Detector mode switches between Sequence and Held value.
+- [ ] Held value mode exposes Metric, Held value, Hold duration, Confirm on screen exit, and Track until.
+- [ ] Held value mode can confirm a demo after the configured duration.
+- [ ] Held value mode can confirm a previously matched value when leaving the screen if enabled.
+- [ ] Track until is optional and does not show an invalid/red state when empty.
+- [ ] Setting-, screen-, and game-level held detectors resolve in the same priority order as sequence detectors.
+- [ ] Held detector mode and all fields persist after reload and score-settings export/import.
 - [ ] Demo detection follows the configured sequence.
 - [ ] Demo label appears only after the configured "Label as Demo from" value is reached.
 - [ ] Demo box is visually fainter than real score boxes.
@@ -177,6 +200,7 @@
 - [ ] Detaching a module asks for confirmation.
 - [ ] The same module can be added independently to multiple Screen/Metric settings.
 - [ ] Tetris A-Type leaderboard-name module reads the name from the matching scoreboard row.
+- [ ] Module configuration fields persist after reload and score-settings export/import.
 - [ ] If the scoreboard/rocket/offline sequence interrupts module name listening, the same score is not added again with the assigned fallback name.
 
 ## Name entry
@@ -209,9 +233,14 @@
 - [ ] Day entries do not repeat the game name in the middle.
 - [ ] Names can be edited inside day entries without closing the accordion.
 - [ ] Individual day entries can be deleted.
-- [ ] Multiple day/all-time entries can be selected with checkboxes.
+- [ ] Day/all-time rows support click, Ctrl/Shift, and held-pointer range selection without checkboxes.
+- [ ] Clicking outside selectable score rows clears their selection.
+- [ ] Clicking a selected row can deselect it according to the Windows-style selection behavior.
+- [ ] Dragging selected scores shows a useful drag ghost.
+- [ ] Dropping selected scores back over score panels does not insert browser drag text into editable name inputs.
 - [ ] Delete Selected asks for confirmation and removes all selected entries.
-- [ ] Delete Selected does nothing and shows a message when no entries are selected.
+- [ ] Delete Selected remains in a fixed position: inactive/dimmed with no selection and active with a selection.
+- [ ] While dragging selected scores, Delete Selected becomes the drop target without changing row/action-bar height.
 - [ ] Whole day/game data can be deleted after confirmation.
 - [ ] All Time Top 20 appears as an accordion in a distinct style.
 - [ ] All-time entries can be edited and deleted.

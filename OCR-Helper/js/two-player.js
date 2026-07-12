@@ -641,6 +641,35 @@ function normalizeDemoDetectorConfig(
   };
 }
 
+function hasUsableDemoDetectorConfig(value = {}) {
+  const metric = String(value.metric ?? value.demoMetric ?? "").trim();
+  const mode = value.mode === "held" || value.demoMode === "held"
+    ? "held"
+    : "sequence";
+  const sequence = normalizeScoreDemoSequenceInput(
+    value.sequence ?? value.demoSequence,
+  );
+  const heldValue = String(
+    value.heldValue ?? value.demoHeldValue ?? value.targetValue ?? "",
+  ).trim();
+
+  return Boolean(metric && (mode === "held" ? heldValue : sequence));
+}
+
+function hasDemoDetectorDraftValues(value = {}) {
+  return Boolean(
+    String(value.metric ?? value.demoMetric ?? "").trim() ||
+      normalizeScoreDemoSequenceInput(value.sequence ?? value.demoSequence) ||
+      String(value.startValue ?? value.demoStartValue ?? "").trim() ||
+      String(
+        value.heldValue ?? value.demoHeldValue ?? value.targetValue ?? "",
+      ).trim() ||
+      normalizeScoreStopScreens(
+        value.stopScreens ?? value.demoStopScreens ?? value.trackUntilScreens,
+      ).length,
+  );
+}
+
 function getScoreDemoDetectorConfig(setting = getSelectedScoreSetting()) {
   const config = getResolvedDemoDetectorConfig(setting);
   const sequence = parseScoreDemoSequence(config?.sequence);
@@ -694,7 +723,7 @@ function getResolvedDemoDetectorConfig(setting = getSelectedScoreSetting()) {
     setting?.screen || selectedScoreScreenName,
   );
 
-  if (settingConfig.metric && settingConfig.sequence) {
+  if (hasUsableDemoDetectorConfig(settingConfig)) {
     return settingConfig;
   }
 
@@ -704,7 +733,7 @@ function getResolvedDemoDetectorConfig(setting = getSelectedScoreSetting()) {
     screen?.name,
   );
 
-  if (screenConfig.metric && screenConfig.sequence) {
+  if (hasUsableDemoDetectorConfig(screenConfig)) {
     return screenConfig;
   }
 
@@ -713,7 +742,7 @@ function getResolvedDemoDetectorConfig(setting = getSelectedScoreSetting()) {
     selectedScoreScreenName,
   );
 
-  return gameConfig.metric && gameConfig.sequence ? gameConfig : null;
+  return hasUsableDemoDetectorConfig(gameConfig) ? gameConfig : null;
 }
 
 function getScoreEntryKey(entry) {
@@ -1472,7 +1501,7 @@ function normalizeScoreSettingsRecord(record) {
     item.demoConfirmOnScreenExit = item.demoConfirmOnScreenExit !== false;
     item.demoDetectorCreated = item.demoDetectorCreated === true;
     item.demoDetectorEnabled = item.demoDetectorCreated ||
-      Boolean(item.demoMetric && item.demoSequence);
+      hasUsableDemoDetectorConfig(item);
     item.moduleConfig = normalizeSettingModuleConfig(item);
     item.name = getScoreSettingLabel(item);
 
@@ -2414,6 +2443,8 @@ function updatePlayerRun(player, previousScreen) {
   const canReadTrackedScore =
     score !== null && isTrackedScoreReadAllowed(player);
 
+  updateDemoTracking(player, previousScreen);
+
   if (isScoreStopScreen(player.activeScreen)) {
     if (!isScoreStopScreen(previousScreen) || player.scoreStopScreenSince === null) {
       player.scoreStopScreenSince = Date.now();
@@ -2518,8 +2549,6 @@ function updatePlayerRun(player, previousScreen) {
   if (gameScore !== null) {
     player.currentGameScore = gameScore;
   }
-
-  updateDemoTracking(player);
 
   if (player.lastScore !== null && score < player.lastScore) {
     if (isNewGameStartSignal(score, gameScore, lines)) {
@@ -5742,7 +5771,7 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
   remove.textContent = "×";
   remove.title = "Remove demo detector";
   remove.onclick = () => {
-    if (!current.metric && !current.sequence && !current.startValue) {
+    if (!hasDemoDetectorDraftValues(current)) {
       onRemove();
       return;
     }
@@ -6499,7 +6528,7 @@ function serializeScoreSetting(item) {
     demoConfirmOnScreenExit: item.demoConfirmOnScreenExit !== false,
     demoDetectorCreated: item.demoDetectorCreated === true,
     demoDetectorEnabled: item.demoDetectorCreated === true ||
-      Boolean(item.demoMetric && item.demoSequence),
+      hasUsableDemoDetectorConfig(item),
     moduleConfig: item.moduleConfig || {},
   };
 }
@@ -6606,7 +6635,7 @@ async function importGameScoreSettingsFile(file) {
       demoConfirmOnScreenExit: item.demoConfirmOnScreenExit !== false,
       demoDetectorCreated: item.demoDetectorCreated === true,
       demoDetectorEnabled: item.demoDetectorCreated === true ||
-        Boolean(item.demoMetric && item.demoSequence),
+        hasUsableDemoDetectorConfig(item),
       moduleConfig: item.moduleConfig || {},
     }));
     normalizeScoreSettingsRecord(record);
@@ -6946,7 +6975,7 @@ function renderDaysExportButton(gameName, settingKey) {
 
   deleteSelectedButton.textContent = "Delete Selected";
   deleteSelectedButton.className =
-    "button-danger historySelectionDelete historySelectionDeleteZone";
+    "button-danger historySelectionDelete historySelectionDeleteZone inactive";
   deleteSelectedButton.disabled = true;
   deleteSelectedButton.onclick = deleteSelectedHistoryEntries;
   deleteSelectedButton.addEventListener("dragover", (event) => {
@@ -7343,7 +7372,8 @@ function updateHistorySelectionDeleteZone() {
     ));
 
     zone.disabled = !hasSelection;
-    zone.classList.toggle("visible", hasSelection);
+    zone.classList.toggle("active", hasSelection);
+    zone.classList.toggle("inactive", !hasSelection);
   }
 }
 
