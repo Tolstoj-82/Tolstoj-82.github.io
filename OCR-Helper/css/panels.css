@@ -210,9 +210,10 @@
   font-weight: normal;
 }
 
-.gameNameSuggestion:hover,
-.gameNameSuggestion:focus-visible {
+button.gameNameSuggestion:hover,
+button.gameNameSuggestion:focus-visible {
   background: var(--black-faint);
+  color: var(--panel-text);
 }
 
 .gameBoxartButton {

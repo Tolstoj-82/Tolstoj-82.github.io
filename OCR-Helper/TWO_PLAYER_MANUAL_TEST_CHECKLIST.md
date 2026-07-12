@@ -1,5 +1,17 @@
 # index.html (Two Player) Manual Test Checklist
 
+- [ ] The center-panel subtitle is larger and remains the same height when its leaderboard dropdown appears on hover.
+- [ ] Hovering the center game title reveals the Game dropdown and cog-only Game Settings button without layout movement.
+- [ ] The cog shows the existing black Game Settings tooltip on hover and keyboard focus.
+- [ ] Hovering the center subtitle reveals the Screen → Metric dropdown without layout movement.
+- [ ] Changing either center dropdown updates the active game or leaderboard state.
+- [ ] The slide-down header no longer contains duplicate Game, Active Leaderboard, or Game Settings controls.
+- [ ] The header button is labeled Achievements.
+- [ ] Clicking a finalized center-panel leaderboard name opens a same-height inline editor; Enter/blur saves and Escape cancels.
+- [ ] Inline leaderboard name edits persist to today's stored scores and the rebuilt all-time leaderboard.
+- [ ] The Configuration link is top-aligned with the Info button in the slide-down header.
+- [ ] Player 1 has the same transparent outer panel border treatment as Player 2.
+
 - [ ] The purple Configuration link opens config.html and shows a link symbol.
 - [ ] Get leaderboard name (A-Type) can be attached from every Screen → Metric setting for a Tetris game.
 - [ ] Available achievements remain grouped by screen, then by metric with metric headings in alphabetical order.

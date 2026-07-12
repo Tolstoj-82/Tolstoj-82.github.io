@@ -59,6 +59,10 @@ body {
   flex-wrap: nowrap;
 }
 
+.topSetupPrimaryRow > .siteNav {
+  align-self: flex-start;
+}
+
 .topSetupSecondaryRow {
   flex-wrap: wrap;
 }
@@ -220,7 +224,7 @@ body {
     linear-gradient(rgba(0, 102, 204, 0.16), rgba(0, 102, 204, 0.16)),
     var(--panel-light);
   border-width: 4px;
-  border-color: var(--accent-blue);
+  border-color: transparent;
 }
 
 .playerPanel[data-player="0"] h1 {
@@ -930,12 +934,104 @@ body {
 }
 
 .highScoreSubtitle {
-  margin-top: -6px;
-  margin-bottom: 8px;
+  margin: 0;
   color: var(--text-muted);
   font-family: Consolas, monospace;
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: bold;
   text-align: center;
+}
+
+.livePanelHeader {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 2px;
+  margin-bottom: 8px;
+  background: var(--bg-panel-dark);
+}
+
+.liveTitleSwitcher,
+.liveSubtitleSwitcher {
+  position: relative;
+  min-width: 0;
+}
+
+.liveTitleSwitcher {
+  height: var(--control-height);
+}
+
+.liveSubtitleSwitcher {
+  height: 32px;
+}
+
+.liveTitleSwitcher .liveTitle,
+.liveTitleControls,
+.liveSubtitleSwitcher .highScoreSubtitle,
+.middleScoreSettingSelect {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.liveTitleSwitcher .liveTitle,
+.liveSubtitleSwitcher .highScoreSubtitle {
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: opacity 0.12s ease;
+}
+
+.liveTitleControls {
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--control-height);
+  gap: var(--gap-sm);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.liveTitleControls select,
+.middleScoreSettingSelect {
+  min-width: 0;
+  width: 100%;
+}
+
+.middleGameSettingsButton {
+  width: var(--control-height);
+  min-width: var(--control-height);
+  height: var(--control-height);
+  min-height: var(--control-height);
+  padding: 0;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.middleScoreSettingSelect {
+  min-height: 32px;
+  padding-block: 3px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.liveTitleSwitcher:hover .liveTitle,
+.liveTitleSwitcher:focus-within .liveTitle,
+.liveSubtitleSwitcher:hover .highScoreSubtitle,
+.liveSubtitleSwitcher:focus-within .highScoreSubtitle {
+  opacity: 0;
+}
+
+.liveTitleSwitcher:hover .liveTitleControls,
+.liveTitleSwitcher:focus-within .liveTitleControls,
+.liveSubtitleSwitcher:hover .middleScoreSettingSelect,
+.liveSubtitleSwitcher:focus-within .middleScoreSettingSelect {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .scoreBoardTop {
@@ -1228,6 +1324,35 @@ body {
 
 .highScorePlayer {
   font-weight: bold;
+}
+
+.highScorePlayer.editable {
+  cursor: text;
+}
+
+.highScorePlayer.editable:hover,
+.highScorePlayer.editable:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.highScorePlayerInput {
+  min-width: 0;
+  width: 100%;
+  height: 24px;
+  min-height: 24px;
+  padding: 2px 5px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--accent-blue);
+  border-radius: var(--radius-small);
+  color: var(--panel-text);
+  font: inherit;
+  font-weight: bold;
+}
+
+.highScorePlayerInput:focus {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 1px;
 }
 
 .highScoreBox.finalized:not(.podium) .highScorePlayer {
@@ -2083,7 +2208,7 @@ body {
     transform 0.12s ease;
 }
 
-.tooltipButton[data-tooltip]:hover::before,
+.tooltipButton[data-tooltip]:hover::after,
 .tooltipButton[data-tooltip]:focus-visible::after {
   opacity: 1;
   transform: translate(0, -50%);

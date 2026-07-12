@@ -1137,7 +1137,7 @@ function renderPlayerLUTSwatches(player) {
 function populateSharedGameSelect() {
   const previous = selectedGameName || persistedSettings.game || "";
 
-  sharedGameSelect.innerHTML = "";
+  sharedGameSelect.replaceChildren();
 
   const empty = document.createElement("option");
   empty.value = "";
@@ -1568,10 +1568,10 @@ function getMetricNamesForGameScreen(gameData, screenName) {
 }
 
 function populateScoreSettingSelect() {
-  scoreSettingSelect.replaceChildren();
-
   const record = selectedGameName ? getGameScoreSettingsRecord() : null;
   const items = record?.items || [];
+
+  scoreSettingSelect.replaceChildren();
 
   items.forEach((setting) => {
     const option = document.createElement("option");
@@ -1583,6 +1583,21 @@ function populateScoreSettingSelect() {
 
   scoreSettingSelect.value = selectedScoreSettingId;
   scoreSettingSelect.disabled = items.length === 0;
+}
+
+function selectScoreSetting(settingId) {
+  const record = selectedGameName ? getGameScoreSettingsRecord() : null;
+
+  if (!record?.items.some((setting) => setting.id === settingId)) return;
+
+  record.selectedId = settingId;
+  selectedScoreSettingId = settingId;
+  scoreSettingSelect.value = settingId;
+  applySelectedScoreSetting();
+  updateHighScoreTitle();
+  scoreBoardSignature = "";
+  resetScoringRuns();
+  saveTwoPlayerSettings();
 }
 
 function applySelectedScoreSetting() {
@@ -4399,12 +4414,13 @@ function createHighScoreBox(entry, index, displayRank) {
   const score = document.createElement("strong");
   const podiumRank = getPodiumRank(entry, index);
   const allTimeRank = index < 3 ? getAllTimeRank(entry) : null;
-  const settledRankBand =
+  const settledEntry =
     !entry.active &&
     !entry.nameEntry &&
     !entry.demo &&
-    !entry.removingDemo &&
-    podiumRank === null;
+    !entry.removingDemo;
+  const settledRankBand =
+    settledEntry && podiumRank === null;
 
   box.className = `highScoreBox highScoreBox-${entry.color}`;
   box.dataset.scoreId = String(entry.id);
@@ -4433,6 +4449,23 @@ function createHighScoreBox(entry, index, displayRank) {
   meta.className = "highScoreMeta";
   player.className = "highScorePlayer";
   player.textContent = getScoreEntryName(entry);
+  if (settledEntry) {
+    player.classList.add("editable");
+    player.tabIndex = 0;
+    player.title = "Click to edit name";
+    player.setAttribute("role", "button");
+    player.setAttribute("aria-label", `Edit name ${getScoreEntryName(entry)}`);
+    player.onclick = (event) => {
+      event.stopPropagation();
+      startHighScoreNameEdit(entry, player);
+    };
+    player.onkeydown = (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+
+      event.preventDefault();
+      startHighScoreNameEdit(entry, player);
+    };
+  }
   meta.append(player);
 
   if (allTimeRank) {
@@ -4448,7 +4481,7 @@ function createHighScoreBox(entry, index, displayRank) {
 
   box.append(rank, meta, score);
 
-  if (!entry.active && !entry.nameEntry && !entry.demo && !entry.removingDemo) {
+  if (settledEntry) {
     const deleteButton = document.createElement("button");
 
     deleteButton.type = "button";
@@ -4476,6 +4509,54 @@ function createHighScoreBox(entry, index, displayRank) {
   }
 
   return box;
+}
+
+function startHighScoreNameEdit(entry, label) {
+  if (!label?.isConnected) return;
+
+  const input = document.createElement("input");
+  const originalName = String(entry.name || entry.player || "").trim();
+  let canceled = false;
+
+  input.type = "text";
+  input.className = "highScorePlayerInput";
+  input.value = originalName;
+  input.maxLength = MAX_SCORE_NAME_LENGTH;
+  input.setAttribute("aria-label", "Leaderboard name");
+  input.onclick = (event) => event.stopPropagation();
+  input.onkeydown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      input.blur();
+      return;
+    }
+
+    if (event.key !== "Escape") return;
+
+    event.preventDefault();
+    canceled = true;
+    input.blur();
+  };
+  input.onblur = () => {
+    if (!input.isConnected) return;
+
+    const nextName = input.value.trim().slice(0, MAX_SCORE_NAME_LENGTH);
+
+    if (canceled || nextName === originalName || !nextName) {
+      input.replaceWith(label);
+      return;
+    }
+
+    updateStoredLeaderboardEntryName(
+      entry.date || getTodayDateKey(),
+      entry,
+      nextName,
+    );
+  };
+
+  label.replaceWith(input);
+  input.focus();
+  input.select();
 }
 
 function deleteLeaderboardEntryWithUndo(entry) {
@@ -8084,15 +8165,7 @@ function setupSharedControls() {
   };
 
   scoreSettingSelect.onchange = () => {
-    const record = getGameScoreSettingsRecord();
-
-    record.selectedId = scoreSettingSelect.value;
-    selectedScoreSettingId = record.selectedId;
-    applySelectedScoreSetting();
-    updateHighScoreTitle();
-    scoreBoardSignature = "";
-    resetScoringRuns();
-    saveTwoPlayerSettings();
+    selectScoreSetting(scoreSettingSelect.value);
   };
 
   importJSONButton.onclick = () => {

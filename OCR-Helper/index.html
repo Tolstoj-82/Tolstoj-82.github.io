@@ -16,20 +16,6 @@
       <section class="gameSetup topGameSetup">
         <div class="topSetupRow topSetupPrimaryRow">
           <div class="topSetupGroup">
-            <label class="gameSelectLabel">
-              Game
-              <select id="sharedGameSelect" class="topConfigSelect"></select>
-            </label>
-
-            <label class="topConfigLabel">
-              Active Leaderboard
-              <select id="scoreSettingSelect" class="topConfigSelect"></select>
-            </label>
-
-            <button id="openGameSettings" class="button-primary">
-              Game Settings
-            </button>
-
             <button id="importJSON" class="button-black">Import JSON</button>
             <input
               id="importJSONFile"
@@ -55,7 +41,7 @@
               High Score Data
             </button>
             <button id="showAchievements" class="button-primary">
-              Show available Achievements
+              Achievements
             </button>
           </div>
           <div class="topSetupVersion">Version Beta 1.2.3</div>
@@ -120,8 +106,34 @@
       </section>
 
       <section class="livePanel">
-        <h1 id="highScoreTitle">High Score</h1>
-        <div id="highScoreSubtitle" class="highScoreSubtitle"></div>
+        <div class="livePanelHeader">
+          <div class="liveTitleSwitcher">
+            <h1 id="highScoreTitle" class="liveTitle">High Score</h1>
+            <div class="liveTitleControls">
+              <select
+                id="sharedGameSelect"
+                aria-label="Game"
+              ></select>
+              <button
+                id="openGameSettings"
+                class="middleGameSettingsButton tooltipButton"
+                type="button"
+                aria-label="Game Settings"
+                data-tooltip="Game Settings"
+              >
+                ⚙
+              </button>
+            </div>
+          </div>
+          <div class="liveSubtitleSwitcher">
+            <div id="highScoreSubtitle" class="highScoreSubtitle"></div>
+            <select
+              id="scoreSettingSelect"
+              class="middleScoreSettingSelect"
+              aria-label="Active Leaderboard"
+            ></select>
+          </div>
+        </div>
         <div id="scoreBoard" class="scoreBoard"></div>
         <div
           id="highScoreUndoToast"

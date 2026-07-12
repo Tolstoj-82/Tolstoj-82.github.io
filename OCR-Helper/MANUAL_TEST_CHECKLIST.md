@@ -1,5 +1,7 @@
 # config.html Manual Test Checklist
 
+- [ ] Game-name autosuggest options retain black text on hover and keyboard focus, matching the recognition-screen dropdown.
+
 - [ ] The purple Two Player link opens index.html and shows a link symbol.
 - [ ] The Two Player link warns before discarding named or unnamed unsaved configuration changes.
 - [ ] The Two Player link navigates immediately when the current configuration has no unsaved changes.
