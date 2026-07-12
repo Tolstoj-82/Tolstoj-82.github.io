@@ -1,0 +1,259 @@
+#tilesContainer {
+  --tile-card-padding: clamp(4px, 1.1cqi, 8px);
+  --tile-input-inset: clamp(6px, 1.2cqi, 10px);
+  --tile-preview-size: clamp(34px, 8cqi, 64px);
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(var(--gap-sm), 2cqi, var(--gap-lg));
+  padding: clamp(var(--gap-md), 3cqi, var(--gap-xl));
+  overflow-anchor: none;
+}
+
+.tileDiscovererControls {
+  align-items: stretch;
+}
+
+.captureControlGroup,
+.tileUploadGroup {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--gap-sm);
+  background: var(--panel-light);
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-small);
+}
+
+.tileUploadGroup {
+  margin-left: var(--gap-md);
+}
+
+.tileCountLabel {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+#tileCount {
+  display: inline-block;
+  min-width: 4ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#uploadTileImage.tile-upload-over {
+  background: var(--accent-blue-drop-bg);
+  color: var(--accent-blue);
+  border-style: dashed;
+  border-color: var(--accent-blue);
+  box-shadow:
+    inset 0 0 0 2px var(--accent-blue-selected-bg),
+    0 0 0 4px var(--accent-blue-drop-bg);
+  transform: scale(1.02);
+}
+
+.tileCard {
+  width: calc(var(--tile-preview-size) + (2 * var(--tile-card-padding)) + 8px);
+  padding: var(--tile-card-padding);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-sm);
+  user-select: none;
+  cursor: grab;
+  background: var(--panel-light);
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.tileCard:active {
+  cursor: grabbing;
+}
+
+.tileCard:hover {
+  transform: translateY(-3px);
+  background: var(--tile-hover-bg);
+}
+
+.tileCard.dragging {
+  opacity: 0.35;
+  transform: scale(0.96);
+  cursor: grabbing;
+}
+
+.tileCard.deleting {
+  animation: tileDeleteFade 0.18s ease forwards;
+  pointer-events: none;
+}
+
+.tileCard.drag-over {
+  transform: translateY(-4px);
+  border-color: var(--text-green);
+}
+
+.tileCard.drop-after {
+  box-shadow: 8px 0 0 var(--text-green);
+}
+
+.tileCard.drop-before {
+  box-shadow: -8px 0 0 var(--text-green);
+}
+
+.tileCanvas {
+  width: var(--tile-preview-size);
+  height: var(--tile-preview-size);
+
+  padding: 4px;
+
+  background: var(--panel-light);
+
+  border: 2px solid var(--border-mid);
+  border-radius: 4px;
+
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.tileCard input {
+  width: calc(100% - (2 * var(--tile-input-inset)));
+  min-width: 0;
+  margin-inline: var(--tile-input-inset);
+  padding: 3px 4px;
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+
+  border: 2px solid var(--border-mid);
+  border-radius: 4px;
+
+  text-align: center;
+}
+
+.tileCard input::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+.tileCard input:focus::placeholder {
+  opacity: 0;
+}
+
+.tileCard input:not(:placeholder-shown) {
+  background: var(--panel-light);
+}
+
+.tileCard input:placeholder-shown {
+  background: var(--input-warning-bg);
+}
+
+.tileCard input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
+#tileDeleteZone {
+  min-height: 44px;
+  padding: var(--gap-md) var(--gap-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  visibility: hidden;
+  opacity: 0;
+
+  border: 2px dashed var(--text-red);
+  border-radius: var(--radius-small);
+  color: var(--text-red);
+  background: var(--danger-bg);
+
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+#tileDeleteZone.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+#tileDeleteZone.drag-over {
+  background: var(--danger-bg-strong);
+  box-shadow: 0 0 0 4px var(--danger-glow);
+  transform: scale(1.02);
+}
+
+@keyframes tileDeleteFade {
+  100% {
+    opacity: 0;
+    transform: scale(0.84);
+  }
+}
+
+.tileSelectionBox {
+  position: fixed;
+  z-index: 9998;
+
+  border: 1px solid var(--accent-blue);
+  background: var(--accent-blue-selected-bg);
+
+  pointer-events: none;
+}
+
+.tileSelectionBox.hidden {
+  display: none;
+}
+
+.tileCard.selected,
+.tileCard.tile-action-target {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 0;
+
+  background: var(--accent-blue-selected-bg);
+
+  transform: scale(1.04);
+}
+
+.tileCard.selected .tileCanvas,
+.tileCard.tile-action-target .tileCanvas {
+  box-shadow: 0 0 0 2px var(--accent-blue);
+}
+
+.tileImageModalBox {
+  width: min(720px, 100%);
+}
+
+.tileImagePreviewFrame {
+  max-width: 100%;
+  max-height: min(420px, 52vh);
+  overflow: auto;
+  margin: var(--gap-md) 0;
+  background: var(--shade-black);
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+}
+
+#tileImagePreview {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.tileImageOptions {
+  display: flex;
+  gap: var(--gap-lg);
+  margin-bottom: var(--gap-lg);
+}
+
+.tileImageOptions label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-sm);
+}

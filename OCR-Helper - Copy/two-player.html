@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GB OCR Two Player</title>
+
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/controls.css" />
+    <link rel="stylesheet" href="css/modal.css" />
+    <link rel="stylesheet" href="css/two-player.css" />
+  </head>
+
+  <body>
+    <main class="versusApp">
+      <section class="gameSetup topGameSetup">
+        <div class="topSetupRow topSetupPrimaryRow">
+          <div class="topSetupGroup">
+            <label class="gameSelectLabel">
+              Game
+              <select id="sharedGameSelect" class="topConfigSelect"></select>
+            </label>
+
+            <label class="topConfigLabel">
+              Active Leaderboard
+              <select id="scoreSettingSelect" class="topConfigSelect"></select>
+            </label>
+
+            <button id="openGameSettings" class="button-primary">
+              Game Settings
+            </button>
+
+            <button id="importJSON" class="button-black">Import JSON</button>
+            <input
+              id="importJSONFile"
+              type="file"
+              accept=".json,application/json"
+              multiple
+              hidden
+            />
+          </div>
+        </div>
+
+        <div class="topSetupRow topSetupSecondaryRow">
+          <div class="topSetupGroup">
+            <button id="openNamePool" class="button-primary">
+              Player Names
+            </button>
+            <button id="showDays" class="button-primary">High Score Data</button>
+            <button id="showAchievements" class="button-primary">
+              Show available Achievements
+            </button>
+          </div>
+          <div class="topSetupVersion">Version Beta 1.2.1</div>
+        </div>
+        <button
+          id="openInfoModal"
+          class="infoButton"
+          aria-label="Info"
+          type="button"
+        >
+          i
+        </button>
+      </section>
+
+      <section class="playerPanel" data-player="0">
+        <h1 id="player1Title">Player 1</h1>
+        <div id="player1ScreenBadge" class="screenBadge">No screen</div>
+        <div
+          id="player1GameToast"
+          class="gameRecognitionToast"
+          hidden
+        ></div>
+
+        <div class="screenArea">
+          <div id="player1Achievements" class="playerAchievements"></div>
+          <div id="player1CurrentRank" class="currentRank" hidden></div>
+
+          <div class="feedFrame">
+            <video id="player1Video" autoplay playsinline muted></video>
+            <canvas id="player1Canvas" width="160" height="144"></canvas>
+            <div
+              id="player1InterceptorOverlay"
+              class="interceptorOverlay"
+              hidden
+            ></div>
+            <div
+              id="player1Fireworks"
+              class="fireworksOverlay"
+              hidden
+            ></div>
+          </div>
+
+          <div id="player1NameEntry" class="playerNameEntry" hidden></div>
+        </div>
+
+        <details class="settingsAccordion">
+          <summary title="Settings" aria-label="Settings"></summary>
+
+          <div class="controlStack">
+            <label>
+              Name
+              <input id="player1Name" type="text" maxlength="18" />
+            </label>
+
+            <label>
+              Camera
+              <select id="player1Camera"></select>
+            </label>
+
+            <label>
+              LUT
+              <select id="player1Lut"></select>
+            </label>
+            <div id="player1LutSwatches" class="lutSwatches"></div>
+
+            <button id="player1Calibrate">Calibrate</button>
+            <div id="player1Status" class="playerStatus"></div>
+          </div>
+        </details>
+      </section>
+
+      <section class="livePanel">
+        <h1 id="highScoreTitle">High Score</h1>
+        <div id="highScoreSubtitle" class="highScoreSubtitle"></div>
+        <div id="scoreBoard" class="scoreBoard"></div>
+        <div id="highScoreUndoToast" class="highScoreUndoToast" role="status" aria-live="polite" hidden></div>
+      </section>
+
+      <section class="playerPanel" data-player="1">
+        <h1 id="player2Title">Player 2</h1>
+        <div id="player2ScreenBadge" class="screenBadge">No screen</div>
+        <div
+          id="player2GameToast"
+          class="gameRecognitionToast"
+          hidden
+        ></div>
+
+        <div class="screenArea">
+          <div id="player2Achievements" class="playerAchievements"></div>
+          <div id="player2CurrentRank" class="currentRank" hidden></div>
+
+          <div class="feedFrame">
+            <video id="player2Video" autoplay playsinline muted></video>
+            <canvas id="player2Canvas" width="160" height="144"></canvas>
+            <div
+              id="player2InterceptorOverlay"
+              class="interceptorOverlay"
+              hidden
+            ></div>
+            <div
+              id="player2Fireworks"
+              class="fireworksOverlay"
+              hidden
+            ></div>
+          </div>
+
+          <div id="player2NameEntry" class="playerNameEntry" hidden></div>
+        </div>
+
+        <details class="settingsAccordion">
+          <summary title="Settings" aria-label="Settings"></summary>
+
+          <div class="controlStack">
+            <label>
+              Name
+              <input id="player2Name" type="text" maxlength="18" />
+            </label>
+
+            <label>
+              Camera
+              <select id="player2Camera"></select>
+            </label>
+
+            <label>
+              LUT
+              <select id="player2Lut"></select>
+            </label>
+            <div id="player2LutSwatches" class="lutSwatches"></div>
+
+            <button id="player2Calibrate">Calibrate</button>
+            <div id="player2Status" class="playerStatus"></div>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <div id="achievementsModal" class="modalOverlay hidden">
+      <div class="modalBox twoPlayerModalBox">
+        <div class="twoPlayerModalHeader">
+          <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+          <h2>Achievements</h2>
+          <button
+            id="closeAchievementsModal"
+            class="modalCloseButton"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <div
+          id="achievementsModalContent"
+          class="achievementModalContent"
+        ></div>
+      </div>
+    </div>
+
+    <div id="daysModal" class="modalOverlay hidden">
+      <div class="modalBox twoPlayerModalBox">
+        <div class="twoPlayerModalHeader">
+          <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+          <h2>High Score Data</h2>
+          <button
+            id="closeDaysModal"
+            class="modalCloseButton"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <div id="daysModalContent" class="daysModalContent"></div>
+      </div>
+    </div>
+
+    <div id="gameSettingsModal" class="modalOverlay hidden">
+      <div class="modalBox twoPlayerModalBox gameSettingsModalBox">
+        <div class="twoPlayerModalHeader">
+          <div
+            class="modalDragHandle gameSettingsDragHandle"
+            title="Move dialog"
+          >
+            ⋮⋮
+          </div>
+          <h2>Game Settings</h2>
+          <label
+            id="gameSettingsFastOCR"
+            class="autoDetectToggle topToggle gameSettingsFastToggle"
+          ></label>
+          <button
+            id="closeGameSettingsModal"
+            class="modalCloseButton"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <div id="gameSettingsModalContent" class="gameSettingsModalContent"></div>
+      </div>
+    </div>
+
+    <div id="namePoolModal" class="modalOverlay hidden">
+      <div class="modalBox twoPlayerModalBox namePoolModalBox">
+        <div class="twoPlayerModalHeader">
+          <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+          <h2>Player Names</h2>
+          <button
+            id="closeNamePoolModal"
+            class="modalCloseButton"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <div class="namePoolToolbar">
+          <div class="namePoolDataTools">
+            <button id="importNamePool" class="button-black">Import Names</button>
+            <button id="exportNamePool" class="button-black">Export Names</button>
+            <input
+              id="importNamePoolFile"
+              type="file"
+              accept=".json,application/json"
+              hidden
+            />
+          </div>
+          <div class="namePoolEntryTools">
+            <input
+              id="namePoolInput"
+              type="text"
+              maxlength="12"
+              placeholder="Name"
+            />
+            <button id="addNamePoolEntry" class="button-primary">Add</button>
+          </div>
+          <div class="namePoolSelectionTools">
+            <label class="topToggle nameSourceToggle">
+              <input id="useNamePoolForRuns" type="checkbox" />
+              <span class="slider"></span>
+              <span>Use name list</span>
+            </label>
+            <button
+              id="deleteSelectedNames"
+              class="namePoolSelectionDelete button-danger"
+              type="button"
+              disabled
+            >
+              Delete selected
+            </button>
+          </div>
+        </div>
+        <section class="namePoolPanel">
+          <div id="namePoolList" class="namePoolList"></div>
+        </section>
+      </div>
+    </div>
+
+    <div id="infoModal" class="modalOverlay hidden">
+      <div class="modalBox twoPlayerModalBox infoModalBox">
+        <div class="twoPlayerModalHeader">
+          <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+          <h2>Credits</h2>
+          <button
+            id="closeInfoModal"
+            class="modalCloseButton"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <div class="infoModalContent">
+          <h3>The Swiss Team</h3>
+          <ul>
+            <li>Tolstoj</li>
+            <li>PasZau</li>
+            <li>Toni</li>
+          </ul>
+          <p>Fireworks animation based on work by Shirak Soghomonian.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalOverlay" class="modalOverlay hidden">
+      <div class="modalBox">
+        <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+        <div id="modalMessage" class="modalMessage"></div>
+        <input
+          id="modalInput"
+          class="modalInput"
+          type="text"
+          style="display: none"
+        />
+        <select
+          id="modalSelect"
+          class="modalInput"
+          style="display: none"
+        ></select>
+        <div
+          id="modalChoices"
+          class="modalChoiceList"
+          style="display: none"
+        ></div>
+        <div class="modalButtons">
+          <button id="modalCancel">Cancel</button>
+          <button id="modalOk">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <script defer src="js/LUT.js"></script>
+    <script defer src="js/boxart.js"></script>
+    <script defer src="js/modal.js"></script>
+    <script defer src="modules/registry.js?v=1.2.1-scorefix"></script>
+    <script defer src="modules/Tetris-A_Type-Score.js?v=1.2.1-scorefix"></script>
+    <script defer src="js/two-player.js?v=1.2.1-scorefix"></script>
+  </body>
+</html>

@@ -1,0 +1,213 @@
+.tileset {
+  position: relative;
+
+  margin-bottom: var(--gap-md);
+
+  background: var(--panel-light);
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+
+  overflow: hidden;
+}
+
+.tilesetSummary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: var(--gap-sm);
+
+  padding: 10px 12px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  background: var(--tile-hover-bg);
+  list-style: none;
+}
+
+.tilesetSummary::marker {
+  content: "";
+}
+
+.tilesetSummary::-webkit-details-marker {
+  display: none;
+}
+
+.tilesetSummary::before {
+  content: "▸";
+  flex: 0 0 auto;
+  color: var(--panel-text);
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.tileset[open] > .tilesetSummary::before {
+  transform: rotate(90deg);
+}
+
+.tilesetSummary:hover {
+  background: var(--accent-blue-hover);
+}
+
+.tilesetNameInput {
+  min-width: 0;
+  width: 100%;
+
+  padding: 3px 6px;
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+
+  border: 2px solid transparent;
+  border-radius: var(--radius-small);
+
+  font-weight: bold;
+}
+
+.tilesetNameInput:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
+.tilesetCount {
+  flex: 0 0 auto;
+  font-weight: normal;
+  color: var(--border-panel);
+}
+
+.tilesetDeleteButton {
+  padding: 4px 10px;
+
+  font-size: 12px;
+  font-weight: bold;
+
+  border: 2px solid var(--danger-border-soft);
+  border-radius: var(--radius-small);
+
+  background: var(--shade-white);
+  color: var(--text-red);
+
+  cursor: pointer;
+}
+
+.tilesetDeleteButton:hover:not(.tile-delete-over) {
+  border-color: var(--text-red);
+  background: var(--text-red);
+  color: var(--shade-white);
+}
+
+body.draggingTiles .tilesetDeleteButton:hover {
+  background: var(--danger-bg-strong);
+  color: var(--text-red);
+  transform: scale(1.02);
+}
+
+.tilesetTypeSelect {
+  width: auto;
+  max-width: 150px;
+  min-height: 32px;
+  padding: 4px 8px;
+}
+
+.tilesetScanInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  margin: 0 var(--gap-md) var(--gap-md);
+  padding: var(--gap-sm);
+  background: var(--bg-panel-dark);
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-small);
+}
+
+.tilesetScanPreview {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  border: 2px solid var(--border-mid);
+  border-radius: 4px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.tilesetScanLabel {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.tileset .tileCard {
+  flex: 0 0 auto;
+}
+
+.tilesetTiles {
+  --tile-card-padding: clamp(4px, 1.1cqi, 8px);
+  --tile-input-inset: clamp(6px, 1.2cqi, 10px);
+  --tile-preview-size: clamp(34px, 8cqi, 64px);
+
+  container-type: inline-size;
+  display: flex;
+  flex-wrap: wrap;
+  padding: clamp(var(--gap-md), 3cqi, var(--gap-xl));
+  gap: clamp(var(--gap-sm), 2cqi, var(--gap-lg));
+  align-items: flex-start;
+
+  min-height: 72px;
+  margin: 0 var(--gap-md) var(--gap-md);
+
+  border: 2px dashed var(--border-mid);
+  border-radius: var(--radius-small);
+}
+
+.tilesetTiles.drag-over {
+  background: var(--accent-blue-soft);
+  border-color: var(--accent-blue);
+}
+
+.tilesetEmptyHint {
+  width: 100%;
+
+  color: var(--border-mid);
+  font-weight: bold;
+  text-align: center;
+
+  pointer-events: none;
+}
+
+.tilesetTiles.drag-over.move-mode {
+  border-color: var(--text-green);
+  background: var(--success-drop-bg);
+}
+
+.tilesetTiles.drag-over.copy-mode {
+  border-color: var(--accent-blue);
+  background: var(--accent-blue-copy-bg);
+}
+
+body.draggingTiles .tilesetDeleteButton {
+  border-color: var(--text-red);
+  border-style: dashed;
+  background: var(--danger-bg);
+  color: var(--text-red);
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+body.draggingTiles .tilesetDeleteButton {
+  font-size: 0;
+}
+
+body.draggingTiles .tilesetDeleteButton::after {
+  content: "Drop to delete";
+  font-size: 12px;
+}
+
+.tilesetDeleteButton.tile-delete-over {
+  background: var(--danger-bg-strong);
+  color: var(--text-red);
+  box-shadow: 0 0 0 4px var(--danger-glow);
+  transform: scale(1.04);
+}

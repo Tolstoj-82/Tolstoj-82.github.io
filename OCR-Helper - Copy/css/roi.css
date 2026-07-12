@@ -1,0 +1,552 @@
+.roiItem {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+
+  padding: 5px 6px;
+  margin-bottom: 8px;
+
+  background: var(--bg-panel-dark);
+  border: 3px solid transparent;
+  border-radius: var(--radius-small);
+
+  cursor: default;
+}
+
+.roiItem.active {
+  border: 3px solid var(--shade-black);
+  outline: 3px solid var(--panel-light);
+  transform: scale(1.03);
+}
+
+.roiItem.incomplete {
+  box-shadow: inset 0 0 0 1px var(--text-red);
+}
+
+.roiItem span {
+  display: inline-block;
+  padding: 3px 6px;
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+
+  border-radius: var(--radius-small);
+}
+
+.roiItemTop {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+.screenItem .roiItemTop {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.screenItem .roiNameInput {
+  width: 100%;
+}
+
+.screenItem .roiDeleteButton {
+  justify-self: end;
+}
+
+.roiSummary {
+  padding: 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.roiSummary::marker {
+  content: "";
+}
+
+.roiSummary::-webkit-details-marker {
+  display: none;
+}
+
+.roiSummary::before {
+  content: "▸";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--panel-text);
+  font-size: 13px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.roiItem[open] > .roiSummary::before {
+  transform: rotate(90deg);
+}
+
+.roiSummaryTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+.roiItem .roiSummaryTitle {
+  width: 100%;
+  min-height: 30px;
+  background: var(--panel-light);
+  padding: 3px 6px;
+}
+
+.roiItemBottom {
+  width: 100%;
+  display: grid;
+  padding-top: 5px;
+}
+
+.roiItemBottom select {
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 6px;
+
+  cursor: pointer;
+}
+
+.roiItemBottom select.missingTileset {
+  border: 2px solid var(--text-red);
+}
+
+.captureROIPickerRow {
+  flex-basis: 100%;
+  width: 100%;
+  margin-top: var(--gap-md);
+  padding-top: var(--gap-sm);
+}
+
+.captureROIPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+}
+
+.captureROICheck {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 10px;
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+
+  border: 2px solid var(--border-mid);
+  border-radius: 999px;
+
+  cursor: pointer;
+  user-select: none;
+  font-weight: normal;
+
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.captureROICheck input {
+  display: none;
+}
+
+.captureROICheck:has(input:checked) {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: var(--shade-white);
+}
+
+#addScreen {
+  --add-action-expanded-width: 148px;
+}
+
+#addROI {
+  --add-action-expanded-width: 148px;
+}
+
+#addAchievement {
+  --add-action-expanded-width: 190px;
+}
+
+#achievementList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.achievementGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.achievementGroupTitle {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.achievementItem {
+  --achievement-color: var(--tier-beginner);
+  --achievement-bg: var(--tier-beginner-bg);
+
+  overflow: hidden;
+
+  background: var(--achievement-bg);
+  border: 2px solid var(--achievement-color);
+  border-radius: var(--radius-small);
+}
+
+.achievementItem.incomplete {
+  box-shadow: inset 0 0 0 1px var(--text-red);
+}
+
+.achievementItem:has(.achievementMultiDropdownMenu:not([hidden])) {
+  position: relative;
+  z-index: 30;
+  overflow: visible;
+}
+
+#roiPanel:has(.achievementMultiDropdownMenu:not([hidden])) {
+  overflow: visible;
+}
+
+.achievementItem[data-tier="novice"] {
+  --achievement-color: var(--tier-novice);
+  --achievement-bg: var(--tier-novice-bg);
+}
+
+.achievementItem[data-tier="intermediate"] {
+  --achievement-color: var(--tier-intermediate);
+  --achievement-bg: var(--tier-intermediate-bg);
+}
+
+.achievementItem[data-tier="advanced"] {
+  --achievement-color: var(--tier-advanced);
+  --achievement-bg: var(--tier-advanced-bg);
+}
+
+.achievementItem[data-tier="expert"] {
+  --achievement-color: var(--tier-expert);
+  --achievement-bg: var(--tier-expert-bg);
+}
+
+.achievementItem[data-tier="pro"] {
+  --achievement-color: var(--tier-pro);
+  --achievement-bg: var(--tier-pro-bg);
+}
+
+.achievementItem[data-tier="god-tier"] {
+  --achievement-color: var(--tier-god);
+  --achievement-bg: var(--tier-god-bg);
+}
+
+.achievementSummary {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--gap-sm);
+
+  padding: var(--gap-sm);
+
+  color: var(--panel-text);
+  cursor: pointer;
+  font-weight: bold;
+  list-style: none;
+}
+
+.achievementSummary::marker {
+  content: "";
+}
+
+.achievementSummary::-webkit-details-marker {
+  display: none;
+}
+
+.achievementSummary::before {
+  content: "▸";
+  color: var(--achievement-color);
+  font-size: 13px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.achievementItem[open] > .achievementSummary::before {
+  transform: rotate(90deg);
+}
+
+.achievementItem.dragging {
+  opacity: 0.35;
+  transform: scale(0.98);
+}
+
+.achievementItem.drop-before {
+  box-shadow: inset 0 7px 0 var(--text-green);
+}
+
+.achievementItem.drop-after {
+  box-shadow: inset 0 -7px 0 var(--text-green);
+}
+
+.achievementItem .dragHandle {
+  padding: 3px 6px;
+  background: var(--panel-light);
+  color: var(--panel-text);
+  border-radius: var(--radius-small);
+}
+
+.achievementSummaryTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.achievementBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px minmax(64px, 0.75fr);
+  gap: var(--gap-sm);
+
+  padding: 0 var(--gap-sm) var(--gap-sm);
+}
+
+.achievementItem select,
+.achievementItem input {
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+.achievementComparerSelect {
+  width: 48px;
+}
+
+.achievementMessageInput {
+  grid-column: 1 / -1;
+}
+
+.achievementField {
+  position: relative;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.achievementField > span:first-child {
+  color: var(--text-muted);
+  font-weight: bold;
+}
+
+.achievementFieldHint {
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+.achievementTierSelect {
+  width: 100%;
+}
+
+.achievementLifecycleSelect {
+  width: 100%;
+  min-height: 32px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16px;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: 4px 6px;
+  font-size: 12px;
+  font-weight: normal;
+  background: var(--panel-light);
+  border-color: var(--border-mid);
+  color: var(--panel-text);
+  text-align: left;
+}
+
+.achievementLifecycleSelect:hover {
+  background: var(--panel-light);
+  color: var(--panel-text);
+  border-color: var(--border-panel);
+}
+
+.achievementMultiDropdownText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.achievementMultiDropdownArrow {
+  color: var(--panel-text);
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+}
+
+.achievementMultiDropdown {
+  display: contents;
+}
+
+.achievementMultiDropdownMenu {
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  min-width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 0;
+  background: var(--panel-light);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  box-shadow: 0 8px 18px var(--black-shadow-soft);
+  overflow: hidden auto;
+}
+
+.achievementMultiDropdownMenu.openUp {
+  top: auto;
+  bottom: 100%;
+}
+
+.achievementMultiDropdownItem {
+  width: 100%;
+  min-height: 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 14px;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: 7px 8px;
+  color: var(--panel-text);
+  font-size: 12px;
+  font-weight: normal;
+  background: var(--panel-light);
+  border-color: transparent;
+  border-radius: 0;
+  text-align: left;
+}
+
+.achievementMultiDropdownItem:hover {
+  background: var(--border-section);
+  color: var(--panel-text);
+  border-radius: 0;
+}
+
+.achievementMultiDropdownState {
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.achievementMultiDropdownItem.selected .achievementMultiDropdownState::before {
+  content: "✓";
+  color: var(--accent-blue);
+}
+
+.achievementMultiDropdownItem.selected:hover .achievementMultiDropdownState::before {
+  color: var(--accent-blue);
+}
+
+.achievementItem .roiDeleteButton {
+  justify-self: end;
+}
+
+.achievementEmpty {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.screenItem.dragging,
+.roiItem.dragging {
+  opacity: 0.35;
+  transform: scale(0.96);
+}
+
+.screenItem.drop-before,
+.roiItem.drop-before {
+  box-shadow: inset 0 8px 0 var(--text-green);
+}
+
+.screenItem.drop-after,
+.roiItem.drop-after {
+  box-shadow: inset 0 -8px 0 var(--text-green);
+}
+
+.roiItem.active.drag-over {
+  border-color: var(--shade-black);
+  outline: 3px solid var(--panel-light);
+}
+
+.dragHandle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 20px;
+  color: var(--panel-text);
+
+  cursor: grab;
+  user-select: none;
+  opacity: 0.65;
+
+  font-weight: bold;
+}
+
+.dragHandle::before {
+  content: "⋮⋮";
+}
+
+.roiItem:hover .dragHandle,
+.screenItem:hover .dragHandle,
+.achievementItem:hover .dragHandle {
+  opacity: 1;
+}
+
+.roiItem.dragging .dragHandle,
+.achievementItem.dragging .dragHandle {
+  cursor: grabbing;
+}
+
+.roiNameInput {
+  flex: 1;
+  min-width: 0;
+
+  background: var(--panel-light);
+  color: var(--panel-text);
+
+  border: 2px solid transparent;
+  border-radius: var(--radius-small);
+
+  font-weight: bold;
+}
+
+.roiNameInput:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
+.roiDeleteButton {
+  margin: 0;
+}
+
+.roiItem.dragging .dragHandle,
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.screenNameInput.missingIdentifier {
+  border-color: var(--text-red);
+}
