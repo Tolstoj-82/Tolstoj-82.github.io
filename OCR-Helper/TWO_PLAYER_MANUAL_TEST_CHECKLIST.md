@@ -14,12 +14,12 @@
 - [ ] With at least 5 stored all-time entries and default carousel settings, the center panel switches after 30 seconds to the card-style “All time top 20” leaderboard for 10 seconds, then returns to the live leaderboard and shows up to 20 results.
 - [ ] Each all-time result uses a spacious two-line card hierarchy: prominent rank/name/score plus a smaller date, without player icons, a “Reached” prefix, or rigid table columns.
 - [ ] An active run ranking in the top 20 is tinted for its player color with an arrow pointing toward its left/right side.
-- [ ] The rank panel above each active screen reads “Current Rank (Today): #N” and appends “| All time: #N” only while that score qualifies for the all-time Top 20.
+- [ ] The rank panel above each active screen shows bold “Current Rank: #N” and appends normal-weight “(All time: #N)” only while that score qualifies for the all-time Top 20.
 - [ ] A daily Top 3 card shows its “All time: #N” badge only when that result also qualifies for the all-time Top 20.
 - [ ] Previous/next controls appear only while the center panel is hovered or keyboard-focused, manually switch views, and accurately update their position dots and disabled states.
 - [ ] A long all-time list scrolls to the bottom, returns to the top, pauses while the pointer is over it, then waits for the configured “Show for” duration before returning live.
 - [ ] “ALL TIME TOP 20” is uppercase and uses the blue accent color.
-- [ ] High Score Data provides the existing-style carousel toggle plus persisted “Show every” and “Show for” second values; disabling it immediately returns to the live leaderboard.
+- [ ] Leaderboard Data provides the existing-style carousel toggle plus persisted “Show every” and “Show for” second values; disabling it immediately returns to the live leaderboard.
 - [ ] Reloading restores the carousel enabled state and both timing values from local storage.
 - [ ] Changing the game or active leaderboard immediately returns to the live slide and restarts the configured carousel cycle.
 - [ ] The Configuration link is top-aligned with the Info button in the slide-down header.
@@ -42,12 +42,12 @@
 - [ ] There is only one Game dropdown in the header.
 - [ ] Import JSON adds valid game settings to local storage.
 - [ ] Top header first row is Game, Active Leaderboard, Game Settings, Import JSON.
-- [ ] Top header second row contains Player Names, High Score Data, Show available Achievements, and the info button.
+- [ ] Top header second row contains Player Names, Leaderboard Data, Achievements, and the info button.
 - [ ] Info button is pinned in the top-right corner of the header.
 - [ ] Info button remains a perfect circle in narrow/mobile viewports.
 - [ ] Imported games appear immediately in the game dropdown.
 - [ ] Selecting a game loads it for both players.
-- [ ] Active Leaderboard dropdown shows the selected game's high-score tracking settings.
+- [ ] Active Leaderboard dropdown shows the selected game's leaderboard tracking settings.
 - [ ] Selecting an Active Leaderboard chooses the Screen/Metric combination for the current session.
 - [ ] Selected Active Leaderboard persists after reload.
 - [ ] Active Leaderboard falls back safely when the saved setting no longer exists.
@@ -61,8 +61,8 @@
 - [ ] Game Settings modal can export settings for the selected game.
 - [ ] Game Settings modal can import settings for the selected game.
 - [ ] Importing settings for another game shows an error.
-- [ ] High score panel title shows only the loaded game name in uppercase.
-- [ ] High score panel subtitle shows the active leaderboard in brackets, e.g. "(A-Type -> Score)".
+- [ ] Leaderboard panel title shows only the loaded game name in uppercase.
+- [ ] Leaderboard panel subtitle shows the active leaderboard in brackets, e.g. "(A-Type -> Score)".
 - [ ] Setup checklist appears inside each player's settings accordion.
 - [ ] Game-level Fast OCR setting uses the same visual toggle style as config.html.
 - [ ] Game-level Fast OCR on/off changes OCR behavior without breaking screen detection.
@@ -138,7 +138,7 @@
 - [ ] Duplicate score entries are blocked when the same finalized score is seen again after interceptor/offline screens.
 - [ ] Numbers are formatted with commas, e.g. 12,345 and 1,234,567.
 - [ ] Current Rank panel appears only when there is rank content.
-- [ ] Current Rank panel says "Current Rank: #n".
+- [ ] Current Rank panel says "Current Rank: #n" and adds the optional normal-weight all-time rank in parentheses.
 - [ ] Current Rank panel does not move or resize the canvas when appearing.
 - [ ] Current Rank panel updates when the player rank changes.
 - [ ] Rank-change animation is obvious but does not change panel height or position.
@@ -170,7 +170,7 @@
 
 ## Live leaderboard
 
-- [ ] High score panel stretches from top to bottom.
+- [ ] Leaderboard panel stretches from top to bottom.
 - [ ] Top 3 entries stay sticky and always visible.
 - [ ] Ranks #4 and lower are inside their own lower scroll area.
 - [ ] Scrollbar in the rank list is invisible.
@@ -262,11 +262,11 @@
 - [ ] Daily data is game-specific; scores from other games do not mix in.
 - [ ] All-time data is game-specific; scores from other games do not mix in.
 - [ ] Local storage score data for unknown/deleted games is cleaned up.
-- [ ] High Score Data button opens the high-score data modal.
-- [ ] High-score data modal has its own Game dropdown.
-- [ ] High-score data Game dropdown can inspect a game other than the currently loaded game.
-- [ ] High-score data modal has a stable tall height and does not jump while accordions open.
-- [ ] High-score data modal has an internal vertical scrollbar when content is long.
+- [ ] Leaderboard Data button opens the leaderboard-data modal.
+- [ ] Leaderboard-data modal has its own Game dropdown.
+- [ ] Leaderboard-data Game dropdown can inspect a game other than the currently loaded game.
+- [ ] Leaderboard-data modal has a stable tall height and does not jump while accordions open.
+- [ ] Leaderboard-data modal has an internal vertical scrollbar when content is long.
 - [ ] Each day accordion lists rank numbers.
 - [ ] Day accordion headers show arrows.
 - [ ] Day entries do not repeat the game name in the middle.

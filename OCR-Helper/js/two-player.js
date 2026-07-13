@@ -1350,7 +1350,7 @@ function createScoreSetting(screenName, metricName) {
 function getGeneratedScoreSettingName(screenName, metricName) {
   return screenName && metricName
     ? `${screenName} → ${metricName}`
-    : "High score";
+    : "Leaderboard";
 }
 
 function getScoreSettingLabel(setting) {
@@ -1997,7 +1997,7 @@ function clearNameEntryTimers() {
 function updateHighScoreTitle() {
   highScoreTitle.textContent = selectedGameName
     ? selectedGameName.toUpperCase()
-    : "HIGH SCORE";
+    : "LEADERBOARD";
   highScoreSubtitle.textContent =
     selectedScoreScreenName && selectedScoreMetricName
       ? `(${selectedScoreScreenName} → ${selectedScoreMetricName})`
@@ -5117,7 +5117,7 @@ function createHighScoreBox(entry, index, displayRank) {
     deleteButton.type = "button";
     deleteButton.className = "highScoreDeleteButton roundDeleteButton";
     deleteButton.textContent = "×";
-    deleteButton.title = "Delete high score";
+    deleteButton.title = "Delete leaderboard entry";
     deleteButton.setAttribute(
       "aria-label",
       `Delete ${getScoreEntryName(entry)} score ${formatScore(entry.score)}`,
@@ -5530,6 +5530,7 @@ function renderCurrentRankCard(
   const podiumRank = rank >= 1 && rank <= 3 ? rank - 1 : null;
   const keepChange = !direction && container.classList.contains("rankChanged");
   const text = document.createElement("div");
+  const today = document.createElement("strong");
 
   container.className = "currentRank";
   container.classList.toggle("podium", podiumRank !== null);
@@ -5539,12 +5540,17 @@ function renderCurrentRankCard(
   container.classList.toggle("rankChanged", keepChange);
 
   text.className = "currentRankText";
-  text.textContent =
-    rank > 0
-      ? `Current Rank (Today): #${rank}${
-          allTimeRank ? ` | All time: #${allTimeRank}` : ""
-        }`
-      : "Current Rank (Today): ?";
+  today.className = "currentRankToday";
+  today.textContent = rank > 0 ? `Current Rank: #${rank}` : "Current Rank: ?";
+  text.appendChild(today);
+
+  if (allTimeRank) {
+    const allTime = document.createElement("span");
+
+    allTime.className = "currentRankAllTime";
+    allTime.textContent = ` (All time: #${allTimeRank})`;
+    text.appendChild(allTime);
+  }
 
   container.replaceChildren(text);
 

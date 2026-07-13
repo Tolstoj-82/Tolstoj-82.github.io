@@ -890,6 +890,14 @@ body {
   transform-origin: center;
 }
 
+.currentRankToday {
+  font-weight: bold;
+}
+
+.currentRankAllTime {
+  font-weight: normal;
+}
+
 .currentRank.rankChanged {
   animation: currentRankChanged 0.9s ease;
 }
