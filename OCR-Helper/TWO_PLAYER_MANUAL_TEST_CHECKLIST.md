@@ -10,7 +10,20 @@
 - [ ] Clicking a finalized center-panel leaderboard name opens an inline editor without underlining the name or changing the panel height; Enter/blur saves and Escape cancels.
 - [ ] Inline leaderboard name edits persist to today's stored scores and the rebuilt all-time leaderboard.
 - [ ] Center-panel inline leaderboard names accept at most 10 characters and save in uppercase on blur or Enter.
+- [ ] With fewer than 5 stored all-time entries for the active game/leaderboard, the center panel never switches to the all-time carousel slide.
+- [ ] With at least 5 stored all-time entries and default carousel settings, the center panel switches after 30 seconds to the card-style “All time top 20” leaderboard for 10 seconds, then returns to the live leaderboard and shows up to 20 results.
+- [ ] Each all-time result uses a spacious two-line card hierarchy: prominent rank/name/score plus a smaller date, without player icons, a “Reached” prefix, or rigid table columns.
+- [ ] An active run ranking in the top 20 is tinted for its player color with an arrow pointing toward its left/right side.
+- [ ] The rank panel above each active screen reads “Current Rank (Today): #N” and appends “| All time: #N” only while that score qualifies for the all-time Top 20.
+- [ ] A daily Top 3 card shows its “All time: #N” badge only when that result also qualifies for the all-time Top 20.
+- [ ] Previous/next controls appear only while the center panel is hovered or keyboard-focused, manually switch views, and accurately update their position dots and disabled states.
+- [ ] A long all-time list scrolls to the bottom, returns to the top, pauses while the pointer is over it, then waits for the configured “Show for” duration before returning live.
+- [ ] “ALL TIME TOP 20” is uppercase and uses the blue accent color.
+- [ ] High Score Data provides the existing-style carousel toggle plus persisted “Show every” and “Show for” second values; disabling it immediately returns to the live leaderboard.
+- [ ] Reloading restores the carousel enabled state and both timing values from local storage.
+- [ ] Changing the game or active leaderboard immediately returns to the live slide and restarts the configured carousel cycle.
 - [ ] The Configuration link is top-aligned with the Info button in the slide-down header.
+- [ ] Export JSON beside Import JSON downloads the currently selected game and remains disabled until a game is selected.
 - [ ] Player 1 has the same transparent outer panel border treatment as Player 2.
 
 - [ ] The purple Configuration link opens config.html and shows a link symbol.
@@ -234,6 +247,9 @@
 - [ ] Tetris A-Type module overwrites the fallback name in real time when the matching scoreboard name appears.
 - [ ] Scoreboard-name listening survives Rocket screen before the scoreboard.
 - [ ] Turning the Game Boy off while module name listening is pending must not add the same score again with the assigned fallback name.
+- [ ] Two settled entries from the same side, game, leaderboard, and score within 20 seconds are reconciled when exactly one name belongs to the random-name list: the random-name panel is removed and the entered-name panel remains.
+- [ ] Identical scores within 20 seconds from opposite player sides are both retained.
+- [ ] Identical-score pairs where both names or neither name belongs to the random-name list are both retained.
 - [ ] Name is limited to 12 characters.
 - [ ] Custom player names appear in new ranked score entries when static names are used.
 - [ ] Two simultaneous module name entries can be queued/handled without blocking gameplay.

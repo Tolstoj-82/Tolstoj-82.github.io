@@ -32,6 +32,11 @@ const GAME_RECOGNITION_TOAST_MS = 3600;
 const BOXART_IMAGE_BASE_PATH = "Games/boxart/bigger/";
 const UNKNOWN_GAME_IMAGE_PATH = "assets/no_clue.png";
 const SCORE_DUPLICATE_CONFINEMENT_MS = 30000;
+const RANDOM_NAME_DUPLICATE_WINDOW_MS = 20000;
+const DEFAULT_ALL_TIME_CAROUSEL_INTERVAL_SECONDS = 30;
+const DEFAULT_ALL_TIME_CAROUSEL_DURATION_SECONDS = 3;
+const ALL_TIME_CAROUSEL_MIN_ENTRY_COUNT = 5;
+const ALL_TIME_CAROUSEL_MAX_ENTRY_COUNT = 20;
 const NEW_GAME_RESET_CONFIRM_MS = 650;
 const interceptorScreens = [];
 const interceptorScreenMessages = {
@@ -188,6 +193,17 @@ let gameRecognitionFallbackGameName = "";
 let scoreBoardPointerInside = false;
 let highScoreUndoTimer = null;
 let pendingHighScoreUndo = null;
+let allTimeCarouselInterval = null;
+let allTimeCarouselHideTimer = null;
+let allTimeCarouselVisible = false;
+let allTimeCarouselEnabled = true;
+let allTimeCarouselIntervalSeconds = DEFAULT_ALL_TIME_CAROUSEL_INTERVAL_SECONDS;
+let allTimeCarouselDurationSeconds = DEFAULT_ALL_TIME_CAROUSEL_DURATION_SECONDS;
+let allTimeScrollDirection = 1;
+let allTimeScrollHoldUntil = 0;
+let allTimeScrollLastTime = 0;
+let allTimeScrollPhase = "";
+let allTimeBoardPointerInside = false;
 const historySelectionState = createRowSelectionState();
 const namePoolSelectionState = createRowSelectionState();
 
@@ -195,8 +211,29 @@ const sharedGameSelect = document.getElementById("sharedGameSelect");
 const scoreSettingSelect = document.getElementById("scoreSettingSelect");
 const topGameSetup = document.querySelector(".topGameSetup");
 const importJSONButton = document.getElementById("importJSON");
+const exportJSONButton = document.getElementById("exportJSON");
 const importJSONFile = document.getElementById("importJSONFile");
 const scoreBoard = document.getElementById("scoreBoard");
+const leaderboardCarousel = document.getElementById("leaderboardCarousel");
+const allTimeCarouselBoard = document.getElementById("allTimeCarouselBoard");
+const highScoreCarouselEnabled = document.getElementById(
+  "highScoreCarouselEnabled",
+);
+const highScoreCarouselInterval = document.getElementById(
+  "highScoreCarouselInterval",
+);
+const highScoreCarouselDuration = document.getElementById(
+  "highScoreCarouselDuration",
+);
+const leaderboardCarouselPrevious = document.getElementById(
+  "leaderboardCarouselPrevious",
+);
+const leaderboardCarouselNext = document.getElementById(
+  "leaderboardCarouselNext",
+);
+const leaderboardCarouselPosition = document.querySelector(
+  ".leaderboardCarouselPosition",
+);
 const highScoreTitle = document.getElementById("highScoreTitle");
 const highScoreSubtitle = document.getElementById("highScoreSubtitle");
 const highScoreUndoToast = document.getElementById("highScoreUndoToast");
@@ -239,6 +276,14 @@ const importNamePoolFile = document.getElementById("importNamePoolFile");
 const gameSettingsFastOCR = document.getElementById("gameSettingsFastOCR");
 const gameSettingsTitle = gameSettingsModal?.querySelector("h2");
 let persistedSettings = getTwoPlayerSettings();
+allTimeCarouselEnabled = persistedSettings.allTimeCarousel?.enabled !== false;
+allTimeCarouselIntervalSeconds = normalizeAllTimeCarouselInterval(
+  persistedSettings.allTimeCarousel?.intervalSeconds,
+);
+allTimeCarouselDurationSeconds = normalizeAllTimeCarouselDuration(
+  persistedSettings.allTimeCarousel?.durationSeconds,
+  allTimeCarouselIntervalSeconds,
+);
 useNamePoolForRuns = persistedSettings.useNamePoolForRuns === true;
 
 function getTodayDateKey() {
@@ -248,6 +293,29 @@ function getTodayDateKey() {
   const day = String(now.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
+}
+
+function normalizeAllTimeCarouselInterval(value) {
+  const seconds = Number(value);
+
+  return Number.isFinite(seconds)
+    ? Math.max(10, Math.min(3600, Math.round(seconds)))
+    : DEFAULT_ALL_TIME_CAROUSEL_INTERVAL_SECONDS;
+}
+
+function normalizeAllTimeCarouselDuration(
+  value,
+  intervalSeconds = allTimeCarouselIntervalSeconds,
+) {
+  const seconds = Number(value);
+  const fallback = Math.min(
+    DEFAULT_ALL_TIME_CAROUSEL_DURATION_SECONDS,
+    intervalSeconds,
+  );
+
+  return Number.isFinite(seconds)
+    ? Math.max(1, Math.min(600, intervalSeconds, Math.round(seconds)))
+    : fallback;
 }
 
 function getTodayLeaderboardKey() {
@@ -372,6 +440,11 @@ function saveTwoPlayerSettings() {
     scoreSettings: persistedSettings.scoreSettings || {},
     useFastOCR,
     useNamePoolForRuns,
+    allTimeCarousel: {
+      enabled: allTimeCarouselEnabled,
+      intervalSeconds: allTimeCarouselIntervalSeconds,
+      durationSeconds: allTimeCarouselDurationSeconds,
+    },
     players: players.map((player) => ({
       name: player.staticLabel || player.label,
       cameraId: player.cameraSelect.value,
@@ -459,16 +532,21 @@ function normalizeRandomPlayerName(name) {
 }
 
 function normalizePlayerNameKey(name) {
-  return String(name || "").trim().toLowerCase();
+  return String(name || "")
+    .trim()
+    .toLowerCase();
 }
 
 function isKnownGameName(gameName) {
-  return Boolean(gameName && Object.prototype.hasOwnProperty.call(savedGames, gameName));
+  return Boolean(
+    gameName && Object.prototype.hasOwnProperty.call(savedGames, gameName),
+  );
 }
 
 function getAllTimeLeaderboard() {
   try {
-    const data = JSON.parse(localStorage.getItem(TWO_PLAYER_ALL_TIME_KEY)) || [];
+    const data =
+      JSON.parse(localStorage.getItem(TWO_PLAYER_ALL_TIME_KEY)) || [];
 
     return Array.isArray(data) ? data : [];
   } catch {
@@ -505,7 +583,9 @@ function normalizeScoreMinScore(value) {
 }
 
 function normalizeScoreValueLabel(value) {
-  return String(value || "").trim().slice(0, 24);
+  return String(value || "")
+    .trim()
+    .slice(0, 24);
 }
 
 function normalizeScoreStopScreen(value, gameData = selectedGame) {
@@ -522,8 +602,8 @@ function normalizeScoreStopScreens(value, gameData = selectedGame) {
   const values = Array.isArray(value)
     ? value
     : String(value || "")
-      .split(",")
-      .map((item) => item.trim());
+        .split(",")
+        .map((item) => item.trim());
   const seen = new Set();
 
   return values
@@ -546,7 +626,11 @@ function normalizeScoreFireworkScreens(value) {
   return values
     .map((item) => String(item || "").trim())
     .filter((screenName) => {
-      if (!screenName || !validScreens.has(screenName) || seen.has(screenName)) {
+      if (
+        !screenName ||
+        !validScreens.has(screenName) ||
+        seen.has(screenName)
+      ) {
         return false;
       }
 
@@ -591,7 +675,8 @@ function normalizeScoreDemoStartValue(value, sequenceInput) {
   const number = Number(value);
 
   if (!sequence.length) return "";
-  if (Number.isFinite(number) && sequence.includes(number)) return String(number);
+  if (Number.isFinite(number) && sequence.includes(number))
+    return String(number);
 
   return String(sequence[0]);
 }
@@ -613,7 +698,8 @@ function normalizeDemoDetectorConfig(
     value?.startValue ?? value?.demoStartValue,
     sequence,
   );
-  const created = value?.created === true || value?.demoDetectorCreated === true;
+  const created =
+    value?.created === true || value?.demoDetectorCreated === true;
   const stopScreens = normalizeScoreStopScreens(
     value?.stopScreens ?? value?.trackUntilScreens ?? value?.stopScreen,
     gameData,
@@ -644,9 +730,8 @@ function normalizeDemoDetectorConfig(
 
 function hasUsableDemoDetectorConfig(value = {}) {
   const metric = String(value.metric ?? value.demoMetric ?? "").trim();
-  const mode = value.mode === "held" || value.demoMode === "held"
-    ? "held"
-    : "sequence";
+  const mode =
+    value.mode === "held" || value.demoMode === "held" ? "held" : "sequence";
   const sequence = normalizeScoreDemoSequenceInput(
     value.sequence ?? value.demoSequence,
   );
@@ -660,21 +745,24 @@ function hasUsableDemoDetectorConfig(value = {}) {
 function hasDemoDetectorDraftValues(value = {}) {
   return Boolean(
     String(value.metric ?? value.demoMetric ?? "").trim() ||
-      normalizeScoreDemoSequenceInput(value.sequence ?? value.demoSequence) ||
-      String(value.startValue ?? value.demoStartValue ?? "").trim() ||
-      String(
-        value.heldValue ?? value.demoHeldValue ?? value.targetValue ?? "",
-      ).trim() ||
-      normalizeScoreStopScreens(
-        value.stopScreens ?? value.demoStopScreens ?? value.trackUntilScreens,
-      ).length,
+    normalizeScoreDemoSequenceInput(value.sequence ?? value.demoSequence) ||
+    String(value.startValue ?? value.demoStartValue ?? "").trim() ||
+    String(
+      value.heldValue ?? value.demoHeldValue ?? value.targetValue ?? "",
+    ).trim() ||
+    normalizeScoreStopScreens(
+      value.stopScreens ?? value.demoStopScreens ?? value.trackUntilScreens,
+    ).length,
   );
 }
 
 function getScoreDemoDetectorConfig(setting = getSelectedScoreSetting()) {
   const config = getResolvedDemoDetectorConfig(setting);
   const sequence = parseScoreDemoSequence(config?.sequence);
-  const metric = normalizeScoreDemoMetric(config?.metric, selectedScoreScreenName);
+  const metric = normalizeScoreDemoMetric(
+    config?.metric,
+    selectedScoreScreenName,
+  );
   const startValue = Number(config?.startValue);
   const heldValue = Number(config?.heldValue);
 
@@ -747,13 +835,16 @@ function getResolvedDemoDetectorConfig(setting = getSelectedScoreSetting()) {
 }
 
 function getScoreEntryKey(entry) {
-  return entry.key || [
-    entry.date || getTodayDateKey(),
-    entry.game || "game",
-    entry.startedAt || entry.id || "score",
-    entry.id || entry.score || "entry",
-    entry.color || "",
-  ].join("-");
+  return (
+    entry.key ||
+    [
+      entry.date || getTodayDateKey(),
+      entry.game || "game",
+      entry.startedAt || entry.id || "score",
+      entry.id || entry.score || "entry",
+      entry.color || "",
+    ].join("-")
+  );
 }
 
 function serializeScoreEntry(entry) {
@@ -772,10 +863,12 @@ function serializeScoreEntry(entry) {
     player: entry.player,
     name: entry.name || "",
     color: entry.color,
+    playerSide: getScoreEntryPlayerSide(entry),
     score: entry.score,
     gameScore: Number.isFinite(Number(entry.gameScore))
       ? Number(entry.gameScore)
       : null,
+    createdAt: Number(entry.createdAt) || Number(entry.startedAt) || Date.now(),
     startedAt: entry.startedAt,
   };
 }
@@ -849,13 +942,17 @@ function restoreTodayLeaderboard() {
       player: entry.player || entry.name || "Player",
       name: entry.name || "",
       color: entry.color === "red" ? "red" : "blue",
+      playerSide: normalizeScoreEntryPlayerSide(entry.playerSide, entry.color),
       score: Number(entry.score),
       gameScore: Number.isFinite(Number(entry.gameScore))
         ? Number(entry.gameScore)
         : null,
       active: false,
       demo: false,
-      startedAt: Number(entry.startedAt) || Date.now(),
+      createdAt:
+        Number(entry.createdAt) || Number(entry.startedAt) || Date.now(),
+      startedAt:
+        Number(entry.startedAt) || Number(entry.createdAt) || Date.now(),
     }));
 
   sessionScoreId = sessionScores.reduce((max, entry) => {
@@ -880,9 +977,11 @@ function getStoredLeaderboardDays() {
 
 function cleanupUnknownGameLeaderboardData() {
   getStoredLeaderboardDays().forEach((dateKey) => {
-    const knownEntries = getLeaderboardEntriesForDay(dateKey).filter((entry) => {
-      return isKnownGameName(entry.game) && isLeaderboardScore(entry);
-    });
+    const knownEntries = getLeaderboardEntriesForDay(dateKey).filter(
+      (entry) => {
+        return isKnownGameName(entry.game) && isLeaderboardScore(entry);
+      },
+    );
 
     if (knownEntries.length > 0) {
       localStorage.setItem(
@@ -921,7 +1020,8 @@ function rebuildAllTimeLeaderboardFromDays() {
   getStoredLeaderboardDays().forEach((dateKey) => {
     try {
       const data =
-        JSON.parse(localStorage.getItem(getLeaderboardStorageKey(dateKey))) || [];
+        JSON.parse(localStorage.getItem(getLeaderboardStorageKey(dateKey))) ||
+        [];
 
       if (Array.isArray(data)) {
         entries.push(...data);
@@ -934,25 +1034,27 @@ function rebuildAllTimeLeaderboardFromDays() {
   localStorage.setItem(
     TWO_PLAYER_ALL_TIME_KEY,
     JSON.stringify(
-      [...entries
-        .filter((entry) => {
-          return (
-            entry &&
-            Number.isFinite(Number(entry.score)) &&
-            isLeaderboardScore(entry) &&
-            isKnownGameName(entry.game)
-          );
-        })
-        .reduce((groups, entry) => {
-          const groupKey = `${entry.game || ""}|${getScoreEntrySettingKey(entry)}`;
-          const items = groups.get(groupKey) || [];
+      [
+        ...entries
+          .filter((entry) => {
+            return (
+              entry &&
+              Number.isFinite(Number(entry.score)) &&
+              isLeaderboardScore(entry) &&
+              isKnownGameName(entry.game)
+            );
+          })
+          .reduce((groups, entry) => {
+            const groupKey = `${entry.game || ""}|${getScoreEntrySettingKey(entry)}`;
+            const items = groups.get(groupKey) || [];
 
-          items.push(entry);
-          groups.set(groupKey, items);
+            items.push(entry);
+            groups.set(groupKey, items);
 
-          return groups;
-        }, new Map())
-        .values()].flatMap((items) => items.sort(compareScoreEntries).slice(0, 20)),
+            return groups;
+          }, new Map())
+          .values(),
+      ].flatMap((items) => items.sort(compareScoreEntries).slice(0, 20)),
     ),
   );
 }
@@ -990,7 +1092,10 @@ function restorePlayerSettings(player, settings) {
 
 function updatePlayerLabel(player, label) {
   const fallback = player.defaultLabel;
-  const clean = String(label || "").trim().slice(0, 18) || fallback;
+  const clean =
+    String(label || "")
+      .trim()
+      .slice(0, 18) || fallback;
 
   player.staticLabel = clean;
   if (!useNamePoolForRuns || !player.assignedRunName) {
@@ -1074,7 +1179,9 @@ function hexToRgb(hex) {
 
 function rgbToHex(color) {
   return `#${[color.r, color.g, color.b]
-    .map((value) => Math.max(0, Math.min(255, value)).toString(16).padStart(2, "0"))
+    .map((value) =>
+      Math.max(0, Math.min(255, value)).toString(16).padStart(2, "0"),
+    )
     .join("")}`;
 }
 
@@ -1254,17 +1361,19 @@ function normalizeSettingModuleConfig(setting) {
   const saved = setting?.moduleConfig || {};
   const normalized = {};
 
-  const availableIds = new Set(getModulesForSetting(setting).map((module) => module.id));
+  const availableIds = new Set(
+    getModulesForSetting(setting).map((module) => module.id),
+  );
 
   getAttachedModulesForSetting(setting)
     .filter((module) => availableIds.has(module.id))
     .forEach((module) => {
-    const moduleConfig = saved[module.id] || {};
+      const moduleConfig = saved[module.id] || {};
 
-    normalized[module.id] = getModuleConfigDefaults(module);
-    Object.entries(moduleConfig).forEach(([key, value]) => {
-      normalized[module.id][key] = String(value || "").trim();
-    });
+      normalized[module.id] = getModuleConfigDefaults(module);
+      Object.entries(moduleConfig).forEach(([key, value]) => {
+        normalized[module.id][key] = String(value || "").trim();
+      });
     });
 
   return normalized;
@@ -1287,13 +1396,12 @@ function getModulesForSetting(setting) {
 
   return (window.OcrGameModules?.items || []).filter((module) => {
     if (module.attachAnywhere === true) {
-      return typeof module.canAttach !== "function" || module.canAttach(context);
+      return (
+        typeof module.canAttach !== "function" || module.canAttach(context)
+      );
     }
 
-    if (
-      typeof module.matches === "function" &&
-      !module.matches(context)
-    ) {
+    if (typeof module.matches === "function" && !module.matches(context)) {
       return false;
     }
 
@@ -1317,7 +1425,9 @@ function getAttachedModulesForSetting(setting) {
   const moduleIds = Object.keys(setting?.moduleConfig || {});
 
   return moduleIds
-    .map((id) => window.OcrGameModules?.items.find((module) => module.id === id))
+    .map((id) =>
+      window.OcrGameModules?.items.find((module) => module.id === id),
+    )
     .filter(Boolean);
 }
 
@@ -1463,7 +1573,10 @@ function getAllScoreSettingCombosForGameData(gameData) {
 
 function createAvailableScoreSetting() {
   const preferred = createDefaultScoreSetting();
-  const preferredKey = getScoreSettingComboKey(preferred.screen, preferred.metric);
+  const preferredKey = getScoreSettingComboKey(
+    preferred.screen,
+    preferred.metric,
+  );
   const available = getAvailableScoreSettingCombos();
   const combo =
     available.find((item) => {
@@ -1488,7 +1601,9 @@ function normalizeScoreSettingsRecord(record) {
     item.metric = String(item.metric || "");
     item.minScore = normalizeScoreMinScore(item.minScore);
     item.valueLabel = normalizeScoreValueLabel(item.valueLabel);
-    item.stopScreens = normalizeScoreStopScreens(item.stopScreens ?? item.stopScreen);
+    item.stopScreens = normalizeScoreStopScreens(
+      item.stopScreens ?? item.stopScreen,
+    );
     item.stopScreen = item.stopScreens[0] || "";
     item.fireworkScreens = normalizeScoreFireworkScreens(item.fireworkScreens);
     item.demoMetric = normalizeScoreDemoMetric(item.demoMetric, item.screen);
@@ -1505,8 +1620,8 @@ function normalizeScoreSettingsRecord(record) {
       : 2000;
     item.demoConfirmOnScreenExit = item.demoConfirmOnScreenExit !== false;
     item.demoDetectorCreated = item.demoDetectorCreated === true;
-    item.demoDetectorEnabled = item.demoDetectorCreated ||
-      hasUsableDemoDetectorConfig(item);
+    item.demoDetectorEnabled =
+      item.demoDetectorCreated || hasUsableDemoDetectorConfig(item);
     item.moduleConfig = normalizeSettingModuleConfig(item);
     item.name = getScoreSettingLabel(item);
 
@@ -1521,7 +1636,8 @@ function normalizeScoreSettingsRecord(record) {
   });
 
   if (record.items.length === 0) {
-    const setting = createAvailableScoreSetting() || createDefaultScoreSetting();
+    const setting =
+      createAvailableScoreSetting() || createDefaultScoreSetting();
 
     record.items.push(setting);
   }
@@ -1563,9 +1679,13 @@ function getMetricNamesForGameScreen(gameData, screenName) {
     return item.name === screenName;
   });
 
-  return [...new Set((screen?.rois || [])
-    .map((roi) => String(roi.name || "").trim())
-    .filter(Boolean))];
+  return [
+    ...new Set(
+      (screen?.rois || [])
+        .map((roi) => String(roi.name || "").trim())
+        .filter(Boolean),
+    ),
+  ];
 }
 
 function populateScoreSettingSelect() {
@@ -1596,6 +1716,7 @@ function selectScoreSetting(settingId) {
   scoreSettingSelect.value = settingId;
   applySelectedScoreSetting();
   updateHighScoreTitle();
+  restartAllTimeCarouselCycle();
   scoreBoardSignature = "";
   resetScoringRuns();
   saveTwoPlayerSettings();
@@ -1609,14 +1730,18 @@ function applySelectedScoreSetting() {
   selectedScoreMetricName = setting?.metric || "";
   selectedScoreMinScore = normalizeScoreMinScore(setting?.minScore);
   selectedScoreValueLabel = normalizeScoreValueLabel(setting?.valueLabel);
-  selectedScoreStopScreenNames = normalizeScoreStopScreens(setting?.stopScreens ?? setting?.stopScreen);
+  selectedScoreStopScreenNames = normalizeScoreStopScreens(
+    setting?.stopScreens ?? setting?.stopScreen,
+  );
   useFastOCR = record?.fastOCR !== false;
 }
 
 function getSelectedScoreSetting() {
   const record = selectedGameName ? getGameScoreSettingsRecord() : null;
 
-  return record?.items.find((item) => item.id === selectedScoreSettingId) || null;
+  return (
+    record?.items.find((item) => item.id === selectedScoreSettingId) || null
+  );
 }
 
 function selectSharedGame(name, options = {}) {
@@ -1631,12 +1756,8 @@ function selectSharedGame(name, options = {}) {
   clearNameEntryTimers();
   selectedGameName = name;
   selectedGame = savedGames[name] || null;
-  selectedScoreScreenName = selectedGame
-    ? selectedScoreScreenName
-    : "";
-  selectedScoreMetricName = selectedGame
-    ? selectedScoreMetricName
-    : "";
+  selectedScoreScreenName = selectedGame ? selectedScoreScreenName : "";
+  selectedScoreMetricName = selectedGame ? selectedScoreMetricName : "";
   selectedScoreStopScreenNames = selectedGame
     ? selectedScoreStopScreenNames
     : [];
@@ -1664,6 +1785,7 @@ function selectSharedGame(name, options = {}) {
   populateScoreSettingSelect();
   applySelectedScoreSetting();
   updateHighScoreTitle();
+  restartAllTimeCarouselCycle();
   saveTwoPlayerSettings();
   updateAllPlayerStatuses();
   renderScoreBoard();
@@ -1786,7 +1908,9 @@ function findRecognizedGame(player) {
 }
 
 function getBoxartImagePath(imageName) {
-  return imageName ? `${BOXART_IMAGE_BASE_PATH}${encodeURIComponent(imageName)}` : "";
+  return imageName
+    ? `${BOXART_IMAGE_BASE_PATH}${encodeURIComponent(imageName)}`
+    : "";
 }
 
 function showGameRecognitionToast(player, gameName, options = {}) {
@@ -1879,6 +2003,79 @@ function updateHighScoreTitle() {
       ? `(${selectedScoreScreenName} → ${selectedScoreMetricName})`
       : "";
   highScoreSubtitle.hidden = !highScoreSubtitle.textContent;
+  exportJSONButton.disabled = !selectedGameName || !selectedGame;
+}
+
+function hasExportableProjectDemoDetector(value = {}) {
+  const created = value.created === true || value.demoDetectorCreated === true;
+
+  return (
+    hasUsableDemoDetectorConfig(value) ||
+    (created && hasDemoDetectorDraftValues(value))
+  );
+}
+
+function getSelectedGameExportData() {
+  const gameDemoDetector = selectedGame?.demoDetector || {};
+  const screens = (selectedGame?.screens || []).map((screen) => {
+    const { demoDetector, ...screenData } = screen;
+
+    return hasExportableProjectDemoDetector(demoDetector)
+      ? {
+          ...screenData,
+          demoDetector: serializeDemoDetectorConfig(demoDetector, selectedGame),
+        }
+      : screenData;
+  });
+  const { demoDetector, ...gameData } = selectedGame;
+
+  return {
+    ...gameData,
+    exportVersion: 1,
+    exportedAt: new Date().toISOString(),
+    game: selectedGameName,
+    ...(hasExportableProjectDemoDetector(gameDemoDetector)
+      ? {
+          demoDetector: serializeDemoDetectorConfig(
+            gameDemoDetector,
+            selectedGame,
+          ),
+        }
+      : {}),
+    screens,
+  };
+}
+
+function stringifySelectedGameExport(data) {
+  return JSON.stringify(data, null, 2).replace(
+    /"pixels":\s*\[\s*([\d,\s]+?)\s*\]/gs,
+    (_, values) => `"pixels": [${values.replace(/\s+/g, " ").trim()}]`,
+  );
+}
+
+function exportSelectedGameJSON() {
+  if (!selectedGameName || !selectedGame) {
+    showAlert("Choose a game before exporting JSON.");
+    return;
+  }
+
+  const blob = new Blob(
+    [stringifySelectedGameExport(getSelectedGameExportData())],
+    { type: "application/json" },
+  );
+  const link = document.createElement("a");
+  const safeName =
+    selectedGameName
+      .replace(/[<>:"/\\|?*]+/g, "-")
+      .replace(/\s+/g, " ")
+      .trim() || "ocr-helper";
+
+  link.href = URL.createObjectURL(blob);
+  link.download = `${safeName}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(link.href);
 }
 
 async function importProjectFiles(files) {
@@ -2118,7 +2315,9 @@ async function getAvailableCameras() {
 
   const devices = await navigator.mediaDevices.enumerateDevices();
 
-  return devices.filter((device) => device.kind === "videoinput" && device.deviceId);
+  return devices.filter(
+    (device) => device.kind === "videoinput" && device.deviceId,
+  );
 }
 
 async function startPlayerCamera(player) {
@@ -2466,7 +2665,10 @@ function updatePlayerRun(player, previousScreen) {
   updateDemoTracking(player, previousScreen);
 
   if (isScoreStopScreen(player.activeScreen)) {
-    if (!isScoreStopScreen(previousScreen) || player.scoreStopScreenSince === null) {
+    if (
+      !isScoreStopScreen(previousScreen) ||
+      player.scoreStopScreenSince === null
+    ) {
       player.scoreStopScreenSince = Date.now();
       preserveActiveScoreRun(player);
       return;
@@ -2535,7 +2737,10 @@ function updatePlayerRun(player, previousScreen) {
     return;
   }
 
-  if (player.runRestartBlocked && isNewGameStartSignal(score, gameScore, lines)) {
+  if (
+    player.runRestartBlocked &&
+    isNewGameStartSignal(score, gameScore, lines)
+  ) {
     player.runRestartBlocked = false;
   }
 
@@ -2648,7 +2853,7 @@ function isTrackedScreen(screen) {
 function isScoreStopScreen(screen) {
   return Boolean(
     selectedScoreStopScreenNames.length > 0 &&
-      selectedScoreStopScreenNames.includes(screen?.name),
+    selectedScoreStopScreenNames.includes(screen?.name),
   );
 }
 
@@ -2657,7 +2862,9 @@ function isDemoDetectorStopScreen(screen) {
 
   if (!screenName) return false;
 
-  return getScoreDemoDetectorConfig()?.stopScreens.includes(screenName) || false;
+  return (
+    getScoreDemoDetectorConfig()?.stopScreens.includes(screenName) || false
+  );
 }
 
 function isEffectiveRunStopScreen(player, screen) {
@@ -2672,8 +2879,10 @@ function isTrackedScoreReadAllowed(player) {
   if (isScoreStopScreen(player.activeScreen)) return false;
   if (isInterceptorScreen(player.activeScreen)) return false;
   if (
-    getMetricNumberFromValues(player.trackingValues, selectedScoreMetricName) !==
-    null
+    getMetricNumberFromValues(
+      player.trackingValues,
+      selectedScoreMetricName,
+    ) !== null
   ) {
     return true;
   }
@@ -2689,9 +2898,11 @@ function isTrackedScoreReadAllowed(player) {
 function getSelectedScoreScreen() {
   if (!selectedGame || !selectedScoreScreenName) return null;
 
-  return selectedGame.screens.find((screen) => {
-    return screen.name === selectedScoreScreenName;
-  }) || null;
+  return (
+    selectedGame.screens.find((screen) => {
+      return screen.name === selectedScoreScreenName;
+    }) || null
+  );
 }
 
 function getPlayerTrackingValues(player) {
@@ -2724,7 +2935,10 @@ function updateTrackedScoreScreenVisibility(player, now = Date.now()) {
     return;
   }
 
-  if (isTrackedScreen(player.activeScreen) || screenMatches(player, scoreScreen)) {
+  if (
+    isTrackedScreen(player.activeScreen) ||
+    screenMatches(player, scoreScreen)
+  ) {
     player.trackedScoreScreenLastVisibleAt = now;
   }
 }
@@ -2732,10 +2946,10 @@ function updateTrackedScoreScreenVisibility(player, now = Date.now()) {
 function isInterceptorScreen(screen) {
   return Boolean(
     screen &&
-      Object.prototype.hasOwnProperty.call(
-        interceptorScreenMessages,
-        normalizeScreenName(screen.name),
-      ),
+    Object.prototype.hasOwnProperty.call(
+      interceptorScreenMessages,
+      normalizeScreenName(screen.name),
+    ),
   );
 }
 
@@ -2792,7 +3006,8 @@ function markScoreInterruptedBeforeStopScreen(player) {
   if (isScoreStopScreen(player.activeScreen)) return;
 
   // A module name-entry row is finalized, but it still represents this run.
-  const entry = getPendingModuleNameEntry(player) ||
+  const entry =
+    getPendingModuleNameEntry(player) ||
     getFinalizedGuardEntry(player) ||
     getActiveSessionScoreForPlayer(player);
 
@@ -2833,16 +3048,18 @@ function markScoreInterruptedBeforeStopScreen(player) {
 }
 
 function getPendingModuleNameEntry(player) {
-  return sessionScores
-    .filter((entry) => {
-      return (
-        entry.nameEntry?.source === "module" &&
-        entry.color === player.color &&
-        entry.game === selectedGameName &&
-        getScoreEntrySettingKey(entry) === getSelectedScoreSettingKey()
-      );
-    })
-    .sort((a, b) => b.startedAt - a.startedAt || b.id - a.id)[0] || null;
+  return (
+    sessionScores
+      .filter((entry) => {
+        return (
+          entry.nameEntry?.source === "module" &&
+          entry.color === player.color &&
+          entry.game === selectedGameName &&
+          getScoreEntrySettingKey(entry) === getSelectedScoreSettingKey()
+        );
+      })
+      .sort((a, b) => b.startedAt - a.startedAt || b.id - a.id)[0] || null
+  );
 }
 
 function getFinalizedGuardEntry(player) {
@@ -2850,14 +3067,16 @@ function getFinalizedGuardEntry(player) {
 
   if (!guard) return null;
 
-  return sessionScores.find((entry) => {
-    return (
-      entry.id === guard.entryId &&
-      entry.game === guard.game &&
-      Number(entry.score) === Number(guard.score) &&
-      getScoreEntrySettingKey(entry) === guard.settingKey
-    );
-  }) || null;
+  return (
+    sessionScores.find((entry) => {
+      return (
+        entry.id === guard.entryId &&
+        entry.game === guard.game &&
+        Number(entry.score) === Number(guard.score) &&
+        getScoreEntrySettingKey(entry) === guard.settingKey
+      );
+    }) || null
+  );
 }
 
 function settleInterruptedScoreEntry(player, keepEntry) {
@@ -2947,7 +3166,10 @@ function clearStartupScreenTimer(player) {
 }
 
 function getPlayerMetricNumber(player, metricName) {
-  const trackedScore = getMetricNumberFromValues(player.trackingValues, metricName);
+  const trackedScore = getMetricNumberFromValues(
+    player.trackingValues,
+    metricName,
+  );
 
   if (trackedScore !== null) return trackedScore;
 
@@ -2961,7 +3183,10 @@ function getMetricNumberFromValues(values, metricName) {
     return (
       String(region.name || "")
         .trim()
-        .toLowerCase() === String(metricName || "").trim().toLowerCase()
+        .toLowerCase() ===
+      String(metricName || "")
+        .trim()
+        .toLowerCase()
     );
   });
 
@@ -3058,11 +3283,7 @@ function updateHeldValueDemoTracking(player, config, previousScreen) {
     previousScreen && previousScreen !== player.activeScreen,
   );
 
-  if (
-    screenChanged &&
-    config.confirmOnScreenExit &&
-    player.demoHeldMatched
-  ) {
+  if (screenChanged && config.confirmOnScreenExit && player.demoHeldMatched) {
     player.demoKnown = true;
     return;
   }
@@ -3107,12 +3328,15 @@ function updateSessionScore(player, score, options = {}) {
   }
 
   if (!entry) {
+    const createdAt = Date.now();
+
     entry = {
       id: ++sessionScoreId,
-      key: `${getTodayDateKey()}-${selectedGameName || "game"}-${Date.now()}-${sessionScoreId}`,
+      key: `${getTodayDateKey()}-${selectedGameName || "game"}-${createdAt}-${sessionScoreId}`,
       date: getTodayDateKey(),
       player: player.label,
       color: player.color,
+      playerSide: getPlayerSide(player),
       score,
       gameScore: Number.isFinite(Number(options.gameScore))
         ? Number(options.gameScore)
@@ -3128,7 +3352,8 @@ function updateSessionScore(player, score, options = {}) {
       scoreStopScreen: selectedScoreStopScreenNames[0] || "",
       scoreStopScreens: selectedScoreStopScreenNames.slice(),
       interruptedBeforeStopScreen: false,
-      startedAt: Date.now(),
+      createdAt,
+      startedAt: createdAt,
     };
     sessionScores.push(entry);
   }
@@ -3160,13 +3385,15 @@ function isBlockedByFinalizedScoreGuard(player, score) {
   if (guard.settingKey !== getSelectedScoreSettingKey()) return false;
   if (Number(guard.score) !== Number(score)) return false;
 
-  const guardedEntry = sessionScores.find((entry) => entry.id === guard.entryId);
+  const guardedEntry = sessionScores.find(
+    (entry) => entry.id === guard.entryId,
+  );
 
   return Boolean(
     guardedEntry &&
-      !guardedEntry.active &&
-      !guardedEntry.removingDemo &&
-      Number(guardedEntry.score) === Number(score),
+    !guardedEntry.active &&
+    !guardedEntry.removingDemo &&
+    Number(guardedEntry.score) === Number(score),
   );
 }
 
@@ -3200,8 +3427,7 @@ function getActiveSessionScoreForPlayer(player) {
 function removeDuplicateActiveSessionScores(player, keepEntry) {
   sessionScores = sessionScores.filter((entry) => {
     return (
-      entry === keepEntry ||
-      !isCurrentSessionScoreForPlayer(entry, player)
+      entry === keepEntry || !isCurrentSessionScoreForPlayer(entry, player)
     );
   });
 }
@@ -3378,6 +3604,129 @@ function dedupeActiveSessionScores() {
 
     return keepByKey.get(getCurrentSessionScoreKey(entry)) === entry;
   });
+}
+
+function getPlayerSide(player) {
+  return players.indexOf(player) === 1 ? "right" : "left";
+}
+
+function normalizeScoreEntryPlayerSide(side, color = "") {
+  if (side === "left" || side === "right") return side;
+
+  return color === "red" ? "right" : "left";
+}
+
+function getScoreEntryPlayerSide(entry) {
+  return normalizeScoreEntryPlayerSide(entry.playerSide, entry.color);
+}
+
+function getScoreEntryCreatedAt(entry) {
+  return Number(entry.createdAt) || Number(entry.startedAt) || 0;
+}
+
+function getScoreEntryNameKey(entry) {
+  return normalizePlayerNameKey(
+    entry.nameEntry?.value || entry.name || entry.player || "",
+  );
+}
+
+function reconcileRecentRandomNameDuplicates() {
+  if (randomPlayerNames.length === 0) return false;
+
+  const randomNameKeys = new Set(randomPlayerNames.map(normalizePlayerNameKey));
+  const candidates = sessionScores.filter((entry) => {
+    return (
+      !entry.demo &&
+      !entry.removingDemo &&
+      entry.date === getTodayDateKey() &&
+      Number.isFinite(Number(entry.score)) &&
+      getScoreEntryCreatedAt(entry) > 0
+    );
+  });
+  const removeIds = new Set();
+  const replacements = new Map();
+
+  for (let index = 0; index < candidates.length; index += 1) {
+    const first = candidates[index];
+
+    if (removeIds.has(first.id)) continue;
+
+    for (
+      let otherIndex = index + 1;
+      otherIndex < candidates.length;
+      otherIndex += 1
+    ) {
+      const second = candidates[otherIndex];
+
+      if (removeIds.has(second.id)) continue;
+      if (first.game !== second.game) continue;
+      if (getScoreEntrySettingKey(first) !== getScoreEntrySettingKey(second)) {
+        continue;
+      }
+      if (getScoreEntryPlayerSide(first) !== getScoreEntryPlayerSide(second)) {
+        continue;
+      }
+      if (Number(first.score) !== Number(second.score)) continue;
+      if (
+        Math.abs(
+          getScoreEntryCreatedAt(first) - getScoreEntryCreatedAt(second),
+        ) > RANDOM_NAME_DUPLICATE_WINDOW_MS
+      ) {
+        continue;
+      }
+
+      const firstHasRandomName = randomNameKeys.has(
+        getScoreEntryNameKey(first),
+      );
+      const secondHasRandomName = randomNameKeys.has(
+        getScoreEntryNameKey(second),
+      );
+
+      if (firstHasRandomName === secondHasRandomName) continue;
+
+      const randomEntry = firstHasRandomName ? first : second;
+      const retainedEntry = firstHasRandomName ? second : first;
+
+      removeIds.add(randomEntry.id);
+      replacements.set(randomEntry.id, retainedEntry.id);
+    }
+  }
+
+  if (removeIds.size === 0) return false;
+
+  sessionScores.forEach((entry) => {
+    if (removeIds.has(entry.id) && entry.nameEntry?.timer) {
+      window.clearInterval(entry.nameEntry.timer);
+    }
+  });
+  sessionScores = sessionScores.filter((entry) => !removeIds.has(entry.id));
+  players.forEach((player) => {
+    const removedEntryId = removeIds.has(player.scoreEntryId)
+      ? player.scoreEntryId
+      : removeIds.has(player.finalizedScoreGuard?.entryId)
+        ? player.finalizedScoreGuard.entryId
+        : null;
+
+    if (removedEntryId === null) return;
+
+    const retainedEntry = sessionScores.find(
+      (entry) => entry.id === replacements.get(removedEntryId),
+    );
+
+    player.scoreEntryId = null;
+    player.runRestartBlocked = Boolean(retainedEntry);
+    player.finalizedScore = retainedEntry?.score ?? null;
+    player.finalizedScoreGuard = retainedEntry
+      ? {
+          entryId: retainedEntry.id,
+          score: retainedEntry.score,
+          game: retainedEntry.game,
+          settingKey: getScoreEntrySettingKey(retainedEntry),
+        }
+      : null;
+  });
+
+  return true;
 }
 
 function isCurrentSessionScore(entry) {
@@ -3604,9 +3953,11 @@ function updatePlayerFireworks(player, time) {
   }
 
   player.fireworks.forEach((firework) => updateFirework(firework, ctx));
-  player.fireworks = player.fireworks.filter((firework) => {
-    return !firework.done;
-  }).slice(-8);
+  player.fireworks = player.fireworks
+    .filter((firework) => {
+      return !firework.done;
+    })
+    .slice(-8);
 
   player.fireworksFrame = requestAnimationFrame((nextTime) => {
     updatePlayerFireworks(player, nextTime);
@@ -3649,7 +4000,11 @@ function updateFirework(firework, ctx) {
 
     if (rocket.y <= rocket.burstY || rocket.vy >= 0) {
       firework.exploded = true;
-      firework.particles = createFireworkParticles(rocket.x, rocket.y, firework.color);
+      firework.particles = createFireworkParticles(
+        rocket.x,
+        rocket.y,
+        firework.color,
+      );
     }
   }
 
@@ -3676,7 +4031,9 @@ function updateFirework(firework, ctx) {
       `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${Math.max(0, particle.life)})`,
     );
   });
-  firework.particles = firework.particles.filter((particle) => particle.life > 0);
+  firework.particles = firework.particles.filter(
+    (particle) => particle.life > 0,
+  );
   firework.done = firework.exploded && firework.particles.length === 0;
 }
 
@@ -3746,7 +4103,8 @@ function createModuleContext(player, entry = null, options = {}) {
     values: player.values,
     trackingValues: player.trackingValues,
     getValue(name, source = "tracking") {
-      const values = source === "active" ? player.values : player.trackingValues;
+      const values =
+        source === "active" ? player.values : player.trackingValues;
 
       return getModuleValue(values, name);
     },
@@ -3801,8 +4159,14 @@ function createModuleContext(player, entry = null, options = {}) {
 
 function getModuleValue(values, name) {
   const match = (values || []).find((item) => {
-    return String(item.name || "").trim().toLowerCase() ===
-      String(name || "").trim().toLowerCase();
+    return (
+      String(item.name || "")
+        .trim()
+        .toLowerCase() ===
+      String(name || "")
+        .trim()
+        .toLowerCase()
+    );
   });
 
   return String(match?.value || "").trim();
@@ -4314,8 +4678,265 @@ function getAchievementSymbol(tier) {
   }
 }
 
+function getStoredAllTimeCarouselEntries() {
+  const settingKey = getSelectedScoreSettingKey();
+
+  if (!selectedGameName || !settingKey) return [];
+
+  return getAllTimeLeaderboard()
+    .filter((entry) => {
+      return (
+        isScoreEntryForSetting(entry, selectedGameName, settingKey) &&
+        isLeaderboardScore(entry)
+      );
+    })
+    .sort(compareScoreEntries)
+    .slice(0, ALL_TIME_CAROUSEL_MAX_ENTRY_COUNT);
+}
+
+function getAllTimeCarouselDisplayEntries(storedEntries) {
+  const settingKey = getSelectedScoreSettingKey();
+  const byKey = new Map(
+    storedEntries.map((entry) => [
+      getScoreEntryKey(entry),
+      { ...entry, carouselCurrentSide: "" },
+    ]),
+  );
+
+  sessionScores
+    .filter((entry) => {
+      return (
+        entry.active &&
+        !entry.demo &&
+        !entry.removingDemo &&
+        isLeaderboardScore(entry) &&
+        isScoreEntryForSetting(entry, selectedGameName, settingKey)
+      );
+    })
+    .forEach((entry) => {
+      byKey.set(getScoreEntryKey(entry), {
+        ...entry,
+        carouselCurrentSide: getScoreEntryPlayerSide(entry),
+      });
+    });
+
+  return [...byKey.values()]
+    .sort(compareScoreEntries)
+    .slice(0, ALL_TIME_CAROUSEL_MAX_ENTRY_COUNT);
+}
+
+function formatAllTimeCarouselDate(dateKey) {
+  const [year, month, day] = String(dateKey || "").split("-");
+
+  return year && month && day ? `${day}.${month}.${year.slice(-2)}` : "—";
+}
+
+function createAllTimeCarouselCell(text, className = "") {
+  const cell = document.createElement("span");
+
+  cell.className = `allTimeCarouselCell ${className}`.trim();
+  cell.textContent = text;
+
+  return cell;
+}
+
+function renderAllTimeCarouselBoard() {
+  const storedEntries = getStoredAllTimeCarouselEntries();
+  const previousScrollTop =
+    allTimeCarouselBoard.querySelector(".allTimeCarouselTable")?.scrollTop || 0;
+
+  if (storedEntries.length < ALL_TIME_CAROUSEL_MIN_ENTRY_COUNT) {
+    allTimeCarouselBoard.replaceChildren();
+    return false;
+  }
+
+  const entries = getAllTimeCarouselDisplayEntries(storedEntries);
+  const title = document.createElement("h2");
+  const table = document.createElement("div");
+
+  title.className = "allTimeCarouselTitle";
+  title.textContent = "ALL TIME TOP 20";
+  table.className = "allTimeCarouselTable";
+  table.setAttribute("role", "list");
+  table.setAttribute("aria-label", "All time top 20");
+
+  entries.forEach((entry, index) => {
+    const row = document.createElement("div");
+    const identity = document.createElement("div");
+    const scoreGroup = document.createElement("div");
+    const rank = getCompetitionRank(entries, index);
+
+    row.className = "allTimeCarouselRow";
+    row.setAttribute("role", "listitem");
+    identity.className = "allTimeCarouselIdentity";
+    identity.append(
+      createAllTimeCarouselCell(
+        getScoreEntryName(entry),
+        "allTimeCarouselName",
+      ),
+      createAllTimeCarouselCell(
+        formatAllTimeCarouselDate(entry.date),
+        "allTimeCarouselDate",
+      ),
+    );
+    scoreGroup.className = "allTimeCarouselScoreGroup";
+    scoreGroup.append(
+      createAllTimeCarouselCell("Score", "allTimeCarouselScoreLabel"),
+      createAllTimeCarouselCell(
+        formatScore(entry.score),
+        "allTimeCarouselScore",
+      ),
+    );
+    if (rank === 1) row.classList.add("topGold");
+    if (rank === 2) row.classList.add("topSilver");
+    if (rank === 3) row.classList.add("topBronze");
+    if (entry.carouselCurrentSide) {
+      row.classList.add(`current-${entry.carouselCurrentSide}`);
+    }
+    row.append(
+      createAllTimeCarouselCell(`#${rank}`, "allTimeCarouselRank"),
+      identity,
+      scoreGroup,
+    );
+    table.appendChild(row);
+  });
+
+  allTimeCarouselBoard.replaceChildren(title, table);
+  if (allTimeCarouselVisible) {
+    table.scrollTop = previousScrollTop;
+    if (!allTimeScrollPhase) startAllTimeCarouselScrollCycle();
+  } else {
+    resetAllTimeCarouselAutoScroll();
+  }
+  return true;
+}
+
+function hideAllTimeCarousel() {
+  window.clearTimeout(allTimeCarouselHideTimer);
+  allTimeCarouselHideTimer = null;
+  allTimeCarouselVisible = false;
+  leaderboardCarousel.classList.remove("showAllTime");
+  scoreBoard.setAttribute("aria-hidden", "false");
+  allTimeCarouselBoard.setAttribute("aria-hidden", "true");
+  resetAllTimeCarouselAutoScroll();
+  updateLeaderboardCarouselNavigation();
+}
+
+function showAllTimeCarousel() {
+  window.clearTimeout(allTimeCarouselInterval);
+  allTimeCarouselInterval = null;
+
+  if (!allTimeCarouselEnabled || !renderAllTimeCarouselBoard()) {
+    hideAllTimeCarousel();
+    scheduleAllTimeCarouselInterval();
+    return;
+  }
+
+  allTimeCarouselVisible = true;
+  leaderboardCarousel.classList.add("showAllTime");
+  scoreBoard.setAttribute("aria-hidden", "true");
+  allTimeCarouselBoard.setAttribute("aria-hidden", "false");
+  updateLeaderboardCarouselNavigation();
+  startAllTimeCarouselScrollCycle();
+}
+
+function startAllTimeCarouselScrollCycle() {
+  window.clearTimeout(allTimeCarouselHideTimer);
+  allTimeCarouselHideTimer = null;
+  allTimeScrollDirection = 1;
+  allTimeScrollHoldUntil = performance.now() + 1000;
+  allTimeScrollLastTime = 0;
+  allTimeScrollPhase = "down";
+
+  const scroller = allTimeCarouselBoard.querySelector(".allTimeCarouselTable");
+
+  if (scroller) scroller.scrollTop = 0;
+}
+
+function beginAllTimeCarouselFinalWait() {
+  if (!allTimeCarouselVisible || allTimeScrollPhase === "waiting") return;
+
+  allTimeScrollPhase = "waiting";
+  window.clearTimeout(allTimeCarouselHideTimer);
+  allTimeCarouselHideTimer = window.setTimeout(() => {
+    hideAllTimeCarousel();
+    scheduleAllTimeCarouselInterval();
+  }, allTimeCarouselDurationSeconds * 1000);
+}
+
+function updateLeaderboardCarouselNavigation() {
+  const available =
+    allTimeCarouselEnabled &&
+    getStoredAllTimeCarouselEntries().length >=
+      ALL_TIME_CAROUSEL_MIN_ENTRY_COUNT;
+  const dots = leaderboardCarouselPosition.children;
+
+  leaderboardCarouselPrevious.disabled = !allTimeCarouselVisible;
+  leaderboardCarouselNext.disabled = allTimeCarouselVisible || !available;
+  dots[0]?.classList.toggle("active", !allTimeCarouselVisible);
+  dots[1]?.classList.toggle("active", allTimeCarouselVisible);
+}
+
+function scheduleAllTimeCarouselInterval() {
+  window.clearTimeout(allTimeCarouselInterval);
+  allTimeCarouselInterval = null;
+
+  if (!allTimeCarouselEnabled) return;
+
+  allTimeCarouselInterval = window.setTimeout(
+    showAllTimeCarousel,
+    allTimeCarouselIntervalSeconds * 1000,
+  );
+}
+
+function showAllTimeCarouselManually() {
+  showAllTimeCarousel();
+}
+
+function showLiveLeaderboardManually() {
+  hideAllTimeCarousel();
+  scheduleAllTimeCarouselInterval();
+}
+
+function syncHighScoreCarouselControls() {
+  highScoreCarouselEnabled.checked = allTimeCarouselEnabled;
+  highScoreCarouselInterval.value = String(allTimeCarouselIntervalSeconds);
+  highScoreCarouselDuration.value = String(allTimeCarouselDurationSeconds);
+  highScoreCarouselDuration.max = String(
+    Math.min(600, allTimeCarouselIntervalSeconds),
+  );
+  highScoreCarouselInterval.disabled = !allTimeCarouselEnabled;
+  highScoreCarouselDuration.disabled = !allTimeCarouselEnabled;
+}
+
+function updateHighScoreCarouselSettings() {
+  allTimeCarouselEnabled = highScoreCarouselEnabled.checked;
+  allTimeCarouselIntervalSeconds = normalizeAllTimeCarouselInterval(
+    highScoreCarouselInterval.value,
+  );
+  allTimeCarouselDurationSeconds = normalizeAllTimeCarouselDuration(
+    highScoreCarouselDuration.value,
+    allTimeCarouselIntervalSeconds,
+  );
+  syncHighScoreCarouselControls();
+  saveTwoPlayerSettings();
+  restartAllTimeCarouselCycle();
+}
+
+function restartAllTimeCarouselCycle() {
+  hideAllTimeCarousel();
+  scheduleAllTimeCarouselInterval();
+  updateLeaderboardCarouselNavigation();
+}
+
 function renderScoreBoard() {
   dedupeActiveSessionScores();
+
+  if (reconcileRecentRandomNameDuplicates()) {
+    saveTodayLeaderboard();
+    rebuildAllTimeLeaderboardFromDays();
+    scoreBoardSignature = "";
+  }
 
   const rankedScores = getRankedSessionScores();
   const liveLeaderId = getLiveLeaderId();
@@ -4356,9 +4977,19 @@ function renderScoreBoard() {
   const previousScrollTop = previousScroller?.scrollTop || 0;
   const skipRankMoveAnimation =
     rankedScores.some((entry) => entry.demo || entry.removingDemo) ||
-    Boolean(scoreBoard.querySelector(".highScoreBox.demo, .highScoreBox.demoRemoving"));
+    Boolean(
+      scoreBoard.querySelector(
+        ".highScoreBox.demo, .highScoreBox.demoRemoving",
+      ),
+    );
 
   scoreBoardSignature = nextSignature;
+  updateLeaderboardCarouselNavigation();
+
+  if (allTimeCarouselVisible && !renderAllTimeCarouselBoard()) {
+    hideAllTimeCarousel();
+    scheduleAllTimeCarouselInterval();
+  }
 
   scoreBoard.replaceChildren();
 
@@ -4416,15 +5047,13 @@ function createHighScoreBox(entry, index, displayRank) {
   const podiumRank = getPodiumRank(entry, index);
   const allTimeRank = index < 3 ? getAllTimeRank(entry) : null;
   const settledEntry =
-    !entry.active &&
-    !entry.nameEntry &&
-    !entry.demo &&
-    !entry.removingDemo;
-  const settledRankBand =
-    settledEntry && podiumRank === null;
+    !entry.active && !entry.nameEntry && !entry.demo && !entry.removingDemo;
+  const settledRankBand = settledEntry && podiumRank === null;
 
   box.className = `highScoreBox highScoreBox-${entry.color}`;
   box.dataset.scoreId = String(entry.id);
+  box.dataset.createdAt = String(getScoreEntryCreatedAt(entry));
+  box.dataset.playerSide = getScoreEntryPlayerSide(entry);
   box.classList.toggle("finalized", !entry.active);
   box.classList.toggle("currentScore", Boolean(entry.active));
   box.classList.toggle("demo", Boolean(entry.demo));
@@ -4666,7 +5295,8 @@ function updateScoreBoardAutoScroll() {
   if (now < scoreScrollHoldUntil) return;
 
   const maxScroll = scroller.scrollHeight - scroller.clientHeight;
-  const nextScroll = scroller.scrollTop + scoreScrollDirection * 34 * deltaSeconds;
+  const nextScroll =
+    scroller.scrollTop + scoreScrollDirection * 34 * deltaSeconds;
 
   scroller.scrollTop = Math.max(0, Math.min(maxScroll, nextScroll));
 
@@ -4676,6 +5306,63 @@ function updateScoreBoardAutoScroll() {
   } else if (scroller.scrollTop >= maxScroll - 1) {
     scoreScrollDirection = -1;
     scoreScrollHoldUntil = now + 900;
+  }
+}
+
+function resetAllTimeCarouselAutoScroll() {
+  allTimeScrollDirection = 1;
+  allTimeScrollHoldUntil = 0;
+  allTimeScrollLastTime = 0;
+  allTimeScrollPhase = "";
+}
+
+function updateAllTimeCarouselAutoScroll() {
+  const scroller = allTimeCarouselBoard.querySelector(".allTimeCarouselTable");
+  const now = performance.now();
+
+  if (!allTimeCarouselVisible || !scroller) {
+    resetAllTimeCarouselAutoScroll();
+    return;
+  }
+
+  if (scroller.scrollHeight <= scroller.clientHeight + 1) {
+    beginAllTimeCarouselFinalWait();
+    return;
+  }
+
+  if (allTimeScrollPhase === "waiting") return;
+
+  if (allTimeBoardPointerInside) {
+    allTimeScrollLastTime = now;
+    return;
+  }
+
+  if (!allTimeScrollLastTime) {
+    allTimeScrollLastTime = now;
+    return;
+  }
+
+  const deltaSeconds = Math.min((now - allTimeScrollLastTime) / 1000, 0.05);
+  const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+
+  allTimeScrollLastTime = now;
+  if (now < allTimeScrollHoldUntil) return;
+
+  scroller.scrollTop = Math.max(
+    0,
+    Math.min(
+      maxScroll,
+      scroller.scrollTop + allTimeScrollDirection * 30 * deltaSeconds,
+    ),
+  );
+
+  if (allTimeScrollPhase === "down" && scroller.scrollTop >= maxScroll - 1) {
+    allTimeScrollPhase = "up";
+    allTimeScrollDirection = -1;
+    allTimeScrollHoldUntil = now + 1000;
+  } else if (allTimeScrollPhase === "up" && scroller.scrollTop <= 0) {
+    scroller.scrollTop = 0;
+    beginAllTimeCarouselFinalWait();
   }
 }
 
@@ -4761,13 +5448,19 @@ function updatePlayerRankDisplays() {
     }
 
     const rankIndex = rankedEntries.findIndex((item) => item.id === entry?.id);
-    const rank = rankIndex === -1
-      ? 0
-      : getCompetitionRank(rankedEntries, rankIndex);
+    const rank =
+      rankIndex === -1 ? 0 : getCompetitionRank(rankedEntries, rankIndex);
+    const allTimeRank = entry && rank > 0 ? getAllTimeRank(entry) : null;
     const direction = getRankChangeDirection(player, rank);
 
     player.currentRank.hidden = false;
-    renderCurrentRankCard(player.currentRank, entry, rank, direction);
+    renderCurrentRankCard(
+      player.currentRank,
+      entry,
+      rank,
+      allTimeRank,
+      direction,
+    );
   });
 }
 
@@ -4827,7 +5520,13 @@ function getRankChangeDirection(player, rank) {
   return rank < previousRank ? "up" : "down";
 }
 
-function renderCurrentRankCard(container, entry, rank, direction = "") {
+function renderCurrentRankCard(
+  container,
+  entry,
+  rank,
+  allTimeRank,
+  direction = "",
+) {
   const podiumRank = rank >= 1 && rank <= 3 ? rank - 1 : null;
   const keepChange = !direction && container.classList.contains("rankChanged");
   const text = document.createElement("div");
@@ -4840,7 +5539,12 @@ function renderCurrentRankCard(container, entry, rank, direction = "") {
   container.classList.toggle("rankChanged", keepChange);
 
   text.className = "currentRankText";
-  text.textContent = rank > 0 ? `Current Rank: #${rank}` : "Current Rank: ?";
+  text.textContent =
+    rank > 0
+      ? `Current Rank (Today): #${rank}${
+          allTimeRank ? ` | All time: #${allTimeRank}` : ""
+        }`
+      : "Current Rank (Today): ?";
 
   container.replaceChildren(text);
 
@@ -4861,8 +5565,7 @@ function triggerRankChangeAnimation(container) {
 
 function getPodiumRank(entry, index) {
   if (index > 2) return null;
-  if (entry.demo || entry.removingDemo)
-    return null;
+  if (entry.demo || entry.removingDemo) return null;
 
   return index;
 }
@@ -4938,7 +5641,10 @@ function getCompetitionRank(entries, index) {
 
   if (!entry) return index + 1;
 
-  return entries.filter((item) => Number(item.score) > Number(entry.score)).length + 1;
+  return (
+    entries.filter((item) => Number(item.score) > Number(entry.score)).length +
+    1
+  );
 }
 
 function getScoreRankLabel(displayRank, podiumRank) {
@@ -4961,7 +5667,11 @@ function getScoreValueLabelForEntry(entry) {
 
   if (
     selectedGameName &&
-    isScoreEntryForSetting(entry, selectedGameName, getSelectedScoreSettingKey())
+    isScoreEntryForSetting(
+      entry,
+      selectedGameName,
+      getSelectedScoreSettingKey(),
+    )
   ) {
     return selectedScoreValueLabel;
   }
@@ -4971,9 +5681,7 @@ function getScoreValueLabelForEntry(entry) {
     return item.key === settingKey;
   });
 
-  return normalizeScoreValueLabel(
-    setting?.valueLabel || entry.scoreValueLabel,
-  );
+  return normalizeScoreValueLabel(setting?.valueLabel || entry.scoreValueLabel);
 }
 
 function appendScoreHint(text) {
@@ -5056,15 +5764,16 @@ function renderNamePoolModal() {
       renderNamePoolModal();
     };
 
-    row.onpointerdown = (event) => startWindowsRowSelection(
-      event,
-      row,
-      namePoolList,
-      ".namePoolRow",
-      namePoolSelectionState,
-      setNamePoolRowSelected,
-      true,
-    );
+    row.onpointerdown = (event) =>
+      startWindowsRowSelection(
+        event,
+        row,
+        namePoolList,
+        ".namePoolRow",
+        namePoolSelectionState,
+        setNamePoolRowSelected,
+        true,
+      );
     row.onpointerenter = (event) => {
       continueWindowsRowSelection(
         event,
@@ -5145,7 +5854,11 @@ function setSelectionDragGhost(dataTransfer, count, itemLabel) {
   ghost.className = "selectionDragGhost";
   ghost.textContent = `${count} selected ${label}`;
   document.body.appendChild(ghost);
-  dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, ghost.offsetHeight / 2);
+  dataTransfer.setDragImage(
+    ghost,
+    ghost.offsetWidth / 2,
+    ghost.offsetHeight / 2,
+  );
   window.setTimeout(() => ghost.remove(), 0);
 }
 
@@ -5288,9 +6001,11 @@ function renderGameSettingsModal() {
   gameSettingsModalContent.appendChild(createGameSettingsSectionHeader());
 
   list.className = "gameSettingsList";
-  createScreenSettingsSections(getGameScoreSettingsRecord().items).forEach((section) => {
-    list.appendChild(section);
-  });
+  createScreenSettingsSections(getGameScoreSettingsRecord().items).forEach(
+    (section) => {
+      list.appendChild(section);
+    },
+  );
   gameSettingsModalContent.appendChild(list);
 }
 
@@ -5403,30 +6118,32 @@ function createScreenSettingsSection(screenName, settings) {
   section.appendChild(header);
 
   if (screen) {
-    section.appendChild(createDemoDetectorArea({
-      title: "Screen demo detector",
-      config: screen.demoDetector,
-      screenName: screen.name,
-      metricNames: getMetricNamesForScreen(screen.name),
-      onCreate: () => {
-        screen.demoDetector = createEmptyDemoDetectorConfig();
-        persistSelectedGameData();
-        renderGameSettingsModal();
-      },
-      onChange: (config) => {
-        screen.demoDetector = normalizeDemoDetectorConfig(
-          config,
-          screen.name,
-          selectedGame,
-        );
-        persistSelectedGameData();
-      },
-      onRemove: () => {
-        screen.demoDetector = {};
-        persistSelectedGameData();
-        renderGameSettingsModal();
-      },
-    }));
+    section.appendChild(
+      createDemoDetectorArea({
+        title: "Screen demo detector",
+        config: screen.demoDetector,
+        screenName: screen.name,
+        metricNames: getMetricNamesForScreen(screen.name),
+        onCreate: () => {
+          screen.demoDetector = createEmptyDemoDetectorConfig();
+          persistSelectedGameData();
+          renderGameSettingsModal();
+        },
+        onChange: (config) => {
+          screen.demoDetector = normalizeDemoDetectorConfig(
+            config,
+            screen.name,
+            selectedGame,
+          );
+          persistSelectedGameData();
+        },
+        onRemove: () => {
+          screen.demoDetector = {};
+          persistSelectedGameData();
+          renderGameSettingsModal();
+        },
+      }),
+    );
   }
 
   section.appendChild(screenSettingsList);
@@ -5441,9 +6158,13 @@ function persistSelectedGameData() {
 }
 
 function getMetricNamesForGame(gameData) {
-  return [...new Set((gameData?.screens || []).flatMap((screen) => {
-    return getMetricNamesForGameScreen(gameData, screen.name);
-  }))];
+  return [
+    ...new Set(
+      (gameData?.screens || []).flatMap((screen) => {
+        return getMetricNamesForGameScreen(gameData, screen.name);
+      }),
+    ),
+  ];
 }
 
 function createEmptyDemoDetectorConfig(metric = "") {
@@ -5587,16 +6308,27 @@ function createGameScoreSettingRow(setting) {
 
   populateScreenOptions(screen, setting.screen, setting.id);
   screen.onchange = () => {
-    const nextMetric = getFirstAvailableMetricForScreen(screen.value, setting.id);
-    const comboChanged = setting.screen !== screen.value || setting.metric !== nextMetric;
+    const nextMetric = getFirstAvailableMetricForScreen(
+      screen.value,
+      setting.id,
+    );
+    const comboChanged =
+      setting.screen !== screen.value || setting.metric !== nextMetric;
 
     setting.screen = screen.value;
     setting.metric = nextMetric;
     setting.name = getScoreSettingLabel(setting);
-    setting.stopScreens = normalizeScoreStopScreens(setting.stopScreens ?? setting.stopScreen);
+    setting.stopScreens = normalizeScoreStopScreens(
+      setting.stopScreens ?? setting.stopScreen,
+    );
     setting.stopScreen = setting.stopScreens[0] || "";
-    setting.fireworkScreens = normalizeScoreFireworkScreens(setting.fireworkScreens);
-    setting.demoMetric = normalizeScoreDemoMetric(setting.demoMetric, setting.screen);
+    setting.fireworkScreens = normalizeScoreFireworkScreens(
+      setting.fireworkScreens,
+    );
+    setting.demoMetric = normalizeScoreDemoMetric(
+      setting.demoMetric,
+      setting.screen,
+    );
     setting.demoStartValue = normalizeScoreDemoStartValue(
       setting.demoStartValue,
       setting.demoSequence,
@@ -5651,9 +6383,7 @@ function createGameScoreSettingRow(setting) {
   firstLine.appendChild(labelExample);
 
   optionsLine.className = "gameSettingFormGrid optionalRows";
-  optionsLine.append(
-    createSettingField("Min Leaderboard", minScore),
-  );
+  optionsLine.append(createSettingField("Min Leaderboard", minScore));
   trackLine.className = "gameSettingFormGrid singleControlRow";
   trackLine.append(createSettingField("Track until", stopScreen));
   fireworksLine.className = "gameSettingFormGrid singleControlRow";
@@ -5665,10 +6395,7 @@ function createGameScoreSettingRow(setting) {
     screenName: setting.screen,
     metricNames: getMetricNamesForScreen(setting.screen),
     onCreate: () => {
-      setSettingDemoDetectorConfig(
-        setting,
-        createEmptyDemoDetectorConfig(),
-      );
+      setSettingDemoDetectorConfig(setting, createEmptyDemoDetectorConfig());
       syncScoreSettingsAfterEdit();
       renderGameSettingsModal();
     },
@@ -5738,12 +6465,14 @@ function createDemoDetectorArea({
     return area;
   }
 
-  area.appendChild(createDemoDetectorEditor({
-    config: normalized,
-    metricNames,
-    onChange,
-    onRemove,
-  }));
+  area.appendChild(
+    createDemoDetectorEditor({
+      config: normalized,
+      metricNames,
+      onChange,
+      onRemove,
+    }),
+  );
 
   return area;
 }
@@ -5751,8 +6480,8 @@ function createDemoDetectorArea({
 function isDemoDetectorConfigPresent(config) {
   return Boolean(
     config?.created ||
-      (config?.metric &&
-        (config?.mode === "held" ? config?.heldValue : config?.sequence)),
+    (config?.metric &&
+      (config?.mode === "held" ? config?.heldValue : config?.sequence)),
   );
 }
 
@@ -5774,7 +6503,13 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
     onChange: (values) => {
       current.stopScreens = normalizeScoreStopScreens(values);
       onChange(current);
-      updateDemoDetectorValidation(block, current, sequence, metric, stopScreens);
+      updateDemoDetectorValidation(
+        block,
+        current,
+        sequence,
+        metric,
+        stopScreens,
+      );
     },
   });
   let current = {
@@ -5782,7 +6517,10 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
     enabled: true,
     metric: config.metric || "",
     sequence: normalizeScoreDemoSequenceInput(config.sequence),
-    startValue: normalizeScoreDemoStartValue(config.startValue, config.sequence),
+    startValue: normalizeScoreDemoStartValue(
+      config.startValue,
+      config.sequence,
+    ),
     stopScreens: normalizeScoreStopScreens(config.stopScreens),
     mode: config.mode === "held" ? "held" : "sequence",
     heldValue: String(config.heldValue ?? ""),
@@ -5795,7 +6533,10 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
   block.className = "demoDetectorBlock";
   fields.className = "gameSettingFormGrid demoDetectorGrid";
   divider.className = "demoDetectorDivider";
-  [["sequence", "Sequence"], ["held", "Held value"]].forEach(([value, label]) => {
+  [
+    ["sequence", "Sequence"],
+    ["held", "Held value"],
+  ].forEach(([value, label]) => {
     const option = document.createElement("option");
 
     option.value = value;
@@ -5821,7 +6562,11 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
     renderGameSettingsModal();
   };
 
-  populateDemoStartValueOptionsFromSequence(startValue, current.sequence, current.startValue);
+  populateDemoStartValueOptionsFromSequence(
+    startValue,
+    current.sequence,
+    current.startValue,
+  );
   startValue.onchange = () => {
     current.startValue = normalizeScoreDemoStartValue(
       startValue.value,
@@ -5852,7 +6597,10 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
     current.holdMs = Math.max(0, Math.round(Number(holdMs.value) || 0));
     onChange(current);
   };
-  [["true", "Yes"], ["false", "No"]].forEach(([value, label]) => {
+  [
+    ["true", "Yes"],
+    ["false", "No"],
+  ].forEach(([value, label]) => {
     const option = document.createElement("option");
 
     option.value = value;
@@ -5866,7 +6614,8 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
   };
 
   remove.type = "button";
-  remove.className = "gameSettingsDeleteButton demoDetectorRemove roundDeleteButton";
+  remove.className =
+    "gameSettingsDeleteButton demoDetectorRemove roundDeleteButton";
   remove.textContent = "×";
   remove.title = "Remove demo detector";
   remove.onclick = () => {
@@ -5898,7 +6647,7 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
   } else {
     fields.append(
       createSettingField("Demo detector (0, 1, 6, 14, 17)", sequence),
-      createSettingField("Label as \"Demo\" starting at value", startValue),
+      createSettingField('Label as "Demo" starting at value', startValue),
       createSettingField("Metric", metric),
       createSettingField("Track until", stopScreens),
     );
@@ -5908,13 +6657,18 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
   return block;
 }
 
-function updateDemoDetectorValidation(block, config, sequence, metric, stopScreens) {
+function updateDemoDetectorValidation(
+  block,
+  config,
+  sequence,
+  metric,
+  stopScreens,
+) {
   const heldMode = config.mode === "held";
-  const sequenceMissing = !heldMode &&
-    parseScoreDemoSequence(config.sequence).length === 0;
+  const sequenceMissing =
+    !heldMode && parseScoreDemoSequence(config.sequence).length === 0;
   const metricMissing = !String(config.metric || "").trim();
-  const heldValueMissing = heldMode &&
-    !String(config.heldValue ?? "").trim();
+  const heldValueMissing = heldMode && !String(config.heldValue ?? "").trim();
 
   block.classList.toggle(
     "incomplete",
@@ -5928,12 +6682,13 @@ function updateDemoDetectorValidation(block, config, sequence, metric, stopScree
 function getSettingDemoDetectorConfig(setting) {
   return {
     created: setting.demoDetectorCreated === true,
-    enabled: setting.demoDetectorCreated === true ||
+    enabled:
+      setting.demoDetectorCreated === true ||
       Boolean(
         setting.demoMetric &&
-          (setting.demoMode === "held"
-            ? setting.demoHeldValue
-            : setting.demoSequence),
+        (setting.demoMode === "held"
+          ? setting.demoHeldValue
+          : setting.demoSequence),
       ),
     metric: setting.demoMetric || "",
     sequence: setting.demoSequence || "",
@@ -5947,11 +6702,13 @@ function getSettingDemoDetectorConfig(setting) {
 }
 
 function setSettingDemoDetectorConfig(setting, config) {
-  setting.demoDetectorCreated = config.created === true || config.enabled === true;
-  setting.demoDetectorEnabled = setting.demoDetectorCreated ||
+  setting.demoDetectorCreated =
+    config.created === true || config.enabled === true;
+  setting.demoDetectorEnabled =
+    setting.demoDetectorCreated ||
     Boolean(
       config.metric &&
-        (config.mode === "held" ? config.heldValue : config.sequence),
+      (config.mode === "held" ? config.heldValue : config.sequence),
     );
   setting.demoMetric = config.metric || "";
   setting.demoSequence = normalizeScoreDemoSequenceInput(config.sequence);
@@ -6040,7 +6797,10 @@ function createScreenMultiSelectDropdown({ values, emptyText, onChange }) {
 
 function createGameModuleSettingsRows(setting) {
   return getAttachedModulesForSetting(setting)
-    .filter((module) => Array.isArray(module.configFields) && module.configFields.length > 0)
+    .filter(
+      (module) =>
+        Array.isArray(module.configFields) && module.configFields.length > 0,
+    )
     .map((module) => createGameModuleSettingsRow(setting, module));
 }
 
@@ -6063,7 +6823,9 @@ function getCurrentGameModuleAccordionKeys() {
   return getGameScoreSettingsRecord().items.flatMap((setting) => {
     return getAttachedModulesForSetting(setting)
       .filter((module) => {
-        return Array.isArray(module.configFields) && module.configFields.length > 0;
+        return (
+          Array.isArray(module.configFields) && module.configFields.length > 0
+        );
       })
       .map((module) => getGameModuleAccordionKey(setting, module));
   });
@@ -6140,8 +6902,14 @@ function renderAddModuleMenu(container, setting, modules) {
     item.textContent = module.name || module.id;
     item.onclick = () => {
       setting.moduleConfig ||= {};
-      setting.moduleConfig[module.id] = createInitialModuleConfig(setting, module);
-      setOpenGameModuleAccordion(getGameModuleAccordionKey(setting, module), true);
+      setting.moduleConfig[module.id] = createInitialModuleConfig(
+        setting,
+        module,
+      );
+      setOpenGameModuleAccordion(
+        getGameModuleAccordionKey(setting, module),
+        true,
+      );
       syncScoreSettingsAfterEdit();
       renderGameSettingsModal();
     };
@@ -6207,11 +6975,12 @@ function createGameModuleSettingsRow(setting, module) {
     const hasValue = String(config[field.key] || "").trim() !== "";
 
     label.textContent = field.label || field.key;
-    label.className = field.type === "screen"
-      ? "gameModuleFieldFull"
-      : getModuleFieldGroup(field)
-        ? `gameModuleField-${getModuleFieldGroup(field)}`
-        : "";
+    label.className =
+      field.type === "screen"
+        ? "gameModuleFieldFull"
+        : getModuleFieldGroup(field)
+          ? `gameModuleField-${getModuleFieldGroup(field)}`
+          : "";
     input.classList.toggle("validModuleValue", hasValue && isValid);
     label.appendChild(input);
     fields.appendChild(label);
@@ -6246,8 +7015,12 @@ function getOrderedModuleConfigFields(module) {
     .sort(([a], [b]) => Number(a || 0) - Number(b || 0))
     .flatMap(([, group]) => {
       return group.sort((a, b) => {
-        const aIsName = String(a.key || "").toLowerCase().startsWith("name");
-        const bIsName = String(b.key || "").toLowerCase().startsWith("name");
+        const aIsName = String(a.key || "")
+          .toLowerCase()
+          .startsWith("name");
+        const bIsName = String(b.key || "")
+          .toLowerCase()
+          .startsWith("name");
 
         if (aIsName === bIsName) return 0;
         return aIsName ? -1 : 1;
@@ -6258,16 +7031,24 @@ function getOrderedModuleConfigFields(module) {
 }
 
 function createModuleConfigInput(setting, module, field, config) {
-  const input = field.type === "screen"
-    ? document.createElement("select")
-    : field.type === "roi"
+  const input =
+    field.type === "screen"
       ? document.createElement("select")
-      : document.createElement("input");
+      : field.type === "roi"
+        ? document.createElement("select")
+        : document.createElement("input");
 
   if (field.type === "screen") {
     populateModuleScreenOptions(input, config[field.key]);
   } else if (field.type === "roi") {
-    populateModuleRoiOptions(input, config[field.key], config[field.screenKey], field, module, setting);
+    populateModuleRoiOptions(
+      input,
+      config[field.key],
+      config[field.screenKey],
+      field,
+      module,
+      setting,
+    );
   } else {
     input.type = "text";
     input.value = config[field.key] || "";
@@ -6276,7 +7057,10 @@ function createModuleConfigInput(setting, module, field, config) {
 
   input.onchange = () => {
     setting.moduleConfig ||= {};
-    setting.moduleConfig[module.id] = getModuleConfigForSetting(setting, module);
+    setting.moduleConfig[module.id] = getModuleConfigForSetting(
+      setting,
+      module,
+    );
     setting.moduleConfig[module.id][field.key] = input.value.trim();
 
     if (field.type === "screen") {
@@ -6316,7 +7100,9 @@ function autofillModuleRoiFields(setting, module, screenField) {
   const used = new Set(
     Object.entries(config)
       .filter(([key, value]) => {
-        const field = (module.configFields || []).find((item) => item.key === key);
+        const field = (module.configFields || []).find(
+          (item) => item.key === key,
+        );
 
         return field?.type === "roi" && String(value || "").trim();
       })
@@ -6324,13 +7110,16 @@ function autofillModuleRoiFields(setting, module, screenField) {
   );
 
   (module.configFields || [])
-    .filter((field) => field.type === "roi" && field.screenKey === screenField.key)
+    .filter(
+      (field) => field.type === "roi" && field.screenKey === screenField.key,
+    )
     .forEach((field) => {
       const current = String(config[field.key] || "").trim();
 
       if (current && roiNames.includes(current)) return;
 
-      const match = roiByNormalizedName.get(normalizeModuleFieldMatchName(field.label)) ||
+      const match =
+        roiByNormalizedName.get(normalizeModuleFieldMatchName(field.label)) ||
         roiByNormalizedName.get(normalizeModuleFieldMatchName(field.key));
 
       if (!match || used.has(match)) return;
@@ -6373,7 +7162,14 @@ function populateModuleScreenOptions(select, value) {
   select.value = value;
 }
 
-function populateModuleRoiOptions(select, value, screenName, field, module, setting) {
+function populateModuleRoiOptions(
+  select,
+  value,
+  screenName,
+  field,
+  module,
+  setting,
+) {
   const rois = getRoiNamesForScreen(screenName);
   const used = getUsedModuleRoiValues(module, field, setting);
   const empty = document.createElement("option");
@@ -6434,13 +7230,15 @@ function populateScreenOptions(select, value, settingId) {
 
 function populateMetricOptions(select, screenName, value, settingId) {
   select.replaceChildren();
-  getAvailableMetricNamesForScreen(screenName, settingId).forEach((metricName) => {
-    const option = document.createElement("option");
+  getAvailableMetricNamesForScreen(screenName, settingId).forEach(
+    (metricName) => {
+      const option = document.createElement("option");
 
-    option.value = metricName;
-    option.textContent = metricName;
-    select.appendChild(option);
-  });
+      option.value = metricName;
+      option.textContent = metricName;
+      select.appendChild(option);
+    },
+  );
   select.value = value;
 }
 
@@ -6514,7 +7312,11 @@ function populateDemoStartValueOptions(select, setting) {
   select.value = selected;
 }
 
-function populateDemoStartValueOptionsFromSequence(select, sequenceInput, value) {
+function populateDemoStartValueOptionsFromSequence(
+  select,
+  sequenceInput,
+  value,
+) {
   const sequence = parseScoreDemoSequence(sequenceInput);
   const selected = normalizeScoreDemoStartValue(value, sequenceInput);
 
@@ -6628,8 +7430,8 @@ function serializeScoreSetting(item) {
     demoHoldMs: Number(item.demoHoldMs) || 2000,
     demoConfirmOnScreenExit: item.demoConfirmOnScreenExit !== false,
     demoDetectorCreated: item.demoDetectorCreated === true,
-    demoDetectorEnabled: item.demoDetectorCreated === true ||
-      hasUsableDemoDetectorConfig(item),
+    demoDetectorEnabled:
+      item.demoDetectorCreated === true || hasUsableDemoDetectorConfig(item),
     moduleConfig: item.moduleConfig || {},
   };
 }
@@ -6643,14 +7445,16 @@ function serializeDemoDetectorConfig(config = {}, gameData = selectedGame) {
     config?.startValue ?? config?.demoStartValue,
     sequence,
   );
-  const created = config?.created === true ||
-    config?.demoDetectorCreated === true;
+  const created =
+    config?.created === true || config?.demoDetectorCreated === true;
   const stopScreens = normalizeScoreStopScreens(
     config?.stopScreens ?? config?.trackUntilScreens ?? config?.stopScreen,
     gameData,
   );
   const mode = config?.mode === "held" ? "held" : "sequence";
-  const heldValue = String(config?.heldValue ?? config?.targetValue ?? "").trim();
+  const heldValue = String(
+    config?.heldValue ?? config?.targetValue ?? "",
+  ).trim();
   const holdMs = Number.isFinite(Number(config?.holdMs))
     ? Math.max(0, Math.round(Number(config.holdMs)))
     : 2000;
@@ -6658,9 +7462,8 @@ function serializeDemoDetectorConfig(config = {}, gameData = selectedGame) {
 
   return {
     created,
-    enabled: created || Boolean(
-      metric && (mode === "held" ? heldValue : sequence),
-    ),
+    enabled:
+      created || Boolean(metric && (mode === "held" ? heldValue : sequence)),
     metric,
     sequence,
     startValue,
@@ -6673,24 +7476,30 @@ function serializeDemoDetectorConfig(config = {}, gameData = selectedGame) {
 }
 
 function getScreenDemoDetectorExportMap(gameData) {
-  return Object.fromEntries((gameData?.screens || []).flatMap((screen) => {
-    const config = serializeDemoDetectorConfig(screen.demoDetector, gameData);
+  return Object.fromEntries(
+    (gameData?.screens || []).flatMap((screen) => {
+      const config = serializeDemoDetectorConfig(screen.demoDetector, gameData);
 
-    return hasSerializedDemoDetector(config)
-      ? [[screen.name || "", config]]
-      : [];
-  }));
+      return hasSerializedDemoDetector(config)
+        ? [[screen.name || "", config]]
+        : [];
+    }),
+  );
 }
 
 function hasSerializedDemoDetector(config = {}) {
   const metric = String(config.metric || "").trim();
   const sequence = String(config.sequence || "").trim();
   const heldValue = String(config.heldValue || "").trim();
-  const usable = config.mode === "held"
-    ? Boolean(metric && heldValue)
-    : Boolean(metric && sequence);
+  const usable =
+    config.mode === "held"
+      ? Boolean(metric && heldValue)
+      : Boolean(metric && sequence);
   const hasDraftValues = Boolean(
-    metric || sequence || heldValue || normalizeScoreStopScreens(config.stopScreens).length,
+    metric ||
+    sequence ||
+    heldValue ||
+    normalizeScoreStopScreens(config.stopScreens).length,
   );
 
   return Boolean((config.created === true && hasDraftValues) || usable);
@@ -6714,14 +7523,19 @@ async function importGameScoreSettingsFile(file) {
     record.fastOCR = data.fastOCR !== false;
     importGameDemoDetectorSettings(data);
     record.items = data.settings.map((item) => ({
-      id: item.id || `score-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      id:
+        item.id ||
+        `score-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       name: "",
       screen: String(item.screen || ""),
       metric: String(item.metric || ""),
       minScore: normalizeScoreMinScore(item.minScore),
       valueLabel: normalizeScoreValueLabel(item.valueLabel),
-      stopScreens: normalizeScoreStopScreens(item.stopScreens ?? item.stopScreen),
-      stopScreen: normalizeScoreStopScreens(item.stopScreens ?? item.stopScreen)[0] || "",
+      stopScreens: normalizeScoreStopScreens(
+        item.stopScreens ?? item.stopScreen,
+      ),
+      stopScreen:
+        normalizeScoreStopScreens(item.stopScreens ?? item.stopScreen)[0] || "",
       fireworkScreens: normalizeScoreFireworkScreens(item.fireworkScreens),
       demoMetric: normalizeScoreDemoMetric(item.demoMetric, item.screen),
       demoSequence: normalizeScoreDemoSequenceInput(item.demoSequence),
@@ -6735,8 +7549,8 @@ async function importGameScoreSettingsFile(file) {
       demoHoldMs: Number(item.demoHoldMs) || 2000,
       demoConfirmOnScreenExit: item.demoConfirmOnScreenExit !== false,
       demoDetectorCreated: item.demoDetectorCreated === true,
-      demoDetectorEnabled: item.demoDetectorCreated === true ||
-        hasUsableDemoDetectorConfig(item),
+      demoDetectorEnabled:
+        item.demoDetectorCreated === true || hasUsableDemoDetectorConfig(item),
       moduleConfig: item.moduleConfig || {},
     }));
     normalizeScoreSettingsRecord(record);
@@ -6792,6 +7606,7 @@ function closeAchievementsModalDialog() {
 }
 
 function openDaysModal() {
+  syncHighScoreCarouselControls();
   renderDaysModal();
   daysModal.classList.remove("hidden");
 }
@@ -6876,11 +7691,9 @@ function renderDaysModal(openKeys = getOpenDaysModalKeys()) {
     summary.append(meta, del);
     details.append(summary, list);
 
-    entries
-      .sort(compareScoreEntries)
-      .forEach((entry, index) => {
-        list.appendChild(createDayEntryRow(dateKey, entry, `#${index + 1}`));
-      });
+    entries.sort(compareScoreEntries).forEach((entry, index) => {
+      list.appendChild(createDayEntryRow(dateKey, entry, `#${index + 1}`));
+    });
 
     daysModalContent.appendChild(details);
   });
@@ -6904,9 +7717,8 @@ function getHighScoreHistoryGameName() {
     return highScoreHistoryGameName;
   }
 
-  highScoreHistoryGameName = Object.keys(savedGames).sort((a, b) =>
-    a.localeCompare(b),
-  )[0] || "";
+  highScoreHistoryGameName =
+    Object.keys(savedGames).sort((a, b) => a.localeCompare(b))[0] || "";
 
   return highScoreHistoryGameName;
 }
@@ -7104,7 +7916,11 @@ function renderDaysExportButton(gameName, settingKey) {
 }
 
 function getSelectedHistoryEntries() {
-  return [...daysModalContent.querySelectorAll(".scoreHistoryRow.selectable.selected")]
+  return [
+    ...daysModalContent.querySelectorAll(
+      ".scoreHistoryRow.selectable.selected",
+    ),
+  ]
     .map((row) => {
       return {
         dateKey: row.dataset.dateKey,
@@ -7293,15 +8109,16 @@ function createScoreHistoryRow(entry, rankText = "", options = {}) {
     row.setAttribute("role", "checkbox");
     row.setAttribute("aria-checked", "false");
     row.setAttribute("aria-label", `Select score ${formatScore(entry.score)}`);
-    row.onpointerdown = (event) => startWindowsRowSelection(
-      event,
-      row,
-      daysModalContent,
-      ".scoreHistoryRow.selectable",
-      historySelectionState,
-      setHistoryRowSelected,
-      true,
-    );
+    row.onpointerdown = (event) =>
+      startWindowsRowSelection(
+        event,
+        row,
+        daysModalContent,
+        ".scoreHistoryRow.selectable",
+        historySelectionState,
+        setHistoryRowSelected,
+        true,
+      );
     row.onpointerenter = (event) => {
       continueWindowsRowSelection(
         event,
@@ -7395,9 +8212,11 @@ function startWindowsRowSelection(
 
   const rows = [...container.querySelectorAll(selector)];
   const additive = event.ctrlKey || event.metaKey || event.shiftKey;
-  const selectedBefore = new Set(rows.filter((item) => {
-    return item.classList.contains("selected");
-  }));
+  const selectedBefore = new Set(
+    rows.filter((item) => {
+      return item.classList.contains("selected");
+    }),
+  );
 
   if (
     allowNativeDrag &&
@@ -7419,9 +8238,7 @@ function startWindowsRowSelection(
   state.active = true;
   state.dragStart = row;
   state.baseline = additive ? selectedBefore : new Set();
-  state.dragValue = additive
-    ? !row.classList.contains("selected")
-    : true;
+  state.dragValue = additive ? !row.classList.contains("selected") : true;
   applyWindowsRowDragRange(rows, row, state, setSelected);
   state.anchor = row;
 
@@ -7457,10 +8274,7 @@ function applyWindowsRowDragRange(rows, row, state, setSelected) {
 
   rows.forEach((item, index) => {
     const inRange = index >= rangeStart && index <= rangeEnd;
-    setSelected(
-      item,
-      inRange ? state.dragValue : state.baseline.has(item),
-    );
+    setSelected(item, inRange ? state.dragValue : state.baseline.has(item));
   });
 }
 
@@ -7468,9 +8282,9 @@ function updateHistorySelectionDeleteZone() {
   const zone = daysModalContent.querySelector(".historySelectionDeleteZone");
 
   if (zone) {
-    const hasSelection = Boolean(daysModalContent.querySelector(
-      ".scoreHistoryRow.selectable.selected",
-    ));
+    const hasSelection = Boolean(
+      daysModalContent.querySelector(".scoreHistoryRow.selectable.selected"),
+    );
 
     zone.disabled = !hasSelection;
     zone.classList.toggle("active", hasSelection);
@@ -7559,7 +8373,10 @@ function updateStoredLeaderboardEntryName(dateKey, entry, nextName) {
     };
   });
 
-  localStorage.setItem(getLeaderboardStorageKey(dateKey), JSON.stringify(entries));
+  localStorage.setItem(
+    getLeaderboardStorageKey(dateKey),
+    JSON.stringify(entries),
+  );
 
   if (dateKey === getTodayDateKey()) {
     sessionScores = sessionScores.map((item) => {
@@ -7588,17 +8405,19 @@ function getOpenDaysModalKeys() {
 }
 
 function exportLeaderboardDaysData(gameName, settingKey) {
-  const days = getStoredLeaderboardDays().map((dateKey) => {
-    return {
-      date: dateKey,
-      entries: getLeaderboardEntriesForDay(dateKey).filter((entry) => {
-        return (
-          isScoreEntryForSetting(entry, gameName, settingKey) &&
-          isLeaderboardScore(entry)
-        );
-      }),
-    };
-  }).filter((day) => day.entries.length > 0);
+  const days = getStoredLeaderboardDays()
+    .map((dateKey) => {
+      return {
+        date: dateKey,
+        entries: getLeaderboardEntriesForDay(dateKey).filter((entry) => {
+          return (
+            isScoreEntryForSetting(entry, gameName, settingKey) &&
+            isLeaderboardScore(entry)
+          );
+        }),
+      };
+    })
+    .filter((day) => day.entries.length > 0);
   const setting = getScoreSettingsForHistoryGame(gameName).find((item) => {
     return item.key === settingKey;
   });
@@ -7670,7 +8489,9 @@ function importLeaderboardDaysData(data, result) {
   }
 
   if (!isKnownGameName(gameName)) {
-    throw new Error(`The imported scores belong to unknown game "${gameName}".`);
+    throw new Error(
+      `The imported scores belong to unknown game "${gameName}".`,
+    );
   }
 
   if (!Array.isArray(data?.days)) {
@@ -7698,7 +8519,12 @@ function importLeaderboardDaysData(data, result) {
   });
 }
 
-function normalizeImportedLeaderboardEntry(entry, gameName, dateKey, data = {}) {
+function normalizeImportedLeaderboardEntry(
+  entry,
+  gameName,
+  dateKey,
+  data = {},
+) {
   const score = Number(entry?.score);
   const gameScore = Number(entry?.gameScore);
   const scoreMinScore = normalizeScoreMinScore(
@@ -7710,13 +8536,16 @@ function normalizeImportedLeaderboardEntry(entry, gameName, dateKey, data = {}) 
 
   if (!Number.isFinite(score) || score < scoreMinScore) return null;
 
-  const startedAt = Number(entry.startedAt) || Date.now();
+  const createdAt =
+    Number(entry.createdAt) || Number(entry.startedAt) || Date.now();
+  const startedAt = Number(entry.startedAt) || createdAt;
   const id = Number(entry.id) || startedAt;
   const name = String(entry.name || entry.player || "")
     .trim()
     .slice(0, MAX_SCORE_NAME_LENGTH);
   const player = name || String(entry.player || "Player").trim() || "Player";
   const color = entry.color === "red" ? "red" : "blue";
+  const playerSide = normalizeScoreEntryPlayerSide(entry.playerSide, color);
   const scoreScreen = String(
     entry.scoreScreen || data.scoreScreen || "",
   ).trim();
@@ -7742,9 +8571,11 @@ function normalizeImportedLeaderboardEntry(entry, gameName, dateKey, data = {}) 
     player,
     name,
     color,
+    playerSide,
     score,
     gameScore: Number.isFinite(gameScore) ? gameScore : null,
     interruptedBeforeStopScreen: Boolean(entry.interruptedBeforeStopScreen),
+    createdAt,
     startedAt,
   };
 
@@ -7792,7 +8623,11 @@ function mergeImportedTodaySessionEntries(importedEntries) {
       id: Number(entry.id) || ++sessionScoreId,
       active: false,
       demo: false,
-      startedAt: Number(entry.startedAt) || Date.now(),
+      playerSide: normalizeScoreEntryPlayerSide(entry.playerSide, entry.color),
+      createdAt:
+        Number(entry.createdAt) || Number(entry.startedAt) || Date.now(),
+      startedAt:
+        Number(entry.startedAt) || Number(entry.createdAt) || Date.now(),
     });
   });
 
@@ -7814,7 +8649,9 @@ function deleteStoredLeaderboardEntry(dateKey, entry) {
   );
 
   if (dateKey === getTodayDateKey()) {
-    sessionScores = sessionScores.filter((item) => getScoreEntryKey(item) !== key);
+    sessionScores = sessionScores.filter(
+      (item) => getScoreEntryKey(item) !== key,
+    );
   }
 
   rebuildAllTimeLeaderboardFromDays();
@@ -8107,6 +8944,7 @@ function startDrawLoop() {
 function drawLoop() {
   players.forEach(processPlayerFrame);
   renderScoreBoard();
+  updateAllTimeCarouselAutoScroll();
   requestAnimationFrame(drawLoop);
 }
 
@@ -8175,6 +9013,7 @@ function setupSharedControls() {
   importJSONButton.onclick = () => {
     importJSONFile.click();
   };
+  exportJSONButton.onclick = exportSelectedGameJSON;
 
   importJSONFile.onchange = async (e) => {
     await importProjectFiles([...e.target.files]);
@@ -8183,6 +9022,12 @@ function setupSharedControls() {
 
   showAchievementsButton.onclick = openAchievementsModal;
   showDaysButton.onclick = openDaysModal;
+  syncHighScoreCarouselControls();
+  highScoreCarouselEnabled.onchange = updateHighScoreCarouselSettings;
+  highScoreCarouselInterval.onchange = updateHighScoreCarouselSettings;
+  highScoreCarouselDuration.onchange = updateHighScoreCarouselSettings;
+  leaderboardCarouselPrevious.onclick = showLiveLeaderboardManually;
+  leaderboardCarouselNext.onclick = showAllTimeCarouselManually;
   openGameSettingsButton.onclick = openGameSettingsModal;
   openNamePoolButton.onclick = openNamePoolModal;
   useNamePoolForRunsToggle.checked = useNamePoolForRuns;
@@ -8371,6 +9216,14 @@ function setupSharedControls() {
     scoreBoardPointerInside = false;
     scoreScrollLastTime = performance.now();
   });
+  allTimeCarouselBoard.addEventListener("pointerenter", () => {
+    allTimeBoardPointerInside = true;
+    allTimeScrollLastTime = performance.now();
+  });
+  allTimeCarouselBoard.addEventListener("pointerleave", () => {
+    allTimeBoardPointerInside = false;
+    allTimeScrollLastTime = performance.now();
+  });
 }
 
 function setupTopGameSetupPanel() {
@@ -8412,6 +9265,7 @@ async function init() {
   players.forEach(setupPlayer);
   updateAllPlayerStatuses();
   renderScoreBoard();
+  restartAllTimeCarouselCycle();
   startDrawLoop();
 
   if (Object.keys(savedGames).length === 0) {

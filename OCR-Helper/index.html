@@ -17,6 +17,7 @@
         <div class="topSetupRow topSetupPrimaryRow">
           <div class="topSetupGroup">
             <button id="importJSON" class="button-black">Import JSON</button>
+            <button id="exportJSON" class="button-black">Export JSON</button>
             <input
               id="importJSONFile"
               type="file"
@@ -110,10 +111,7 @@
           <div class="liveTitleSwitcher">
             <h1 id="highScoreTitle" class="liveTitle">High Score</h1>
             <div class="liveTitleControls">
-              <select
-                id="sharedGameSelect"
-                aria-label="Game"
-              ></select>
+              <select id="sharedGameSelect" aria-label="Game"></select>
               <button
                 id="openGameSettings"
                 class="middleGameSettingsButton tooltipButton"
@@ -134,7 +132,39 @@
             ></select>
           </div>
         </div>
-        <div id="scoreBoard" class="scoreBoard"></div>
+        <div id="leaderboardCarousel" class="leaderboardCarousel">
+          <div
+            id="scoreBoard"
+            class="scoreBoard leaderboardCarouselSlide"
+          ></div>
+          <section
+            id="allTimeCarouselBoard"
+            class="allTimeCarouselBoard leaderboardCarouselSlide"
+            aria-label="All time top 20"
+            aria-hidden="true"
+          ></section>
+        </div>
+        <div class="leaderboardCarouselControls" aria-label="Leaderboard views">
+          <button
+            id="leaderboardCarouselPrevious"
+            class="leaderboardCarouselButton"
+            type="button"
+            aria-label="Show live leaderboard"
+          >
+            ‹
+          </button>
+          <span class="leaderboardCarouselPosition" aria-hidden="true">
+            <i class="active"></i><i></i>
+          </span>
+          <button
+            id="leaderboardCarouselNext"
+            class="leaderboardCarouselButton"
+            type="button"
+            aria-label="Show all-time leaderboard"
+          >
+            ›
+          </button>
+        </div>
         <div
           id="highScoreUndoToast"
           class="highScoreUndoToast"
@@ -226,6 +256,39 @@
           >
             ×
           </button>
+        </div>
+        <div class="highScoreCarouselSettings">
+          <label class="topToggle highScoreCarouselToggle">
+            <input id="highScoreCarouselEnabled" type="checkbox" />
+            <span class="slider"></span>
+            <span>Show all time top 20</span>
+          </label>
+          <label class="highScoreCarouselInterval">
+            Show every
+            <span class="highScoreCarouselNumber">
+              <input
+                id="highScoreCarouselInterval"
+                type="number"
+                min="10"
+                max="3600"
+                step="1"
+              />
+              <span>sec</span>
+            </span>
+          </label>
+          <label class="highScoreCarouselInterval">
+            Show for
+            <span class="highScoreCarouselNumber">
+              <input
+                id="highScoreCarouselDuration"
+                type="number"
+                min="1"
+                max="600"
+                step="1"
+              />
+              <span>sec</span>
+            </span>
+          </label>
         </div>
         <div id="daysModalContent" class="daysModalContent"></div>
       </div>
