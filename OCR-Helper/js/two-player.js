@@ -348,6 +348,10 @@ function createPlayerState(number, label, color) {
     cameraSelect: document.getElementById(`player${number}Camera`),
     lutSelect: document.getElementById(`player${number}Lut`),
     lutSwatches: document.getElementById(`player${number}LutSwatches`),
+    screenOverlay: document.getElementById(`player${number}ScreenOverlay`),
+    screenOverlayToggle: document.getElementById(
+      `player${number}ScreenOverlayEnabled`,
+    ),
     calibrateButton: document.getElementById(`player${number}Calibrate`),
     status: document.getElementById(`player${number}Status`),
     achievementLayer: document.getElementById(`player${number}Achievements`),
@@ -456,6 +460,7 @@ function saveTwoPlayerSettings() {
       palette: player.palette.map(rgbToHex),
       calibrated: player.calibrated,
       thresholds: player.thresholds,
+      screenOverlayEnabled: player.screenOverlayToggle.checked,
     })),
   };
 
@@ -1066,6 +1071,8 @@ function rebuildAllTimeLeaderboardFromDays() {
 function restorePlayerSettings(player, settings) {
   player.nameInput.value = player.label;
   updatePlayerLabel(player, settings?.name || player.label);
+  player.screenOverlayToggle.checked = settings?.screenOverlayEnabled === true;
+  player.screenOverlay.hidden = !player.screenOverlayToggle.checked;
 
   if (!settings) return;
 
@@ -8966,6 +8973,11 @@ function setupPlayer(player) {
     persistedSettings.players?.[players.indexOf(player)],
   );
   renderPlayerLUTSwatches(player);
+
+  player.screenOverlayToggle.onchange = () => {
+    player.screenOverlay.hidden = !player.screenOverlayToggle.checked;
+    saveTwoPlayerSettings();
+  };
 
   player.cameraSelect.onchange = () => {
     if (playerHasDuplicateCamera(player)) {

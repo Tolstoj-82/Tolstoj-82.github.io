@@ -74,6 +74,7 @@
           <div class="feedFrame">
             <video id="player1Video" autoplay playsinline muted></video>
             <canvas id="player1Canvas" width="160" height="144"></canvas>
+            <img id="player1ScreenOverlay" class="screenOverlay" src="assets/Perfect_DMG(noframe).png" alt="" hidden />
             <div
               id="player1InterceptorOverlay"
               class="interceptorOverlay"
@@ -104,6 +105,12 @@
               <select id="player1Lut"></select>
             </label>
             <div id="player1LutSwatches" class="lutSwatches"></div>
+
+            <label class="topToggle screenOverlayToggle">
+              <input id="player1ScreenOverlayEnabled" type="checkbox" />
+              <span class="slider"></span>
+              <span>Screen overlay</span>
+            </label>
 
             <button id="player1Calibrate">Calibrate</button>
             <div id="player1Status" class="playerStatus"></div>
@@ -191,6 +198,7 @@
           <div class="feedFrame">
             <video id="player2Video" autoplay playsinline muted></video>
             <canvas id="player2Canvas" width="160" height="144"></canvas>
+            <img id="player2ScreenOverlay" class="screenOverlay" src="assets/Perfect_DMG(noframe).png" alt="" hidden />
             <div
               id="player2InterceptorOverlay"
               class="interceptorOverlay"
@@ -221,6 +229,12 @@
               <select id="player2Lut"></select>
             </label>
             <div id="player2LutSwatches" class="lutSwatches"></div>
+
+            <label class="topToggle screenOverlayToggle">
+              <input id="player2ScreenOverlayEnabled" type="checkbox" />
+              <span class="slider"></span>
+              <span>Screen overlay</span>
+            </label>
 
             <button id="player2Calibrate">Calibrate</button>
             <div id="player2Status" class="playerStatus"></div>
@@ -408,6 +422,11 @@
             <li>Toni</li>
           </ul>
           <p>Fireworks animation based on work by Shirak Soghomonian.</p>
+          <p>
+            Screen overlay by
+            <a href="https://www.reddit.com/user/1playerinsertcoin/">1playerinsertcoin</a>
+            — <a href="https://drive.google.com/drive/folders/1Q3AvZl4oB1zY1nlCt3RO1wVRPQWoXIjH">original files</a>.
+          </p>
         </div>
       </div>
     </div>
