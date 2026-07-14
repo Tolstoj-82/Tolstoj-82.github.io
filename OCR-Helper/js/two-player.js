@@ -1817,13 +1817,8 @@ function updateGameRecognition(player) {
   const now = Date.now();
 
   if (now > gameRecognitionDeadline) {
-    if (!rememberGame && !selectedGameName) {
-      gameRecognitionStartedAt = now;
-      gameRecognitionDeadline = now + GAME_RECOGNITION_WINDOW_MS;
-    } else {
-      finishGameRecognitionTimeout(player);
-      return;
-    }
+    finishGameRecognitionTimeout(player);
+    return;
   }
 
   const match = findRecognizedGame(player);
@@ -9022,10 +9017,6 @@ function setupSharedControls() {
   rememberGameToggle.onchange = () => {
     rememberGame = rememberGameToggle.checked;
     saveTwoPlayerSettings();
-
-    if (!rememberGame && !selectedGameName) {
-      startGameRecognitionWindow();
-    }
   };
 
   sharedGameSelect.onchange = () => {
@@ -9288,9 +9279,6 @@ async function init() {
   await loadInterceptorSettings();
 
   setupSharedControls();
-  if (!rememberGame && !selectedGameName) {
-    startGameRecognitionWindow();
-  }
   players.forEach(setupPlayer);
   updateAllPlayerStatuses();
   renderScoreBoard();
