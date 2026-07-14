@@ -16,8 +16,13 @@
       <section class="gameSetup topGameSetup">
         <div class="topSetupRow topSetupPrimaryRow">
           <div class="topSetupGroup">
-            <button id="importJSON" class="button-black">Import JSON</button>
-            <button id="exportJSON" class="button-black">Export JSON</button>
+            <label class="topToggle rememberGameToggle">
+              <input id="rememberGame" type="checkbox" />
+              <span class="slider"></span>
+              <span>Remember Game</span>
+            </label>
+            <button id="importJSON" class="button-black">Import Setting</button>
+            <button id="exportJSON" class="button-black">Export Settings</button>
             <input
               id="importJSONFile"
               type="file"

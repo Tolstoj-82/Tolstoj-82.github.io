@@ -182,6 +182,7 @@ const gameModuleAccordionOpenStates = new Map();
 let scoreBoardSignature = "";
 let useFastOCR = true;
 let useNamePoolForRuns = false;
+let rememberGame = true;
 let scoreScrollDirection = 1;
 let scoreScrollHoldUntil = 0;
 let scoreScrollLastTime = 0;
@@ -212,6 +213,7 @@ const scoreSettingSelect = document.getElementById("scoreSettingSelect");
 const topGameSetup = document.querySelector(".topGameSetup");
 const importJSONButton = document.getElementById("importJSON");
 const exportJSONButton = document.getElementById("exportJSON");
+const rememberGameToggle = document.getElementById("rememberGame");
 const importJSONFile = document.getElementById("importJSONFile");
 const scoreBoard = document.getElementById("scoreBoard");
 const leaderboardCarousel = document.getElementById("leaderboardCarousel");
@@ -276,6 +278,7 @@ const importNamePoolFile = document.getElementById("importNamePoolFile");
 const gameSettingsFastOCR = document.getElementById("gameSettingsFastOCR");
 const gameSettingsTitle = gameSettingsModal?.querySelector("h2");
 let persistedSettings = getTwoPlayerSettings();
+rememberGame = persistedSettings.rememberGame !== false;
 allTimeCarouselEnabled = persistedSettings.allTimeCarousel?.enabled !== false;
 allTimeCarouselIntervalSeconds = normalizeAllTimeCarouselInterval(
   persistedSettings.allTimeCarousel?.intervalSeconds,
@@ -435,7 +438,8 @@ function getTwoPlayerSettings() {
 
 function saveTwoPlayerSettings() {
   const settings = {
-    game: selectedGameName,
+    game: rememberGame ? selectedGameName : "",
+    rememberGame,
     selectedScoreSettingId,
     scoreSettings: persistedSettings.scoreSettings || {},
     useFastOCR,
@@ -1243,7 +1247,8 @@ function renderPlayerLUTSwatches(player) {
 }
 
 function populateSharedGameSelect() {
-  const previous = selectedGameName || persistedSettings.game || "";
+  const previous =
+    selectedGameName || (rememberGame ? persistedSettings.game : "") || "";
 
   sharedGameSelect.replaceChildren();
 
@@ -1812,8 +1817,13 @@ function updateGameRecognition(player) {
   const now = Date.now();
 
   if (now > gameRecognitionDeadline) {
-    finishGameRecognitionTimeout(player);
-    return;
+    if (!rememberGame && !selectedGameName) {
+      gameRecognitionStartedAt = now;
+      gameRecognitionDeadline = now + GAME_RECOGNITION_WINDOW_MS;
+    } else {
+      finishGameRecognitionTimeout(player);
+      return;
+    }
   }
 
   const match = findRecognizedGame(player);
@@ -9008,6 +9018,16 @@ function setupSharedControls() {
   populateSharedGameSelect();
   setupTopGameSetupPanel();
 
+  rememberGameToggle.checked = rememberGame;
+  rememberGameToggle.onchange = () => {
+    rememberGame = rememberGameToggle.checked;
+    saveTwoPlayerSettings();
+
+    if (!rememberGame && !selectedGameName) {
+      startGameRecognitionWindow();
+    }
+  };
+
   sharedGameSelect.onchange = () => {
     selectSharedGame(sharedGameSelect.value);
   };
@@ -9268,6 +9288,9 @@ async function init() {
   await loadInterceptorSettings();
 
   setupSharedControls();
+  if (!rememberGame && !selectedGameName) {
+    startGameRecognitionWindow();
+  }
   players.forEach(setupPlayer);
   updateAllPlayerStatuses();
   renderScoreBoard();

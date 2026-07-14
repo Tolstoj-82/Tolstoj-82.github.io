@@ -136,6 +136,10 @@ body {
   align-self: center;
 }
 
+.topGameSetup .rememberGameToggle {
+  min-width: auto;
+}
+
 .topToggle input {
   display: none;
 }
