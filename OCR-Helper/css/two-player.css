@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Special Elite";
+  src: url("../assets/fonts/SpecialElite-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 html {
   height: 100%;
   overflow: hidden;
@@ -217,10 +225,101 @@ body {
 }
 
 .playerPanel h1 {
+  --dymo-color-top: #2a2a2a;
+  --dymo-color-middle: #171717;
+  --dymo-color-bottom: #080808;
+
+  position: absolute;
+  z-index: 2;
+  top: 22px;
+  left: var(--dymo-position, 50%);
+  display: inline-block;
+  overflow: hidden;
+  max-width: calc(100% - 48px);
+  margin: 0;
+  padding: 0.38rem 0.85rem;
+  background: linear-gradient(
+    to bottom,
+    var(--dymo-color-top) 0%,
+    var(--dymo-color-bottom) 18%,
+    var(--dymo-color-middle) 48%,
+    var(--dymo-color-bottom) 100%
+  );
+  border-radius: 2px;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.08),
+    inset 0 -2px 2px rgba(0, 0, 0, 0.65),
+    0 2px 4px rgba(0, 0, 0, 0.25);
+  color: #f7f7f7;
+  font-family: "Special Elite", "Courier New", monospace;
+  font-size: clamp(15px, 1.8vw, 22px);
+  font-weight: 400;
+  letter-spacing: 0.11em;
   text-align: center;
   text-transform: uppercase;
-  font-size: clamp(24px, 3.6vw, 42px);
-  letter-spacing: 0;
+  transform: translateX(-50%) rotate(var(--dymo-rotation, 0deg));
+  filter: contrast(1.03);
+}
+
+.playerPanel h1::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.025) 0,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  pointer-events: none;
+}
+
+.playerPanel h1 span {
+  position: relative;
+  z-index: 1;
+  text-shadow:
+    -0.4px 0 rgba(255, 255, 255, 0.95),
+    0.4px 0 rgba(210, 210, 210, 0.7),
+    0 0 1px rgba(255, 255, 255, 0.45),
+    0 1px rgba(0, 0, 0, 0.25);
+}
+
+.playerPanel h1 span::before,
+.playerPanel h1 span::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0 auto auto 0;
+  pointer-events: none;
+  opacity: 0.08;
+}
+
+.playerPanel h1 span::before {
+  color: #a8d8ff;
+  transform: translateX(-0.5px);
+}
+
+.playerPanel h1 span::after {
+  color: #ffd9a8;
+  transform: translateX(0.5px);
+}
+
+.playerPanel h1.dymo-red {
+  --dymo-color-top: #681d1d;
+  --dymo-color-middle: #491010;
+  --dymo-color-bottom: #260707;
+}
+
+.playerPanel h1.dymo-green {
+  --dymo-color-top: #234d38;
+  --dymo-color-middle: #153526;
+  --dymo-color-bottom: #081c12;
+}
+
+.playerPanel h1.dymo-blue {
+  --dymo-color-top: #203f66;
+  --dymo-color-middle: #132e50;
+  --dymo-color-bottom: #08172b;
 }
 
 .playerPanel[data-player="0"] {
@@ -232,7 +331,7 @@ body {
 }
 
 .playerPanel[data-player="0"] h1 {
-  color: var(--accent-blue);
+  color: #f7f7f7;
 }
 
 .playerPanel[data-player="1"] {
@@ -244,7 +343,7 @@ body {
 }
 
 .playerPanel[data-player="1"] h1 {
-  color: var(--text-red);
+  color: #f7f7f7;
 }
 
 .screenArea {
@@ -364,6 +463,22 @@ body {
   margin-bottom: 0;
 }
 
+.playerNameSettingsRow {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) auto;
+  align-items: end;
+  gap: var(--gap-md);
+}
+
+.controlStack .randomNamesToggle {
+  display: inline-flex;
+  grid-template-columns: none;
+  align-items: center;
+  width: auto;
+  min-width: auto;
+  white-space: nowrap;
+}
+
 .lutSwatches {
   display: flex;
   gap: var(--gap-sm);
@@ -388,14 +503,22 @@ body {
   position: relative;
   isolation: isolate;
   flex: 0 0 auto;
-  width: min(100%, calc(var(--feed-max-height) * 160 / 144));
-  max-height: var(--feed-max-height);
+  width: min(
+    100%,
+    calc((var(--feed-max-height) - 94px) * 160 / 144 + 48px)
+  );
   margin: 0 auto;
-  aspect-ratio: 160 / 144;
-  background: var(--shade-black);
-  border: 4px solid var(--border-mid);
-  border-radius: var(--radius-small);
+  padding: 64px 24px 28px;
+  box-sizing: border-box;
+  background: linear-gradient(145deg, #3a3d43, #282b30 58%, #202328);
+  border: 2px solid #1c1f23;
+  border-radius: 18px 18px 58px 18px;
+  box-shadow:
+    inset 1px 1px 1px rgba(255, 255, 255, 0.12),
+    inset -2px -3px 4px rgba(0, 0, 0, 0.38),
+    0 5px 12px rgba(0, 0, 0, 0.3);
   overflow: hidden;
+  transition: box-shadow 0.18s ease;
 }
 
 .feedFrame::after {
@@ -410,19 +533,27 @@ body {
 }
 
 .playerPanel[data-player="0"] .feedFrame {
-  border-color: var(--accent-blue);
+  border-color: #1c1f23;
 }
 
 .playerPanel[data-player="1"] .feedFrame {
-  border-color: var(--text-red);
+  border-color: #1c1f23;
 }
 
 .feedFrame.liveAhead {
-  overflow: visible;
+  box-shadow:
+    inset 1px 1px 1px rgba(255, 255, 255, 0.12),
+    inset -2px -3px 4px rgba(0, 0, 0, 0.38),
+    0 0 0 2px var(--success-glow),
+    0 0 12px 2px var(--border-calibrated);
 }
 
 .feedFrame.liveBehind {
-  overflow: visible;
+  box-shadow:
+    inset 1px 1px 1px rgba(255, 255, 255, 0.12),
+    inset -2px -3px 4px rgba(0, 0, 0, 0.38),
+    0 0 0 2px var(--yellow-glow),
+    0 0 12px 2px var(--accent-orange);
 }
 
 .feedFrame.liveAhead::after {
@@ -437,6 +568,75 @@ body {
   box-shadow:
     0 0 0 2px var(--yellow-glow),
     0 0 12px 2px var(--accent-orange);
+}
+
+.lensStripes {
+  position: absolute;
+  top: 9px;
+  left: 16px;
+  right: 16px;
+  height: 9px;
+  background: linear-gradient(
+    to bottom,
+    #a997c9 0 2px,
+    transparent 2px 5px,
+    #192d58 5px 8px,
+    transparent 8px
+  );
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.screenViewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 160 / 144;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--shade-black);
+  border: 2px solid #15171a;
+  border-radius: 7px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.screenViewport::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 11px 0 12px -8px rgba(0, 0, 0, 0.72),
+    inset 0 11px 12px -8px rgba(0, 0, 0, 0.72),
+    inset 3px 3px 3px rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+}
+
+.powerLed {
+  position: absolute;
+  z-index: 3;
+  left: 10px;
+  top: 36%;
+  width: 9px;
+  height: 9px;
+  border: 1px solid #5d1717;
+  border-radius: 50%;
+  background: #571010;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.feedFrame.signalReady .powerLed {
+  border-color: #ff7b7b;
+  background: #ff3030;
+  box-shadow:
+    0 0 4px #ff3030,
+    0 0 9px rgba(255, 30, 30, 0.9);
 }
 
 .feedFrame video {

@@ -241,7 +241,9 @@ const highScoreSubtitle = document.getElementById("highScoreSubtitle");
 const highScoreUndoToast = document.getElementById("highScoreUndoToast");
 const openGameSettingsButton = document.getElementById("openGameSettings");
 const openNamePoolButton = document.getElementById("openNamePool");
-const useNamePoolForRunsToggle = document.getElementById("useNamePoolForRuns");
+const useNamePoolForRunsToggles = [
+  ...document.querySelectorAll(".randomNamesToggle input"),
+];
 const openInfoModalButton = document.getElementById("openInfoModal");
 const showAchievementsButton = document.getElementById("showAchievements");
 const showDaysButton = document.getElementById("showDays");
@@ -331,13 +333,29 @@ function getLeaderboardStorageKey(dateKey) {
 
 function createPlayerState(number, label, color) {
   const canvas = document.getElementById(`player${number}Canvas`);
+  const title = document.getElementById(`player${number}Title`);
+  const dymoColors = ["dymo-black", "dymo-red", "dymo-green", "dymo-blue"];
+  const dymoPositionRatio = Math.random();
+
+  title.classList.add(
+    dymoColors[Math.floor(Math.random() * dymoColors.length)],
+  );
+  title.style.setProperty(
+    "--dymo-rotation",
+    `${(Math.random() * 4 - 2).toFixed(2)}deg`,
+  );
+  title.style.setProperty(
+    "--dymo-position",
+    `${(24 + Math.random() * 52).toFixed(2)}%`,
+  );
 
   return {
     label,
     staticLabel: label,
     defaultLabel: label,
     color,
-    title: document.getElementById(`player${number}Title`),
+    dymoPositionRatio,
+    title,
     nameInput: document.getElementById(`player${number}Name`),
     video: document.getElementById(`player${number}Video`),
     canvas,
@@ -377,6 +395,7 @@ function createPlayerState(number, label, color) {
     startupScreenSince: null,
     startupScreenTimer: null,
     interceptorActive: false,
+    signalReady: false,
     recognizedGameName: "",
     game: null,
     palette: getPalette(INITIAL_LUT_CATEGORY, INITIAL_LUT_PALETTE),
@@ -1113,8 +1132,35 @@ function updatePlayerLabel(player, label) {
     player.label = clean;
   }
   player.nameInput.value = clean;
-  player.title.textContent = player.label;
+  renderPlayerTitle(player, player.label);
   scoreBoardSignature = "";
+}
+
+function renderPlayerTitle(player, text) {
+  let label = player.title.querySelector("span");
+
+  if (!label) {
+    label = document.createElement("span");
+    player.title.replaceChildren(label);
+  }
+
+  label.textContent = text;
+  label.dataset.text = text;
+  requestAnimationFrame(() => positionPlayerTitle(player));
+}
+
+function positionPlayerTitle(player) {
+  const frameWidth = player.feedFrame.clientWidth;
+  const labelWidth = player.title.offsetWidth;
+  const sideInset = 24;
+  const minimum = sideInset + labelWidth / 2;
+  const maximum = frameWidth - sideInset - labelWidth / 2;
+  const left =
+    maximum > minimum
+      ? minimum + (maximum - minimum) * player.dymoPositionRatio
+      : frameWidth / 2;
+
+  player.title.style.left = `${left}px`;
 }
 
 function assignRandomPlayerRunName(player) {
@@ -1126,7 +1172,7 @@ function assignRandomPlayerRunName(player) {
 
   player.assignedRunName = name;
   player.label = name;
-  player.title.textContent = name;
+  renderPlayerTitle(player, name);
   scoreBoardSignature = "";
 }
 
@@ -1849,6 +1895,10 @@ function updateGameRecognition(player) {
 function finishGameRecognitionTimeout(player) {
   gameRecognitionActive = false;
   gameRecognitionStartedAt = 0;
+  players.forEach((item) => {
+    item.signalReady = false;
+    item.feedFrame.classList.remove("signalReady");
+  });
 
   if (
     gameRecognitionFallbackGameName &&
@@ -2986,6 +3036,14 @@ function updateInterceptorOverlay(player) {
     player.cableLost = false;
   }
 
+  if (message?.tone === "startup") {
+    player.signalReady = true;
+  } else if (message) {
+    player.signalReady = false;
+  }
+
+  player.feedFrame.classList.toggle("signalReady", player.signalReady);
+
   if (!message) {
     if (player.interceptorActive) {
       startGameRecognitionWindow();
@@ -3223,7 +3281,7 @@ function resetPlayerRun(player) {
   player.assignedRunName = "";
   player.resolvedRunName = "";
   player.label = player.staticLabel || player.defaultLabel;
-  player.title.textContent = player.label;
+  renderPlayerTitle(player, player.label);
   player.lastScore = null;
   player.finalizedScore = null;
   player.finalizedScoreGuard = null;
@@ -5961,9 +6019,9 @@ function setUseNamePoolForRuns(value) {
   useNamePoolForRuns = Boolean(value);
   persistedSettings.useNamePoolForRuns = useNamePoolForRuns;
 
-  if (useNamePoolForRunsToggle) {
-    useNamePoolForRunsToggle.checked = useNamePoolForRuns;
-  }
+  useNamePoolForRunsToggles.forEach((toggle) => {
+    toggle.checked = useNamePoolForRuns;
+  });
 
   resetScoringRuns();
   saveTwoPlayerSettings();
@@ -8973,6 +9031,9 @@ function setupPlayer(player) {
     persistedSettings.players?.[players.indexOf(player)],
   );
   renderPlayerLUTSwatches(player);
+  new ResizeObserver(() => positionPlayerTitle(player)).observe(
+    player.feedFrame,
+  );
 
   player.screenOverlayToggle.onchange = () => {
     player.screenOverlay.hidden = !player.screenOverlayToggle.checked;
@@ -9059,10 +9120,12 @@ function setupSharedControls() {
   leaderboardCarouselNext.onclick = showAllTimeCarouselManually;
   openGameSettingsButton.onclick = openGameSettingsModal;
   openNamePoolButton.onclick = openNamePoolModal;
-  useNamePoolForRunsToggle.checked = useNamePoolForRuns;
-  useNamePoolForRunsToggle.onchange = () => {
-    setUseNamePoolForRuns(useNamePoolForRunsToggle.checked);
-  };
+  useNamePoolForRunsToggles.forEach((toggle) => {
+    toggle.checked = useNamePoolForRuns;
+    toggle.onchange = () => {
+      setUseNamePoolForRuns(toggle.checked);
+    };
+  });
   openInfoModalButton.onclick = openInfoModalDialog;
   closeAchievementsModal.onclick = closeAchievementsModalDialog;
   closeDaysModal.onclick = closeDaysModalDialog;
