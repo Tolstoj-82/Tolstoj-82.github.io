@@ -1,5 +1,7 @@
 # config.html Manual Test Checklist
 
+Version 1.2.4
+
 - [ ] Game-name autosuggest options retain black text on hover and keyboard focus, matching the recognition-screen dropdown.
 
 - [ ] The purple Two Player link opens index.html and shows a link symbol.

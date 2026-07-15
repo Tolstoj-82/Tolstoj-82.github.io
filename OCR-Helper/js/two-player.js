@@ -335,7 +335,6 @@ function createPlayerState(number, label, color) {
   const canvas = document.getElementById(`player${number}Canvas`);
   const title = document.getElementById(`player${number}Title`);
   const dymoColors = ["dymo-black", "dymo-red", "dymo-green", "dymo-blue"];
-  const dymoPositionRatio = Math.random();
 
   title.classList.add(
     dymoColors[Math.floor(Math.random() * dymoColors.length)],
@@ -344,17 +343,12 @@ function createPlayerState(number, label, color) {
     "--dymo-rotation",
     `${(Math.random() * 4 - 2).toFixed(2)}deg`,
   );
-  title.style.setProperty(
-    "--dymo-position",
-    `${(24 + Math.random() * 52).toFixed(2)}%`,
-  );
 
   return {
     label,
     staticLabel: label,
     defaultLabel: label,
     color,
-    dymoPositionRatio,
     title,
     nameInput: document.getElementById(`player${number}Name`),
     video: document.getElementById(`player${number}Video`),
@@ -1146,21 +1140,6 @@ function renderPlayerTitle(player, text) {
 
   label.textContent = text;
   label.dataset.text = text;
-  requestAnimationFrame(() => positionPlayerTitle(player));
-}
-
-function positionPlayerTitle(player) {
-  const frameWidth = player.feedFrame.clientWidth;
-  const labelWidth = player.title.offsetWidth;
-  const sideInset = 24;
-  const minimum = sideInset + labelWidth / 2;
-  const maximum = frameWidth - sideInset - labelWidth / 2;
-  const left =
-    maximum > minimum
-      ? minimum + (maximum - minimum) * player.dymoPositionRatio
-      : frameWidth / 2;
-
-  player.title.style.left = `${left}px`;
 }
 
 function assignRandomPlayerRunName(player) {
@@ -2599,6 +2578,11 @@ function calculateThresholdsFromPalette(values) {
 
 function processPlayerFrame(player) {
   if (player.video.readyState < 2) {
+    const emptyColor = player.palette[0];
+
+    player.ctx.fillStyle = `rgb(${emptyColor.r}, ${emptyColor.g}, ${emptyColor.b})`;
+    player.ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
     if (
       player.cameraSelect.value &&
       player.stream &&
@@ -9031,9 +9015,6 @@ function setupPlayer(player) {
     persistedSettings.players?.[players.indexOf(player)],
   );
   renderPlayerLUTSwatches(player);
-  new ResizeObserver(() => positionPlayerTitle(player)).observe(
-    player.feedFrame,
-  );
 
   player.screenOverlayToggle.onchange = () => {
     player.screenOverlay.hidden = !player.screenOverlayToggle.checked;

@@ -232,7 +232,7 @@ body {
   position: absolute;
   z-index: 2;
   top: 22px;
-  left: var(--dymo-position, 50%);
+  left: 50%;
   display: inline-block;
   overflow: hidden;
   max-width: calc(100% - 48px);
@@ -255,6 +255,7 @@ body {
   font-size: clamp(15px, 1.8vw, 22px);
   font-weight: 400;
   letter-spacing: 0.11em;
+  white-space: nowrap;
   text-align: center;
   text-transform: uppercase;
   transform: translateX(-50%) rotate(var(--dymo-rotation, 0deg));
@@ -962,7 +963,7 @@ body {
   left: 0;
   right: 0;
   bottom: calc(100% + var(--gap-sm));
-  max-height: min(45vh, 360px);
+  max-height: calc(100vh - (2 * var(--gap-md)) - 52px);
   overflow-y: auto;
   padding: var(--gap-md);
   background: var(--panel-light);
