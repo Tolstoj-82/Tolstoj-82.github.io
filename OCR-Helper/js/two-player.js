@@ -23,7 +23,6 @@ const MAX_INLINE_LEADERBOARD_NAME_LENGTH = 10;
 const DEFAULT_TRACKED_SCREEN_NAME = "A-Type";
 const DEFAULT_SCREEN_DETECTION_GRACE_MS = 300;
 const STARTUP_RESTART_REQUIRED_MS = 10000;
-const TOP_GAME_SETUP_CLOSE_DELAY_MS = 1800;
 const GAME_RECOGNITION_WINDOW_MS = 20000;
 const GAME_RECOGNITION_PENDING_MS = 5000;
 const GAME_RECOGNITION_COUNTDOWN_MS = 10000;
@@ -33,8 +32,8 @@ const BOXART_IMAGE_BASE_PATH = "Games/boxart/bigger/";
 const UNKNOWN_GAME_IMAGE_PATH = "assets/no_clue.png";
 const SCORE_DUPLICATE_CONFINEMENT_MS = 30000;
 const RANDOM_NAME_DUPLICATE_WINDOW_MS = 20000;
-const DEFAULT_ALL_TIME_CAROUSEL_INTERVAL_SECONDS = 30;
-const DEFAULT_ALL_TIME_CAROUSEL_DURATION_SECONDS = 3;
+const DEFAULT_ALL_TIME_CAROUSEL_INTERVAL_SECONDS = 6;
+const DEFAULT_ALL_TIME_CAROUSEL_DURATION_SECONDS = 6;
 const ALL_TIME_CAROUSEL_MIN_ENTRY_COUNT = 5;
 const ALL_TIME_CAROUSEL_MAX_ENTRY_COUNT = 20;
 const NEW_GAME_RESET_CONFIRM_MS = 650;
@@ -186,7 +185,7 @@ let rememberGame = true;
 let scoreScrollDirection = 1;
 let scoreScrollHoldUntil = 0;
 let scoreScrollLastTime = 0;
-let topGameSetupCloseTimer = null;
+let scoreScrollPhase = "";
 let gameRecognitionActive = false;
 let gameRecognitionStartedAt = 0;
 let gameRecognitionDeadline = 0;
@@ -211,6 +210,7 @@ const namePoolSelectionState = createRowSelectionState();
 const sharedGameSelect = document.getElementById("sharedGameSelect");
 const scoreSettingSelect = document.getElementById("scoreSettingSelect");
 const topGameSetup = document.querySelector(".topGameSetup");
+const topGameSetupToggle = document.getElementById("topGameSetupToggle");
 const importJSONButton = document.getElementById("importJSON");
 const exportJSONButton = document.getElementById("exportJSON");
 const rememberGameToggle = document.getElementById("rememberGame");
@@ -304,7 +304,7 @@ function normalizeAllTimeCarouselInterval(value) {
   const seconds = Number(value);
 
   return Number.isFinite(seconds)
-    ? Math.max(10, Math.min(3600, Math.round(seconds)))
+    ? Math.max(1, Math.min(3600, Math.round(seconds)))
     : DEFAULT_ALL_TIME_CAROUSEL_INTERVAL_SECONDS;
 }
 
@@ -4937,6 +4937,27 @@ function scheduleAllTimeCarouselInterval() {
 
   if (!allTimeCarouselEnabled) return;
 
+  scoreScrollDirection = 1;
+  scoreScrollHoldUntil = performance.now() + 900;
+  scoreScrollLastTime = 0;
+  scoreScrollPhase = "down";
+
+  const scroller = scoreBoard.querySelector(".scoreBoardScroll");
+
+  if (scroller) scroller.scrollTop = 0;
+}
+
+function beginDailyCarouselWait() {
+  if (
+    !allTimeCarouselEnabled ||
+    allTimeCarouselVisible ||
+    scoreScrollPhase === "waiting"
+  ) {
+    return;
+  }
+
+  scoreScrollPhase = "waiting";
+  window.clearTimeout(allTimeCarouselInterval);
   allTimeCarouselInterval = window.setTimeout(
     showAllTimeCarousel,
     allTimeCarouselIntervalSeconds * 1000,
@@ -5322,16 +5343,21 @@ function resetScoreBoardAutoScroll() {
   scoreScrollDirection = 1;
   scoreScrollHoldUntil = 0;
   scoreScrollLastTime = 0;
+  scoreScrollPhase = "";
 }
 
 function updateScoreBoardAutoScroll() {
   const scroller = scoreBoard.querySelector(".scoreBoardScroll");
   const now = performance.now();
 
+  if (allTimeCarouselVisible) return;
+
   if (!scroller || scroller.scrollHeight <= scroller.clientHeight + 1) {
-    resetScoreBoardAutoScroll();
+    if (scoreScrollPhase === "down") beginDailyCarouselWait();
     return;
   }
+
+  if (scoreScrollPhase === "waiting") return;
 
   if (scoreBoardPointerInside) {
     scoreScrollLastTime = now;
@@ -5354,12 +5380,13 @@ function updateScoreBoardAutoScroll() {
 
   scroller.scrollTop = Math.max(0, Math.min(maxScroll, nextScroll));
 
-  if (scroller.scrollTop <= 0) {
-    scoreScrollDirection = 1;
-    scoreScrollHoldUntil = now + 900;
-  } else if (scroller.scrollTop >= maxScroll - 1) {
+  if (scoreScrollPhase === "down" && scroller.scrollTop >= maxScroll - 1) {
+    scoreScrollPhase = "up";
     scoreScrollDirection = -1;
     scoreScrollHoldUntil = now + 900;
+  } else if (scoreScrollPhase === "up" && scroller.scrollTop <= 0) {
+    scroller.scrollTop = 0;
+    beginDailyCarouselWait();
   }
 }
 
@@ -9272,11 +9299,6 @@ function setupSharedControls() {
       closeTopGameSetupPanel();
     }
 
-    document.querySelectorAll(".settingsAccordion[open]").forEach((details) => {
-      if (!details.contains(e.target)) {
-        details.open = false;
-      }
-    });
   });
   document.addEventListener("pointerup", stopHistorySelectionDrag);
   document.addEventListener("pointercancel", stopHistorySelectionDrag);
@@ -9300,31 +9322,38 @@ function setupSharedControls() {
 }
 
 function setupTopGameSetupPanel() {
-  if (!topGameSetup) return;
+  if (!topGameSetup || !topGameSetupToggle) return;
 
-  topGameSetup.addEventListener("pointerenter", keepTopGameSetupPanelOpen);
-  topGameSetup.addEventListener("pointerleave", scheduleTopGameSetupPanelClose);
-  topGameSetup.addEventListener("focusin", keepTopGameSetupPanelOpen);
-  topGameSetup.addEventListener("focusout", scheduleTopGameSetupPanelClose);
-}
+  topGameSetupToggle.addEventListener("click", () => {
+    const open = !topGameSetup.classList.contains("open");
 
-function keepTopGameSetupPanelOpen() {
-  window.clearTimeout(topGameSetupCloseTimer);
-  topGameSetup?.classList.add("open");
-}
+    topGameSetup.classList.toggle("open", open);
+    topGameSetupToggle.setAttribute("aria-expanded", String(open));
+    topGameSetupToggle.setAttribute(
+      "aria-label",
+      open ? "Close main menu" : "Open main menu",
+    );
+  });
 
-function scheduleTopGameSetupPanelClose() {
-  window.clearTimeout(topGameSetupCloseTimer);
-  topGameSetupCloseTimer = window.setTimeout(() => {
-    if (topGameSetup?.contains(document.activeElement)) return;
+  document.querySelectorAll(".settingsAccordion").forEach((details) => {
+    details.addEventListener("toggle", () => {
+      if (!details.open && details.contains(document.activeElement)) {
+        document.activeElement.blur();
+      }
+    });
+    details
+      .querySelector(".playerSettingsClose")
+      ?.addEventListener("click", () => {
+        details.open = false;
+      });
+  });
 
-    closeTopGameSetupPanel();
-  }, TOP_GAME_SETUP_CLOSE_DELAY_MS);
 }
 
 function closeTopGameSetupPanel() {
-  window.clearTimeout(topGameSetupCloseTimer);
   topGameSetup?.classList.remove("open");
+  topGameSetupToggle?.setAttribute("aria-expanded", "false");
+  topGameSetupToggle?.setAttribute("aria-label", "Open main menu");
 }
 
 async function init() {

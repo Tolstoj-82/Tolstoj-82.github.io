@@ -46,7 +46,7 @@ body {
   border-top: none;
   border-radius: 0 0 var(--radius-panel) var(--radius-panel);
   box-shadow: 0 10px 24px var(--black-shadow-soft);
-  transform: translateY(calc(-100% + 9px));
+  transform: translateY(-100%);
   transition: transform 0.22s ease;
 }
 
@@ -75,22 +75,87 @@ body {
   flex-wrap: wrap;
 }
 
-.topGameSetup.open,
-.topGameSetup:hover,
-.topGameSetup:focus-within {
+.topGameSetup.open {
   transform: translateY(0);
 }
 
-.topGameSetup::after {
+.topGameSetupToggle {
+  position: absolute;
+  left: 12px;
+  bottom: -8px;
+  width: 38px;
+  min-width: 38px;
+  height: 8px;
+  min-height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--border-panel);
+  border: 0;
+  border-radius: 0 0 7px 7px;
+  color: var(--panel-text);
+  box-shadow: none;
+  cursor: pointer;
+  transition:
+    width 0.16s ease,
+    height 0.16s ease,
+    bottom 0.16s ease,
+    background 0.16s ease;
+}
+
+.topGameSetupToggle:hover,
+.topGameSetupToggle:focus-visible,
+.topGameSetup.open .topGameSetupToggle {
+  bottom: -24px;
+  width: 58px;
+  min-width: 58px;
+  height: 24px;
+  min-height: 24px;
+  background: var(--border-mid);
+  color: #20242a;
+  box-shadow: none;
+}
+
+.topGameSetupToggle span {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: block;
+  background: #ffffff;
+  border: 1px solid var(--border-mid);
+  border-radius: 50%;
+  box-shadow: none;
+  opacity: 0;
+  transform: scale(0.7);
+  transition:
+    opacity 0.14s ease,
+    transform 0.14s ease;
+}
+
+.topGameSetupToggle:hover span,
+.topGameSetupToggle:focus-visible span,
+.topGameSetup.open .topGameSetupToggle span {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.topGameSetupToggle span::before {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: -8px;
-  width: 86px;
-  height: 8px;
-  transform: translateX(-50%);
-  background: var(--border-panel);
-  border-radius: 0 0 999px 999px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  display: block;
+  border-right: 2px solid #20242a;
+  border-bottom: 2px solid #20242a;
+  transform: translate(-50%, -65%) rotate(45deg);
+  transition: transform 0.16s ease;
+}
+
+.topGameSetup.open .topGameSetupToggle span::before {
+  transform: translate(-50%, -35%) rotate(225deg);
 }
 
 .topGameSetup label {
@@ -907,7 +972,7 @@ body {
   position: absolute;
   z-index: 20;
   left: 50%;
-  bottom: var(--gap-md);
+  bottom: 0;
   width: min(
     calc(100% - (2 * var(--gap-md))),
     calc(var(--feed-max-height) * 160 / 144)
@@ -917,23 +982,36 @@ body {
 }
 
 .settingsAccordion summary {
-  width: 100%;
-  height: 22px;
-  min-height: 22px;
-  display: inline-flex;
+  width: 38px;
+  height: 8px;
+  min-height: 8px;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid var(--border-mid);
-  border-radius: var(--radius-small);
-  background: var(--panel-light);
+  margin: 0 auto;
+  border: 0;
+  border-radius: 7px 7px 0 0;
+  background: rgba(255, 255, 255, 0.16);
   color: var(--panel-text);
   cursor: pointer;
   list-style: none;
+  transition:
+    width 0.15s ease,
+    height 0.15s ease,
+    background 0.15s ease;
 }
 
-.settingsAccordion summary:hover {
-  background: var(--border-section);
+.settingsAccordion summary:hover,
+.settingsAccordion summary:focus-visible,
+.settingsAccordion[open] summary {
+  width: 54px;
+  height: 18px;
+  min-height: 18px;
+  background: #ffffff;
+  border: 1px solid var(--border-mid);
+  color: #20242a;
+  box-shadow: none;
 }
 
 .settingsAccordion summary::-webkit-details-marker {
@@ -942,12 +1020,23 @@ body {
 
 .settingsAccordion summary::before {
   content: "";
-  width: 9px;
-  height: 9px;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
-  transform: translateY(2px) rotate(225deg);
-  transition: transform 0.18s ease;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 999px;
+  box-shadow: 0 -5px 0 currentColor, 0 5px 0 currentColor;
+  transform: scale(0.82);
+  opacity: 0.52;
+  transition:
+    transform 0.18s ease,
+    opacity 0.14s ease;
+}
+
+.settingsAccordion summary:hover::before,
+.settingsAccordion summary:focus-visible::before,
+.settingsAccordion[open] summary::before {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .settingsAccordion[open] summary {
@@ -955,7 +1044,7 @@ body {
 }
 
 .settingsAccordion[open] summary::before {
-  transform: translateY(-2px) rotate(45deg);
+  transform: scale(1);
 }
 
 .settingsAccordion .controlStack {
@@ -970,6 +1059,36 @@ body {
   border: 2px solid var(--border-mid);
   border-radius: var(--radius-small);
   box-shadow: 0 12px 26px var(--black-shadow-soft);
+}
+
+.controlStack .playerSettingsClose {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  width: 28px;
+  min-width: 28px;
+  max-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  max-height: 28px;
+  justify-self: end;
+  align-self: start;
+  aspect-ratio: 1;
+  margin: calc(-1 * var(--gap-sm)) calc(-1 * var(--gap-sm)) 0 var(--gap-sm);
+  padding: 0 0 2px;
+  border: 2px solid var(--border-mid);
+  border-radius: 50%;
+  background: var(--panel-light);
+  color: var(--panel-text);
+  box-shadow: none;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.controlStack .playerSettingsClose:hover {
+  background: var(--panel-text);
+  border-color: var(--panel-text);
+  color: var(--panel-light);
 }
 
 .playerStatus.good {
@@ -1262,7 +1381,7 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 0;
   overflow-y: auto;
   padding: 2px 3px;
   color: var(--panel-text);
@@ -1283,10 +1402,13 @@ body {
   align-items: center;
   gap: 7px;
   padding: 5px 8px;
-  background: var(--panel-light);
-  border: 2px solid var(--border-section);
-  border-radius: var(--radius-small);
-  box-shadow: 0 2px 4px var(--black-shadow-soft);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border-section);
+}
+
+.allTimeCarouselRow:last-child {
+  border-bottom: 0;
 }
 
 .allTimeCarouselCell {
@@ -1354,25 +1476,25 @@ body {
 }
 
 .allTimeCarouselRow.topGold {
-  background: linear-gradient(90deg, rgba(255, 215, 0, 0.24), var(--panel-light));
-  border-color: #d4a900;
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.24), transparent);
+  border-bottom-color: #d4a900;
 }
 
 .allTimeCarouselRow.topSilver {
-  background: linear-gradient(90deg, rgba(192, 192, 192, 0.26), var(--panel-light));
-  border-color: #9a9a9a;
+  background: linear-gradient(90deg, rgba(192, 192, 192, 0.26), transparent);
+  border-bottom-color: #9a9a9a;
 }
 
 .allTimeCarouselRow.topBronze {
-  background: linear-gradient(90deg, rgba(205, 127, 50, 0.24), var(--panel-light));
-  border-color: #a5632a;
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.24), transparent);
+  border-bottom-color: #a5632a;
 }
 
 .allTimeCarouselRow.current-left {
   background:
     linear-gradient(var(--accent-blue-selected-bg), var(--accent-blue-selected-bg)),
     var(--panel-light);
-  border-color: var(--accent-blue);
+  border-bottom-color: var(--accent-blue);
   box-shadow: inset 3px 0 0 var(--accent-blue);
 }
 
@@ -1380,7 +1502,7 @@ body {
   background:
     linear-gradient(var(--danger-bg-strong), var(--danger-bg-strong)),
     var(--panel-light);
-  border-color: var(--text-red);
+  border-bottom-color: var(--text-red);
   box-shadow: inset -3px 0 0 var(--text-red);
 }
 
@@ -3423,7 +3545,7 @@ body {
   }
 
   .settingsAccordion {
-    bottom: var(--gap-sm);
+    bottom: 0;
     width: min(
       calc(100% - (2 * var(--gap-sm))),
       calc(var(--feed-max-height) * 160 / 144)
@@ -3456,6 +3578,18 @@ body {
     width: var(--control-height);
     min-width: var(--control-height);
     height: var(--control-height);
+  }
+
+  .topGameSetup .topGameSetupToggle {
+    width: 38px;
+    min-width: 38px;
+  }
+
+  .topGameSetup .topGameSetupToggle:hover,
+  .topGameSetup .topGameSetupToggle:focus-visible,
+  .topGameSetup.open .topGameSetupToggle {
+    width: 58px;
+    min-width: 58px;
   }
 
   .namePoolDataTools .button-black {
