@@ -81,7 +81,7 @@ body {
 
 .topGameSetupToggle {
   position: absolute;
-  left: 12px;
+  left: 50%;
   bottom: -8px;
   width: 38px;
   min-width: 38px;
@@ -97,6 +97,7 @@ body {
   color: var(--panel-text);
   box-shadow: none;
   cursor: pointer;
+  transform: translateX(-50%);
   transition:
     width 0.16s ease,
     height 0.16s ease,
@@ -529,20 +530,152 @@ body {
   margin-bottom: 0;
 }
 
-.playerNameSettingsRow {
+.playerSettingsSection {
   display: grid;
-  grid-template-columns: minmax(110px, 1fr) auto;
+  gap: var(--gap-md);
+  padding: var(--gap-md);
+  background: var(--bg-panel-dark);
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-small);
+}
+
+.playerSettingsHeader {
+  position: sticky;
+  z-index: 3;
+  top: calc(-1 * var(--gap-md));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  margin: calc(-1 * var(--gap-md)) calc(-1 * var(--gap-md)) 0;
+  padding: var(--gap-md);
+  background: var(--panel-light);
+  border-bottom: 1px solid var(--border-section);
+}
+
+.playerSettingsHeader h2 {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--gap-sm);
+  margin: 0;
+  color: var(--panel-text);
+  font-size: 15px;
+}
+
+.playerWebcamModeTitle {
+  padding: 3px 7px;
+  background: rgba(255, 179, 71, 0.18);
+  border: 1px solid var(--accent-orange);
+  border-radius: var(--radius-small);
+  color: var(--accent-orange-text);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.playerWebcamModeTitle[hidden] {
+  display: none;
+}
+
+.playerSettingsSection h3 {
+  margin: 0;
+  color: var(--panel-text);
+  font-size: 13px;
+}
+
+.playerSettingsTwoColumnRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(132px, 0.72fr);
   align-items: end;
   gap: var(--gap-md);
 }
 
+.playerNameField input {
+  text-transform: uppercase;
+}
+
+.playerNameField input:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.controlStack .originalCameraToggle,
 .controlStack .randomNamesToggle {
   display: inline-flex;
   grid-template-columns: none;
   align-items: center;
-  width: auto;
-  min-width: auto;
+  width: 100%;
+  min-width: 0;
+  justify-self: stretch;
   white-space: nowrap;
+}
+
+.playerCameraRow {
+  min-width: 0;
+}
+
+.playerCameraRow > label:first-child {
+  min-width: 0;
+}
+
+.playerCalibrationRow {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  min-width: 0;
+}
+
+.playerCalibrationRow .lutSwatches {
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.playerCalibrationRow .lutSwatches.webcamModeDisabled {
+  opacity: 0.34;
+  filter: grayscale(0.75);
+  pointer-events: none;
+}
+
+.playerLutField.webcamModeDisabled {
+  opacity: 0.42;
+}
+
+.playerCalibrationRow .lutSwatch {
+  width: 26px;
+  height: 26px;
+}
+
+.playerCalibrationButtons {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.controlStack .playerCalibrationButtons button {
+  min-height: 30px;
+  padding: 4px 6px;
+  font-size: 11px;
+}
+
+#playerCalibrationHistogram {
+  width: 100%;
+  height: 260px;
+  display: block;
+  margin-top: var(--gap-md);
+  background: var(--shade-white);
+  border: 2px solid var(--border-mid);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.playerCalibrationModalContent {
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--gap-lg);
 }
 
 .lutSwatches {
@@ -831,6 +964,12 @@ body {
   color: var(--border-calibrated);
 }
 
+.screenBadge.webcamMode {
+  background: rgba(255, 179, 71, 0.18);
+  border-color: var(--accent-orange);
+  color: var(--accent-orange-text);
+}
+
 .gameRecognitionToast {
   position: absolute;
   z-index: 9;
@@ -1076,19 +1215,24 @@ body {
   aspect-ratio: 1;
   margin: calc(-1 * var(--gap-sm)) calc(-1 * var(--gap-sm)) 0 var(--gap-sm);
   padding: 0 0 2px;
-  border: 2px solid var(--border-mid);
-  border-radius: 50%;
-  background: var(--panel-light);
-  color: var(--panel-text);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--button-muted-text);
   box-shadow: none;
   font-size: 22px;
   line-height: 1;
 }
 
+.controlStack .playerSettingsHeader .playerSettingsClose {
+  position: static;
+  flex: 0 0 28px;
+  margin: 0;
+}
+
 .controlStack .playerSettingsClose:hover {
-  background: var(--panel-text);
-  border-color: var(--panel-text);
-  color: var(--panel-light);
+  background: var(--black-faint);
+  color: var(--panel-text);
 }
 
 .playerStatus.good {
@@ -2110,7 +2254,7 @@ body {
   justify-content: center;
   padding: 0;
   border: none;
-  border-radius: 50%;
+  border-radius: 0;
   background: transparent;
   color: var(--button-muted-text);
   font-size: 20px;
@@ -3245,6 +3389,16 @@ body {
 
 .achievementModalScreen h3 {
   margin: 0 0 var(--gap-sm);
+}
+
+.gameModuleSettingsFields .gameModuleEnabledToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  width: auto;
+  color: var(--panel-text);
+  font-size: 12px;
 }
 
 .achievementModalMetricGroup + .achievementModalMetricGroup {

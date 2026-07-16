@@ -1,6 +1,6 @@
 # config.html Manual Test Checklist
 
-Version 1.2.4
+Version Beta 1.3
 
 - [ ] Game-name autosuggest options retain black text on hover and keyboard focus, matching the recognition-screen dropdown.
 

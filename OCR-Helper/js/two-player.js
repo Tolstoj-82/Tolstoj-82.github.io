@@ -180,7 +180,6 @@ let randomPlayerNames = [];
 const gameModuleAccordionOpenStates = new Map();
 let scoreBoardSignature = "";
 let useFastOCR = true;
-let useNamePoolForRuns = false;
 let rememberGame = true;
 let scoreScrollDirection = 1;
 let scoreScrollHoldUntil = 0;
@@ -241,9 +240,25 @@ const highScoreSubtitle = document.getElementById("highScoreSubtitle");
 const highScoreUndoToast = document.getElementById("highScoreUndoToast");
 const openGameSettingsButton = document.getElementById("openGameSettings");
 const openNamePoolButton = document.getElementById("openNamePool");
-const useNamePoolForRunsToggles = [
-  ...document.querySelectorAll(".randomNamesToggle input"),
-];
+const playerCalibrationModal = document.getElementById("playerCalibrationModal");
+const playerCalibrationModalTitle = document.getElementById(
+  "playerCalibrationModalTitle",
+);
+const playerCalibrationHistogram = document.getElementById(
+  "playerCalibrationHistogram",
+);
+const playerCalibrationThresholdValues = document.getElementById(
+  "playerCalibrationThresholdValues",
+);
+const closePlayerCalibrationModal = document.getElementById(
+  "closePlayerCalibrationModal",
+);
+const resetPlayerCalibrationAuto = document.getElementById(
+  "resetPlayerCalibrationAuto",
+);
+const savePlayerCalibration = document.getElementById(
+  "savePlayerCalibration",
+);
 const openInfoModalButton = document.getElementById("openInfoModal");
 const showAchievementsButton = document.getElementById("showAchievements");
 const showDaysButton = document.getElementById("showDays");
@@ -289,7 +304,9 @@ allTimeCarouselDurationSeconds = normalizeAllTimeCarouselDuration(
   persistedSettings.allTimeCarousel?.durationSeconds,
   allTimeCarouselIntervalSeconds,
 );
-useNamePoolForRuns = persistedSettings.useNamePoolForRuns === true;
+let activeCalibrationPlayer = null;
+let pendingPlayerCalibrationThresholds = null;
+let playerCalibrationDragIndex = -1;
 
 function getTodayDateKey() {
   const now = new Date();
@@ -351,6 +368,7 @@ function createPlayerState(number, label, color) {
     color,
     title,
     nameInput: document.getElementById(`player${number}Name`),
+    randomNamesToggle: document.getElementById(`player${number}RandomNames`),
     video: document.getElementById(`player${number}Video`),
     canvas,
     ctx: canvas.getContext("2d"),
@@ -358,6 +376,10 @@ function createPlayerState(number, label, color) {
       .getElementById(`player${number}Canvas`)
       .closest(".feedFrame"),
     cameraSelect: document.getElementById(`player${number}Camera`),
+    originalCameraToggle: document.getElementById(
+      `player${number}OriginalCamera`,
+    ),
+    webcamModeTitle: document.getElementById(`player${number}WebcamModeTitle`),
     lutSelect: document.getElementById(`player${number}Lut`),
     lutSwatches: document.getElementById(`player${number}LutSwatches`),
     screenOverlay: document.getElementById(`player${number}ScreenOverlay`),
@@ -365,6 +387,9 @@ function createPlayerState(number, label, color) {
       `player${number}ScreenOverlayEnabled`,
     ),
     calibrateButton: document.getElementById(`player${number}Calibrate`),
+    calibrationDetailsButton: document.getElementById(
+      `player${number}CalibrationDetails`,
+    ),
     status: document.getElementById(`player${number}Status`),
     achievementLayer: document.getElementById(`player${number}Achievements`),
     screenBadge: document.getElementById(`player${number}ScreenBadge`),
@@ -390,10 +415,13 @@ function createPlayerState(number, label, color) {
     startupScreenTimer: null,
     interceptorActive: false,
     signalReady: false,
+    useRandomNames: false,
+    showOriginalCamera: false,
     recognizedGameName: "",
     game: null,
     palette: getPalette(INITIAL_LUT_CATEGORY, INITIAL_LUT_PALETTE),
     thresholds: DEFAULT_THRESHOLDS.slice(),
+    calibrationSamples: [],
     quantized: new Array(WIDTH * HEIGHT).fill(0),
     activeScreen: null,
     values: [],
@@ -460,7 +488,6 @@ function saveTwoPlayerSettings() {
     selectedScoreSettingId,
     scoreSettings: persistedSettings.scoreSettings || {},
     useFastOCR,
-    useNamePoolForRuns,
     allTimeCarousel: {
       enabled: allTimeCarouselEnabled,
       intervalSeconds: allTimeCarouselIntervalSeconds,
@@ -474,6 +501,8 @@ function saveTwoPlayerSettings() {
       calibrated: player.calibrated,
       thresholds: player.thresholds,
       screenOverlayEnabled: player.screenOverlayToggle.checked,
+      useRandomNames: player.useRandomNames,
+      showOriginalCamera: player.showOriginalCamera,
     })),
   };
 
@@ -1084,6 +1113,14 @@ function rebuildAllTimeLeaderboardFromDays() {
 function restorePlayerSettings(player, settings) {
   player.nameInput.value = player.label;
   updatePlayerLabel(player, settings?.name || player.label);
+  player.useRandomNames =
+    settings?.useRandomNames === true ||
+    (settings?.useRandomNames === undefined &&
+      persistedSettings.useNamePoolForRuns === true);
+  player.showOriginalCamera = settings?.showOriginalCamera === true;
+  player.randomNamesToggle.checked = player.useRandomNames;
+  player.originalCameraToggle.checked = player.showOriginalCamera;
+  player.nameInput.disabled = player.useRandomNames;
   player.screenOverlayToggle.checked = settings?.screenOverlayEnabled === true;
   player.screenOverlay.hidden = !player.screenOverlayToggle.checked;
 
@@ -1119,10 +1156,11 @@ function updatePlayerLabel(player, label) {
   const clean =
     String(label || "")
       .trim()
+      .toUpperCase()
       .slice(0, 18) || fallback;
 
   player.staticLabel = clean;
-  if (!useNamePoolForRuns || !player.assignedRunName) {
+  if (!player.useRandomNames || !player.assignedRunName) {
     player.label = clean;
   }
   player.nameInput.value = clean;
@@ -1145,7 +1183,7 @@ function renderPlayerTitle(player, text) {
 function assignRandomPlayerRunName(player) {
   if (player.assignedRunName) return;
 
-  const name = useNamePoolForRuns
+  const name = player.useRandomNames
     ? getRandomAvailablePlayerName(player)
     : player.staticLabel || player.defaultLabel;
 
@@ -1264,6 +1302,7 @@ function renderPlayerLUTSwatches(player) {
 
     input.type = "color";
     input.value = rgbToHex(color);
+    input.disabled = player.showOriginalCamera;
     input.oninput = () => {
       player.palette = player.palette.map((item, itemIndex) => {
         return itemIndex === index ? hexToRgb(input.value) : item;
@@ -1276,6 +1315,23 @@ function renderPlayerLUTSwatches(player) {
     swatch.appendChild(input);
     player.lutSwatches.appendChild(swatch);
   });
+}
+
+function syncPlayerWebcamModeControls(player) {
+  player.lutSelect.disabled = player.showOriginalCamera;
+  player.calibrateButton.disabled = player.showOriginalCamera;
+  player.calibrationDetailsButton.disabled = player.showOriginalCamera;
+  player.lutSelect
+    .closest(".playerLutField")
+    ?.classList.toggle("webcamModeDisabled", player.showOriginalCamera);
+  player.lutSwatches.classList.toggle(
+    "webcamModeDisabled",
+    player.showOriginalCamera,
+  );
+  player.lutSwatches.querySelectorAll('input[type="color"]').forEach((input) => {
+    input.disabled = player.showOriginalCamera;
+  });
+  player.webcamModeTitle.hidden = !player.showOriginalCamera;
 }
 
 function populateSharedGameSelect() {
@@ -1409,11 +1465,19 @@ function normalizeSettingModuleConfig(setting) {
 
       normalized[module.id] = getModuleConfigDefaults(module);
       Object.entries(moduleConfig).forEach(([key, value]) => {
-        normalized[module.id][key] = String(value || "").trim();
+        normalized[module.id][key] = normalizeModuleConfigValue(key, value);
       });
     });
 
   return normalized;
+}
+
+function normalizeModuleConfigValue(key, value) {
+  if (key === "enabled") {
+    return String(value !== false && String(value).toLowerCase() !== "false");
+  }
+
+  return String(value || "").trim();
 }
 
 function getModuleConfigDefaults(module) {
@@ -1484,7 +1548,7 @@ function getModuleConfigForSetting(setting, module) {
     ...defaults,
     ...Object.fromEntries(
       Object.entries(saved).map(([key, value]) => {
-        return [key, String(value || "").trim()];
+        return [key, normalizeModuleConfigValue(key, value)];
       }),
     ),
   };
@@ -2374,8 +2438,9 @@ async function startPlayerCamera(player) {
       deviceId: player.cameraSelect.value
         ? { exact: player.cameraSelect.value }
         : undefined,
-      width: { ideal: WIDTH },
-      height: { ideal: HEIGHT },
+      width: { ideal: WIDTH * 4 },
+      height: { ideal: HEIGHT * 4 },
+      aspectRatio: { ideal: WIDTH / HEIGHT },
     },
     audio: false,
   };
@@ -2448,8 +2513,9 @@ async function recoverPlayerCamera(player) {
     const constraints = {
       video: {
         deviceId: { exact: player.cameraSelect.value },
-        width: { ideal: WIDTH },
-        height: { ideal: HEIGHT },
+        width: { ideal: WIDTH * 4 },
+        height: { ideal: HEIGHT * 4 },
+        aspectRatio: { ideal: WIDTH / HEIGHT },
       },
       audio: false,
     };
@@ -2535,6 +2601,7 @@ function calibratePlayer(player) {
     );
   }
 
+  player.calibrationSamples = samples;
   player.thresholds = calculateThresholdsFromPalette(findFourShades(samples));
   player.calibrated = true;
 
@@ -2582,6 +2649,7 @@ function processPlayerFrame(player) {
 
     player.ctx.fillStyle = `rgb(${emptyColor.r}, ${emptyColor.g}, ${emptyColor.b})`;
     player.ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    setPlayerCameraSignal(player, false);
 
     if (
       player.cameraSelect.value &&
@@ -2597,6 +2665,12 @@ function processPlayerFrame(player) {
       }
     }
 
+    return;
+  }
+
+  if (player.showOriginalCamera) {
+    drawVideoCover(player.ctx, player.video, WIDTH, HEIGHT);
+    setPlayerCameraSignal(player, hasLivePlayerCameraSignal(player));
     return;
   }
 
@@ -2620,6 +2694,222 @@ function processPlayerFrame(player) {
 
   player.ctx.putImageData(output, 0, 0);
   updatePlayerOCR(player);
+  setPlayerCameraSignal(player, hasLivePlayerCameraSignal(player));
+}
+
+function capturePlayerCalibrationSamples(player) {
+  if (player.video.readyState < 2) return [];
+
+  player.ctx.drawImage(player.video, 0, 0, WIDTH, HEIGHT);
+  const frame = player.ctx.getImageData(0, 0, WIDTH, HEIGHT);
+  const samples = [];
+
+  for (let index = 0; index < frame.data.length; index += 4) {
+    samples.push(
+      Math.round(
+        (frame.data[index] + frame.data[index + 1] + frame.data[index + 2]) /
+          3,
+      ),
+    );
+  }
+
+  return samples;
+}
+
+function openPlayerCalibrationFineTuner(player) {
+  const samples = capturePlayerCalibrationSamples(player);
+
+  if (samples.length > 0) player.calibrationSamples = samples;
+  if (player.calibrationSamples.length === 0) {
+    setPlayerStatus(player, "Start the camera before fine tuning.", false);
+    return;
+  }
+
+  activeCalibrationPlayer = player;
+  pendingPlayerCalibrationThresholds = player.thresholds.slice();
+  playerCalibrationModalTitle.textContent = `${player.staticLabel} Calibration Fine Tuner`;
+  playerCalibrationModal.classList.remove("hidden");
+  drawPlayerCalibrationHistogram();
+}
+
+function closePlayerCalibrationFineTuner() {
+  playerCalibrationModal.classList.add("hidden");
+  activeCalibrationPlayer = null;
+  pendingPlayerCalibrationThresholds = null;
+  playerCalibrationDragIndex = -1;
+}
+
+function drawPlayerCalibrationHistogram() {
+  if (!activeCalibrationPlayer || !pendingPlayerCalibrationThresholds) return;
+
+  const ctx = playerCalibrationHistogram.getContext("2d");
+  const rect = playerCalibrationHistogram.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const width = Math.max(1, rect.width);
+  const height = 260;
+  const plotLeft = 32;
+  const plotRight = width - 32;
+  const plotTop = 38;
+  const plotBottom = height - 52;
+  const plotWidth = plotRight - plotLeft;
+  const plotHeight = plotBottom - plotTop;
+  const bins = new Array(256).fill(0);
+
+  playerCalibrationHistogram.width = Math.round(width * dpr);
+  playerCalibrationHistogram.height = Math.round(height * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, width, height);
+
+  activeCalibrationPlayer.calibrationSamples.forEach((value) => {
+    bins[Math.max(0, Math.min(255, Math.round(value)))] += 1;
+  });
+  const maxCount = Math.max(1, ...bins);
+
+  bins.forEach((count, value) => {
+    const x = plotLeft + (value / 255) * plotWidth;
+    const barWidth = Math.max(1, plotWidth / 256);
+    const barHeight = (count / maxCount) * plotHeight;
+
+    ctx.fillStyle = "#2f8cff";
+    ctx.fillRect(x, plotBottom - barHeight, barWidth, barHeight);
+    if (count > 0) {
+      ctx.strokeStyle = "#1f5fa8";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, plotBottom - barHeight, barWidth, barHeight);
+    }
+  });
+
+  const detectedShades = findFourShades(
+    activeCalibrationPlayer.calibrationSamples,
+  );
+  if (detectedShades.length === 4) {
+    ctx.font = "11px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    detectedShades.forEach((shade) => {
+      const x = plotLeft + (shade / 255) * plotWidth;
+      const barHeight = (bins[shade] / maxCount) * plotHeight;
+      const tipY = Math.max(20, plotBottom - barHeight - 6);
+      const topY = tipY - 10;
+
+      ctx.fillStyle = "#000000";
+      ctx.fillText(String(shade), x, topY - 3);
+      ctx.fillStyle = `rgb(${shade},${shade},${shade})`;
+      ctx.strokeStyle = "#000000";
+      ctx.beginPath();
+      ctx.moveTo(x, tipY);
+      ctx.lineTo(x - 6, topY);
+      ctx.lineTo(x + 6, topY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    });
+  }
+
+  ctx.strokeStyle = "#000000";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(plotLeft, plotBottom + 0.5);
+  ctx.lineTo(plotRight, plotBottom + 0.5);
+  ctx.stroke();
+
+  [0, 64, 128, 192, 255].forEach((value) => {
+    const x = Math.round(plotLeft + (value / 255) * plotWidth) + 0.5;
+
+    ctx.beginPath();
+    ctx.moveTo(x, plotBottom);
+    ctx.lineTo(x, plotBottom + 8);
+    ctx.stroke();
+    ctx.fillStyle = "#000000";
+    ctx.font = "12px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText(String(value), x, plotBottom + 34);
+  });
+
+  pendingPlayerCalibrationThresholds.forEach((threshold) => {
+    const x = Math.round(plotLeft + (threshold / 255) * plotWidth) + 0.5;
+
+    ctx.strokeStyle = "#ff4444";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "#ff4444";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(x - 10, plotBottom + 1, 20, 18, 4);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#ff4444";
+    ctx.font = "bold 11px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("⋮⋮", x, plotBottom + 9.5);
+  });
+  playerCalibrationThresholdValues.textContent =
+    pendingPlayerCalibrationThresholds.join(", ");
+}
+
+function updatePlayerCalibrationThresholdFromPointer(event) {
+  if (!pendingPlayerCalibrationThresholds) return;
+
+  const rect = playerCalibrationHistogram.getBoundingClientRect();
+  const plotLeft = 32;
+  const plotWidth = Math.max(1, rect.width - 64);
+  const value = Math.max(
+    0,
+    Math.min(
+      255,
+      Math.round(((event.clientX - rect.left - plotLeft) / plotWidth) * 255),
+    ),
+  );
+
+  if (playerCalibrationDragIndex < 0) {
+    playerCalibrationDragIndex = pendingPlayerCalibrationThresholds.reduce(
+      (closest, threshold, index, values) => {
+        return Math.abs(threshold - value) < Math.abs(values[closest] - value)
+          ? index
+          : closest;
+      },
+      0,
+    );
+  }
+
+  const minimum =
+    playerCalibrationDragIndex === 0
+      ? 0
+      : pendingPlayerCalibrationThresholds[playerCalibrationDragIndex - 1] + 1;
+  const maximum =
+    playerCalibrationDragIndex === pendingPlayerCalibrationThresholds.length - 1
+      ? 255
+      : pendingPlayerCalibrationThresholds[playerCalibrationDragIndex + 1] - 1;
+
+  pendingPlayerCalibrationThresholds[playerCalibrationDragIndex] = Math.max(
+    minimum,
+    Math.min(maximum, value),
+  );
+  drawPlayerCalibrationHistogram();
+}
+
+function setPlayerCameraSignal(player, visible) {
+  player.signalReady = Boolean(visible);
+  player.feedFrame.classList.toggle("signalReady", player.signalReady);
+  if (player.showOriginalCamera) updatePlayerScreenBadge(player);
+}
+
+function hasLivePlayerCameraSignal(player) {
+  return Boolean(
+    player.video.readyState >= 2 &&
+      player.stream?.getVideoTracks().some((track) => {
+        return track.readyState === "live" && !track.muted;
+      }),
+  );
 }
 
 function quantizeGray(gray, thresholds) {
@@ -3000,11 +3290,17 @@ function isInterceptorScreen(screen) {
 }
 
 function updatePlayerScreenBadge(player) {
-  player.screenBadge.textContent = player.activeScreen?.name || "No screen";
+  const webcamMode =
+    player.showOriginalCamera && hasLivePlayerCameraSignal(player);
+
+  player.screenBadge.textContent = webcamMode
+    ? "Webcam mode"
+    : player.activeScreen?.name || "No screen";
   player.screenBadge.classList.toggle(
     "tracked",
-    isTrackedScreen(player.activeScreen),
+    !webcamMode && isTrackedScreen(player.activeScreen),
   );
+  player.screenBadge.classList.toggle("webcamMode", webcamMode);
 }
 
 function updateInterceptorOverlay(player) {
@@ -3917,7 +4213,9 @@ function updateModuleNameEntry(player) {
 function getMatchingGameModules(player) {
   const setting = getSelectedScoreSetting();
 
-  return getAttachedModulesForSetting(setting);
+  return getAttachedModulesForSetting(setting).filter((module) => {
+    return getModuleConfigForSetting(setting, module).enabled !== "false";
+  });
 }
 
 function updatePlayerRocketEffects(player) {
@@ -4945,6 +5243,31 @@ function scheduleAllTimeCarouselInterval() {
   const scroller = scoreBoard.querySelector(".scoreBoardScroll");
 
   if (scroller) scroller.scrollTop = 0;
+}
+
+function drawVideoCover(ctx, video, targetWidth, targetHeight) {
+  const sourceWidth = video.videoWidth;
+  const sourceHeight = video.videoHeight;
+
+  if (!sourceWidth || !sourceHeight) return false;
+
+  const sourceRatio = sourceWidth / sourceHeight;
+  const targetRatio = targetWidth / targetHeight;
+  let sx = 0;
+  let sy = 0;
+  let sw = sourceWidth;
+  let sh = sourceHeight;
+
+  if (sourceRatio > targetRatio) {
+    sw = sourceHeight * targetRatio;
+    sx = (sourceWidth - sw) / 2;
+  } else if (sourceRatio < targetRatio) {
+    sh = sourceWidth / targetRatio;
+    sy = (sourceHeight - sh) / 2;
+  }
+
+  ctx.drawImage(video, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight);
+  return true;
 }
 
 function beginDailyCarouselWait() {
@@ -6026,14 +6349,10 @@ function updateNamePoolEntry(index, value) {
   renderNamePoolModal();
 }
 
-function setUseNamePoolForRuns(value) {
-  useNamePoolForRuns = Boolean(value);
-  persistedSettings.useNamePoolForRuns = useNamePoolForRuns;
-
-  useNamePoolForRunsToggles.forEach((toggle) => {
-    toggle.checked = useNamePoolForRuns;
-  });
-
+function setPlayerUseRandomNames(player, value) {
+  player.useRandomNames = Boolean(value);
+  player.randomNamesToggle.checked = player.useRandomNames;
+  player.nameInput.disabled = player.useRandomNames;
   resetScoringRuns();
   saveTwoPlayerSettings();
 }
@@ -7054,6 +7373,30 @@ function createGameModuleSettingsRow(setting, module) {
   };
   summary.append(title, detach);
   fields.className = "gameModuleSettingsFields";
+
+  if (module.toggleable === true) {
+    const enabledLabel = document.createElement("label");
+    const enabled = document.createElement("input");
+    const slider = document.createElement("span");
+    const text = document.createElement("span");
+
+    enabledLabel.className = "topToggle gameModuleEnabledToggle gameModuleFieldFull";
+    enabled.type = "checkbox";
+    enabled.checked = config.enabled !== "false";
+    slider.className = "slider";
+    text.textContent = "Enabled";
+    enabled.onchange = () => {
+      setting.moduleConfig ||= {};
+      setting.moduleConfig[module.id] = getModuleConfigForSetting(
+        setting,
+        module,
+      );
+      setting.moduleConfig[module.id].enabled = String(enabled.checked);
+      syncScoreSettingsAfterEdit({ resetRuns: true });
+    };
+    enabledLabel.append(enabled, slider, text);
+    fields.appendChild(enabledLabel);
+  }
 
   getOrderedModuleConfigFields(module).forEach((field) => {
     const label = document.createElement("label");
@@ -9042,10 +9385,46 @@ function setupPlayer(player) {
     persistedSettings.players?.[players.indexOf(player)],
   );
   renderPlayerLUTSwatches(player);
+  syncPlayerWebcamModeControls(player);
 
   player.screenOverlayToggle.onchange = () => {
     player.screenOverlay.hidden = !player.screenOverlayToggle.checked;
     saveTwoPlayerSettings();
+  };
+
+  player.randomNamesToggle.onchange = () => {
+    setPlayerUseRandomNames(player, player.randomNamesToggle.checked);
+  };
+
+  player.originalCameraToggle.onchange = () => {
+    if (!player.originalCameraToggle.checked) {
+      player.showOriginalCamera = false;
+      syncPlayerWebcamModeControls(player);
+      updatePlayerScreenBadge(player);
+      saveTwoPlayerSettings();
+      return;
+    }
+
+    showConfirm(
+      "Webcam mode displays the camera as a webcam and is not intended for game recognition. OCR and score tracking are paused while it is enabled.",
+      () => {
+        player.showOriginalCamera = true;
+        syncPlayerWebcamModeControls(player);
+        player.activeScreen = null;
+        player.values = [];
+        player.trackingValues = [];
+        player.lastOCRValues = {};
+        resetPlayerRun(player);
+        updatePlayerScreenBadge(player);
+        player.interceptorOverlay.hidden = true;
+        saveTwoPlayerSettings();
+      },
+      () => {
+        player.originalCameraToggle.checked = false;
+      },
+      "Enable Original",
+      "Cancel",
+    );
   };
 
   player.cameraSelect.onchange = () => {
@@ -9083,10 +9462,20 @@ function setupPlayer(player) {
     calibratePlayer(player);
   };
 
+  player.calibrationDetailsButton.onclick = () => {
+    openPlayerCalibrationFineTuner(player);
+  };
+
   player.nameInput.oninput = () => {
+    player.nameInput.value = player.nameInput.value.toUpperCase();
     updatePlayerLabel(player, player.nameInput.value);
     saveTwoPlayerSettings();
     renderScoreBoard();
+  };
+  player.nameInput.onblur = () => {
+    player.nameInput.value = player.nameInput.value.toUpperCase();
+    updatePlayerLabel(player, player.nameInput.value);
+    saveTwoPlayerSettings();
   };
 }
 
@@ -9128,18 +9517,49 @@ function setupSharedControls() {
   leaderboardCarouselNext.onclick = showAllTimeCarouselManually;
   openGameSettingsButton.onclick = openGameSettingsModal;
   openNamePoolButton.onclick = openNamePoolModal;
-  useNamePoolForRunsToggles.forEach((toggle) => {
-    toggle.checked = useNamePoolForRuns;
-    toggle.onchange = () => {
-      setUseNamePoolForRuns(toggle.checked);
-    };
-  });
   openInfoModalButton.onclick = openInfoModalDialog;
   closeAchievementsModal.onclick = closeAchievementsModalDialog;
   closeDaysModal.onclick = closeDaysModalDialog;
   closeGameSettingsModal.onclick = closeGameSettingsModalDialog;
   closeNamePoolModal.onclick = closeNamePoolModalDialog;
   closeInfoModal.onclick = closeInfoModalDialog;
+  closePlayerCalibrationModal.onclick = closePlayerCalibrationFineTuner;
+  savePlayerCalibration.onclick = () => {
+    if (!activeCalibrationPlayer || !pendingPlayerCalibrationThresholds) return;
+
+    activeCalibrationPlayer.thresholds = pendingPlayerCalibrationThresholds.slice();
+    activeCalibrationPlayer.calibrated = true;
+    saveTwoPlayerSettings();
+    updatePlayerStatus(activeCalibrationPlayer);
+    closePlayerCalibrationFineTuner();
+  };
+  resetPlayerCalibrationAuto.onclick = () => {
+    if (!activeCalibrationPlayer) return;
+
+    const samples = capturePlayerCalibrationSamples(activeCalibrationPlayer);
+
+    if (samples.length > 0) activeCalibrationPlayer.calibrationSamples = samples;
+    pendingPlayerCalibrationThresholds = calculateThresholdsFromPalette(
+      findFourShades(activeCalibrationPlayer.calibrationSamples),
+    );
+    drawPlayerCalibrationHistogram();
+  };
+  playerCalibrationHistogram.addEventListener("pointerdown", (event) => {
+    playerCalibrationHistogram.setPointerCapture(event.pointerId);
+    playerCalibrationDragIndex = -1;
+    updatePlayerCalibrationThresholdFromPointer(event);
+  });
+  playerCalibrationHistogram.addEventListener("pointermove", (event) => {
+    if (!playerCalibrationHistogram.hasPointerCapture(event.pointerId)) return;
+
+    updatePlayerCalibrationThresholdFromPointer(event);
+  });
+  playerCalibrationHistogram.addEventListener("pointerup", (event) => {
+    if (playerCalibrationHistogram.hasPointerCapture(event.pointerId)) {
+      playerCalibrationHistogram.releasePointerCapture(event.pointerId);
+    }
+    playerCalibrationDragIndex = -1;
+  });
   addNamePoolEntryButton.onclick = addNamePoolEntry;
   importNamePoolButton.onclick = () => {
     importNamePoolFile.click();

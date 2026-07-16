@@ -3,6 +3,7 @@
     id: "Tetris-A_Type-Score",
     name: "Get leaderboard name (A-Type)",
     attachAnywhere: true,
+    toggleable: true,
     screen: "A-Type",
     metric: "Score",
     configFields: [

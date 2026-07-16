@@ -150,10 +150,10 @@
 
   padding: 0;
 
-  border: 2px solid var(--border-mid);
-  border-radius: 50%;
+  border: 0;
+  border-radius: 0;
 
-  background: var(--panel-light);
+  background: transparent;
   color: var(--panel-text);
 
   font-size: 0;
@@ -174,9 +174,8 @@
 }
 
 .modalCloseButton:hover {
-  background: var(--panel-text);
-  border-color: var(--panel-text);
-  color: var(--panel-light);
+  background: var(--black-faint);
+  color: var(--panel-text);
 }
 
 #calibrationHistogram {

@@ -1,6 +1,6 @@
 # index.html (Two Player) Manual Test Checklist
 
-Version 1.2.4
+Version Beta 1.3
 
 - [ ] The center-panel subtitle is larger and remains the same height when its leaderboard dropdown appears on hover.
 - [ ] Hovering the center game title reveals the Game dropdown and cog-only Game Settings button without layout movement.

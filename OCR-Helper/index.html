@@ -50,7 +50,7 @@
               Achievements
             </button>
           </div>
-          <div class="topSetupVersion">Version 1.2.4</div>
+          <div class="topSetupVersion">Version Beta 1.3</div>
         </div>
         <button
           id="openInfoModal"
@@ -103,14 +103,22 @@
           <summary title="Settings" aria-label="Settings"></summary>
 
           <div class="controlStack">
-            <button
-              class="playerSettingsClose"
-              type="button"
-              aria-label="Close Player 1 settings"
-            >
-              ×
-            </button>
-            <div class="playerNameSettingsRow">
+            <div class="playerSettingsHeader">
+              <h2>
+                Player 1 Settings
+                <span id="player1WebcamModeTitle" class="playerWebcamModeTitle" hidden>Webcam Mode</span>
+              </h2>
+              <button
+                class="playerSettingsClose"
+                type="button"
+                aria-label="Close Player 1 settings"
+              >
+                ×
+              </button>
+            </div>
+            <section class="playerSettingsSection">
+              <h3>Player</h3>
+            <div class="playerNameSettingsRow playerSettingsTwoColumnRow">
               <label class="playerNameField">
                 Name
                 <input id="player1Name" type="text" maxlength="18" />
@@ -118,20 +126,39 @@
               <label class="topToggle randomNamesToggle">
                 <input id="player1RandomNames" type="checkbox" />
                 <span class="slider"></span>
-                <span>User random names</span>
+                <span>Use random names</span>
               </label>
             </div>
+            </section>
 
-            <label>
-              Camera
-              <select id="player1Camera"></select>
-            </label>
+            <section class="playerSettingsSection">
+              <h3>Camera</h3>
+            <div class="playerCameraRow playerSettingsTwoColumnRow">
+              <label>
+                Camera
+                <select id="player1Camera"></select>
+              </label>
+              <label class="topToggle originalCameraToggle">
+                <input id="player1OriginalCamera" type="checkbox" />
+                <span class="slider"></span>
+                <span>Webcam Mode</span>
+              </label>
+            </div>
+            </section>
 
-            <label>
+            <section class="playerSettingsSection">
+              <h3>Display &amp; calibration</h3>
+            <label class="playerLutField">
               LUT
               <select id="player1Lut"></select>
             </label>
-            <div id="player1LutSwatches" class="lutSwatches"></div>
+            <div class="playerCalibrationRow">
+              <div id="player1LutSwatches" class="lutSwatches"></div>
+              <div class="playerCalibrationButtons">
+                <button id="player1Calibrate">Calibrate</button>
+                <button id="player1CalibrationDetails">Fine tune</button>
+              </div>
+            </div>
 
             <label class="topToggle screenOverlayToggle">
               <input id="player1ScreenOverlayEnabled" type="checkbox" />
@@ -139,8 +166,8 @@
               <span>Screen overlay</span>
             </label>
 
-            <button id="player1Calibrate">Calibrate</button>
             <div id="player1Status" class="playerStatus"></div>
+            </section>
           </div>
         </details>
       </section>
@@ -245,14 +272,22 @@
           <summary title="Settings" aria-label="Settings"></summary>
 
           <div class="controlStack">
-            <button
-              class="playerSettingsClose"
-              type="button"
-              aria-label="Close Player 2 settings"
-            >
-              ×
-            </button>
-            <div class="playerNameSettingsRow">
+            <div class="playerSettingsHeader">
+              <h2>
+                Player 2 Settings
+                <span id="player2WebcamModeTitle" class="playerWebcamModeTitle" hidden>Webcam Mode</span>
+              </h2>
+              <button
+                class="playerSettingsClose"
+                type="button"
+                aria-label="Close Player 2 settings"
+              >
+                ×
+              </button>
+            </div>
+            <section class="playerSettingsSection">
+              <h3>Player</h3>
+            <div class="playerNameSettingsRow playerSettingsTwoColumnRow">
               <label class="playerNameField">
                 Name
                 <input id="player2Name" type="text" maxlength="18" />
@@ -260,20 +295,39 @@
               <label class="topToggle randomNamesToggle">
                 <input id="player2RandomNames" type="checkbox" />
                 <span class="slider"></span>
-                <span>User random names</span>
+                <span>Use random names</span>
               </label>
             </div>
+            </section>
 
-            <label>
-              Camera
-              <select id="player2Camera"></select>
-            </label>
+            <section class="playerSettingsSection">
+              <h3>Camera</h3>
+            <div class="playerCameraRow playerSettingsTwoColumnRow">
+              <label>
+                Camera
+                <select id="player2Camera"></select>
+              </label>
+              <label class="topToggle originalCameraToggle">
+                <input id="player2OriginalCamera" type="checkbox" />
+                <span class="slider"></span>
+                <span>Webcam Mode</span>
+              </label>
+            </div>
+            </section>
 
-            <label>
+            <section class="playerSettingsSection">
+              <h3>Display &amp; calibration</h3>
+            <label class="playerLutField">
               LUT
               <select id="player2Lut"></select>
             </label>
-            <div id="player2LutSwatches" class="lutSwatches"></div>
+            <div class="playerCalibrationRow">
+              <div id="player2LutSwatches" class="lutSwatches"></div>
+              <div class="playerCalibrationButtons">
+                <button id="player2Calibrate">Calibrate</button>
+                <button id="player2CalibrationDetails">Fine tune</button>
+              </div>
+            </div>
 
             <label class="topToggle screenOverlayToggle">
               <input id="player2ScreenOverlayEnabled" type="checkbox" />
@@ -281,12 +335,42 @@
               <span>Screen overlay</span>
             </label>
 
-            <button id="player2Calibrate">Calibrate</button>
             <div id="player2Status" class="playerStatus"></div>
+            </section>
           </div>
         </details>
       </section>
     </main>
+
+    <div id="playerCalibrationModal" class="modalOverlay hidden">
+      <div class="modalBox calibrationModalBox twoPlayerModalBox playerCalibrationModalBox">
+        <div class="twoPlayerModalHeader">
+          <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+          <h2 id="playerCalibrationModalTitle">Calibration Fine Tuner</h2>
+          <button
+            id="closePlayerCalibrationModal"
+            class="modalCloseButton"
+            type="button"
+            aria-label="Close calibration fine tuner"
+          >
+            ×
+          </button>
+        </div>
+        <div class="playerCalibrationModalContent">
+        <canvas id="playerCalibrationHistogram" width="512" height="260"></canvas>
+        <div class="thresholdRow">
+          <span>Thresholds:</span>
+          <strong id="playerCalibrationThresholdValues"></strong>
+        </div>
+        <div class="calibrationModalButtons">
+          <button id="resetPlayerCalibrationAuto" type="button">Reset to Auto</button>
+          <div class="calibrationModalButtonGroup">
+            <button id="savePlayerCalibration" type="button">Save</button>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
 
     <div id="achievementsModal" class="modalOverlay hidden">
       <div class="modalBox twoPlayerModalBox">
