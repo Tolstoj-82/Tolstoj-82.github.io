@@ -157,10 +157,16 @@ const achievementTiers = [
   "god-tier",
 ];
 
+const screenOverlayGridImage = new Image();
 const players = [
   createPlayerState(1, "Player 1", "blue"),
   createPlayerState(2, "Player 2", "red"),
 ];
+
+screenOverlayGridImage.onload = () => {
+  players.forEach(updatePlayerScreenOverlayColor);
+};
+screenOverlayGridImage.src = "assets/Perfect_DMG(noframe).png";
 
 let savedGames = {};
 let drawLoopStarted = false;
@@ -1291,6 +1297,7 @@ function populateLUTSelect(select) {
 
 function renderPlayerLUTSwatches(player) {
   player.lutSwatches.replaceChildren();
+  updatePlayerScreenOverlayColor(player);
 
   player.palette.forEach((color, index) => {
     const swatch = document.createElement("label");
@@ -1309,12 +1316,32 @@ function renderPlayerLUTSwatches(player) {
       });
       swatch.style.background = input.value;
       swatch.title = input.value;
+      updatePlayerScreenOverlayColor(player);
       saveTwoPlayerSettings();
     };
 
     swatch.appendChild(input);
     player.lutSwatches.appendChild(swatch);
   });
+}
+
+function updatePlayerScreenOverlayColor(player) {
+  if (!screenOverlayGridImage.complete || !screenOverlayGridImage.naturalWidth) {
+    return;
+  }
+
+  const overlay = player.screenOverlay;
+  const ctx = overlay.getContext("2d");
+  const color = player.showOriginalCamera
+    ? { r: 0, g: 0, b: 0 }
+    : player.palette[0];
+
+  ctx.clearRect(0, 0, overlay.width, overlay.height);
+  ctx.drawImage(screenOverlayGridImage, 0, 0, overlay.width, overlay.height);
+  ctx.globalCompositeOperation = "source-in";
+  ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
+  ctx.fillRect(0, 0, overlay.width, overlay.height);
+  ctx.globalCompositeOperation = "source-over";
 }
 
 function syncPlayerWebcamModeControls(player) {
@@ -1332,6 +1359,7 @@ function syncPlayerWebcamModeControls(player) {
     input.disabled = player.showOriginalCamera;
   });
   player.webcamModeTitle.hidden = !player.showOriginalCamera;
+  updatePlayerScreenOverlayColor(player);
 }
 
 function populateSharedGameSelect() {
@@ -9422,7 +9450,7 @@ function setupPlayer(player) {
       () => {
         player.originalCameraToggle.checked = false;
       },
-      "Enable Original",
+      "Enable",
       "Cancel",
     );
   };
