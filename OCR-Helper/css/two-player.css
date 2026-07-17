@@ -513,6 +513,8 @@ body {
 .controlStack {
   display: grid;
   gap: var(--gap-md);
+  container-type: inline-size;
+  container-name: player-settings;
 }
 
 .controlStack label {
@@ -606,10 +608,15 @@ body {
   display: inline-flex;
   grid-template-columns: none;
   align-items: center;
-  width: 100%;
-  min-width: 0;
-  justify-self: stretch;
+  width: max-content;
+  min-width: max-content;
+  justify-self: start;
   white-space: nowrap;
+}
+
+.controlStack .originalCameraToggle .slider,
+.controlStack .randomNamesToggle .slider {
+  flex: 0 0 46px;
 }
 
 .playerCameraRow {
@@ -659,6 +666,26 @@ body {
   min-height: 30px;
   padding: 4px 6px;
   font-size: 11px;
+}
+
+@container player-settings (max-width: 470px) {
+  .playerSettingsTwoColumnRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .playerCalibrationRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .playerCalibrationRow .lutSwatches {
+    justify-self: start;
+  }
+
+  .playerCalibrationButtons {
+    width: 100%;
+  }
 }
 
 #playerCalibrationHistogram {
