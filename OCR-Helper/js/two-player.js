@@ -919,6 +919,7 @@ function serializeScoreEntry(entry) {
     interruptedBeforeStopScreen: Boolean(entry.interruptedBeforeStopScreen),
     player: entry.player,
     name: entry.name || "",
+    acquiredName: entry.acquiredName || "",
     color: entry.color,
     playerSide: getScoreEntryPlayerSide(entry),
     score: entry.score,
@@ -998,6 +999,7 @@ function restoreTodayLeaderboard() {
       scoreValueLabel: normalizeScoreValueLabel(entry.scoreValueLabel),
       player: entry.player || entry.name || "Player",
       name: entry.name || "",
+      acquiredName: entry.acquiredName || "",
       color: entry.color === "red" ? "red" : "blue",
       playerSide: normalizeScoreEntryPlayerSide(entry.playerSide, entry.color),
       score: Number(entry.score),
@@ -4565,10 +4567,24 @@ function finishNameEntry(entry) {
   const source = entry.nameEntry.source;
   const value = entry.nameEntry.value.trim();
   const hadExplicitName = Boolean(value);
+  const player = players.find((item) => item.color === entry.color);
+  const useManualPlayerName =
+    Boolean(player) &&
+    source === "module" &&
+    !player.useRandomNames &&
+    !["PLAYER 1", "PLAYER 2"].includes(player.staticLabel) &&
+    /^A+$/.test(value);
 
-  if (value) {
+  if (useManualPlayerName) {
+    const playerName = player.staticLabel || player.defaultLabel;
+
+    entry.name = playerName;
+    entry.player = playerName;
+    entry.acquiredName = value;
+  } else if (value) {
     entry.name = value;
     entry.player = value;
+    entry.acquiredName = "";
   }
 
   window.clearInterval(entry.nameEntry.timer);
@@ -5377,6 +5393,7 @@ function renderScoreBoard() {
         entry.score,
         entry.active,
         entry.player,
+        entry.acquiredName || "",
         entry.demo,
         entry.removingDemo,
         entry.nameEntry?.value || "",
@@ -5505,6 +5522,13 @@ function createHighScoreBox(entry, index, displayRank) {
   meta.className = "highScoreMeta";
   player.className = "highScorePlayer";
   player.textContent = getScoreEntryName(entry);
+  if (entry.acquiredName) {
+    const acquiredName = document.createElement("small");
+
+    acquiredName.className = "highScoreAcquiredName";
+    acquiredName.textContent = ` (${entry.acquiredName})`;
+    player.appendChild(acquiredName);
+  }
   if (settledEntry) {
     player.classList.add("editable");
     player.tabIndex = 0;
@@ -8828,6 +8852,7 @@ function updateStoredLeaderboardEntryName(dateKey, entry, nextName) {
       ...item,
       name: cleanName,
       player: cleanName || item.player,
+      acquiredName: "",
     };
   });
 
@@ -8844,6 +8869,7 @@ function updateStoredLeaderboardEntryName(dateKey, entry, nextName) {
         ...item,
         name: cleanName,
         player: cleanName || item.player,
+        acquiredName: "",
       };
     });
   }
@@ -9028,6 +9054,9 @@ function normalizeImportedLeaderboardEntry(
     scoreValueLabel,
     player,
     name,
+    acquiredName: String(entry.acquiredName || "")
+      .trim()
+      .slice(0, MAX_SCORE_NAME_LENGTH),
     color,
     playerSide,
     score,
@@ -9496,7 +9525,14 @@ function setupPlayer(player) {
 
   player.nameInput.oninput = () => {
     player.nameInput.value = player.nameInput.value.toUpperCase();
-    updatePlayerLabel(player, player.nameInput.value);
+    const clean = player.nameInput.value.trim().slice(0, 18);
+
+    player.staticLabel = clean;
+    if (!player.useRandomNames || !player.assignedRunName) {
+      player.label = clean;
+    }
+    renderPlayerTitle(player, player.label);
+    scoreBoardSignature = "";
     saveTwoPlayerSettings();
     renderScoreBoard();
   };

@@ -2132,6 +2132,11 @@ body {
   font-weight: bold;
 }
 
+.highScoreAcquiredName {
+  font-size: 0.72em;
+  font-weight: normal;
+}
+
 .highScorePlayer.editable {
   cursor: text;
 }
