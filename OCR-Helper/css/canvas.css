@@ -4,7 +4,8 @@
 
 .canvasContainer {
   position: relative;
-  display: inline-block;
+  display: inline-grid;
+  grid-template-columns: minmax(0, 1fr);
   --grid-line-color: var(--grid-line-default);
   --grid-outline-color: var(--grid-outline-default);
 
@@ -45,10 +46,14 @@
 #canvas,
 #roiCanvas,
 #gridCanvas {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  inset: auto;
+  grid-column: 1;
+  grid-row: 1;
   width: 100%;
-  height: 100%;
+  height: auto;
+  min-width: 0;
+  align-self: start;
   display: block;
 }
 
@@ -206,11 +211,6 @@
 
 #canvas {
   z-index: 1;
-  position: relative;
-  inset: auto;
-  width: 100%;
-  height: auto;
-  aspect-ratio: auto;
 }
 
 #roiCanvas {
