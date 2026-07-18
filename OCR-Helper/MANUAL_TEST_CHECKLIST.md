@@ -49,6 +49,7 @@ Version Beta 1.4
 - [ ] Returning from a loaded snapshot to live feed does not create a duplicate snapshot.
 - [ ] Snapshot modal stores up to 10 snapshots and lets each one be restored.
 - [ ] LUT dropdown changes canvas, tiles, identifier tiles, and grid contrast.
+- [ ] Config canvas keeps its native 160:144 aspect ratio in Chromium, Firefox, and Safari; ROI and grid layers remain exactly aligned without stretching.
 - [ ] Manual LUT color picker updates all rendered surfaces.
 - [ ] LUT area is an initially closed accordion.
 - [ ] OCR Stability area is an initially closed accordion.

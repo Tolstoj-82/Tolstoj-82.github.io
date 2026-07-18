@@ -9,7 +9,6 @@
   --grid-outline-color: var(--grid-outline-default);
 
   width: min(var(--canvas-width), 100%);
-  aspect-ratio: 160 / 144;
   height: auto;
 
   margin-bottom: var(--gap-xl);
@@ -207,6 +206,11 @@
 
 #canvas {
   z-index: 1;
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
 }
 
 #roiCanvas {
