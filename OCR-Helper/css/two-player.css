@@ -6,6 +6,23 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Montserrat SemiBold Italic";
+  src: url("../assets/fonts/Montserrat-SemiBoldItalic.ttf") format("truetype");
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fredoka";
+  src: url("../assets/fonts/Fredoka-Variable.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300 700;
+  font-stretch: 75% 125%;
+  font-display: swap;
+}
+
 html {
   height: 100%;
   overflow: hidden;
@@ -390,9 +407,10 @@ body {
 }
 
 .playerPanel[data-player="0"] {
+  --player-panel-color: #75b9f0;
   background:
-    linear-gradient(rgba(0, 102, 204, 0.16), rgba(0, 102, 204, 0.16)),
-    var(--panel-light);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.24)),
+    var(--player-panel-color);
   border-width: 4px;
   border-color: transparent;
 }
@@ -402,15 +420,25 @@ body {
 }
 
 .playerPanel[data-player="1"] {
+  --player-panel-color: #ee8585;
   background:
-    linear-gradient(rgba(196, 0, 0, 0.14), rgba(196, 0, 0, 0.14)),
-    var(--panel-light);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.24)),
+    var(--player-panel-color);
   border-width: 4px;
   border-color: transparent;
 }
 
 .playerPanel[data-player="1"] h1 {
   color: #f7f7f7;
+}
+
+.livePanel {
+  background: var(--bg-panel-dark);
+}
+
+.playerPanel h1[contenteditable="true"]:focus {
+  outline: 1px dashed rgba(255, 255, 255, 0.75);
+  outline-offset: 2px;
 }
 
 .screenArea {
@@ -568,10 +596,10 @@ body {
 
 .playerWebcamModeTitle {
   padding: 3px 7px;
-  background: rgba(255, 179, 71, 0.18);
+  background: var(--accent-orange);
   border: 1px solid var(--accent-orange);
   border-radius: var(--radius-small);
-  color: var(--accent-orange-text);
+  color: var(--shade-white);
   font-size: 11px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -813,6 +841,56 @@ body {
   pointer-events: none;
 }
 
+.feedFrame[data-border-style="og-gb"] { background: linear-gradient(145deg, #aaa89a, #77776e 58%, #5b5b54); border-color: #4d4e47; }
+.feedFrame[data-border-style="og-gb"] .lensStripes { background: linear-gradient(to bottom, #6e235f 0 2px, transparent 2px 5px, #1b315e 5px 8px, transparent 8px); }
+.feedFrame[data-border-style="gb-color"] { background: linear-gradient(145deg, #242424, #111 58%, #050505); border-color: #000; }
+.feedFrame[data-border-style="gb-color"] .lensStripes { display: none; }
+.feedFrame[data-border-style="gb-pocket"] { background: linear-gradient(145deg, #d1d3d0, #a8aaa8 58%, #898b89); border-color: #747674; }
+.feedFrame[data-border-style="gb-pocket"] .lensStripes { background: linear-gradient(to bottom, #777 0 2px, transparent 2px 5px, #aaa 5px 8px, transparent 8px); }
+.feedFrame[data-border-style="special"] { background: linear-gradient(145deg, #6c4ba5, #463178 58%, #2e2054); border-color: #241a42; }
+.feedFrame[data-border-style="special"] .lensStripes { background: linear-gradient(to bottom, #ffcc2f 0 2px, transparent 2px 5px, #e43c63 5px 8px, transparent 8px); }
+
+.deviceLogo {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: 7px;
+  display: none;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  width: calc(100% - 48px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+}
+
+.feedFrame[data-border-style="gb-color"] .deviceLogo { display: flex; }
+
+.deviceLogoFirst {
+  color: #d8d8d8;
+  font-family: "Montserrat SemiBold Italic", Arial, sans-serif;
+  font-size: clamp(13px, 1.45vw, 18px);
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+}
+
+.deviceLogoSecond {
+  font-family: "Fredoka", "Comic Sans MS", sans-serif;
+  font-size: clamp(14px, 1.5vw, 19px);
+  font-weight: 650;
+  font-stretch: 110%;
+  letter-spacing: -0.025em;
+}
+
+.deviceLogoSecond > span:nth-child(5n + 1) { color: #ef3340; }
+.deviceLogoSecond > span:nth-child(5n + 2) { color: #f4cc22; }
+.deviceLogoSecond > span:nth-child(5n + 3) { color: #42b649; }
+.deviceLogoSecond > span:nth-child(5n + 4) { color: #2878cf; }
+.deviceLogoSecond > span:nth-child(5n) { color: #8f4db3; }
+
 .screenViewport {
   position: relative;
   width: 100%;
@@ -893,6 +971,34 @@ body {
 .screenOverlay[hidden] {
   display: none;
 }
+
+.glassEffect {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  max-width: none;
+  max-height: none;
+  display: block;
+  object-fit: fill;
+  object-position: center;
+  aspect-ratio: auto;
+  pointer-events: none;
+  opacity: 0.38;
+}
+
+.glassEffect[hidden] { display: none; }
+
+.playerCustomizeModalBox { width: min(520px, calc(100vw - (2 * var(--gap-xl)))); }
+.playerCustomizeForm { display: grid; gap: var(--gap-lg); padding: var(--gap-xl); overflow-y: auto; }
+.playerCustomizeForm > label:not(.topToggle) { display: grid; gap: var(--gap-sm); font-weight: bold; }
+.playerCustomizeForm select { width: 100%; }
+.customizeDeviceLogoFields { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-md); }
+.customizeDeviceLogoFields label { display: grid; gap: var(--gap-sm); font-weight: bold; text-align: center; }
+.customizeDeviceLogoFields input { width: 100%; text-align: center; text-transform: uppercase; }
 
 .controlStack .screenOverlayToggle {
   display: inline-flex;
@@ -995,9 +1101,9 @@ body {
 }
 
 .screenBadge.webcamMode {
-  background: rgba(255, 179, 71, 0.18);
+  background: var(--accent-orange);
   border-color: var(--accent-orange);
-  color: var(--accent-orange-text);
+  color: var(--shade-white);
 }
 
 .gameRecognitionToast {
@@ -1881,8 +1987,8 @@ body {
 }
 
 .highScoreBox-blue {
-  background: rgba(0, 102, 204, 0.16);
-  border-color: var(--accent-blue);
+  background: color-mix(in srgb, var(--player-1-panel-color, #75b9f0) 48%, var(--panel-light));
+  border-color: var(--player-1-panel-color, #75b9f0);
 }
 
 .highScoreDeleteButton {
@@ -1953,8 +2059,8 @@ body {
 }
 
 .highScoreBox-red {
-  background: rgba(196, 0, 0, 0.14);
-  border-color: var(--text-red);
+  background: color-mix(in srgb, var(--player-2-panel-color, #ee8585) 48%, var(--panel-light));
+  border-color: var(--player-2-panel-color, #ee8585);
 }
 
 .highScoreBox.moving {
@@ -1975,14 +2081,14 @@ body {
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
   border-left: 0;
-  border-right: 12px solid var(--accent-blue);
+  border-right: 12px solid var(--player-1-panel-color, #75b9f0);
 }
 
 .highScoreBox-red.currentScore::before {
   right: -15px;
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
-  border-left: 12px solid var(--text-red);
+  border-left: 12px solid var(--player-2-panel-color, #ee8585);
   border-right: 0;
 }
 
@@ -2035,15 +2141,15 @@ body {
 }
 
 .highScoreBox-blue.podium:not(.finalized) {
-  --podium-border: var(--accent-blue);
-  background: rgba(0, 102, 204, 0.16);
-  border-color: var(--accent-blue);
+  --podium-border: var(--player-1-panel-color, #75b9f0);
+  background: color-mix(in srgb, var(--player-1-panel-color, #75b9f0) 48%, var(--panel-light));
+  border-color: var(--player-1-panel-color, #75b9f0);
 }
 
 .highScoreBox-red.podium:not(.finalized) {
-  --podium-border: var(--text-red);
-  background: rgba(196, 0, 0, 0.14);
-  border-color: var(--text-red);
+  --podium-border: var(--player-2-panel-color, #ee8585);
+  background: color-mix(in srgb, var(--player-2-panel-color, #ee8585) 48%, var(--panel-light));
+  border-color: var(--player-2-panel-color, #ee8585);
 }
 
 .highScoreBox.demo {

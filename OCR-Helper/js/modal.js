@@ -1,6 +1,8 @@
 function closeModal() {
   modalOverlay.classList.add("hidden");
-  modalMessage.closest(".modalBox")?.classList.remove("importSummaryModalBox");
+  modalMessage
+    .closest(".modalBox")
+    ?.classList.remove("importSummaryModalBox", "forbiddenTilePickerModalBox");
 
   modalInput.style.display = "none";
   modalInput.value = "";
@@ -202,6 +204,10 @@ function showConfirmContent(
   modalBox?.classList.toggle(
     "importSummaryModalBox",
     content.classList.contains("importSummary"),
+  );
+  modalBox?.classList.toggle(
+    "forbiddenTilePickerModalBox",
+    content.classList.contains("forbiddenTilePicker"),
   );
 
   modalMessage.replaceChildren(content);

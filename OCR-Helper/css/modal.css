@@ -76,6 +76,10 @@
   width: min(760px, calc(100vw - (2 * var(--gap-xl))));
 }
 
+.forbiddenTilePickerModalBox {
+  width: min(900px, calc(100vw - (2 * var(--gap-xl))));
+}
+
 .importSummary p {
   margin: 0 0 var(--gap-md);
 }

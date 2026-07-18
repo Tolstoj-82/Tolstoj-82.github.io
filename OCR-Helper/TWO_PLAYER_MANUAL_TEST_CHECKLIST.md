@@ -1,6 +1,19 @@
 # index.html (Two Player) Manual Test Checklist
 
-Version Beta 1.3
+Version Beta 1.4
+
+- [ ] Clicking a player Dymo label allows editing; Enter or blur saves the uppercase name and keeps the settings Name field synchronized.
+- [ ] Customize replaces the old Screen overlay setting in each player settings panel.
+- [ ] Pixel grid, Glass effect, border style, and background color persist independently for both players.
+- [ ] Glass effect layers the transparent glass texture above the pixel grid without blocking screen interaction.
+- [ ] Border choices include Play it loud, OG GB, GB Color, GB Pocket, and Special; GB Color is black without stripes and Special uses the violet frame.
+- [ ] Player background choices use dark Play It Loud-inspired colors around each canvas; that player's active leaderboard entry and arrow use a brighter version.
+- [ ] Background choices match the Play It Loud shell family: Deep Black, Gorgeous Green, Radiant Red, Vibrant Yellow, High-Tech Clear, Blue, and White.
+- [ ] Dymo background can be selected independently and persists per player.
+- [ ] Background and Dymo dropdowns use plain color labels, include brick gray and opaque Game Boy Color-inspired colors, and contain no transparent option.
+- [ ] GB Color shows a centered lower-frame logo; both uppercase logo parts are editable and persist, with an italic first part and multicolor comic-style second part.
+- [ ] GB Color logo loads its bundled Montserrat SemiBold Italic and Fredoka fonts without relying on system fonts; the first part is thinner, the second has rounded terminals, and both remain centered at the larger size.
+- [ ] The replacement `glass_effect.png` stretches edge-to-edge over the viewport with no gaps or preserved-aspect-ratio bars.
 
 - [ ] The center-panel subtitle is larger and remains the same height when its leaderboard dropdown appears on hover.
 - [ ] Hovering the center game title reveals the Game dropdown and cog-only Game Settings button without layout movement.

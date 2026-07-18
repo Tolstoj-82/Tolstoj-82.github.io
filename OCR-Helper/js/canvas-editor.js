@@ -34,7 +34,11 @@ function drawROIOverlay() {
       const px = x * TILE;
       const py = y * TILE;
 
-      roiCtx.fillStyle = `rgba(255,0,0,${alpha})`;
+      roiCtx.fillStyle = identifier.type === "must_not"
+        ? `rgba(220,0,0,${Math.min(0.9, alpha + 0.25)})`
+        : identifier.type === "must"
+          ? `rgba(255,165,0,${alpha})`
+          : `rgba(255,0,0,${alpha})`;
 
       roiCtx.fillRect(px, py, TILE, 1);
       roiCtx.fillRect(px, py + TILE - 1, TILE, 1);
@@ -105,6 +109,7 @@ function renderIdentifierInfo() {
   const screen = getActiveScreen();
 
   identifierInfoContent.innerHTML = "";
+  forbiddenIdentifierContent.replaceChildren();
   syncIdentifierSectionState();
 
   if (!screen) {
@@ -127,20 +132,42 @@ function renderIdentifierInfo() {
     const empty = document.createElement("div");
     empty.textContent = "No identifier tiles";
     identifierInfoContent.appendChild(empty);
+    renderForbiddenIdentifiers(screen);
     return;
   }
 
-  screen.identifiers.forEach((identifier) => {
+  screen.identifiers
+    .filter((identifier) => identifier.type !== "must_not")
+    .forEach((identifier) => {
     const visible = isIdentifierVisible(identifier);
 
     const row = document.createElement("div");
     row.className = "identifierInfoItem";
     row.dataset.tile = identifier.tile;
     row.classList.toggle("valid", visible);
+    row.classList.toggle("mustIdentifierItem", identifier.type === "must");
+
+    const meta = document.createElement("div");
+    meta.className = "identifierInfoMeta";
 
     const label = document.createElement("div");
     label.className = "identifierInfoLabel";
     label.textContent = `(${identifier.tile})`;
+
+    const mustLabel = document.createElement("label");
+    mustLabel.className = "identifierMustToggle";
+    const mustToggle = document.createElement("input");
+    mustToggle.type = "checkbox";
+    mustToggle.checked = identifier.type === "must";
+    mustToggle.onchange = () => {
+      identifier.type = mustToggle.checked ? "must" : "normal";
+      updateSettingsControls();
+      renderIdentifierInfo();
+      updateJSONOutput();
+      updateStorageButtons();
+    };
+    mustLabel.append(mustToggle, " Must");
+    meta.append(label, mustLabel);
 
     const deleteButton = document.createElement("button");
     deleteButton.className = "identifierDeleteButton roundDeleteButton";
@@ -188,12 +215,154 @@ function renderIdentifierInfo() {
       animate();
     });
 
-    row.appendChild(label);
+    row.appendChild(meta);
     row.appendChild(card);
     row.appendChild(deleteButton);
 
     identifierInfoContent.appendChild(row);
   });
+
+  renderForbiddenIdentifiers(screen);
+}
+
+function renderForbiddenIdentifiers(screen) {
+  forbiddenIdentifierContent.replaceChildren();
+  const forbidden = screen.identifiers.filter((id) => id.type === "must_not");
+
+  if (forbidden.length === 0) {
+    const hint = document.createElement("div");
+    hint.className = "forbiddenIdentifierHint";
+    hint.textContent = "No forbidden positions";
+    forbiddenIdentifierContent.appendChild(hint);
+    return;
+  }
+
+  forbidden.forEach((identifier) => {
+    const row = document.createElement("div");
+    row.className = "identifierInfoItem forbiddenIdentifierItem";
+    row.dataset.tile = identifier.tile;
+    row.classList.toggle("valid", isForbiddenIdentifierSatisfied(identifier));
+
+    const label = document.createElement("div");
+    label.className = "identifierInfoLabel";
+    label.textContent = `(${identifier.tile})`;
+    const meta = document.createElement("div");
+    meta.className = "identifierInfoMeta";
+    meta.appendChild(label);
+
+    const variants = getForbiddenIdentifierPixels(identifier);
+    const cardArea = document.createElement("div");
+    cardArea.className = "forbiddenIdentifierTiles";
+    if (variants.length === 0) {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "forbiddenEmptyTile";
+      card.textContent = "+";
+      card.title = "Choose a forbidden tile from a tileset";
+      cardArea.appendChild(card);
+    } else if (variants.length > 3) {
+      const multiButton = document.createElement("button");
+      multiButton.type = "button";
+      multiButton.className = "forbiddenMultiselectButton";
+      multiButton.textContent = "Multiselect";
+      multiButton.title = `${variants.length} forbidden tiles selected`;
+      cardArea.appendChild(multiButton);
+    } else {
+      variants.forEach((pixels) => {
+        const card = createTileCard({ pixels, label: "" });
+        card.querySelector("input").remove();
+        card.draggable = false;
+        card.title = "Change forbidden tiles";
+        cardArea.appendChild(card);
+      });
+    }
+    cardArea.onclick = () => chooseForbiddenIdentifierTile(identifier);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "identifierDeleteButton roundDeleteButton";
+    deleteButton.type = "button";
+    deleteButton.textContent = "×";
+    deleteButton.title = "Delete forbidden identifier";
+    deleteButton.onclick = () => deleteIdentifierTile(screen, identifier.tile);
+
+    row.append(meta, cardArea, deleteButton);
+    forbiddenIdentifierContent.appendChild(row);
+  });
+}
+
+function isForbiddenIdentifierSatisfied(identifier) {
+  const variants = getForbiddenIdentifierPixels(identifier);
+  if (variants.length === 0) return false;
+  const [x, y] = identifier.tile.split(",").map(Number);
+  const current = getTile(x, y);
+  return variants.every((pixels) => !tilesEqual(current, pixels));
+}
+
+function getForbiddenIdentifierPixels(identifier) {
+  if (Array.isArray(identifier.forbiddenPixels) && identifier.forbiddenPixels.length) {
+    return identifier.forbiddenPixels;
+  }
+  return Array.isArray(identifier.pixels) && identifier.pixels.length
+    ? [identifier.pixels]
+    : [];
+}
+
+function chooseForbiddenIdentifierTile(identifier) {
+  const choices = tilesets.flatMap((tileset) =>
+    tileset.tiles.map((tile, index) => ({ tileset, tile, index })),
+  );
+  if (choices.length === 0) {
+    showAlert("Add at least one tile to a tileset first.");
+    return;
+  }
+
+  const content = document.createElement("div");
+  content.className = "forbiddenTilePicker";
+  const title = document.createElement("strong");
+  title.textContent = `Forbidden tile at ${identifier.tile}`;
+  const groups = document.createElement("div");
+  groups.className = "forbiddenTilePickerGroups";
+  const selected = new Set();
+  const existing = getForbiddenIdentifierPixels(identifier);
+  tilesets.forEach((tileset) => {
+    if (tileset.tiles.length === 0) return;
+    const group = document.createElement("section");
+    group.className = "forbiddenTilePickerGroup";
+    const heading = document.createElement("h3");
+    heading.textContent = tileset.name;
+    const grid = document.createElement("div");
+    grid.className = "forbiddenTilePickerGrid";
+    tileset.tiles.forEach((tile, index) => {
+      const choiceKey = `${tileset.id}:${index}`;
+      const card = createTileCard(tile);
+      card.querySelector("input").remove();
+      card.title = tile.label || `tile ${index + 1}`;
+      if (existing.some((pixels) => tilesEqual(pixels, tile.pixels))) {
+        card.classList.add("selected");
+        selected.add(choiceKey);
+      }
+      card.onclick = () => {
+        card.classList.toggle("selected");
+        if (card.classList.contains("selected")) selected.add(choiceKey);
+        else selected.delete(choiceKey);
+      };
+      card.dataset.choiceKey = choiceKey;
+      grid.appendChild(card);
+    });
+    group.append(heading, grid);
+    groups.appendChild(group);
+  });
+  content.append(title, groups);
+  showConfirmContent(content, () => {
+    if (selected.size === 0) return;
+    identifier.forbiddenPixels = choices
+      .filter((choice) => selected.has(`${choice.tileset.id}:${choice.index}`))
+      .map((choice) => [...choice.tile.pixels]);
+    identifier.pixels = [...identifier.forbiddenPixels[0]];
+    renderIdentifierInfo();
+    updateJSONOutput();
+    updateStorageButtons();
+  }, null, "Choose", "Cancel");
 }
 
 identifierSection.addEventListener("toggle", () => {
@@ -229,7 +398,12 @@ function updateIdentifierInfoStatus() {
 
       if (!identifier) return;
 
-      row.classList.toggle("valid", isIdentifierVisible(identifier));
+      row.classList.toggle(
+        "valid",
+        identifier.type === "must_not"
+          ? isForbiddenIdentifierSatisfied(identifier)
+          : isIdentifierVisible(identifier),
+      );
     });
 }
 
@@ -240,7 +414,10 @@ function deleteIdentifierTile(screen, tileKey) {
       screen.identifiers = screen.identifiers.filter((identifier) => {
         return identifier.tile !== tileKey;
       });
-      if (Number(screen.identifierMatchCount) > screen.identifiers.length) {
+      const normalCount = screen.identifiers.filter(
+        (identifier) => (identifier.type || "normal") === "normal",
+      ).length;
+      if (Number(screen.identifierMatchCount) > normalCount) {
         screen.identifierMatchCount = "all";
       }
 
@@ -277,6 +454,22 @@ gridCanvas.addEventListener("mousedown", (e) => {
     return;
   }
 
+  if (selectionMode === "identifier-forbidden") {
+    if (existingIdentifier) {
+      showAlert("An identifier already uses this position.");
+      return;
+    }
+    screen.identifiers.push({ tile: key, pixels: [], type: "must_not" });
+    stopIdentifierTileMode();
+    identifierSection.open = true;
+    drawROIOverlay();
+    renderIdentifierInfo();
+    updateWorkflowUI();
+    updateJSONOutput();
+    updateStorageButtons();
+    return;
+  }
+
   if (!activeROI) return;
 
   const roi = getActiveScreenROIs().find((r) => r.id === activeROI);
@@ -301,6 +494,7 @@ function addIdentifierTile(key) {
   screen.identifiers.push({
     tile: key,
     pixels: getTile(x, y),
+    type: "normal",
   });
   screen.identifierMatchCount ||= "all";
 
@@ -327,6 +521,7 @@ function stopIdentifierTileMode() {
   selectionMode = "roi";
   setIdentifierModeButtonLabel("Add Identifier Tile");
   identifierModeButton.classList.remove("identifierAwaiting");
+  forbiddenIdentifierModeButton.classList.remove("identifierAwaiting");
   drawROIOverlay();
 }
 
@@ -356,6 +551,22 @@ identifierModeButton.onclick = (e) => {
   }
 
   startIdentifierTileMode();
+};
+
+forbiddenIdentifierModeButton.onclick = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (selectionMode === "identifier-forbidden") {
+    stopIdentifierTileMode();
+    return;
+  }
+  window.clearTimeout(identifierModeTimer);
+  showRegions = true;
+  showRegionsToggle.checked = true;
+  selectionMode = "identifier-forbidden";
+  forbiddenIdentifierModeButton.classList.add("identifierAwaiting");
+  drawROIOverlay();
+  identifierModeTimer = window.setTimeout(stopIdentifierTileMode, 10000);
 };
 
 window.addEventListener("mouseup", () => {

@@ -43,6 +43,10 @@ function getCurrentProjectData() {
       identifiers: screen.identifiers.map((id) => ({
         tile: id.tile,
         pixels: id.pixels,
+        type: id.type || "normal",
+        ...(id.type === "must_not" && Array.isArray(id.forbiddenPixels)
+          ? { forbiddenPixels: id.forbiddenPixels }
+          : {}),
       })),
 
       rois: screen.rois.map((r) => ({
@@ -651,6 +655,12 @@ function applyImportedProject(data) {
       ? screen.identifiers.map((identifier) => ({
           tile: identifier.tile,
           pixels: identifier.pixels || [],
+          type: ["normal", "must", "must_not"].includes(identifier.type)
+            ? identifier.type
+            : "normal",
+          forbiddenPixels: Array.isArray(identifier.forbiddenPixels)
+            ? identifier.forbiddenPixels
+            : undefined,
         }))
       : [],
 

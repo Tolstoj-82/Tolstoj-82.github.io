@@ -1,6 +1,8 @@
 # config.html Manual Test Checklist
 
-Version Beta 1.3
+Version Beta 1.4
+
+- [ ] Two-player mode displays Version Beta 1.4 and exposes per-player visual customization.
 
 - [ ] Game-name autosuggest options retain black text on hover and keyboard focus, matching the recognition-screen dropdown.
 

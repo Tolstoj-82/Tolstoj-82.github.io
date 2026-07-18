@@ -64,6 +64,12 @@ const stallOcrOnUnknownTilesToggle = document.getElementById(
 const identifierMatchCountInput = document.getElementById(
   "identifierMatchCount",
 );
+const forbiddenIdentifierModeButton = document.getElementById(
+  "forbiddenIdentifierMode",
+);
+const forbiddenIdentifierContent = document.getElementById(
+  "forbiddenIdentifierContent",
+);
 const snapshotModalOverlay = document.getElementById("snapshotModalOverlay");
 const closeSnapshotModalButton = document.getElementById("closeSnapshotModal");
 const snapshotList = document.getElementById("snapshotList");

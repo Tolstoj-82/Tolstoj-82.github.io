@@ -50,7 +50,7 @@
               Achievements
             </button>
           </div>
-          <div class="topSetupVersion">Version Beta 1.3</div>
+          <div class="topSetupVersion">Version Beta 1.4</div>
         </div>
         <button
           id="openInfoModal"
@@ -81,12 +81,13 @@
 
           <div class="feedFrame">
             <div class="lensStripes" aria-hidden="true"></div>
-            <h1 id="player1Title">Player 1</h1>
+            <h1 id="player1Title" contenteditable="true" spellcheck="false" aria-label="Player 1 name">Player 1</h1>
             <span class="powerLed" aria-hidden="true"></span>
             <div class="screenViewport">
               <video id="player1Video" autoplay playsinline muted></video>
               <canvas id="player1Canvas" width="160" height="144"></canvas>
               <canvas id="player1ScreenOverlay" class="screenOverlay" width="532" height="480" aria-hidden="true" hidden></canvas>
+              <img id="player1GlassEffect" class="glassEffect" src="assets/glass_effect.png" alt="" aria-hidden="true" hidden />
               <div
                 id="player1InterceptorOverlay"
                 class="interceptorOverlay"
@@ -94,6 +95,7 @@
               ></div>
               <div id="player1Fireworks" class="fireworksOverlay" hidden></div>
             </div>
+            <div id="player1DeviceLogo" class="deviceLogo" aria-hidden="true"></div>
           </div>
 
           <div id="player1NameEntry" class="playerNameEntry" hidden></div>
@@ -160,11 +162,8 @@
               </div>
             </div>
 
-            <label class="topToggle screenOverlayToggle">
-              <input id="player1ScreenOverlayEnabled" type="checkbox" />
-              <span class="slider"></span>
-              <span>Screen overlay</span>
-            </label>
+            <button id="player1Customize" type="button">Customize</button>
+            <input id="player1ScreenOverlayEnabled" type="checkbox" hidden />
 
             <div id="player1Status" class="playerStatus"></div>
             </section>
@@ -250,12 +249,13 @@
 
           <div class="feedFrame">
             <div class="lensStripes" aria-hidden="true"></div>
-            <h1 id="player2Title">Player 2</h1>
+            <h1 id="player2Title" contenteditable="true" spellcheck="false" aria-label="Player 2 name">Player 2</h1>
             <span class="powerLed" aria-hidden="true"></span>
             <div class="screenViewport">
               <video id="player2Video" autoplay playsinline muted></video>
               <canvas id="player2Canvas" width="160" height="144"></canvas>
               <canvas id="player2ScreenOverlay" class="screenOverlay" width="532" height="480" aria-hidden="true" hidden></canvas>
+              <img id="player2GlassEffect" class="glassEffect" src="assets/glass_effect.png" alt="" aria-hidden="true" hidden />
               <div
                 id="player2InterceptorOverlay"
                 class="interceptorOverlay"
@@ -263,6 +263,7 @@
               ></div>
               <div id="player2Fireworks" class="fireworksOverlay" hidden></div>
             </div>
+            <div id="player2DeviceLogo" class="deviceLogo" aria-hidden="true"></div>
           </div>
 
           <div id="player2NameEntry" class="playerNameEntry" hidden></div>
@@ -329,11 +330,8 @@
               </div>
             </div>
 
-            <label class="topToggle screenOverlayToggle">
-              <input id="player2ScreenOverlayEnabled" type="checkbox" />
-              <span class="slider"></span>
-              <span>Screen overlay</span>
-            </label>
+            <button id="player2Customize" type="button">Customize</button>
+            <input id="player2ScreenOverlayEnabled" type="checkbox" hidden />
 
             <div id="player2Status" class="playerStatus"></div>
             </section>
@@ -341,6 +339,27 @@
         </details>
       </section>
     </main>
+
+    <div id="playerCustomizeModal" class="modalOverlay hidden">
+      <div class="modalBox twoPlayerModalBox playerCustomizeModalBox">
+        <div class="twoPlayerModalHeader">
+          <div class="modalDragHandle" title="Move dialog">⋮⋮</div>
+          <h2 id="playerCustomizeModalTitle">Customize Player</h2>
+          <button id="closePlayerCustomizeModal" class="modalCloseButton" type="button" aria-label="Close customization">×</button>
+        </div>
+        <div class="playerCustomizeForm">
+          <label class="topToggle"><input id="customizePixelGrid" type="checkbox" /><span class="slider"></span><span>Pixel grid</span></label>
+          <label class="topToggle"><input id="customizeGlassEffect" type="checkbox" /><span class="slider"></span><span>Glass effect</span></label>
+          <label>Border style<select id="customizeBorderStyle"><option value="play-it-loud">Play it loud</option><option value="og-gb">OG GB</option><option value="gb-color">GB Color</option><option value="gb-pocket">GB Pocket</option><option value="special">Special</option></select></label>
+          <label>Background color<select id="customizeBackgroundColor"><option value="black">Black</option><option value="green">Green</option><option value="red">Red</option><option value="yellow">Yellow</option><option value="blue">Blue</option><option value="white">White</option><option value="brick-gray">Brick gray</option><option value="purple">Purple</option><option value="turquoise">Turquoise</option><option value="magenta">Magenta</option><option value="lime">Lime</option><option value="gold">Gold</option></select></label>
+          <label>Dymo background<select id="customizeDymoColor"><option value="black">Black</option><option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option><option value="yellow">Yellow</option><option value="white">White</option><option value="brick-gray">Brick gray</option><option value="purple">Purple</option><option value="turquoise">Turquoise</option><option value="magenta">Magenta</option><option value="lime">Lime</option><option value="gold">Gold</option></select></label>
+          <div class="customizeDeviceLogoFields">
+            <label>Logo first part<input id="customizeLogoFirst" type="text" maxlength="14" value="GAME GIRL" /></label>
+            <label>Logo second part<input id="customizeLogoSecond" type="text" maxlength="10" value="COLOR" /></label>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div id="playerCalibrationModal" class="modalOverlay hidden">
       <div class="modalBox calibrationModalBox twoPlayerModalBox playerCalibrationModalBox">

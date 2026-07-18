@@ -158,6 +158,26 @@ const achievementTiers = [
 ];
 
 const screenOverlayGridImage = new Image();
+const PLAYER_BACKGROUND_COLORS = {
+  black: "#1b1b1d", green: "#149447", red: "#d92732", yellow: "#f2cc18",
+  blue: "#2454a4", white: "#e5e1d7", "brick-gray": "#77736d",
+  purple: "#6d3aa8", turquoise: "#16a6a6", magenta: "#bd286b",
+  lime: "#78b82a", gold: "#d6a91d",
+};
+const DYMO_COLORS = {
+  black: ["#2a2a2a", "#171717", "#080808", "#f7f7f7"],
+  red: ["#7a2528", "#531316", "#280708", "#fff7f2"],
+  green: ["#286445", "#17442d", "#092417", "#f4fff7"],
+  blue: ["#285785", "#163b68", "#091d38", "#f4f9ff"],
+  yellow: ["#f0cf35", "#caa819", "#816707", "#211b05"],
+  white: ["#faf8ef", "#dedbd1", "#aaa79e", "#171717"],
+  "brick-gray": ["#918d87", "#67645f", "#393735", "#fff"],
+  purple: ["#7544ad", "#4d287d", "#27143f", "#fff"],
+  turquoise: ["#28b6b6", "#147b7d", "#073e40", "#fff"],
+  magenta: ["#cf3b7b", "#8e1d50", "#490b28", "#fff"],
+  lime: ["#8dca37", "#5b8e18", "#2d4809", "#172004"],
+  gold: ["#e2bc36", "#aa8112", "#594105", "#211700"],
+};
 const players = [
   createPlayerState(1, "Player 1", "blue"),
   createPlayerState(2, "Player 2", "red"),
@@ -266,6 +286,17 @@ const savePlayerCalibration = document.getElementById(
   "savePlayerCalibration",
 );
 const openInfoModalButton = document.getElementById("openInfoModal");
+const playerCustomizeModal = document.getElementById("playerCustomizeModal");
+const playerCustomizeModalTitle = document.getElementById("playerCustomizeModalTitle");
+const closePlayerCustomizeModal = document.getElementById("closePlayerCustomizeModal");
+const customizePixelGrid = document.getElementById("customizePixelGrid");
+const customizeGlassEffect = document.getElementById("customizeGlassEffect");
+const customizeBorderStyle = document.getElementById("customizeBorderStyle");
+const customizeBackgroundColor = document.getElementById("customizeBackgroundColor");
+const customizeDymoColor = document.getElementById("customizeDymoColor");
+const customizeLogoFirst = document.getElementById("customizeLogoFirst");
+const customizeLogoSecond = document.getElementById("customizeLogoSecond");
+let customizingPlayer = null;
 const showAchievementsButton = document.getElementById("showAchievements");
 const showDaysButton = document.getElementById("showDays");
 const achievementsModal = document.getElementById("achievementsModal");
@@ -359,9 +390,7 @@ function createPlayerState(number, label, color) {
   const title = document.getElementById(`player${number}Title`);
   const dymoColors = ["dymo-black", "dymo-red", "dymo-green", "dymo-blue"];
 
-  title.classList.add(
-    dymoColors[Math.floor(Math.random() * dymoColors.length)],
-  );
+  const initialDymoColor = dymoColors[Math.floor(Math.random() * dymoColors.length)].replace("dymo-", "");
   title.style.setProperty(
     "--dymo-rotation",
     `${(Math.random() * 4 - 2).toFixed(2)}deg`,
@@ -392,6 +421,16 @@ function createPlayerState(number, label, color) {
     screenOverlayToggle: document.getElementById(
       `player${number}ScreenOverlayEnabled`,
     ),
+    customizeButton: document.getElementById(`player${number}Customize`),
+    glassEffect: document.getElementById(`player${number}GlassEffect`),
+    deviceLogo: document.getElementById(`player${number}DeviceLogo`),
+    panel: canvas.closest(".playerPanel"),
+    glassEffectEnabled: false,
+    borderStyle: "play-it-loud",
+    backgroundColor: number === 1 ? "blue" : "red",
+    dymoColor: initialDymoColor,
+    logoFirst: "GAME GIRL",
+    logoSecond: "COLOR",
     calibrateButton: document.getElementById(`player${number}Calibrate`),
     calibrationDetailsButton: document.getElementById(
       `player${number}CalibrationDetails`,
@@ -507,6 +546,12 @@ function saveTwoPlayerSettings() {
       calibrated: player.calibrated,
       thresholds: player.thresholds,
       screenOverlayEnabled: player.screenOverlayToggle.checked,
+      glassEffectEnabled: player.glassEffectEnabled,
+      borderStyle: player.borderStyle,
+      backgroundColor: player.backgroundColor,
+      dymoColor: player.dymoColor,
+      logoFirst: player.logoFirst,
+      logoSecond: player.logoSecond,
       useRandomNames: player.useRandomNames,
       showOriginalCamera: player.showOriginalCamera,
     })),
@@ -1131,6 +1176,17 @@ function restorePlayerSettings(player, settings) {
   player.nameInput.disabled = player.useRandomNames;
   player.screenOverlayToggle.checked = settings?.screenOverlayEnabled === true;
   player.screenOverlay.hidden = !player.screenOverlayToggle.checked;
+  player.glassEffectEnabled = settings?.glassEffectEnabled === true;
+  player.borderStyle = settings?.borderStyle || "play-it-loud";
+  player.backgroundColor = PLAYER_BACKGROUND_COLORS[settings?.backgroundColor]
+    ? settings.backgroundColor
+    : player.backgroundColor;
+  player.dymoColor = DYMO_COLORS[settings?.dymoColor]
+    ? settings.dymoColor
+    : player.dymoColor;
+  player.logoFirst = String(settings?.logoFirst || "GAME GIRL").slice(0, 14);
+  player.logoSecond = String(settings?.logoSecond || "COLOR").slice(0, 10);
+  applyPlayerCustomization(player);
 
   if (!settings) return;
 
@@ -1174,6 +1230,69 @@ function updatePlayerLabel(player, label) {
   player.nameInput.value = clean;
   renderPlayerTitle(player, player.label);
   scoreBoardSignature = "";
+}
+
+function applyPlayerCustomization(player) {
+  player.screenOverlay.hidden = !player.screenOverlayToggle.checked;
+  player.glassEffect.hidden = !player.glassEffectEnabled;
+  player.feedFrame.dataset.borderStyle = player.borderStyle;
+  const color = PLAYER_BACKGROUND_COLORS[player.backgroundColor] || PLAYER_BACKGROUND_COLORS.blue;
+  player.panel.style.setProperty("--player-panel-color", color);
+  document.documentElement.style.setProperty(
+    `--player-${players.indexOf(player) + 1}-panel-color`,
+    color,
+  );
+  const dymo = DYMO_COLORS[player.dymoColor] || DYMO_COLORS.black;
+  player.title.style.setProperty("--dymo-color-top", dymo[0]);
+  player.title.style.setProperty("--dymo-color-middle", dymo[1]);
+  player.title.style.setProperty("--dymo-color-bottom", dymo[2]);
+  player.title.style.color = dymo[3];
+  renderPlayerDeviceLogo(player);
+}
+
+function renderPlayerDeviceLogo(player) {
+  const first = document.createElement("span");
+  first.className = "deviceLogoFirst";
+  first.textContent = String(player.logoFirst || "GAME GIRL").toUpperCase();
+  const second = document.createElement("span");
+  second.className = "deviceLogoSecond";
+  [...String(player.logoSecond || "COLOR").toUpperCase()].forEach((character) => {
+    const letter = document.createElement("span");
+    letter.textContent = character;
+    second.appendChild(letter);
+  });
+  player.deviceLogo.replaceChildren(first, second);
+}
+
+function openPlayerCustomizeModal(player) {
+  customizingPlayer = player;
+  playerCustomizeModalTitle.textContent = `Customize ${player.staticLabel || player.defaultLabel}`;
+  customizePixelGrid.checked = player.screenOverlayToggle.checked;
+  customizeGlassEffect.checked = player.glassEffectEnabled;
+  customizeBorderStyle.value = player.borderStyle;
+  customizeBackgroundColor.value = player.backgroundColor;
+  customizeDymoColor.value = player.dymoColor;
+  customizeLogoFirst.value = player.logoFirst;
+  customizeLogoSecond.value = player.logoSecond;
+  playerCustomizeModal.classList.remove("hidden");
+}
+
+function closePlayerCustomization() {
+  playerCustomizeModal.classList.add("hidden");
+  customizingPlayer = null;
+}
+
+function updateOpenPlayerCustomization() {
+  if (!customizingPlayer) return;
+  customizingPlayer.screenOverlayToggle.checked = customizePixelGrid.checked;
+  customizingPlayer.glassEffectEnabled = customizeGlassEffect.checked;
+  customizingPlayer.borderStyle = customizeBorderStyle.value;
+  customizingPlayer.backgroundColor = customizeBackgroundColor.value;
+  customizingPlayer.dymoColor = customizeDymoColor.value;
+  customizingPlayer.logoFirst = customizeLogoFirst.value.toUpperCase().slice(0, 14);
+  customizingPlayer.logoSecond = customizeLogoSecond.value.toUpperCase().slice(0, 10);
+  applyPlayerCustomization(customizingPlayer);
+  saveTwoPlayerSettings();
 }
 
 function renderPlayerTitle(player, text) {
@@ -4634,12 +4753,35 @@ function isPlayerStillReadingEntryScore(player, entry) {
 
 function screenMatches(player, screen) {
   const required = getRequiredIdentifierCount(screen);
+  const identifiers = Array.isArray(screen?.identifiers) ? screen.identifiers : [];
+  const normal = identifiers.filter((id) => (id.type || "normal") === "normal");
+  const must = identifiers.filter((id) => id.type === "must");
+  const forbidden = identifiers.filter((id) => id.type === "must_not");
+  const matches = (identifier) => {
+    if (!Array.isArray(identifier.pixels) || identifier.pixels.length === 0) return false;
+    const [x, y] = identifier.tile.split(",").map(Number);
+    return tilesEqual(getTile(player, x, y), identifier.pixels);
+  };
 
-  return required > 0 && countVisibleIdentifiers(player, screen) >= required;
+  if (identifiers.length === 0) return false;
+  return (normal.length === 0 || countVisibleIdentifiers(player, screen) >= required) &&
+    must.every(matches) &&
+    forbidden.every((id) => {
+      const variants = Array.isArray(id.forbiddenPixels) && id.forbiddenPixels.length
+        ? id.forbiddenPixels
+        : [id.pixels];
+      const [x, y] = id.tile.split(",").map(Number);
+      const current = getTile(player, x, y);
+      return variants.length > 0 && variants.every(
+        (pixels) => Array.isArray(pixels) && pixels.length > 0 && !tilesEqual(current, pixels),
+      );
+    });
 }
 
 function getRequiredIdentifierCount(screen) {
-  const identifierCount = screen?.identifiers?.length || 0;
+  const identifierCount = (screen?.identifiers || []).filter(
+    (identifier) => (identifier.type || "normal") === "normal",
+  ).length;
 
   if (identifierCount === 0) return 0;
 
@@ -4654,6 +4796,7 @@ function countVisibleIdentifiers(player, screen) {
   if (!Array.isArray(screen?.identifiers)) return 0;
 
   return screen.identifiers.filter((identifier) => {
+    if ((identifier.type || "normal") !== "normal") return false;
     const [x, y] = identifier.tile.split(",").map(Number);
 
     return tilesEqual(getTile(player, x, y), identifier.pixels || []);
@@ -9444,9 +9587,17 @@ function setupPlayer(player) {
   renderPlayerLUTSwatches(player);
   syncPlayerWebcamModeControls(player);
 
-  player.screenOverlayToggle.onchange = () => {
-    player.screenOverlay.hidden = !player.screenOverlayToggle.checked;
+  player.customizeButton.onclick = () => openPlayerCustomizeModal(player);
+
+  player.title.onkeydown = (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    player.title.blur();
+  };
+  player.title.onblur = () => {
+    updatePlayerLabel(player, player.title.textContent);
     saveTwoPlayerSettings();
+    renderScoreBoard();
   };
 
   player.randomNamesToggle.onchange = () => {
@@ -9544,6 +9695,20 @@ function setupPlayer(player) {
 }
 
 function setupSharedControls() {
+  closePlayerCustomizeModal.onclick = closePlayerCustomization;
+  playerCustomizeModal.onclick = (event) => {
+    if (event.target === playerCustomizeModal) closePlayerCustomization();
+  };
+  [customizePixelGrid, customizeGlassEffect, customizeBorderStyle, customizeBackgroundColor, customizeDymoColor]
+    .forEach((control) => {
+      control.onchange = updateOpenPlayerCustomization;
+    });
+  [customizeLogoFirst, customizeLogoSecond].forEach((input) => {
+    input.oninput = () => {
+      input.value = input.value.toUpperCase();
+      updateOpenPlayerCustomization();
+    };
+  });
   populateSharedGameSelect();
   setupTopGameSetupPanel();
 

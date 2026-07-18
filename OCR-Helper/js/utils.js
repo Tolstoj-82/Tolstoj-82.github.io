@@ -22,7 +22,9 @@ function getScreenDetectionGraceMs(gameData = game) {
 }
 
 function getRequiredIdentifierCount(screen) {
-  const identifierCount = screen?.identifiers?.length || 0;
+  const identifierCount = (screen?.identifiers || []).filter(
+    (identifier) => (identifier.type || "normal") === "normal",
+  ).length;
 
   if (identifierCount === 0) return 0;
 
@@ -39,6 +41,7 @@ function countVisibleIdentifiers(screen, tileGetter = getTile) {
   if (!Array.isArray(screen?.identifiers)) return 0;
 
   return screen.identifiers.filter((identifier) => {
+    if ((identifier.type || "normal") !== "normal") return false;
     const [x, y] = identifier.tile.split(",").map(Number);
 
     return tilesEqual(tileGetter(x, y), identifier.pixels || []);
@@ -48,7 +51,31 @@ function countVisibleIdentifiers(screen, tileGetter = getTile) {
 function screenMatchesByIdentifiers(screen, tileGetter = getTile) {
   const required = getRequiredIdentifierCount(screen);
 
-  return required > 0 && countVisibleIdentifiers(screen, tileGetter) >= required;
+  const identifiers = Array.isArray(screen?.identifiers) ? screen.identifiers : [];
+  const normal = identifiers.filter((id) => (id.type || "normal") === "normal");
+  const must = identifiers.filter((id) => id.type === "must");
+  const forbidden = identifiers.filter((id) => id.type === "must_not");
+  const matches = (identifier) => {
+    if (!Array.isArray(identifier.pixels) || identifier.pixels.length === 0) return false;
+    const [x, y] = identifier.tile.split(",").map(Number);
+    return tilesEqual(tileGetter(x, y), identifier.pixels);
+  };
+
+  if (identifiers.length === 0) return false;
+  return (
+    (normal.length === 0 || countVisibleIdentifiers(screen, tileGetter) >= required) &&
+    must.every(matches) &&
+    forbidden.every((id) => {
+      const variants = Array.isArray(id.forbiddenPixels) && id.forbiddenPixels.length
+        ? id.forbiddenPixels
+        : [id.pixels];
+      const [x, y] = id.tile.split(",").map(Number);
+      const current = tileGetter(x, y);
+      return variants.length > 0 && variants.every(
+        (pixels) => Array.isArray(pixels) && pixels.length > 0 && !tilesEqual(current, pixels),
+      );
+    })
+  );
 }
 
 function roiOverlayColor(color) {

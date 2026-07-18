@@ -92,7 +92,9 @@ function updateSettingsControls() {
   stallOcrOnUnknownTilesToggle.checked = game.settings.stallOcrOnUnknownTiles;
 
   const screen = getActiveScreen();
-  const identifierCount = screen?.identifiers?.length || 0;
+  const identifierCount = (screen?.identifiers || []).filter(
+    (identifier) => (identifier.type || "normal") === "normal",
+  ).length;
   const configured = screen?.identifierMatchCount ?? "all";
   const identifierMatchField = identifierMatchCountInput.closest(
     ".identifierMatchField",
