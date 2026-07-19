@@ -20,23 +20,23 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
   const tileContainer = document.getElementById("tileContainer");
 
   // Add a title
-  tileContainer.innerHTML += `
-    <p><b>${tilesetTitle} (ROM Entry Address = ${startAddress}, ${nTiles} Tiles, ${bitsPerPixel}BPP)</b></p>`;
+  tileContainer.insertAdjacentHTML("beforeend", `
+    <p><b>${tilesetTitle} (ROM Entry Address = ${startAddress}, ${nTiles} Tiles, ${bitsPerPixel}BPP)</b></p>`);
 
   // Check if tilesetTitle exists in the first entry of any object in spriteObjects
   const matchingTitles = Object.keys(spriteObjects).filter(title => spriteObjects[title][0] === tilesetTitle);
 
   // Add the dropdown and button if there were matching titles
   if (matchingTitles.length > 0) {
-    let dropdownHTML = `<p><select id="sprites${tilesetTitle}" oninput="loadObjectSprite(this.value, true)">`;
+    let dropdownHTML = `<p><select id="sprites${tilesetTitle}" class="sprite-selector">`;
     dropdownHTML += `<option value="no">--Chose--</option>`;
     for (const title of matchingTitles) {
       dropdownHTML += `<option value="${title}">${title}</option>`;
     }
     dropdownHTML += '</select>&nbsp;';
-    dropdownHTML += `<button onclick="loadObjectSprite(document.getElementById('sprites${tilesetTitle}').value, false)">Load Tile Group</button></p>`;
+    dropdownHTML += `<button class="load-sprite-button" data-selector-id="sprites${tilesetTitle}">Load Tile Group</button></p>`;
     dropdownHTML += '<br>';
-    tileContainer.innerHTML += dropdownHTML;
+    tileContainer.insertAdjacentHTML("beforeend", dropdownHTML);
   }
 
   // collect the pixel values for the tiles
@@ -91,11 +91,35 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
   // Add a button to save the tile set as a PNG
   let nCols = getTileSetProperty(tilesetTitle, "width");
   let thisSetName = getTileSetProperty(tilesetTitle, "name");
-  let savePngHTML = `<p style="text-align: center;"><button onclick="saveTileSetAsPNG('${addresses}', ${nTiles}, '${thisSetName}', ${nCols});" class="secondary">▼ Download Tile Group as "${thisSetName}.png"</button></p>`;
+  let savePngHTML = `<p style="text-align: center;"><button class="secondary save-tile-set-button" data-addresses="${addresses}" data-tile-count="${nTiles}" data-set-name="${thisSetName}" data-column-count="${nCols}">▼ Download Tile Group as "${thisSetName}.png"</button></p>`;
   savePngHTML += "<br><hr>";
-  tileContainer.innerHTML += savePngHTML;
+  tileContainer.insertAdjacentHTML("beforeend", savePngHTML);
   
 }
+
+document.addEventListener("input", event => {
+  if (event.target.matches(".sprite-selector")) {
+    loadObjectSprite(event.target.value, true);
+  }
+});
+
+document.addEventListener("click", event => {
+  const loadButton = event.target.closest(".load-sprite-button");
+  if (loadButton) {
+    loadObjectSprite(document.getElementById(loadButton.dataset.selectorId).value, false);
+    return;
+  }
+
+  const saveButton = event.target.closest(".save-tile-set-button");
+  if (saveButton) {
+    saveTileSetAsPNG(
+      saveButton.dataset.addresses,
+      Number(saveButton.dataset.tileCount),
+      saveButton.dataset.setName,
+      Number(saveButton.dataset.columnCount)
+    );
+  }
+});
 
 //------------------------------------------------------------------------------------------
 // Save a tile set as a PNG, this is used to import into the disassembly
@@ -295,11 +319,11 @@ function handleClick(event) {
 function openTileDialog(tileIDs, flags, setName) {
 
   // Change the set name
-  var tileEditorText = document.getElementById('tile-editor-text');
+  let tileEditorText = document.getElementById('tile-editor-text');
   tileEditorText.textContent = "Tile Editor: " + setName;
 
   // only show the toggle switch if there is more than one tile
-  var toggleSwitchDiv = document.getElementById("tileBorderToggle");
+  let toggleSwitchDiv = document.getElementById("tileBorderToggle");
   if(tileIDs.length <= 1) toggleSwitchDiv.style.display = "none";
   else toggleSwitchDiv.style.display = "block";
 
@@ -340,7 +364,7 @@ function openTileDialog(tileIDs, flags, setName) {
     if (flags[index].includes("n")) newLine = true; // Update the newLine flag if "n" is found in the flags
 
     // Just some stupid replacements
-    if (flags[index] == "en") {
+    if (flags[index] === "en") {
       flags[index] = "e";
       newLine = true;
     }
@@ -400,7 +424,6 @@ function openTileDialog(tileIDs, flags, setName) {
     }
 
     // Append the cloned tile to the current row
-    clonedTile.style.border = "none";
     currentRow.appendChild(clonedTile);
 
     // Fetch colors from color pickers
@@ -423,9 +446,6 @@ function openTileDialog(tileIDs, flags, setName) {
         let splitID = tile.id.split("-");
         let thisTileAddr = splitID[1];
     
-        // Adding a delay before executing is an ugly but necessary tweak to make sure the tile DOMs are loaded
-        //setTimeout(() => {   
-
           // After the loop, append the last row (if any) to the container
           const tileContainer = document.getElementById("tile-container");
           tileContainer.appendChild(currentRow);
@@ -455,52 +475,70 @@ function openTileDialog(tileIDs, flags, setName) {
           // Set the first color as the current selection
           clickableDivs[0].style.border = o;
 
-        //}, 200);
       }
     });
   }
 
-  // Attach event listeners for pixel selection and coloring
-  dialogBox.addEventListener("mousedown", handlePixelColoring);
-  dialogBox.addEventListener("mousemove", handlePixelColoring);
-  dialogBox.addEventListener("mouseup", () => {
-    isMouseButtonDown = false;
-  });
+  // Bind painting once. Pointer state is also cleared when the pointer leaves the
+  // editor, so releasing outside the modal cannot leave painting stuck on.
+  if (!dialogBox.dataset.paintBound) {
+    dialogBox.addEventListener("pointerdown", handlePixelColoring);
+    dialogBox.addEventListener("pointermove", handlePixelColoring);
+    dialogBox.addEventListener("pointerleave", stopPixelColoring);
+    dialogBox.addEventListener("pointercancel", stopPixelColoring);
+    document.addEventListener("pointerup", stopPixelColoring);
+    window.addEventListener("blur", stopPixelColoring);
+    dialogBox.dataset.paintBound = "true";
+  }
 
   dialogContainer.appendChild(dialogBox);
   document.body.appendChild(dialogContainer);
 
   // Add a slider to scale the tile
   const pixelSizeSlider = document.getElementById("pixelSizeSlider");
-  pixelSizeSlider.addEventListener("input", function () {
-    const pixelSize = pixelSizeSlider.value;
-    const bigPixelStyle = `.pixel.big {
-      width: ${pixelSize}px;
-      height: ${pixelSize}px;
-    }`;
-    const styleElement = document.getElementById("pixel-size-style");
-    styleElement.textContent = bigPixelStyle;
-  });
+  const currentPixel = dialogBox.querySelector(".pixel.big");
+  const currentPixelSize = currentPixel ? parseFloat(getComputedStyle(currentPixel).width) : 8;
+  pixelSizeSlider.value = Math.min(
+    Number(pixelSizeSlider.max),
+    Math.max(Number(pixelSizeSlider.min), currentPixelSize)
+  );
+  dialogBox.style.setProperty("--tile-pixel-size", `${pixelSizeSlider.value}px`);
+  document.getElementById("pixelSizeValue").value = `${pixelSizeSlider.value}×`;
 
-  // Create a style element to hold the dynamic pixel size style
-  const pixelSizeStyle = document.createElement("style");
-  pixelSizeStyle.id = "pixel-size-style";
-  document.head.appendChild(pixelSizeStyle);
+  if (!pixelSizeSlider.dataset.zoomBound) {
+    pixelSizeSlider.addEventListener("input", function () {
+      dialogBox.style.setProperty("--tile-pixel-size", `${this.value}px`);
+      document.getElementById("pixelSizeValue").value = `${this.value}×`;
+    });
+    pixelSizeSlider.dataset.zoomBound = "true";
+  }
 
   document.getElementById('tileBorders').checked = false;
+  document.getElementById("tile-container").classList.remove("show-tile-borders");
 }
 
 //------------------------------------------------------------------------------------------
 function handlePixelColoring(event) {
+  if (event.type === "pointermove" && !(event.buttons & 1)) {
+    stopPixelColoring();
+    return;
+  }
+
   const selectedPixel = event.target;
   if (selectedPixel.classList.contains("pixel") && !selectedPixel.classList.contains("cole")) {
-    if (event.type === "mousedown") {
+    if (event.type === "pointerdown" && event.button === 0) {
+      event.preventDefault();
       isMouseButtonDown = true;
       setColorAndClass(selectedPixel);
-    } else if (event.type === "mousemove" && isMouseButtonDown) {
+    } else if (event.type === "pointermove" && isMouseButtonDown) {
+      event.preventDefault();
       setColorAndClass(selectedPixel);
     }
   }
+}
+
+function stopPixelColoring() {
+  isMouseButtonDown = false;
 }
 
 //------------------------------------------------------------------------------------------
@@ -520,7 +558,7 @@ function setColorAndClass(pixel) {
     const currentTileID = currentTile.id;
     const nClones = currentTile.getAttribute("data-nclones");
     let thisPixel = document.getElementById(currentTileID).querySelector(`[data-pixelnumber="${pixelnumber}"]`);
-    for(i=0; i<nClones; i++){
+    for(let i = 0; i < nClones; i++){
       let cloneIDParts = currentTileID.split('-');
       cloneIDParts[cloneIDParts.length - 1] = "clone" + (i + 1).toString();
       let cloneID = cloneIDParts.join('-');
@@ -682,7 +720,7 @@ function saveTilesAfterDrawing(){
       }
 
       // replace the values in the ROM
-      startAddress = thisTileStartAddress;
+      const startAddress = thisTileStartAddress;
       let currentAddress = startAddress;
 
       for (let i = 0; i < hexVals.length; i++) {
@@ -700,7 +738,7 @@ function saveTilesAfterDrawing(){
       }
 
       // only scroll for the last entry, otherwise it's overkill
-      if(i==(tilesArray.length-1)) scrollToAddress(startAddress);
+      if(i === tilesArray.length - 1) scrollToAddress(startAddress);
 
       addToLog("Tile starting at address $" + startAddress + " was overwritten");
     }
@@ -720,7 +758,6 @@ function updateColorPalette(selector, color, colorPicker) {
 //------------------------------------------------------------------------------------------
 // Function to create the 8x8 dummy tile grid dynamically
 // Usage:
-// const gridElement = createDummyTile();
 // document.getElementById("gridContainer").appendChild(gridElement);
 function createDummyTile() {
 

@@ -3,8 +3,6 @@
   <head>
     <title>TREP - Tolstoj's ROM Editor Plus</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
@@ -13,12 +11,12 @@
   <body>
     <div class="container">
       <div id="wrapper2" style="text-align: center;">
-        <h1>TREP 0.95 beta</h1>
+        <h1>TREP Beta 1.0</h1>
         <h2>Henlo friens!</h2>
         <label class="custom-file-input">
-          <input type="file" onchange="validateFile(event)">
+          <input type="file" id="romFileInput">
         </label><br>
-        Build: 2/13/2024
+        Build: 19 July 2026
       </div>
 
       <div id="loadingAnimation" style="display: none; text-align: center;">
@@ -28,25 +26,28 @@
       
       <div id="wrapper" style="display: none;">
 
-        <b>Game Genie Code</b><br>
+        <div class="gg-section-heading">
+          <b>Game Genie Code</b>
+          <button id="openReverseGGButton" type="button">Address → GG Code</button>
+        </div>
         <input type="text" id="ggCode" placeholder="e.g. 145-F2E-C4E">
         
         Address: <input type="text" id="romAddr" class="four" maxlength="4" readonly>
         Value: <input type="text" id="oldVal" class="two" maxlength="2" readonly> &rarr;
         <input type="text" id="newVal" class="two" maxlength="2" readonly>
-        <button id="applyCode" onclick="applyCode(true)" disabled>Apply</button>
+        <button id="applyCode" disabled>Apply</button>
         <hr>
         <p>  
           <!-- Input field for the search sequence -->
           <b>Find a Sequence in the Code (Hex, comma-separated) </b><br>
           <div id="hex-search-wrapper">
             <div id="search-container">
-              <input type="text" id="searchAddressInput" />
-              <button onclick="searchSequenceInCode()">Search Code</button>
+              <input type="text" id="searchAddressInput" placeholder="e.g. 00 FF A3 or 00FFA3" />
+              <button id="searchSequenceButton">Search Code</button>
             </div>
           
             <div id="slider-container">
-              <input type="range" id="slider" min="0" max="16" step="1" value="0" oninput="updateSliderValue()">
+              <input type="range" id="slider" min="0" max="16" step="1" value="0">
               <div id="slider-value">Skip: 0</div>
             </div>
           </div>
@@ -59,7 +60,7 @@
         <p>
           <b>Jump to Address (Hex values)</b><br>
           <input type="text" id="searchInput">
-          <button onclick="searchAndSelectCell()">Navigate to ROM Address</button>
+          <button id="navigateAddressButton">Navigate to ROM Address</button>
         </p>
         <div class="table-wrapper">
           <table id="hexViewer"></table>
@@ -72,35 +73,35 @@
           <table id="headerData">
               <tr>
                 <td>Game Title</td>
-                <td id="gameTitle" contenteditable="true" onkeydown="handleGameTitleKeydown(event)" onblur="validateGameTitle(event)">&nbsp;</td>
+                <td id="gameTitle" contenteditable="true">&nbsp;</td>
               </tr>
               <tr>
                   <td>CGB Flag</td>
-                  <td id="thisCgbFlag">&nbsp;</td>
+                  <td><select id="thisCgbFlag" class="header-select"></select></td>
               </tr>
               <tr>
                 <td>SGB Flag</td>
-                <td id="thisSgbFlag">&nbsp;</td>
+                <td><select id="thisSgbFlag" class="header-select"></select></td>
             </tr>
               <tr>
                   <td>Cartridge type</td>
-                  <td id="thisCartridgeType">&nbsp;</td>
+                  <td><select id="thisCartridgeType" class="header-select"></select></td>
               </tr>
               <tr>
                   <td>ROM size</td>
-                  <td id="thisRomSize">&nbsp;</td>
+                  <td><select id="thisRomSize" class="header-select"></select></td>
               </tr>
               <tr>
                   <td>RAM size</td>
-                  <td id="thisRamSize">&nbsp;</td>
+                  <td><select id="thisRamSize" class="header-select"></select></td>
               </tr>
               <tr>
                   <td>Destination code</td>
-                  <td id="thisDestinationCode">&nbsp;</td>
+                  <td><select id="thisDestinationCode" class="header-select"></select></td>
               </tr>
               <tr>
                   <td>Licensee</td>
-                  <td id="licenseeCode">&nbsp;</td>
+                  <td><select id="licenseeCode" class="header-select"></select></td>
               </tr>
             </table>
 
@@ -112,28 +113,26 @@
         </p>
         <p>
           <input type="text" id="patchRomName"> .gb
-          <button onclick="createFileFromHexData()" id="createFileBtn" disabled>Save the ROM file</button>
+          <button id="createFileBtn" disabled>Save the ROM file</button>
         </p>
         <p>
           <b>Log (newest on top)</b><br>
           <textarea id="log" readonly></textarea>
         </p>
-        <p>2023 & 2024 Tolstoj (TREP v0.95 beta)</p>
+        <p>2023–2026 Tolstoj (TREP Beta 1.0)</p>
         
         <button id="openModalButton">&larr;</button>      
 
         <div id="modalOverlay">
           <div id="modalContent">
-            <div id="modalHeader">
-            </div>
             <div id="modalBody">
                            
               <!-- Tab container -->
               <div class="tab-group">
                 <div class="tab-container">
-                  <div class="tab active" onclick="openTab(event, 'tab1')">GG Codes</div>
-                  <div class="tab" onclick="openTab(event, 'tab2')">BG Maps</div>
-                  <div class="tab" onclick="openTab(event, 'tab3')">Edit Tiles</div>
+                  <div class="tab active" data-tab="tab1">GG Codes</div>
+                  <div class="tab" data-tab="tab2">BG Maps</div>
+                  <div class="tab" data-tab="tab3">Edit Tiles</div>
                 </div>
               </div>    
 
@@ -471,13 +470,10 @@
             
                 <div id="tab2" class="tab-content" style="display: none;">
                   <h2>Edit Background Maps</h2>
-                  <p><b>Alter a Background Screen</b></p>
+                  <p><b>Select a Background Screen</b></p>
+                  <div id="bgMapList" class="bg-map-list"></div>
                   <p>
-                    <select id="BGMapSelector"></select>
-                    <button id="getBGMap" onclick="getBGMap(document.getElementById('BGMapSelector').value, document.getElementById('BGMapSelector').options[document.getElementById('BGMapSelector').selectedIndex].text);">Edit Background Map</button>               
-                  </p>
-                  <p>
-                    Credits to Ospin: <a href="https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):ROM_map" target="_blank">ROM Map</a>
+                    Credits to Ospin: <a class="external-link" href="https://datacrystal.romhacking.net/wiki/Tetris_(Game_Boy):ROM_map" target="_blank" rel="noopener noreferrer">ROM Map</a>
                   </p>
                 </div>
             
@@ -487,10 +483,10 @@
                     <p class="color-scheme-container">
                       <b>Color Palette</b>
                       <select id="palette-dropdown"></select>
-                      <input type="color" id="color-picker-0" class="color-picker" value="#E0F8D0" onchange="updateColorPalette('.col0', this.value, this);" style="margin-right: 10px;">
-                      <input type="color" id="color-picker-1" class="color-picker" value="#88C070" onchange="updateColorPalette('.col1', this.value, this);" style="margin-right: 10px;">
-                      <input type="color" id="color-picker-2" class="color-picker" value="#346856" onchange="updateColorPalette('.col2', this.value, this);" style="margin-right: 10px;">
-                      <input type="color" id="color-picker-3" class="color-picker" value="#081820" onchange="updateColorPalette('.col3', this.value, this);">
+                      <input type="color" id="color-picker-0" class="color-picker" value="#E0F8D0" style="margin-right: 10px;">
+                      <input type="color" id="color-picker-1" class="color-picker" value="#88C070" style="margin-right: 10px;">
+                      <input type="color" id="color-picker-2" class="color-picker" value="#346856" style="margin-right: 10px;">
+                      <input type="color" id="color-picker-3" class="color-picker" value="#081820">
                     </p>
                     <br>
                   </div>
@@ -509,14 +505,42 @@
       </div>
 
       <!-- Tile Editor (Modal) -->
+      <div id="reverseGGModal" class="dialog-container" style="display: none;">
+        <div class="converter-modal-content">
+          <button id="closeReverseGGButton" class="modal-close-button" type="button" aria-label="Close Game Genie code creator">&times;</button>
+          <h2>Create Game Genie Code</h2>
+          <p>Convert a ROM address and value into a Game Genie code.</p>
+
+          <div class="converter-fields">
+            <label><span class="converter-field-label">ROM address</span>
+              <input id="reverseGGAddress" type="text" maxlength="4" placeholder="1234" autocomplete="off">
+            </label>
+            <label><span class="converter-field-label">New value</span>
+              <input id="reverseGGNewValue" type="text" maxlength="2" placeholder="AB" autocomplete="off">
+            </label>
+            <label><span class="converter-field-label">Old value <small>(optional)</small></span>
+              <input id="reverseGGOldValue" type="text" maxlength="2" placeholder="CD" autocomplete="off">
+            </label>
+          </div>
+
+          <label class="converter-result-label" for="reverseGGResult">Game Genie code</label>
+          <div class="converter-result-row">
+            <input id="reverseGGResult" type="text" readonly placeholder="Enter an address and value">
+            <button id="useReverseGGCode" type="button" disabled>Use code</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tile Editor (Modal) -->
       <div id="tileModal" class="dialog-container" style="display: none;">
           <div class="dialog-box" id="dialog-box">
-            <!--<div class="dialog-content">-->
               <div class="tile-editor-text" id="tile-editor-text">Tile Editor</div>
-              <input type="range" id="pixelSizeSlider" min="4" max="30" value="5" />
+              <button id="closeTileEditorButton" class="modal-close-button" type="button" aria-label="Discard changes and close">&times;</button>
+              <input type="range" id="pixelSizeSlider" min="4" max="30" value="8" aria-label="Tile zoom" />
+              <output id="pixelSizeValue" for="pixelSizeSlider">8×</output>
               <br>
 
-              <div class="color-selector-container">
+              <div class="color-selector-container" aria-label="Drawing colors">
                 <div class="clickable-div" id="c1"></div>
                 <div class="clickable-div" id="c2"></div>
                 <div class="clickable-div" id="c3"></div>
@@ -524,8 +548,8 @@
               </div>
               <p>
                 <div class="button-group">
-                  <button id="saveButton" onclick="saveTilesAfterDrawing();">Save changes</button>
-                  <button id="discardButton" class="secondary" onclick="discardChangesOnTiles();">Discard changes</button>
+                  <button id="saveButton">Save changes</button>
+                  <button id="discardButton" class="secondary">Discard changes</button>
                   <div class="toggle-switch" id="tileBorderToggle">
                     <input type="checkbox" id="tileBorders">
                     <label for="tileBorders"></label>
@@ -533,14 +557,15 @@
                   </div>
                 </div>
               </p>
+
               <div class="tile-container" id="tile-container"></div>
-          <!--</div>-->
           </div>
       </div>
 
       <!-- Background Map Editor (Modal) -->  
       <div id="BG-myModal" class="BG-modal">
-        <div class="BG-modal-content">   
+        <div class="BG-modal-content">
+          <button id="closeBGMapButton" class="modal-close-button" type="button" aria-label="Discard changes and close">&times;</button>
           <div class="BG-center-container">
             <div class="BG-container">
               <div class="BG-playfieldgrid">
@@ -552,15 +577,15 @@
           </div>
           <p>
             <div class="button-group">
-              <button id="applyBGMap" onclick="saveBGMap()">Save Changes</button>
-              <button id="discardBGMap" onclick="closeBGModal()" class="secondary">Discard Changes</button>
+              <button id="applyBGMap">Save Changes</button>
+              <button id="discardBGMap" class="secondary">Discard Changes</button>
               <input type="text" id="BGMapStartAddress" disabled style="display: none;">
               <div class="toggle-switch">
                 <input type="checkbox" id="addressesToggle">
                 <label for="addressesToggle"></label>
                 <span class="toggle-text">Images / VRAM Addresses</span>
               </div>
-              <button id="saveBGMapAsBIN" onclick="downloadBGMapAsBin()" class="secondary">Download Background Map as .bin</button>
+              <button id="saveBGMapAsBIN" class="secondary">Download Background Map as .bin</button>
             </div>
           </p>
         </div>
@@ -587,14 +612,6 @@
     <script src="backgroundEditor.js"></script>
 
     <!-- NEW -->
-    <script src="ROM-Editor-Body/Address-Jumper.js"></script>
-    <script src="ROM-Editor-Body/Checksum-Display.js"></script>
-    <script src="ROM-Editor-Body/GG-Code-Applicator.js"></script>
-    <script src="ROM-Editor-Body/Header-Data-Editor.js"></script>
-    <script src="ROM-Editor-Body/Hex-ROM-Editor.js"></script>
-    <script src="ROM-Editor-Body/Log-Viewer.js"></script>
-    <script src="ROM-Editor-Body/Save-File-Option.js"></script>
-    <script src="ROM-Editor-Body/Sequence-Finder.js"></script>
 
   </body>
 </html>

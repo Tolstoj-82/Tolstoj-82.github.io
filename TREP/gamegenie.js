@@ -32,56 +32,36 @@ function clearFields(elem, cleanGG = false){
 
 // Transforms a game genie code to (1) address (2) old value (3) newvalue
 function ggCodeToAddr(input){
-  // This whole function could be optimized... a lot! It feels (and is) so inefficient     
-  
   // Only allow 6 or 9 digit hexadecimal values
   if (/^[0-9A-F]{6}$/.test(input) || /^[0-9A-F]{9}$/.test(input)) {
-    var A = parseInt(input.charAt(0), 16).toString(16);
-    var B = parseInt(input.charAt(1), 16).toString(16);
-    var C = parseInt(input.charAt(2), 16).toString(16);
-    var D = parseInt(input.charAt(3), 16).toString(16);
-    var E = parseInt(input.charAt(4), 16).toString(16);
-    var F = (0xF - parseInt(input.charAt(5), 16)).toString(16);
-    var G = parseInt(input.charAt(6), 16).toString(2).padStart(4, '0');
-    var G2 = "";
-    var H = "";
-    var HInv = "";
-    var GInv = "";
+    const newValueNumber = parseInt(input.slice(0, 2), 16);
+    const addressMiddle = parseInt(input.slice(2, 5), 16);
+    const addressHigh = parseInt(input.charAt(5), 16) ^ 0xF;
+    const hexAddress = ((addressHigh << 12) | addressMiddle)
+      .toString(16).padStart(4, '0').toUpperCase();
+    const newValue = newValueNumber.toString(16).padStart(2, '0').toUpperCase();
+
+    let oldValue = "-";
+    let isSame = true;
 
     if (input.length === 9) {
-      G2 = parseInt(input.charAt(7), 16).toString(2).padStart(4, '0');
-      H = parseInt(input.charAt(8), 16).toString(2).padStart(4, '0');
+      const g = parseInt(input.charAt(6), 16);
+      const g2 = parseInt(input.charAt(7), 16);
+      const h = parseInt(input.charAt(8), 16);
+
+      // The checksum nibble is G with its most-significant bit flipped.
+      isSame = g2 === (g ^ 0x8);
+
+      const oldValueNumber = ((~h & 0x2) << 6)
+        | ((h & 0x1) << 6)
+        | ((~g & 0xE) << 2)
+        | ((g & 0x1) << 2)
+        | ((~h & 0x8) >> 2)
+        | ((h & 0x4) >> 2);
+      oldValue = oldValueNumber.toString(16).padStart(2, '0').toUpperCase();
     }
-
-    var Gl = G.length;
-    var G2l = G2.length;
-    var Hl = H.length;
-
-    for (i = 0; i < Gl; i++) {
-      var add = 1;
-      if (G.charAt(i) === "1") add = 0;
-      GInv += add;
-    }
-
-    for (i = 0; i < Hl; i++) {
-      var add = 1;
-      if (H.charAt(i) === "1") add = 0;
-      HInv += add;
-    }
-
-    // check if a 9 digit code is valid
-    var isSame = Gl === G2l && G.charAt(0) !== G2.charAt(0);
-    for (var i = 1; isSame && i < Gl; i++) isSame = G.charAt(i) === G2.charAt(i);
-    if (G2 === "" && H === "") isSame = true;
 
     if (isSame) {
-      var hexAddress = (F + C + D + E).toUpperCase();
-      var oldValue = HInv.charAt(2) + H.charAt(3) + GInv.charAt(0) + GInv.charAt(1) + GInv.charAt(2) + G.charAt(3) + HInv.charAt(0) + H.charAt(1);
-      oldValue = parseInt(oldValue, 2).toString(16).padStart(2, '0').toUpperCase();
-      var newValue = (A + B).toUpperCase();
-
-      if (G2 === "" && H === "") oldValue = "-";
-
       e_romAddr.value = hexAddress;
       e_oldVal.value = oldValue;
       e_newVal.value = newValue;
@@ -98,6 +78,79 @@ function ggCodeToAddr(input){
 
 //-------------------------------------------------------------------------------------------
 
+// Transforms an address, new value and optional old value into a Game Genie code.
+function addrToGgCode(address, newValue, oldValue = "") {
+  const normalizedAddress = address.toUpperCase();
+  const normalizedNewValue = newValue.toUpperCase();
+  const normalizedOldValue = oldValue.toUpperCase();
+
+  if (!/^[0-9A-F]{4}$/.test(normalizedAddress)
+      || !/^[0-9A-F]{2}$/.test(normalizedNewValue)
+      || (normalizedOldValue && !/^[0-9A-F]{2}$/.test(normalizedOldValue))) {
+    return "";
+  }
+
+  const addressNumber = parseInt(normalizedAddress, 16);
+  const encodedAddress = (addressNumber & 0x0FFF).toString(16).padStart(3, "0").toUpperCase()
+    + ((addressNumber >>> 12) ^ 0xF).toString(16).toUpperCase();
+  let rawCode = normalizedNewValue + encodedAddress;
+
+  if (normalizedOldValue) {
+    const oldValueNumber = parseInt(normalizedOldValue, 16);
+    const g = (((~oldValueNumber & 0x38) | (oldValueNumber & 0x04)) >>> 2) & 0xF;
+    const h = ((~oldValueNumber & 0x02) << 2)
+      | ((oldValueNumber & 0x01) << 2)
+      | ((~oldValueNumber & 0x80) >>> 6)
+      | ((oldValueNumber & 0x40) >>> 6);
+    rawCode += g.toString(16) + (g ^ 0x8).toString(16) + h.toString(16);
+  }
+
+  rawCode = rawCode.toUpperCase();
+  return rawCode.length === 9
+    ? `${rawCode.slice(0, 3)}-${rawCode.slice(3, 6)}-${rawCode.slice(6)}`
+    : `${rawCode.slice(0, 3)}-${rawCode.slice(3)}`;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("reverseGGModal");
+  const addressInput = document.getElementById("reverseGGAddress");
+  const newValueInput = document.getElementById("reverseGGNewValue");
+  const oldValueInput = document.getElementById("reverseGGOldValue");
+  const resultInput = document.getElementById("reverseGGResult");
+  const useButton = document.getElementById("useReverseGGCode");
+
+  function updateReverseCode() {
+    for (const input of [addressInput, newValueInput, oldValueInput]) {
+      input.value = input.value.replace(/[^0-9A-F]/gi, "").toUpperCase();
+    }
+    resultInput.value = addrToGgCode(addressInput.value, newValueInput.value, oldValueInput.value);
+    useButton.disabled = !resultInput.value;
+  }
+
+  document.getElementById("openReverseGGButton").addEventListener("click", () => {
+    modal.style.display = "block";
+    addressInput.focus();
+  });
+  document.getElementById("closeReverseGGButton").addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+  modal.addEventListener("click", event => {
+    if (event.target === modal) modal.style.display = "none";
+  });
+
+  for (const input of [addressInput, newValueInput, oldValueInput]) {
+    input.addEventListener("input", updateReverseCode);
+  }
+
+  useButton.addEventListener("click", () => {
+    e_ggCode.value = resultInput.value;
+    e_ggCode.dispatchEvent(new Event("input", { bubbles: true }));
+    modal.style.display = "none";
+  });
+});
+
+//-------------------------------------------------------------------------------------------
+
 // Overwrites a ROM value
 function applyCode(force = false) {
   
@@ -106,21 +159,21 @@ function applyCode(force = false) {
     return false;
   }
 
-  address = e_romAddr.value.trim();
-  oldVal = e_oldVal.value.trim();
-  newVal = e_newVal.value.trim();
-  var returnValue = false;
+  const address = e_romAddr.value.trim();
+  const oldVal = e_oldVal.value.trim();
+  const newVal = e_newVal.value.trim();
+  let returnValue = false;
 
-  var element = document.getElementById(address);
+  let element = document.getElementById(address);
 
   if (element) {
-    var valueInRomAddress = element.textContent;
+    let valueInRomAddress = element.textContent;
 
     // scroll to the address
     scrollToAddress(address);
     
     // only change the value if the old value was the one from the GG code
-    if(oldVal == "-" || oldVal == valueInRomAddress){
+    if(oldVal === "-" || oldVal === valueInRomAddress){
       
       //exchange the value in the cell
       document.getElementById(address).textContent = newVal;
@@ -156,8 +209,8 @@ function formattedTime(){
 // Change the color of the code field depending on the validity of the input
 function formatInputs(input){
   
-  var c_red = '#f3baba';
-  var c_orange = "'#ffe6b7'";
+  let c_red = '#f3baba';
+  let c_orange = "'#ffe6b7'";
   
   if(input.length < 6 || !/^[0-9A-Fa-f]+$/.test(input)) {
     clearFields(e_ggCode);

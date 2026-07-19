@@ -8,10 +8,18 @@
 
 const disabledButtonText = "nothing to apply - add a code first";
 let e_ggCode;
-var autoApply = false;
+let e_romAddr;
+let e_oldVal;
+let e_newVal;
+let e_applyCode;
+let e_searchInput;
+let autoApply = false;
+let tileDataReady = Promise.resolve();
+let activeBGMapName = "";
+let bgPreviewRefreshFrame = null;
 
 // Initialize the pixelData array
-var pixelData = [];
+let pixelData = [];
 
 // toggle to automatically apply GG Codes
 document.getElementById('autoApplyToggle').addEventListener('change', function() {
@@ -23,18 +31,8 @@ document.getElementById('addressesToggle').addEventListener('change', function()
 });
 
 document.getElementById('tileBorders').addEventListener('change', function() {
-  const checkbox = document.getElementById('tileBorders');
-  const tiles = document.querySelectorAll('.tile-container .tile-row .tile');
-
-  if (checkbox.checked) {
-    tiles.forEach(tile => {
-      tile.style.border = '1px dotted blue';
-    });
-  } else {
-    tiles.forEach(tile => {
-      tile.style.border = 'none';
-    });
-  }
+  document.getElementById("tile-container")
+    .classList.toggle("show-tile-borders", this.checked);
 });
 
 //------------------------------------------------------------------------------------------
@@ -48,18 +46,41 @@ document.addEventListener('DOMContentLoaded', function() {
   e_applyCode = document.getElementById("applyCode");
   e_searchInput = document.getElementById("searchInput");
 
+  document.getElementById("romFileInput").addEventListener("change", validateFile);
+  e_applyCode.addEventListener("click", () => applyCode(true));
+  document.getElementById("searchSequenceButton").addEventListener("click", searchSequenceInCode);
+  document.getElementById("searchAddressInput").addEventListener("blur", formatSequenceInput);
+  document.getElementById("slider").addEventListener("input", updateSliderValue);
+  document.getElementById("navigateAddressButton").addEventListener("click", searchAndSelectCell);
+  document.getElementById("createFileBtn").addEventListener("click", createFileFromHexData);
+  document.getElementById("gameTitle").addEventListener("keydown", handleGameTitleKeydown);
+  document.getElementById("gameTitle").addEventListener("blur", validateGameTitle);
+
+  document.querySelectorAll(".tab[data-tab]").forEach(tabElement => {
+    tabElement.addEventListener("click", event => openTab(event, tabElement.dataset.tab));
+  });
+
+  document.querySelectorAll(".color-picker").forEach((picker, index) => {
+    picker.addEventListener("change", () => {
+      updateColorPalette(`.col${index}`, picker.value, picker);
+      scheduleBGMapPreviewRefresh();
+    });
+  });
+
+  document.getElementById("saveButton").addEventListener("click", saveTilesAfterDrawing);
+  document.getElementById("discardButton").addEventListener("click", discardChangesOnTiles);
+  document.getElementById("closeTileEditorButton").addEventListener("click", discardChangesOnTiles);
+  document.getElementById("applyBGMap").addEventListener("click", saveBGMap);
+  document.getElementById("discardBGMap").addEventListener("click", closeBGModal);
+  document.getElementById("closeBGMapButton").addEventListener("click", closeBGModal);
+  document.getElementById("saveBGMapAsBIN").addEventListener("click", downloadBGMapAsBin);
+
+  initializeHeaderEditors();
+  initializeToastCloseButtons();
+  initializeBGMapList();
+
   e_applyCode.setAttribute("title", disabledButtonText);
 
-  // populate the dropdown with the BM map addresses
-  const selectElement = document.getElementById("BGMapSelector");
-
-  for (const key in bgMaps) {
-    const option = document.createElement("option");
-    option.value = bgMaps[key][0];
-    option.text = key;
-    selectElement.appendChild(option);
-  }
-  
 
   // piece orientation (N,E,S,W)
   const selectElements = {
@@ -109,14 +130,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Add event listener for "input" event
   e_ggCode.addEventListener("input", handleInput);
 
-  var accordion = document.querySelector('.accordion');
-  var panel = document.querySelector('.panel');
+  let accordion = document.querySelector('.accordion');
+  let panel = document.querySelector('.panel');
 
   accordion.addEventListener('click', function() {
     this.classList.toggle('active');
     panel.classList.toggle('active');
 
-    var accordionSymbol = this.querySelector('.accordion-symbol');
+    let accordionSymbol = this.querySelector('.accordion-symbol');
     if (this.classList.contains('active')) {
       accordionSymbol.textContent = '-';
       panel.style.maxHeight = panel.scrollHeight + 'px';
@@ -191,26 +212,113 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 //------------------------------------------------------------------------------------------
+// Background-map previews and selection list
+function initializeBGMapList() {
+  const list = document.getElementById("bgMapList");
+
+  for (const [name, mapInfo] of Object.entries(bgMaps)) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "bg-map-entry";
+    button.dataset.bgMapName = name;
+
+    const preview = document.createElement("img");
+    preview.className = "bg-map-preview";
+    preview.alt = `${name} preview`;
+
+    const label = document.createElement("span");
+    label.className = "bg-map-name";
+    label.textContent = name;
+
+    button.append(preview, label);
+    button.addEventListener("click", () => getBGMap(mapInfo[0], name));
+    list.appendChild(button);
+  }
+}
+
+function renderBGMapPreview(name) {
+  const mapInfo = bgMaps[name];
+  if (!mapInfo) return;
+
+  const [startAddress, columns, rows, tileSetName, , gapValue] = mapInfo;
+  assignVramTileSet(vRamTileSets[tileSetName], false);
+
+  const previewScale = 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = columns * 8 * previewScale;
+  canvas.height = rows * 8 * previewScale;
+  const context = canvas.getContext("2d");
+  context.imageSmoothingEnabled = false;
+  const colors = Array.from({ length: 4 }, (_, index) =>
+    document.getElementById(`color-picker-${index}`).value
+  );
+  context.fillStyle = colors[0];
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  const start = parseInt(startAddress, 16);
+  const gap = gapValue ? parseInt(gapValue, 10) : 1;
+  for (let index = 0; index < columns * rows; index++) {
+    const address = (start + index * gap).toString(16).padStart(4, "0").toUpperCase();
+    const romCell = document.getElementById(address);
+    if (!romCell) continue;
+
+    const tileId = romCell.textContent.trim().toUpperCase();
+    const tile = document.querySelector(`.tile[data-vram="${tileId}"]`);
+    if (!tile) continue;
+
+    const tileX = (index % columns) * 8 * previewScale;
+    const tileY = Math.floor(index / columns) * 8 * previewScale;
+    tile.querySelectorAll(".pixel").forEach((pixel, pixelIndex) => {
+      const colorClass = Array.from(pixel.classList).find(className => /^col[0-3]$/.test(className));
+      const colorIndex = colorClass ? Number(colorClass.slice(3)) : 0;
+      context.fillStyle = colors[colorIndex];
+      context.fillRect(
+        tileX + pixelIndex % 8 * previewScale,
+        tileY + Math.floor(pixelIndex / 8) * previewScale,
+        previewScale,
+        previewScale
+      );
+    });
+  }
+
+  const entry = Array.from(document.querySelectorAll(".bg-map-entry"))
+    .find(button => button.dataset.bgMapName === name);
+  const preview = entry ? entry.querySelector(".bg-map-preview") : null;
+  if (preview) preview.src = canvas.toDataURL("image/png");
+}
+
+function refreshBGMapPreviews() {
+  for (const name of Object.keys(bgMaps)) renderBGMapPreview(name);
+}
+
+function scheduleBGMapPreviewRefresh() {
+  if (!document.querySelector("#hexViewer .hexValueCell") || !document.querySelector(".tile")) return;
+  cancelAnimationFrame(bgPreviewRefreshFrame);
+  bgPreviewRefreshFrame = requestAnimationFrame(refreshBGMapPreviews);
+}
+
+
+//------------------------------------------------------------------------------------------
 // save the bg map and close the modal
 function saveBGMap(bgMap) {
 
-  var olElement = document.getElementById("selectable");
-  var imgElements = olElement.querySelectorAll("li img");
-  var startAddress = document.getElementById("BGMapStartAddress").value;
+  let olElement = document.getElementById("selectable");
+  let imgElements = olElement.querySelectorAll("li img");
+  let startAddress = document.getElementById("BGMapStartAddress").value;
 
-  var currentAddress = parseInt(startAddress, 16);
+  let currentAddress = parseInt(startAddress, 16);
 
   imgElements.forEach(function(imgElement) {
 
-    var tileID = imgElement.getAttribute("data-tile-id");
+    let tileID = imgElement.getAttribute("data-tile-id");
 
     // Extract the number from the image ID (assuming the ID is in the format "bg-tile-X" where X is the number)
-    var tileNumber = parseInt(imgElement.id.replace("bg-tile-", ""), 16);
+    let tileNumber = parseInt(imgElement.id.replace("bg-tile-", ""), 16);
 
     // Calculate the address based on the tile number and the starting address
-    var hexAddress = (currentAddress + tileNumber).toString(16).toUpperCase().padStart(4, '0');
+    let hexAddress = (currentAddress + tileNumber).toString(16).toUpperCase().padStart(4, '0');
 
-    var td = document.getElementById(hexAddress);
+    let td = document.getElementById(hexAddress);
     td.textContent = tileID;
   });
 
@@ -218,11 +326,8 @@ function saveBGMap(bgMap) {
   scrollToAddress(startAddress);
   document.getElementById("createFileBtn").removeAttribute("disabled");
   
-  // Name of the selected BG map
-  var selectElement = document.getElementById("BGMapSelector");
-  var bgMapName = selectElement.options[selectElement.selectedIndex].text;
-
-  addToLog("Background map \"" + bgMapName + "\" overwritten.");
+  renderBGMapPreview(activeBGMapName);
+  addToLog("Background map \"" + activeBGMapName + "\" overwritten.");
 }
 
 
@@ -230,33 +335,31 @@ function saveBGMap(bgMap) {
 //-----------------------------------------------------------------------------------------
 // save the bg map and close the modal
 function downloadBGMapAsBin() {
-  var olElement = document.getElementById("selectable");
-  var imgElements = olElement.querySelectorAll("li img");
-  var tileIDs = [];
+  let olElement = document.getElementById("selectable");
+  let imgElements = olElement.querySelectorAll("li img");
+  let tileIDs = [];
 
   imgElements.forEach(function (imgElement) {
-    var tileID = imgElement.getAttribute("data-tile-id");
+    let tileID = imgElement.getAttribute("data-tile-id");
     tileIDs.push(parseInt(tileID, 16)); // Ensure IDs are treated as numbers
     
   });
 
-  var byteArray = new Uint8Array(tileIDs.length);
+  let byteArray = new Uint8Array(tileIDs.length);
 
 
-  for (var i = 0; i < tileIDs.length; i++) {
-    //console.log(tileIDs[i]);
+  for (let i = 0; i < tileIDs.length; i++) {
     byteArray[i] = tileIDs[i];
   }
 
-  var blob = new Blob([byteArray], { type: "application/octet-stream" });
-  var url = URL.createObjectURL(blob);
+  let blob = new Blob([byteArray], { type: "application/octet-stream" });
+  let url = URL.createObjectURL(blob);
 
-  var selectElement = document.getElementById("BGMapSelector");
-  var bgMapName = selectElement.options[selectElement.selectedIndex].text;
-  var bgMapInfo = bgMaps[bgMapName];
-  var bgMapFileName = bgMapInfo[4];
+  let bgMapName = activeBGMapName;
+  let bgMapInfo = bgMaps[bgMapName];
+  let bgMapFileName = bgMapInfo[4];
 
-  var a = document.createElement("a");
+  let a = document.createElement("a");
   a.href = url;
   a.download = bgMapFileName;
 
@@ -264,6 +367,7 @@ function downloadBGMapAsBin() {
   a.click();
 
   document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 
   addToLog("BG Map Saved: \"" + bgMapName + "\" >> \"" + bgMapFileName + "\"");
 }
@@ -289,7 +393,7 @@ function addToLog(logText){
 //------------------------------------------------------------------------------------------
 // enables download button if changes were made
 function enableDownload() {
-var button = document.getElementById("createFileBtn");
+let button = document.getElementById("createFileBtn");
 button.removeAttribute("disabled");
 }
 
@@ -298,7 +402,7 @@ button.removeAttribute("disabled");
 function searchAndSelectCell() {
   const searchInput = document.getElementById('searchInput');
   const address = searchInput.value.trim();
-  if(address != "") scrollToAddress(address);
+  if(address !== "") scrollToAddress(address);
 }
 
 //------------------------------------------------------------------------------------------
@@ -410,9 +514,9 @@ function validateGameTitle(event) {
 // Loads a ROM file
 function validateFile(event) {
 
-  maxFileSize = 3000; // files can't be bigger than that
+  const maxFileSize = 3000; // files can't be bigger than that
 
-  var file = event.target.files[0];
+  let file = event.target.files[0];
 
   // Check if a file is selected
   if (!file) {
@@ -421,7 +525,7 @@ function validateFile(event) {
   }
 
   // Check the file extension
-  var fileExtension = file.name.split('.').pop().toLowerCase();
+  let fileExtension = file.name.split('.').pop().toLowerCase();
   if (fileExtension !== 'gb') {
     alert('Only .gb files are allowed.');
     hideLoadingAnimation();
@@ -429,7 +533,7 @@ function validateFile(event) {
   }
 
   // Check the file size
-  var fileSize = file.size / 1024; // in KB
+  let fileSize = file.size / 1024; // in KB
   if (fileSize > maxFileSize) {
     alert('File size should be less than or equal to ' + round(maxFileSize/1000) + ' MB.');
     hideLoadingAnimation();
@@ -437,25 +541,25 @@ function validateFile(event) {
   }
 
   // add the file name to the field patchRomName
-  var patchRomNameInput = document.getElementById("patchRomName");
-  var fileNameWithoutExtension = file.name.replace(".gb", "");
+  let patchRomNameInput = document.getElementById("patchRomName");
+  let fileNameWithoutExtension = file.name.replace(".gb", "");
   patchRomNameInput.value = fileNameWithoutExtension + "-modified";
 
   // Show loading animation
   showLoadingAnimation();
 
   // Read the file data
-  var reader = new FileReader();
+  let reader = new FileReader();
   reader.onload = function (event) {
     // File loading completed
     hideLoadingAnimation();
 
-    var fileData = event.target.result;
-    var hexData = convertToHex(fileData);
+    let fileData = event.target.result;
+    let hexData = convertToHex(fileData);
       
       // Create a MutationObserver to detect changes in the table
-      var observer = new MutationObserver(function(mutationsList) {
-        for (var mutation of mutationsList) {
+      let observer = new MutationObserver(function(mutationsList) {
+        for (let mutation of mutationsList) {
           if (mutation.type === 'childList' && mutation.target.id === 'hexViewer' && mutation.target.childNodes.length > 0) {
             
             // Table has been populated, get the title
@@ -507,13 +611,14 @@ function validateFile(event) {
     const blob = new Blob([fileData]);
 
     // Create a download link and trigger the download
-    newFileName = 'modified_ROM.gb';
-    fileNameFromInput = document.getElementById("patchRomName").value + ".gb";
-    if(fileNameFromInput != "") newFileName = fileNameFromInput;
+    let newFileName = 'modified_ROM.gb';
+    const fileNameFromInput = document.getElementById("patchRomName").value + ".gb";
+    if(fileNameFromInput !== "") newFileName = fileNameFromInput;
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = newFileName;
     link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 0);
     displayToast("GLHF");
     addToLog(`Game saved as "${newFileName}"`);
   }
@@ -636,7 +741,9 @@ function validateFile(event) {
           // Check if the value has changed
           if (previousValue && previousValue.toLowerCase() !== value.toLowerCase()) {
             cell.classList.add('edited');
-            addToLog("Address $" + cell.id + " | " + previousValue + " > " + value + ", manually altered");
+            const gameGenieCode = addrToGgCode(cell.id, value, previousValue);
+            addToLog("Address $" + cell.id + " | " + previousValue + " > " + value
+              + ", manually altered | GG: " + gameGenieCode);
           } else {
             cell.classList.remove('edited');
           }
@@ -654,20 +761,20 @@ function validateFile(event) {
     // Open the modal at the beginning 
     // wait 1 second - like this the positioning should be correct
     const openModalButton = document.getElementById("openModalButton");
-    setTimeout(function() {
-      openModalButton.click();
-      
-      // load tile data from the lookup table  
-      let pixelData = [];
-      for (const setName in tileAddressesInROM) {
-        const [address, length, bPP, showTiles] = tileAddressesInROM[setName];
+    tileDataReady = new Promise(resolve => {
+        // Load tile data from the lookup table before BG maps can use it.
+        for (const setName in tileAddressesInROM) {
+          const [address, length, bPP, showTiles] = tileAddressesInROM[setName];
+          if (showTiles) getTileData(address, length, bPP, setName);
+        }
 
-        // show the tiles
-        if(showTiles) pixelData = pixelData.concat(getTileData(address, length, bPP, setName));
-        
-      }
+        // Apply the initial palette before BG-map tiles are rendered to canvases.
+        document.getElementById("palette-dropdown").dispatchEvent(new Event("change"));
 
-    }, 1000);
+        resolve();
+    });
+
+    setTimeout(() => openModalButton.click(), 1000);
 
     wipeTilesFromLocalStorage();
 
@@ -693,7 +800,7 @@ function validateFile(event) {
     // only do, if the address is hex
     if (/^[0-9a-fA-F]+$/.test(address)) { 
       const oriAddr = parseInt(address, 16);
-      subtractor = 0;
+      let subtractor = 0;
       if (oriAddr > 15) subtractor = 16;
   
       address = (oriAddr - subtractor).toString(16).toUpperCase().padStart(4, '0');
@@ -760,14 +867,30 @@ function validateFile(event) {
 //------------------------------------------------------------------------------------------
 // display a toast
 let toastQueue = [];
-let canCall = true;
 const maxToastQueueLen = 3; // maximum size of the toastQueue
+const toastDisplayDuration = 2500;
+const toastTransitionDuration = 300;
+let currentToast = null;
+let toastHideTimer = null;
+let toastAdvanceTimer = null;
+
+function initializeToastCloseButtons() {
+  document.querySelectorAll(".toast").forEach(toast => {
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "toast-close";
+    closeButton.setAttribute("aria-label", "Dismiss notification");
+    closeButton.innerHTML = "&times;";
+    closeButton.addEventListener("click", dismissCurrentToast);
+    toast.appendChild(closeButton);
+  });
+}
 
 function displayToast(id) {
   toastQueue.push(id);
 
   if (toastQueue.length > maxToastQueueLen) {
-    toastQueue.splice(0, toastQueue.length - maxToastQueueLen);
+    toastQueue.splice(maxToastQueueLen);
   }
 
   if (toastQueue.length === 1) {
@@ -778,21 +901,108 @@ function displayToast(id) {
 function showNextToast() {
   if (!toastQueue.length) return;
 
-  let id = toastQueue[0];
-    var toast = document.getElementById(id);
-    setTimeout(function() {
-      toast.classList.add("show");
-    }, 10);
-    setTimeout(function() {
-      toast.classList.remove("show");
-      toastQueue.shift();
-      showNextToast();
-    }, 2500);
+  const toast = document.getElementById(toastQueue[0]);
+  if (!toast) {
+    toastQueue.shift();
+    showNextToast();
+    return;
   }
-//}
+
+  currentToast = toast;
+  toast.style.setProperty("--toast-duration", `${toastDisplayDuration}ms`);
+  requestAnimationFrame(() => toast.classList.add("show"));
+
+  toastHideTimer = setTimeout(dismissCurrentToast, toastDisplayDuration);
+}
+
+function dismissCurrentToast() {
+  if (!currentToast) return;
+
+  clearTimeout(toastHideTimer);
+  clearTimeout(toastAdvanceTimer);
+  currentToast.classList.remove("show");
+
+  toastAdvanceTimer = setTimeout(() => {
+    toastQueue.shift();
+    currentToast = null;
+    showNextToast();
+  }, toastTransitionDuration);
+}
 
 //------------------------------------------------------------------------------------------
 // populates header data 
+let headerFieldDefinitions;
+
+function appendHeaderOptions(select, values) {
+  for (const [code, description] of Object.entries(values)) {
+    const option = document.createElement("option");
+    option.value = code;
+    option.textContent = `${code} — ${description}`;
+    select.appendChild(option);
+  }
+}
+
+function writeHeaderByte(address, value) {
+  const cell = document.getElementById(address);
+  if (!cell) return false;
+  cell.textContent = value;
+  cell.classList.add("edited");
+  return true;
+}
+
+function initializeHeaderEditors() {
+  headerFieldDefinitions = {
+    thisCgbFlag: { address: "0143", values: cgbFlag },
+    thisSgbFlag: {
+      address: "0146",
+      values: {
+        "00": "No Super Game Boy enhancements",
+        "03": "Supports Super Game Boy enhancements"
+      }
+    },
+    thisCartridgeType: { address: "0147", values: cartridgeType },
+    thisRomSize: { address: "0148", values: romSize },
+    thisRamSize: { address: "0149", values: ramSize },
+    thisDestinationCode: { address: "014A", values: destinationCode }
+  };
+
+  for (const [selectId, definition] of Object.entries(headerFieldDefinitions)) {
+    const select = document.getElementById(selectId);
+    appendHeaderOptions(select, definition.values);
+    select.addEventListener("change", () => {
+      if (!writeHeaderByte(definition.address, select.value)) return;
+      updateChecksums(true);
+      addToLog(`Header $${definition.address} changed to ${select.value}`);
+    });
+  }
+
+  const licenseeSelect = document.getElementById("licenseeCode");
+  const oldCodes = document.createElement("optgroup");
+  oldCodes.label = "Old licensee codes";
+  appendHeaderOptions(oldCodes, oldLicenseeCode);
+  Array.from(oldCodes.children).forEach(option => option.value = `old:${option.value}`);
+  licenseeSelect.appendChild(oldCodes);
+
+  const newCodes = document.createElement("optgroup");
+  newCodes.label = "New licensee codes";
+  appendHeaderOptions(newCodes, newLicenseeCode);
+  Array.from(newCodes.children).forEach(option => option.value = `new:${option.value}`);
+  licenseeSelect.appendChild(newCodes);
+
+  licenseeSelect.addEventListener("change", () => {
+    const [format, code] = licenseeSelect.value.split(":");
+    if (format === "old") {
+      if (!writeHeaderByte("014B", code)) return;
+    } else {
+      if (!writeHeaderByte("014B", "33")) return;
+      writeHeaderByte("0144", code.charCodeAt(0).toString(16).padStart(2, "0").toUpperCase());
+      writeHeaderByte("0145", code.charCodeAt(1).toString(16).padStart(2, "0").toUpperCase());
+    }
+    updateChecksums(true);
+    addToLog(`Licensee code changed to ${code} (${format})`);
+  });
+}
+
 function obtainHeaderData() {
   
   // (1) Game title
@@ -819,71 +1029,45 @@ function obtainHeaderData() {
   }
 
   // (2) Header data
-  const thisCgbFlag = cgbFlag[document.getElementById("0143").textContent] || "Unknown";
-  const thisCartridgeType = cartridgeType[document.getElementById("0147").textContent] || "Unknown";
-  const thisRomSize = romSize[document.getElementById("0148").textContent] || "Unknown";
-  const thisRamSize = ramSize[document.getElementById("0149").textContent] || "Unknown";
-  const thisDestinationCode = destinationCode[document.getElementById("014A").textContent] || "Unknown";
-  var thisSgbFlag = "No Super Game Boy enhancements for this game";
-  if(document.getElementById("0146").textContent == "03"){
-      thisSgbFlag = "This game contains Super Game Boy enhancements";
-  }
+  const cgbCode = document.getElementById("0143").textContent;
+  const sgbCode = document.getElementById("0146").textContent;
+  const cartridgeCode = document.getElementById("0147").textContent;
+  const romSizeCode = document.getElementById("0148").textContent;
+  const ramSizeCode = document.getElementById("0149").textContent;
+  const destinationCodeValue = document.getElementById("014A").textContent;
 
-  let licenseeCode = "";
   const licensee = document.getElementById("014B").textContent;
+  let licenseeValue;
   if (licensee !== "33") {
-      licenseeCode = oldLicenseeCode[licensee] || "Unknown";
+      licenseeValue = `old:${licensee}`;
   } else {
-      const licenseeCode1 = newLicenseeCode[document.getElementById("0144").textContent] || "";
-      const licenseeCode2 = newLicenseeCode[document.getElementById("0145").textContent] || "";
-
-      licenseeCode = licenseeCode1; 
-      if(licenseeCode2 != "" && licenseeCode1 != ""){
-          licenseeCode += " / ";
-      }
-      licenseeCode += licenseeCode2;
+      const firstCharacter = String.fromCharCode(parseInt(document.getElementById("0144").textContent, 16));
+      const secondCharacter = String.fromCharCode(parseInt(document.getElementById("0145").textContent, 16));
+      licenseeValue = `new:${firstCharacter}${secondCharacter}`;
   }
 
   // Populate the second column of the existing table with header data
   document.getElementById("gameTitle").textContent = gameTitle;
   document.getElementById("gameTitle").setAttribute('data-titleBefore', gameTitle);
-  document.getElementById("thisCgbFlag").textContent = thisCgbFlag;
-  document.getElementById("thisSgbFlag").textContent = thisSgbFlag;
-  document.getElementById("thisCartridgeType").textContent = thisCartridgeType;
-  document.getElementById("thisRomSize").textContent = thisRomSize;
-  document.getElementById("thisRamSize").textContent = thisRamSize;
-  document.getElementById("thisDestinationCode").textContent = thisDestinationCode;
-  document.getElementById("licenseeCode").textContent = licenseeCode;
-}
-
-//------------------------------------------------------------------------------------------
-function saveBGMapPreviewIntoLocalStorage(id, bgMap) {
-  
-  cols = bgMaps[bgMap][1]; 
-  rows = bgMaps[bgMap][2];
-
-  // delete previous VRAM Tile Set
-  wipeTilesFromLocalStorage();
-
-  const startIndex = parseInt(id, 16);
-
-  for (let i = 0; i < imageElements.length; i++) {
-    const cellId = (startIndex + i).toString(16).padStart(2, '0').toUpperCase();
-    const cellContent = document.getElementById(cellId).textContent;
-    const bgTileId = i.toString(16).padStart(2,'0').toLocaleUpperCase();
-    
-    // the image needs an ID / also make sure it's upscaled using point filtering (pixel perfect)
-    imageElements[i].setAttribute("id", "bg-tile-" + bgTileId);
-    imageElements[i].style.imageRendering = "pixelated";
-    //
-    //displayTileImageFromLocalStorage(cellContent, "bg-tile-" + bgTileId);
-  }
+  document.getElementById("thisCgbFlag").value = cgbCode;
+  document.getElementById("thisSgbFlag").value = sgbCode;
+  document.getElementById("thisCartridgeType").value = cartridgeCode;
+  document.getElementById("thisRomSize").value = romSizeCode;
+  document.getElementById("thisRamSize").value = ramSizeCode;
+  document.getElementById("thisDestinationCode").value = destinationCodeValue;
+  document.getElementById("licenseeCode").value = licenseeValue;
 }
 
 //------------------------------------------------------------------------------------------
 
 // this woks, but now we need to make sure, the correct VRAM is loaded
-function getBGMap(id, bgMap) {
+async function getBGMap(id, bgMap) {
+
+  await tileDataReady;
+  activeBGMapName = bgMap;
+  document.querySelectorAll(".bg-map-entry").forEach(entry => {
+    entry.classList.toggle("active", entry.dataset.bgMapName === bgMap);
+  });
 
   // delete previous VRAM Tile Set
   wipeTilesFromLocalStorage();
@@ -930,17 +1114,17 @@ function getBGMap(id, bgMap) {
 
   document.getElementById("BGMapStartAddress").value = id;
 
-  var button = document.getElementById("saveBGMapAsBIN");
+  let button = document.getElementById("saveBGMapAsBIN");
   const thisMapName = bgMaps[bgMap][4];
-  var suffix = "";
-  if(thisMapName != "undefined") suffix = " as \"" + thisMapName  + "\"";
+  let suffix = "";
+  if(thisMapName !== "undefined") suffix = " as \"" + thisMapName  + "\"";
   button.innerHTML = "▼ Download" + suffix;
 }
 
 //------------------------------------------------------------------------------------------
 // tab group
 function openTab(event, tabName) {
-  var i, tabContent, tab;
+  let i, tabContent, tab;
 
   tabContent = document.getElementsByClassName("tab-content");
   for (i = 0; i < tabContent.length; i++) {
@@ -957,7 +1141,7 @@ function openTab(event, tabName) {
   event.currentTarget.className += " active";
 
   // add the correct color to the tiles
-  if(tab = "tab3") document.getElementById("palette-dropdown").dispatchEvent(new Event("change"));
+  if(tabName === "tab3") document.getElementById("palette-dropdown").dispatchEvent(new Event("change"));
 }
 
 
@@ -1081,8 +1265,12 @@ function searchSequenceInCode() {
 
   // Check if the search string is not empty
   if (searchString !== '') {
-    // Perform the search
-    const searchValues = searchString.split(',').map(value => value.trim().toUpperCase());
+    const searchValues = parseHexSequence(searchString);
+    if (!searchValues) {
+      searchInput.classList.add("input-invalid");
+      return;
+    }
+    searchInput.classList.remove("input-invalid");
 
     // Adjust search values based on the slider value
     const adjustedSearchValues = adjustSearchValues(searchValues);
@@ -1148,8 +1336,41 @@ function adjustSearchValues(values) {
 
 // horizontal slider for the gaps
 function updateSliderValue() {
-  var slider = document.getElementById("slider");
-  var valueDisplay = document.getElementById("slider-value");
+  let slider = document.getElementById("slider");
+  let valueDisplay = document.getElementById("slider-value");
 
   valueDisplay.textContent = "Skip: " + slider.value;
+}
+
+function parseHexSequence(input) {
+  const compactInput = input.toUpperCase().replace(/[,;\s-]+/g, "");
+  if (!compactInput || !/^[0-9A-F*]+$/.test(compactInput)) return null;
+
+  const values = [];
+  for (let index = 0; index < compactInput.length;) {
+    if (compactInput[index] === "*") {
+      values.push("*");
+      index++;
+      continue;
+    }
+
+    const byte = compactInput.slice(index, index + 2);
+    if (!/^[0-9A-F]{2}$/.test(byte)) return null;
+    values.push(byte);
+    index += 2;
+  }
+
+  return values;
+}
+
+function formatSequenceInput(event) {
+  const input = event.currentTarget;
+  if (!input.value.trim()) {
+    input.classList.remove("input-invalid");
+    return;
+  }
+
+  const values = parseHexSequence(input.value);
+  input.classList.toggle("input-invalid", !values);
+  if (values) input.value = values.join(", ");
 }

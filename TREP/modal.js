@@ -1,6 +1,5 @@
 const openModalButton = document.getElementById("openModalButton");
 const modalOverlay = document.getElementById("modalOverlay");
-const closeModalButton = document.getElementById("closeModalButton");
 const modalContent = document.getElementById("modalContent");
 //const modalResizeHandle = document.getElementById("modalResizeHandle");
 const container = document.querySelector(".container");
@@ -94,7 +93,7 @@ rightDasArrSelect.addEventListener('change', function () {
   updateLinkText(l_rightDasArrLink, selectedOption);
 });
 
-var twoPlayerSpeedSelect = document.getElementById("twoPlayerSpeed");
+let twoPlayerSpeedSelect = document.getElementById("twoPlayerSpeed");
 twoPlayerSpeedSelect.addEventListener('change', function () {
     const selectedOption = twoPlayerSpeedSelect.value;
     updateLinkText(l_twoPlayerSpeed, selectedOption);
@@ -123,12 +122,6 @@ openModalButton.addEventListener("click", function () {
       openModalButton.innerHTML = "&times;";
 
     }
-});
-
-modalOverlay.addEventListener("click", function (event) {
-  if (event.target === closeModalButton) {
-    modalOverlay.style.display = "none";
-  }
 });
 
 // Gravity tables
@@ -184,7 +177,7 @@ for (let i = 0; i <= numLevels; i++) {
     // speed
     const speedCell = document.createElement('td');
     const value = parseInt(select.options[select.selectedIndex].textContent);
-    var timeToBottom = Math.round(1000 * 18 * (1 / 59.7) * value);
+    let timeToBottom = Math.round(1000 * 18 * (1 / 59.7) * value);
     if(timeToBottom >= 1000) timeToBottom = Math.round(timeToBottom/100)/10 + " s";
     else timeToBottom += " ms";
     const speedText = document.createTextNode(timeToBottom);
@@ -212,7 +205,7 @@ for (let i = 0; i <= numLevels; i++) {
 
         // Update the speed
         const updatedValue = parseInt(select.options[select.selectedIndex].textContent);
-        var updatedTimeToBottom = Math.round(1000 * 17 * (1 / 59.7) * updatedValue);
+        let updatedTimeToBottom = Math.round(1000 * 17 * (1 / 59.7) * updatedValue);
         if(updatedTimeToBottom >= 1000) updatedTimeToBottom = Math.round(updatedTimeToBottom/100)/10 + " s";
         else updatedTimeToBottom += " ms";
         speedText.textContent = updatedTimeToBottom;
