@@ -1,285 +1,215 @@
-//---------------------------------
-// (1) DOM Elements
-//---------------------------------
+'use strict';
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const playfieldCanvas = document.getElementById('myCanvas');
+const playfieldContext = playfieldCanvas.getContext('2d');
 const paletteSelect = document.getElementById('palette-select');
 const filenameInput = document.getElementById('filename');
-const downloadBtn = document.getElementById('download-btn');
-const gridSelect = document.getElementById('grid-select');
 const transparencySlider = document.getElementById('transparency-slider');
 const transparencyValue = document.getElementById('transparency-value');
-const downloadGridBtn = document.getElementById('downloadgrid-btn');
 const overlayColorBase = document.getElementById('overlayColorBase');
-const colorInputs = [
-    document.getElementById('col1'),
-    document.getElementById('col2'),
-    document.getElementById('col3'),
-    document.getElementById('col4')
-];
+const colorInputs = ['col1', 'col2', 'col3', 'col4'].map(id => document.getElementById(id));
 
-//---------------------------------
-// (2) Global Variables
-//---------------------------------
 const pixelColors = {};
-let overlayImage = new Image();
+const overlayImage = new Image();
+const overlayCanvas = document.createElement('canvas');
+const overlayContext = overlayCanvas.getContext('2d');
+const gridExportCanvas = document.createElement('canvas');
+const gridExportContext = gridExportCanvas.getContext('2d');
+overlayCanvas.width = 640;
+overlayCanvas.height = 576;
+gridExportCanvas.width = overlayCanvas.width;
+gridExportCanvas.height = overlayCanvas.height;
 let overlayOpacity = 0;
+let gridFileHandle;
+let gridFileName;
+let gridSaveInProgress = false;
 
-//---------------------------------
-// (3) Functions
-//---------------------------------
 function updatePaletteSelect() {
-    //paletteSelect.innerHTML = '<option value="">Select Palette</option>';
-    paletteSelect.innerHTML = '';
-
+    paletteSelect.replaceChildren();
     for (const [section, palettes] of Object.entries(paletteLookup)) {
         const optgroup = document.createElement('optgroup');
         optgroup.label = section;
-
-        for (const [paletteName] of Object.entries(palettes)) {
-            const option = document.createElement('option');
-            option.value = paletteName;
-            option.textContent = paletteName;
-            optgroup.appendChild(option);
-        }
-
-        paletteSelect.appendChild(optgroup);
+        for (const paletteName of Object.keys(palettes)) optgroup.append(new Option(paletteName, paletteName));
+        paletteSelect.append(optgroup);
     }
-
-    // Automatically select the first palette in the first group
-    const firstOptgroup = paletteSelect.querySelector('optgroup');
-    if (firstOptgroup && firstOptgroup.firstElementChild) {
-        firstOptgroup.firstElementChild.selected = true;
-        applyPalette(firstOptgroup.firstElementChild.value);
-    }
+    if (paletteSelect.value) applyPalette(paletteSelect.value);
 }
-
 
 function applyPalette(paletteName) {
     if (!paletteName) return;
-
-    let colors = null;
+    let colors;
     for (const palettes of Object.values(paletteLookup)) {
-        if (paletteName in palettes) {
+        if (Object.hasOwn(palettes, paletteName)) {
             colors = palettes[paletteName];
             break;
         }
     }
-
-    if (colors) {
-        colorInputs.forEach((input, index) => {
-            input.value = `#${colors[index]}`;
-        });
-        pixelColors[1] = colorInputs[0].value;
-        pixelColors[2] = colorInputs[1].value;
-        pixelColors[3] = colorInputs[2].value;
-        pixelColors[4] = colorInputs[3].value;
-        overlayColorBase.value = pixelColors[4];
-        drawImage();
-        drawPlayfield();
-    }
+    if (!colors) return;
+    colorInputs.forEach((input, index) => { input.value = `#${colors[index]}`; });
+    syncPixelColors();
+    overlayColorBase.value = pixelColors[4];
+    drawImage();
+    loadOverlayImage();
 }
 
+function syncPixelColors() {
+    colorInputs.forEach((input, index) => { pixelColors[index + 1] = input.value; });
+}
+
+// Keep the original LUT algorithm byte-for-byte in its color sequencing.
 function drawImage() {
     const colors = colorInputs.map(input => input.value);
-
     const sequence = [];
-    for (let i = 0; i < 48; i++) sequence.push(0);
-    for (let i = 0; i < 48; i++) sequence.push(1);
-    for (let i = 0; i < 48; i++) sequence.push(2);
-    for (let i = 0; i < 48; i++) sequence.push(3);
-
+    for (let color = 0; color < 4; color += 1) {
+        for (let count = 0; count < 48; count += 1) sequence.push(color);
+    }
     const imageSize = 64;
     const gridSize = 8;
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (let offset = 0; offset < 64; offset++) {
-        let startX = (offset % gridSize) * imageSize;
-        let startY = Math.floor(offset / gridSize) * imageSize;
-
-        for (let y = 0; y < imageSize; y++) {
-            for (let x = 0; x < imageSize; x++) {
-                let index = (x + y + offset) % sequence.length;
-                ctx.fillStyle = colors[sequence[index]];
+    for (let offset = 0; offset < 64; offset += 1) {
+        const startX = (offset % gridSize) * imageSize;
+        const startY = Math.floor(offset / gridSize) * imageSize;
+        for (let y = 0; y < imageSize; y += 1) {
+            for (let x = 0; x < imageSize; x += 1) {
+                ctx.fillStyle = colors[sequence[(x + y + offset) % sequence.length]];
                 ctx.fillRect(startX + x, startY + y, 1, 1);
             }
         }
     }
 }
 
-function downloadImage() {
-    const filename = filenameInput.value.trim();
-    const validFilename = filename.length > 0 ? `${filename}.png` : 'LUT.png';
-    const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
-    link.download = validFilename;
-    link.click();
-}
-
 function drawPlayfield() {
-    const myCanvas = document.getElementById('myCanvas');
-    const ctxMyCanvas = myCanvas.getContext('2d');
-    const width = myCanvas.width;
-    const height = myCanvas.height;
-
-    const pixelSize = 8;  // Size of each "pixel" in the playfield
-
-    // Clear the canvas
-    ctxMyCanvas.clearRect(0, 0, width, height);
-
-    // Create ImageData object
-    const imageData = ctxMyCanvas.createImageData(width, height);
-
+    const width = playfieldCanvas.width;
+    const height = playfieldCanvas.height;
+    const pixelSize = 8;
+    const imageData = playfieldContext.createImageData(width, height);
     let y = 0;
     pixelData.trim().split(';').forEach(row => {
         if (y >= height / pixelSize) return;
         let x = 0;
         row.trim().split(',').forEach(pixel => {
-            const [value, count] = pixel.split('(');
-            const numPixels = parseInt(count.replace(')', ''), 10);
-            const color = pixelColors[value];
-            const rgba = hexToRgba(color);
-
-            for (let i = 0; i < numPixels; i++) {
-                if (x + i < width / pixelSize) {
-                    // Draw the 8x8 block
-                    for (let dy = 0; dy < pixelSize; dy++) {
-                        for (let dx = 0; dx < pixelSize; dx++) {
-                            const pixelX = (x + i) * pixelSize + dx;
-                            const pixelY = y * pixelSize + dy;
-                            const index = (pixelY * width + pixelX) * 4;
-                            imageData.data[index] = rgba.r;
-                            imageData.data[index + 1] = rgba.g;
-                            imageData.data[index + 2] = rgba.b;
-                            imageData.data[index + 3] = rgba.a;
-                        }
+            const [value, rawCount] = pixel.split('(');
+            const count = Number.parseInt(rawCount.replace(')', ''), 10);
+            const rgba = hexToRgba(pixelColors[value]);
+            for (let i = 0; i < count; i += 1) {
+                if (x + i >= width / pixelSize) continue;
+                for (let dy = 0; dy < pixelSize; dy += 1) {
+                    for (let dx = 0; dx < pixelSize; dx += 1) {
+                        const pixelX = (x + i) * pixelSize + dx;
+                        const pixelY = y * pixelSize + dy;
+                        const index = (pixelY * width + pixelX) * 4;
+                        imageData.data.set([rgba.r, rgba.g, rgba.b, 255], index);
                     }
                 }
             }
-            x += numPixels;
+            x += count;
         });
-        y++;
+        y += 1;
     });
-
-    // Put ImageData to canvas
-    ctxMyCanvas.putImageData(imageData, 0, 0);
-
-    // Draw the overlay grid image with transparency
-    if (overlayImage.src && overlayImage.complete) {
-        ctxMyCanvas.globalAlpha = overlayOpacity;
-        ctxMyCanvas.drawImage(overlayImage, 0, 0, width, height);
-        ctxMyCanvas.globalAlpha = 1.0; // Reset alpha to default
+    playfieldContext.putImageData(imageData, 0, 0);
+    if (overlayImage.complete && overlayImage.src) {
+        playfieldContext.globalAlpha = overlayOpacity;
+        playfieldContext.drawImage(overlayImage, 0, 0, width, height);
+        playfieldContext.globalAlpha = 1;
     }
 }
 
-function hexToRgba(color) {
-    let r = 0, g = 0, b = 0, a = 255;
-    if (color) {
-        color = color.replace('#', '');
-        r = parseInt(color.substr(0, 2), 16);
-        g = parseInt(color.substr(2, 2), 16);
-        b = parseInt(color.substr(4, 2), 16);
-    }
-    return { r, g, b, a };
-}
-
-// Handle the download logic
-function handleDownload() {
-    const canvas = document.getElementById('overlayImage');
-    const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png'); // Generate a data URL with PNG format
-    link.download = 'Grid.png'; // Set the download filename
-    link.click(); // Trigger download
+function hexToRgba(color = '#000000') {
+    const hex = color.replace('#', '');
+    return {
+        r: Number.parseInt(hex.slice(0, 2), 16),
+        g: Number.parseInt(hex.slice(2, 4), 16),
+        b: Number.parseInt(hex.slice(4, 6), 16)
+    };
 }
 
 function loadOverlayImage() {
-    // Get the base color from overlayColorBase input element
-    let baseColor = overlayColorBase.value;
-    if (!/^#[0-9A-Fa-f]{6}$/.test(baseColor)) {
-        baseColor = '#FFFFFF'; // Default to white if baseColor is invalid
-    }
-
-    const tileSize = 1;
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = 640;
-    canvas.height = 576;
-
-    const tileValues = [
-        [163, 140, 118, 140],
-        [140, 112, 111, 112],
-        [118, 111, 110, 111],
-        [140, 112, 111, 112],
-    ];
-
-    // Function to convert a shade value to a color with transparency
-    function shadeColorWithTransparency(baseColor, shade) {
-        const r = parseInt(baseColor.slice(1, 3), 16);
-        const g = parseInt(baseColor.slice(3, 5), 16);
-        const b = parseInt(baseColor.slice(5, 7), 16);
-        const alpha = shade / 255; // Transparency based on shade value (0 is fully transparent, 1 is opaque)
-        return `rgba(${r}, ${g}, ${b}, ${1 - alpha})`; // Invert alpha for darker shades to be more transparent
-    }
-
-    // Create the repeating pattern with shades of the selected color
-    for (let y = 0; y < canvas.height; y += tileSize) {
-        for (let x = 0; x < canvas.width; x += tileSize) {
-            const value = tileValues[Math.floor(y / tileSize) % 4][Math.floor(x / tileSize) % 4];
-            ctx.fillStyle = shadeColorWithTransparency(baseColor, value);
-            ctx.fillRect(x, y, tileSize, tileSize);
-        }
-    }
-
-    // Set the generated canvas image to the overlay image
-    overlayImage.src = canvas.toDataURL();
+    const baseColor = /^#[0-9a-f]{6}$/i.test(overlayColorBase.value) ? overlayColorBase.value : '#ffffff';
+    const { r, g, b } = hexToRgba(baseColor);
+    const tileValues = [[163,140,118,140],[140,112,111,112],[118,111,110,111],[140,112,111,112]];
+    const tile = document.createElement('canvas');
+    tile.width = tile.height = 4;
+    const tileContext = tile.getContext('2d');
+    tileValues.forEach((row, y) => row.forEach((shade, x) => {
+        tileContext.fillStyle = `rgba(${r}, ${g}, ${b}, ${1 - shade / 255})`;
+        tileContext.fillRect(x, y, 1, 1);
+    }));
+    overlayContext.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    overlayContext.fillStyle = overlayContext.createPattern(tile, 'repeat');
+    overlayContext.fillRect(0, 0, overlayCanvas.width, overlayCanvas.height);
     overlayImage.onload = drawPlayfield;
-
-    // Setup download button
-    //setupDownloadButton(canvas);
+    overlayImage.src = overlayCanvas.toDataURL('image/png');
 }
 
-colorInputs.forEach((input) => {
-    input.addEventListener('change', () => {
-        pixelColors[1] = colorInputs[0].value;
-        pixelColors[2] = colorInputs[1].value;
-        pixelColors[3] = colorInputs[2].value;
-        pixelColors[4] = colorInputs[3].value;
-        drawImage();
-        drawPlayfield();
-        overlayColorBase.value = pixelColors[4];
-        loadOverlayImage();
-    });
-});
+function canvasToBlob(source) {
+    return new Promise((resolve, reject) => source.toBlob(blob => blob ? resolve(blob) : reject(new Error('PNG creation failed.')), 'image/png'));
+}
 
-//---------------------------------
-// (4) Event Listeners
-//---------------------------------
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize or call functions that depend on DOM elements
-    loadOverlayImage();
-    updatePaletteSelect();
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = Object.assign(document.createElement('a'), { href: url, download: filename });
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function cleanLutName() {
+    return filenameInput.value.trim().replace(/[<>:"/\\|?*]/g, '-') || 'LUT';
+}
+
+async function saveGrid() {
+    if (gridSaveInProgress) return;
+    gridSaveInProgress = true;
+    const saveButton = document.getElementById('downloadGridBtn');
+    saveButton.disabled = true;
+    try {
+        gridExportContext.clearRect(0, 0, gridExportCanvas.width, gridExportCanvas.height);
+        gridExportContext.globalAlpha = overlayOpacity;
+        gridExportContext.drawImage(overlayCanvas, 0, 0);
+        gridExportContext.globalAlpha = 1;
+        const blob = await canvasToBlob(gridExportCanvas);
+        const desiredGridName = `Grid_${cleanLutName()}.png`;
+        if ('showSaveFilePicker' in window) {
+            if (gridFileName !== desiredGridName) gridFileHandle = undefined;
+            gridFileHandle ||= await window.showSaveFilePicker({
+                suggestedName: desiredGridName,
+                types: [{ description: 'PNG image', accept: { 'image/png': ['.png'] } }]
+            });
+            gridFileName = desiredGridName;
+            const writable = await gridFileHandle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+        } else {
+            downloadBlob(blob, desiredGridName);
+        }
+    } catch (error) {
+        if (error.name !== 'AbortError') console.error('Grid save failed:', error);
+    } finally {
+        gridSaveInProgress = false;
+        saveButton.disabled = false;
+    }
+}
+
+async function downloadImage() {
+    downloadBlob(await canvasToBlob(canvas), `${cleanLutName()}.png`);
+}
+
+colorInputs.forEach(input => input.addEventListener('input', () => {
+    syncPixelColors();
+    overlayColorBase.value = pixelColors[4];
     drawImage();
-    drawPlayfield();
-});
-
+    loadOverlayImage();
+}));
 transparencySlider.addEventListener('input', () => {
-    overlayOpacity = transparencySlider.value / 100;
+    overlayOpacity = Number(transparencySlider.value) / 100;
+    transparencyValue.value = `${transparencySlider.value}%`;
     drawPlayfield();
-    transparencyValue.value = transparencySlider.value + "%";
 });
+overlayColorBase.addEventListener('input', loadOverlayImage);
+paletteSelect.addEventListener('change', event => applyPalette(event.target.value));
+document.getElementById('download-btn').addEventListener('click', downloadImage);
+document.getElementById('downloadGridBtn').addEventListener('click', saveGrid);
 
-overlayColorBase.onchange = function() {
-    const selectedColor = this.value;
-    pixelColors[4] = selectedColor; // Assign base overlay color
-    loadOverlayImage();
-    drawPlayfield();
-};
-
-paletteSelect.addEventListener('change', (event) => {
-    applyPalette(event.target.value);
-    loadOverlayImage();
-});
-
-downloadBtn.addEventListener('click', downloadImage);
+syncPixelColors();
+updatePaletteSelect();

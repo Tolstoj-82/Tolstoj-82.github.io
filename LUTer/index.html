@@ -5,43 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LUT Generator for OBS (GB Interceptor)</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        #myCanvas {
-            image-rendering: pixelated;
-            will-change: transform;
-        }
-    </style>
 </head>
 <body>
     <div class="color-container">
-        <div class="color-picker">
-            <input type="color" id="col1" value="#000000">
-        </div>
-        <div class="color-picker">
-            <input type="color" id="col2" value="#404040">
-        </div>
-        <div class="color-picker">
-            <input type="color" id="col3" value="#A0A0A0">
-        </div>
-        <div class="color-picker">
-            <input type="color" id="col4" value="#FFFFFF">
-        </div>
-        <select id="palette-select" class="palette-select">
-        </select>
+        <div class="color-picker"><input type="color" id="col1" value="#000000" aria-label="Darkest palette color"></div>
+        <div class="color-picker"><input type="color" id="col2" value="#404040" aria-label="Dark palette color"></div>
+        <div class="color-picker"><input type="color" id="col3" value="#A0A0A0" aria-label="Light palette color"></div>
+        <div class="color-picker"><input type="color" id="col4" value="#FFFFFF" aria-label="Lightest palette color"></div>
+        <select id="palette-select" class="palette-select" aria-label="Palette"></select>
     </div>
 
     <div class="download-container">
         <div class="lut-controls">
-            File Name: <input type="text" id="filename" maxlength="20" placeholder="LUT">
-            <button id="download-btn">Download LUT</button>
+            <label for="filename">File Name:</label>
+            <input type="text" id="filename" maxlength="20" placeholder="LUT">
+            <button id="download-btn" type="button">Download LUT</button>
         </div>
         <div class="overlay-controls">
-            <label for="grid-select">Overlay Grid:</label>
-            <input type="color" id="overlayColorBase" value="#ffffff">
+            <span>Overlay Grid:</span>
+            <input type="color" id="overlayColorBase" value="#ffffff" aria-label="Overlay grid color">
             <label for="transparency-slider">Opacity:</label>
             <input type="range" id="transparency-slider" min="0" max="100" value="0">
-            <input type="text" id="transparency-value" value="0%" maxlength="4" disabled>
-            <button id="downloadGridBtn" onclick="handleDownload()">Download Grid</button>
+            <output id="transparency-value" for="transparency-slider">0%</output>
+            <button id="downloadGridBtn" type="button">Save Grid</button>
         </div>
     </div>
 
@@ -49,9 +35,7 @@
         <canvas id="canvas" width="512" height="512"></canvas>
         <canvas id="myCanvas" width="1280" height="1152"></canvas>
     </div>
-    
     <script src="data.js"></script>
     <script src="scripts.js"></script>
-    <script src="websocket.js"></script>
 </body>
 </html>
