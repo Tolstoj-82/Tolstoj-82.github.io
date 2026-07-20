@@ -24,15 +24,16 @@
             <br><br>
         </p>
         <p>
-            Label<br>
-            <input type="text" id="titleInput" maxlength="20">
+            <label for="titleInput">Label</label><br>
+            <input type="text" id="titleInput" maxlength="20" autocomplete="off">
             <br>
         </p>
         <p>
-            New File Name <br>
-            <input type="text" id="fileNameInput">
+            <label for="fileNameInput">New File Name</label><br>
+            <input type="text" id="fileNameInput" autocomplete="off">
             <button id="downloadButton" style="display: none;">Download Modified Firmware</button>
         </p>
+        <p id="statusMessage" role="status" aria-live="polite"></p>
     </div>
     <div>
         <hr>
@@ -76,36 +77,62 @@
         };
 
         let firmwareArrayBuffer;
-        let selectedAddress = 0;
+        let selectedAddress = null;
         let originalFileName = '';
 
-        document.getElementById('firmwareFile').addEventListener('change', function(event) {
+        const firmwareFile = document.getElementById('firmwareFile');
+        const firmwareEditor = document.getElementById('firmwareEditor');
+        const firmwareSelection = document.getElementById('firmwareSelection');
+        const firmwareDropdown = document.getElementById('firmwareDropdown');
+        const titleInput = document.getElementById('titleInput');
+        const fileNameInput = document.getElementById('fileNameInput');
+        const downloadButton = document.getElementById('downloadButton');
+        const statusMessage = document.getElementById('statusMessage');
+
+        firmwareFile.addEventListener('change', function(event) {
             const file = event.target.files[0];
+            if (!file) {
+                resetEditor();
+                return;
+            }
+
             originalFileName = file.name;
+            firmwareArrayBuffer = null;
+            selectedAddress = null;
+            downloadButton.style.display = 'none';
+            statusMessage.textContent = '';
 
             // Updated regex to match version patterns including alpha/beta with optional numbers
             const versionPattern = /gbinterceptor_firmware_v\d+\.\d+\.\d+(-(?:alpha|beta)\d*)?/;
             const versionMatch = file.name.match(versionPattern);
 
-            if (versionMatch && firmwareAddresses.hasOwnProperty(versionMatch[0] + ".uf2")) {
+            if (versionMatch && Object.hasOwn(firmwareAddresses, versionMatch[0] + ".uf2")) {
                 selectedAddress = firmwareAddresses[versionMatch[0] + ".uf2"];
-                document.getElementById('firmwareSelection').style.display = 'none';
+                firmwareSelection.style.display = 'none';
                 readFirmware(file);
             } else {
                 populateFirmwareDropdown();
-                document.getElementById('firmwareSelection').style.display = 'block';
-                document.getElementById('firmwareDropdown').addEventListener('change', function() {
-                    selectedAddress = firmwareAddresses[this.value];
-                    readFirmware(file);
-                });
+                firmwareSelection.style.display = 'block';
+                statusMessage.textContent = 'Choose the matching firmware version to continue.';
             }
 
             // Show the firmware editor after a file is selected
-            document.getElementById('firmwareEditor').style.display = 'block';
+            firmwareEditor.style.display = 'block';
 
             // Set default new file name
-            document.getElementById('fileNameInput').value = originalFileName.replace(/\.uf2$/, '-modified.uf2');
+            fileNameInput.value = originalFileName.replace(/\.uf2$/i, '-modified.uf2');
         });
+
+        firmwareDropdown.addEventListener('change', function() {
+            const file = firmwareFile.files[0];
+            if (!file || !Object.hasOwn(firmwareAddresses, this.value)) {
+                return;
+            }
+            selectedAddress = firmwareAddresses[this.value];
+            readFirmware(file);
+        });
+
+        titleInput.addEventListener('input', modifyTitle);
 
         function populateFirmwareDropdown() {
             const firmwareDropdown = document.getElementById('firmwareDropdown');
@@ -125,21 +152,42 @@
                 firmwareArrayBuffer = e.target.result;
                 extractTitle();
             };
+            reader.onerror = function() {
+                firmwareArrayBuffer = null;
+                downloadButton.style.display = 'none';
+                statusMessage.textContent = 'The selected file could not be read.';
+            };
             reader.readAsArrayBuffer(file);
         }
 
         function extractTitle() {
+            if (selectedAddress === null || selectedAddress + 20 > firmwareArrayBuffer.byteLength) {
+                downloadButton.style.display = 'none';
+                statusMessage.textContent = 'This file does not match the selected firmware version.';
+                return;
+            }
+
             const firmwareData = new Uint8Array(firmwareArrayBuffer);
             let titleBytes = firmwareData.slice(selectedAddress, selectedAddress + 20);
             let originalTitle = String.fromCharCode.apply(null, titleBytes).replace(/\0/g, '').trim(); // Trim trailing spaces
-            document.getElementById('titleInput').value = originalTitle;
-            document.getElementById('titleInput').addEventListener('input', modifyTitle);
-            document.getElementById('downloadButton').style.display = 'inline';
+            titleInput.value = originalTitle;
+            downloadButton.style.display = 'inline';
+            statusMessage.textContent = 'Firmware loaded. You can now edit its label.';
         }
 
         function modifyTitle() {
+            if (!firmwareArrayBuffer || selectedAddress === null) {
+                return;
+            }
+
             const firmwareData = new Uint8Array(firmwareArrayBuffer);
-            let newTitle = document.getElementById('titleInput').value;
+            let newTitle = titleInput.value;
+            const sanitizedTitle = newTitle.replace(/[^\x20-\x7E]/g, '');
+            if (newTitle !== sanitizedTitle) {
+                titleInput.value = sanitizedTitle;
+                newTitle = sanitizedTitle;
+                statusMessage.textContent = 'Labels can only contain printable ASCII characters.';
+            }
             newTitle = newTitle.padEnd(20, ' ');
 
             for (let i = 0; i < 20; i++) {
@@ -147,22 +195,41 @@
             }
         }
 
-        document.getElementById('downloadButton').addEventListener('click', function() {
+        downloadButton.addEventListener('click', function() {
+            if (!firmwareArrayBuffer || selectedAddress === null) {
+                return;
+            }
+
+            modifyTitle();
             const firmwareData = new Uint8Array(firmwareArrayBuffer);
             const modifiedFirmwareBlob = new Blob([firmwareData], { type: 'application/octet-stream' });
             const downloadLink = document.createElement('a');
 
-            let newFileName = document.getElementById('fileNameInput').value.trim();
+            let newFileName = fileNameInput.value.trim() || 'firmware-modified.uf2';
             
             // Ensure the file name has a .uf2 extension
-            if (!newFileName.endsWith('.uf2')) {
+            if (!newFileName.toLowerCase().endsWith('.uf2')) {
                 newFileName += '.uf2';
             }
 
-            downloadLink.href = URL.createObjectURL(modifiedFirmwareBlob);
+            const downloadUrl = URL.createObjectURL(modifiedFirmwareBlob);
+            downloadLink.href = downloadUrl;
             downloadLink.download = newFileName;
             downloadLink.click();
+            setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
         });
+
+        function resetEditor() {
+            firmwareArrayBuffer = null;
+            selectedAddress = null;
+            originalFileName = '';
+            firmwareEditor.style.display = 'none';
+            firmwareSelection.style.display = 'none';
+            downloadButton.style.display = 'none';
+            titleInput.value = '';
+            fileNameInput.value = '';
+            statusMessage.textContent = '';
+        }
     </script>
 </body>
 </html>
