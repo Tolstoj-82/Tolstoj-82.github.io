@@ -41,6 +41,9 @@
     color: #000;
     cursor: pointer;
     z-index: 10;
+    padding: 0;
+    border: 0;
+    background: transparent;
 }
 
 #modalCaption {
@@ -48,4 +51,10 @@
     color: white;
     font-size: 16px;
     margin-top: 10px;
+}
+
+.modal .close:focus-visible,
+.modal-content img:focus-visible {
+    outline: 3px solid #0056b3;
+    outline-offset: 3px;
 }

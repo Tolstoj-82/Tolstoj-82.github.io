@@ -23,12 +23,12 @@
   <div class="content">
   <header>
     <h1>Tolstoj's GBTris Workbench</h1>
-    <button class="menu-btn" id="hamburger-icon" aria-label="Toggle Menu">☰</button>
+    <button class="menu-btn" id="hamburger-icon" type="button" aria-label="Open menu" aria-controls="site-menu" aria-expanded="false">☰</button>
   </header>
-  <div class="menu-container">
-    <button class="close-btn" id="close-icon" aria-label="Close Menu">✖</button>
-    <h3 class="accordion">My Projects <span class="arrow">+</span></h3>
-    <ul class="menu">
+  <div class="menu-container" id="site-menu" aria-hidden="true">
+    <button class="close-btn" id="close-icon" type="button" aria-label="Close menu">✖</button>
+    <button class="accordion" type="button" aria-expanded="false" aria-controls="projects-menu">My Projects <span class="arrow" aria-hidden="true">+</span></button>
+    <ul class="menu" id="projects-menu">
         <li><a href="Live/refactored/index.html">OCR</a></li>
         <li><a href="firmwarelabeller/index.html">Re-labbeler</a></li>
         <li><a href="LUTer/index.html">LUT Tool</a></li>
@@ -37,8 +37,8 @@
         <li><a href="genetic-engineering/index.html">Genetic Engineering</a></li>
         <li><a href="ChrisAndTriss/index.html">Chris &amp; Triss</a></li>
     </ul>
-    <h3 class="accordion">Other Things <span class="arrow">+</span></h3>
-    <ul class="menu">
+    <button class="accordion" type="button" aria-expanded="false" aria-controls="other-things-menu">Other Things <span class="arrow" aria-hidden="true">+</span></button>
+    <ul class="menu" id="other-things-menu">
         <li><a href="Tolstoj/index.html">About Me</a></li>
         <li><a href="TwoPlayer/index.html">2-Player</a></li>
         <li><a href="ROMHacks/index.html">ROM Patches</a></li>
@@ -52,9 +52,9 @@
       <section class="intro">
         <img src="images/tolstoj.jpg" alt="Tolstoj">
         <div class="text">
-          <p>Henlo friens! I'm <a href="Tolstoj/index.html">Tolstoj</a>. I've spent the last few years deepdiving into the inner working of Game Boy Tetris and its competitive scene, and now I’m sharing my knowledge with you.</p>
-          <p>On my journey I met a lot of cool and talented people who I will introduce in the future. At this point there are four people I'd like to give a shout out: Toni, Pascal, -JJ and Sebastian Staacks.</p> 
-          <p>Below you find a growing collection of tools I developed. There is a lot to find here such as a firmware re-labeler and an OCR tool.</p>
+          <p>Hello, friends! I'm <a href="Tolstoj/index.html">Tolstoj</a>. I've spent the last few years deep-diving into the inner workings of Game Boy Tetris and its competitive scene, and now I’m sharing my knowledge with you.</p>
+          <p>On my journey, I met a lot of cool and talented people whom I will introduce in the future. At this point, there are four people I'd like to give a shout-out to: Toni, Pascal, -JJ and Sebastian Staacks.</p>
+          <p>Below, you will find a growing collection of tools I developed, such as a firmware re-labeler and an OCR tool.</p>
           <p>Most of my work revolves around DiCon X's (Sebastian Staacks) <a href="https://github.com/Staacks/gbinterceptor">GB&nbsp;Interceptor</a>, GB Tetris' biggest and most important asset: a&nbsp;Game&nbsp;Boy "capture card".</p>
           <p>And yes, I do use AI to help me with my projects, and no, I don't think that's bad at all. Embrace the future!</p>
         </div>
@@ -76,7 +76,7 @@
               </p>
             </a>
             <div class="grid-item-buttons">
-              <a href="https://www.youtube.com/watch?v=ET6S309U-8Q" class="button secondary" target="_blank">Explainer Video</a>
+              <a href="https://www.youtube.com/watch?v=ET6S309U-8Q" class="button secondary" target="_blank" rel="noopener noreferrer">Explainer Video</a>
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@
               <img src="images/relabeller.png" alt="GB Interceptor Re-labeller">
               <h3>GB Interceptor Re-labeller</h3>
               <p>
-                Using multiple interceptors on one computer can be confusing. Especially if you try to chose the correct one from the label. This very simple tool let's you re-label the firmware for clear identification.                
+                Using multiple interceptors on one computer can be confusing, especially if you try to choose the correct one from the label. This very simple tool lets you re-label the firmware for clear identification.
               </p>
             </a>
           </div>
@@ -103,7 +103,7 @@
               </p>
             </a>
             <div class="grid-item-buttons">
-              <a href="https://www.youtube.com/watch?v=9h_nTtzD1bw" class="button secondary" target="_blank">Explainer Video</a>
+              <a href="https://www.youtube.com/watch?v=9h_nTtzD1bw" class="button secondary" target="_blank" rel="noopener noreferrer">Explainer Video</a>
             </div>
           </div>
         </div>
@@ -111,13 +111,13 @@
         <div class="grid-item">
           <div class="grid-item-wrapper">
             <a href="TREP/index.html" class="grid-item-clickable">
-              <img src="images/TREP.png" alt="TREP 0.95">
-              <h3>TREP 0.95</h3>
-              <p><b>T</b>olstoj's <b>R</b>OM <b>E</b>ditor <b>P</b>lus. Load a legally acquired GB Tetris ROM and edit it to your likings.<br>
+              <img src="images/TREP.png" alt="TREP Version Beta 1">
+              <h3>TREP Version Beta 1</h3>
+              <p><b>T</b>olstoj's <b>R</b>OM <b>E</b>ditor <b>P</b>lus. Load a legally acquired GB Tetris ROM and edit it to your liking.<br>
               <b>Info:</b> This tool is for demonstration purposes only. Don't use it for weird stuff, please!</p>        
             </a>
             <div class="grid-item-buttons">
-              <a href="https://www.youtube.com/watch?v=dNZec32Avxg" class="button secondary" target="_blank">Explainer Video</a>
+              <a href="https://www.youtube.com/watch?v=dNZec32Avxg" class="button secondary" target="_blank" rel="noopener noreferrer">Explainer Video</a>
             </div>
           </div>
         </div>
@@ -147,11 +147,11 @@
             <a href="genetic-engineering/index.html" class="grid-item-clickable">
               <img src="images/genetic-engineering.png" alt="YT">
               <h3>Genetic Engineering</h3>
-              <p>According to Vadim Gerasimov, the then 16-years old prodigy who ported Tetris to the IBM, Alexey Pajitnov created a precursor game to Tetris on the Electronika-60, called Genetic Engineering.<br>
+              <p>According to Vadim Gerasimov, the then-16-year-old prodigy who ported Tetris to the IBM, Alexey Pajitnov created a precursor game to Tetris on the Electronika-60 called Genetic Engineering.<br>
                 This is my attempt to recreate this game for a presentation.</p>
             </a>
             <div class="grid-item-buttons">
-              <a href="https://vadim.oversigma.com/Tetris.htm" class="button secondary" target="_blank">Vadim's Website</a>
+              <a href="https://vadim.oversigma.com/Tetris.htm" class="button secondary" target="_blank" rel="noopener noreferrer">Vadim's Website</a>
             </div>
           </div>
         </div>        
@@ -171,7 +171,7 @@
             <a href="ROMHacks/index.html" class="grid-item-clickable">
               <img src="images/ROM.png" alt="YT">
               <h3>ROM Patches</h3>
-              <p>Find some interesting ROM patches made by Pascal and I.</p>
+              <p>Find some interesting ROM patches made by Pascal and me.</p>
             </a>
           </div>
         </div>
@@ -213,11 +213,11 @@
 
         <div class="grid-item">
           <div class="grid-item-wrapper">
-            <a href="past-events.html" class="grid-item-clickable">
+            <div class="grid-item-clickable">
               <img src="images/youtube.png" alt="YT">
               <h3>Past GB Events (Pascal's Site)</h3>
               <p></p>
-            </a>
+            </div>
           </div>
         </div>
         
@@ -226,7 +226,7 @@
             <a href="https://gbdev.io/pandocs/" class="grid-item-clickable">
               <img src="images/pandocs.png" alt="Pandocs">
               <h3>Game Boy Pan Docs</h3>
-              <p>Most comprehensible documentation about the inner workings of the Game Boy.</p>
+          <p>The most comprehensive documentation about the inner workings of the Game Boy.</p>
             </a>
           </div>
         </div>
@@ -236,13 +236,13 @@
   <nav>
     <hr>
     <h2>External Links</h2>
-      <a href="https://there.oughta.be/" target="_blank">There Oughta Be (Sebastians Staacks Blog)</a><br>
-      <a href="https://tinyurl.com/GB-Tetris" target="_blank">Game Boy Tetris Discord</a><br>
-      <a href="https://docs.google.com/spreadsheets/d/1PJZ50b5Y6RqHNW1PH5BFn-wvc7IPxu3m0JastDksMtQ/edit?gid=0#gid=0" target="_blank">Game Boy Tetris Leaderboards</a><br>
-      <a href="https://classictetris.eu/" target="_blank">CTEC (Classic Tetris European Championships)</a><br>
-      <a href="https://lieblings.be/dates.html" target="_blank">Lieblings Bern</a><br>
-      <a href="" target="_blank">CTG (Classic Tetromino-Games Germany e. V.)</a><br>
-      <a href="http://www.kobash.com/tetris/tetris.html" target="_blank">The OG GB Tetris Website (Brian Kobashikawa, 1999)</a><br>
+      <a href="https://there.oughta.be/" target="_blank" rel="noopener noreferrer">There Oughta Be (Sebastian Staacks' Blog)</a><br>
+      <a href="https://tinyurl.com/GB-Tetris" target="_blank" rel="noopener noreferrer">Game Boy Tetris Discord</a><br>
+      <a href="https://docs.google.com/spreadsheets/d/1PJZ50b5Y6RqHNW1PH5BFn-wvc7IPxu3m0JastDksMtQ/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer">Game Boy Tetris Leaderboards</a><br>
+      <a href="https://classictetris.eu/" target="_blank" rel="noopener noreferrer">CTEC (Classic Tetris European Championships)</a><br>
+      <a href="https://lieblings.be/dates.html" target="_blank" rel="noopener noreferrer">Lieblings Bern</a><br>
+      <span>CTG (Classic Tetromino-Games Germany e. V.)</span><br>
+      <a href="http://www.kobash.com/tetris/tetris.html" target="_blank" rel="noopener noreferrer">The OG GB Tetris Website (Brian Kobashikawa, 1999)</a><br>
   </nav>
   <p>
     <img src="images/CTEC Team GB 2022.png" class="fullwidth"><br>
@@ -256,9 +256,9 @@
 </div>
 </div>
 <script src="script.js"></script>
-<div id="imageModal" class="modal" style="display: none;">
+<div id="imageModal" class="modal" role="dialog" aria-modal="true" aria-label="Image preview" aria-hidden="true" style="display: none;">
   <div class="modal-content">
-    <span class="close">&times;</span>
+    <button class="close" type="button" aria-label="Close image preview">&times;</button>
     <img id="modalImage" alt="Modal Image">
   </div>
 </div>

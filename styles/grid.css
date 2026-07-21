@@ -62,9 +62,3 @@
 .grid-item a:hover {
     font-weight: normal;
 }
-
-/* Consolidated hover effects */
-.grid-item:hover a {
-    transform: translateY(-5px);
-    font-weight: normal;
-}

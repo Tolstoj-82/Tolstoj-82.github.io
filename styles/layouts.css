@@ -9,11 +9,11 @@
 
 /* 40% | 60% */
 .two-column-layout > div {
-    flex: 0 0 40%;
+    flex: 0 0 calc(40% - 10px);
 }
 
 .two-column-layout > div:nth-child(2) {
-    flex: 0 0 60%;
+    flex: 0 0 calc(60% - 10px);
 }
 
 .two-column-layout img {
@@ -29,11 +29,11 @@
 
 /* 30% | 70% */
 .two-column-layout.small > div {
-    flex: 0 0 30%;
+    flex: 0 0 calc(30% - 10px);
 }
 
 .two-column-layout.small > div:nth-child(2) {
-    flex: 0 0 70%;
+    flex: 0 0 calc(70% - 10px);
 }
 
 /* Responsive  */

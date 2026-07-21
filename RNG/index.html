@@ -22,26 +22,25 @@
         <div class="page-content">
             <main>
               <p><b>Pascal and Tolstoj 2024</b></p>
-              Introducing randomness in Tetris, especially for piece generation, is crucial. Some sort of an RNG (random number generation) algorithm was needed. Since most games at the time didn't require randomness, and since the Game Boy was not necessarily designed with randomness in mind, the developers had to come up with a custom solution.<br>
-              <p>GB Tetris uses distinct RNG algorithms for various tasks:
+              <p>Introducing randomness in Tetris, especially for piece generation, is crucial. Some sort of an RNG (random number generation) algorithm was needed. Since most games at the time didn't require randomness, and since the Game Boy was not necessarily designed with randomness in mind, the developers had to come up with a custom solution.</p>
+              <p>GB Tetris uses distinct RNG algorithms for various tasks:</p>
                 <ul>
                   <li>1-Player Piece generation (A-Type and B-Type)</li>
                   <li>2-Player Piece generation</li>
                   <li>B Type Garbage Stack generation</li>
                   <li>2-Player Garbage Stack generation</li>
                 </ul>
-                These RNG algorithms closely resemble each other, but have subtly distinct features. We will delve into the algorithms one-by-one.
-              </p>
+              <p>These RNG algorithms closely resemble each other, but have subtly distinct features. We will delve into the algorithms one-by-one.</p>
               <h2>Summary</h2>
-              In GB Tetris, pieces are not dealt with equal probabilities due to a flawed "flood prevention algorithm" and, to a lesser extent, because the Game Boy generates 256 unique random numbers that must be assigned to the 7 pieces. While the flood prevention was intended to reduce repetitive patterns, its flawed logic introduces side effects that alter piece frequencies.
+              <p>In GB Tetris, pieces are not dealt with equal probabilities due to a flawed "flood prevention algorithm" and, to a lesser extent, because the Game Boy generates 256 unique random numbers that must be assigned to the 7 pieces. While the flood prevention was intended to reduce repetitive patterns, its flawed logic introduces side effects that alter piece frequencies.</p>
               <p>
                 If this explanation was sufficient for you, great!<br>If you'd like a deep dive—and I do mean a deep, deep dive into the topic—keep reading.
               </p>
               <h2>Introduction</h2>
               <h3>The DIV Register Generates "Random" Values</h3>
-                The <b>Divider register</b> (<code class="red">DIV</code>), is an 8-bit register in the Game Boys' hardware located at $FF04 in the I/O region of the memory map.
+                <p>The <b>divider register</b> (<code class="red">DIV</code>) is an 8-bit register in the Game Boy's hardware, located at $FF04 in the I/O region of the memory map.
                 It auto-increments from <code>0x00</code> to <code>0xFF</code> (hex). Once $FF is reached, it reverts back to $00 creating an everlasting loop.
-                The register increments at approx 16.4 kHz on the DMG, which is approx. 4 times as fast as the fetch cycle of the CPU.<br>
+                The register increments at approximately 16.4 kHz on the DMG, which is approximately four times as fast as the fetch cycle of the CPU.</p>
                 <p>Reading its value at any given point returns one of 256 "random" values.</p>
                 <p>The randomness in GB Tetris comes from the DIV register. This method is one of several options to introduce seemingly random numbers (pseudo random numbers). Typically, a computer is not capable of true randomness and given the same circumstances, the same random values would be generated. Human imperfection during game play, using the method here, leads to a value that seems random enough.</p>
               <hr>
@@ -51,23 +50,23 @@
                   <img src="images/registers.png" class="clickable" alt="CPU Registers">
                 </div>
                 <div>
-                  <code class="red">a</code>, <code class="red">b</code>, <code class="red">c</code>, <code class="red">d</code>, <code class="red">e</code>, <code class="red">h</code> and <code class="red">l</code> are 8-bit hardware registers in the CPU that can store a byte (8-bit) each. The "a" register is the accumulator which is connected with the flags register <code>f</code>. d and e and h and l (high, low) can be combined to de and hl to act as 16-bit registers which covers the address space of the Game Boy but this is not relevant here.<br>
-                  The registers can be used to temporarily store data, very similar to RAM. Since the accumulator (a) can perform operations on its contained value, data need to be copied there regularly. Therefore it is not suited to store data.
+                  <code class="red">a</code>, <code class="red">b</code>, <code class="red">c</code>, <code class="red">d</code>, <code class="red">e</code>, <code class="red">h</code> and <code class="red">l</code> are 8-bit hardware registers in the CPU that can each store one byte (8 bits). The <code>a</code> register is the accumulator, which is connected to the flags register <code>f</code>. The <code>d</code> and <code>e</code> registers and the <code>h</code> and <code>l</code> registers can be combined into <code>de</code> and <code>hl</code>, respectively, to act as 16-bit registers covering the Game Boy's address space, but this is not relevant here.<br>
+                  The registers can temporarily store data, much like RAM. Since the accumulator (<code>a</code>) can perform operations on its contained value, data needs to be copied there regularly. Therefore, it is not well suited to long-term data storage.
                 </div>
               </div>
               <hr>
               <h3>The Tetris Pieces and their Rotations</h3>
               <div class="two-column-layout small">
                 <div>
-                  <img src="images/nesw.png" alt="Pieces and orientations" class="clickable" height="500">
+                  <img src="images/nesw.png" alt="Pieces and orientations" class="clickable">
                 </div>
                 <div>
-                  There are 7 pieces in GB Tetris (L,J,I,O,Z,S,T) that have 4 orientations (N,E,S,W) each.
-                  <p>Even though the S, Z and I pieces seemingly toggle between 2 orientations and the O-piece only ever appears in a single state, all 4 orientations are actually in code - some as duplicates (blue background in figure).</p>
+                  <p>There are 7 pieces in GB Tetris (L,J,I,O,Z,S,T) that have 4 orientations (N,E,S,W) each.</p>
+                  <p>Even though the S, Z and I pieces seemingly toggle between two orientations and the O-piece only ever appears in a single state, all four orientations are present in the code—some as duplicates (shown with a blue background in the figure).</p>
                   <p>The N (north) orientation (orange background in figure) is also the spawning orientation.
-                  The numbering for the piece and its orientation start at $00 for L<sub>N</sub> and increments.<br>
+                  The numbering for each piece and its orientation starts at $00 for L<sub>N</sub> and increments.</p>
                   <p>
-                    The spawning pieces therefore appear with intervals of 4:
+                    The spawning pieces therefore appear at intervals of four:
                   </p>
                   <p>
                     <code>0x00</code>, <code>0x04</code>, <code>0x08</code>, <code>0x0C</code>, <code>0x10</code>, <code>0x14</code> and <code>0x18</code>.
@@ -75,18 +74,18 @@
                 </div>
               </div>
               <div class="remark">
-                <b>The display and behavior of the fallig piece (current). </b>
-                The falling pieces is inside a hypothetical 4x4 "piece matrix" in the object layer (aka. sprite layer) which is placed in the foreground. The piece matrix contains a special cell at P(2/3) that controls the piece position during its descent. This cell also contains the pivot mino, which in GB Tetris is defined as the pieces' rotation axis.
-                <p>Rotation of the piece is a mere exchange of one orientation to one of its two neighboring orientations (e.g. N&rarr;E or N&rarr;W). Rotation can only ever be performed if all of the pieces' minos of the rotated piece are not occupied in the background.<br>
-                This very check on the background, is also the reason why certain unintuitive spins work.</p>
+                <b>The display and behavior of the falling piece. </b>
+                The falling piece is inside a hypothetical 4x4 "piece matrix" in the object layer (also known as the sprite layer), which is placed in the foreground. The piece matrix contains a special cell at P(2/3) that controls the piece's position during its descent. This cell also contains the pivot mino, which in GB Tetris is defined as the piece's rotation axis.
+                <p>Rotation of the piece is a mere exchange of one orientation for one of its two neighboring orientations (e.g. N&rarr;E or N&rarr;W). Rotation can only be performed if none of the rotated piece's minos overlap occupied cells in the background.<br>
+                This check against the background is also the reason why certain unintuitive spins work.</p>
               </div>
               <hr>
               <h2>1-Player Piece Generation RNG</h2>
               Shortly before the game's release during the mastering process, Henk Rogers (BPS) felt that certain pieces appeared more often than others—especially in consecutive floods of the same piece. In a hurry, he brought in people from Nintendo to his office in Yokohama to fix the issue over the weekend.<br>
               A solution was found and implemented. The fix, known as the flood check, was implemented poorly—likely due to time constraints. It does its job but introduces unwanted side effects that skew piece probabilities.<br>
-              The idea behind the flood prevention was to cross-check (1) the current piece with (2) the next piece and (3) the next-next piece to prevent floods. While the story is usually told by Rogers in a positive light, in an <a href="https://youtu.be/-TumVsm9aio?t=756" target="_blank">interview with Hawaiiverse</a>  he referred to this incident as "a bit of a bullshit story."
+              The idea behind the flood prevention was to cross-check (1) the current piece with (2) the next piece and (3) the next-next piece to prevent floods. While the story is usually told by Rogers in a positive light, in an <a href="https://youtu.be/-TumVsm9aio?t=756" target="_blank" rel="noopener noreferrer">interview with Hawaiiverse</a>  he referred to this incident as "a bit of a bullshit story."
               <div class="remark">
-                Note that this must have considered the Japan-exclusive 1.0 Version of the game. We describe the RNG of the more common revision A, also known as Version 1.1. The RNG portin of both versions is identical.
+                Note that this must have concerned the Japan-exclusive version 1.0 of the game. We describe the RNG of the more common revision A, also known as version 1.1. The RNG portion of both versions is identical.
               </div>
               <h3>Implementation in Pseudocode</h3>
 
@@ -107,20 +106,20 @@ while (h >= 0 && !found) {
 e = d;
 c = e;</code></pre>
 
-              The question arises, why make things complicated and not simply use <code>d = 4*rand(0,7);</code>? The answer of course is 8-bit, which GB ASM is based on.
+              This raises the question: why make things complicated instead of simply using <code>d = 4*rand(0,7);</code>? The answer, of course, lies in the 8-bit architecture on which GB ASM is based.
               <hr>
               <h3>Implementation in ASM</h3>
               <div class="two-column-layout">
                 <div>
-                  The Game Boy is an 8-bit system from the 1980's - programing was done in Assembly (ASM), which are instructions, so-called opcodes that directly communicate with the CPU. These instructions are stored as bytes in the ROM of the cartridge. ASM makes the code faster but also much longer than higher level languages such as C++ or Java.<br>
-                  There is no multiplication, division or modulo operation in the CPU of the Game Boy. Every operation higher than first degree operations (additions and subtractions) have to be implemented as loops.
+                  The Game Boy is an 8-bit system from the 1980s—programming was done in assembly (ASM), which consists of instructions, called opcodes, that communicate directly with the CPU. These instructions are stored as bytes in the cartridge's ROM. ASM makes the code faster but also much longer than higher-level languages such as C++ or Java.<br>
+                  There is no multiplication, division or modulo operation in the Game Boy's CPU. Every operation beyond first-degree operations (addition and subtraction) has to be implemented as a loop.
                   <p>
-                    The figure on shows a high level abstraction of the 1-player piece generation RNG.<br>
-                    The Boxes "4 MOD 7" and "Flood Check" will be explained as flow diagrams in the next sections.
+                    The figure shows a high-level abstraction of the 1-player piece-generation RNG.<br>
+                    The boxes "4 MOD 7" and "Flood Check" will be explained using flow diagrams in the next sections.
                   </p>
                   <p>
-                    After a piece is placed several routines are triggered before the next piece is dealt, among these is the RNG for the next-next piece. Note that the current piece and the next piece are already known and shown on the screen.<br>
-                    After generating these pieces they need to be shifted:<br> 
+                    After a piece is placed, several routines are triggered before the next piece is dealt. Among these is the RNG for the next-next piece. Note that the current piece and the next piece are already known and shown on the screen.<br>
+                    After these pieces are generated, they need to be shifted:<br>
                     next &rarr; current / next-next &rarr; next.
                   </p>                  
                 </div>
@@ -135,12 +134,12 @@ c = e;</code></pre>
                 </div>
                 <div>
                   <p><b>Get a Random Number (0x00-0xFF)</b></p>
-                  At some point between the current piece locking to the floor until a new one spawning, the DIV is read. The timing of the DIV access is, among other circumstances, mostly affected by user inputs while the piece is falling.    
+                  At some point between the current piece locking to the floor and a new one spawning, DIV is read. Among other factors, the timing of the DIV access is primarily affected by user input while the piece is falling.
                   <p><b>Adjust the Number for Spawning Pieces</b></p>
-                  <p>In modern programing this could be achieved by something like <code>4*(DIV%7)</code>, where % is the modulo function.<br>
-                  Since assembly can't do divisions or modulo natively, a routine that achieves this needed to be implemented, we call it "4&nbsp;MOD&nbsp;7".<br>
+                  <p>In modern programming, this could be achieved with something like <code>4*(DIV%7)</code>, where % is the modulo operator.<br>
+                  Since assembly cannot perform division or modulo operations natively, a routine was needed to achieve this; we call it "4&nbsp;MOD&nbsp;7".</p>
                   <div class="remark">
-                    Note that in case of a DIV value of $FF this lead to a cycle of 256.<br>
+                    Note that a DIV value of $FF leads to a cycle of 256.<br>
                     Also note that 256 is not divisible by 7 and therefore leaves a remainder, which gives a slight disadvantage to Z, S and T pieces.
                   </div>
                 </div>
@@ -152,21 +151,21 @@ c = e;</code></pre>
                 </div>
                 <div>
                   <p><b>The Infamous "Flood Check"</b></p>
-                  we store the pieces as follows:
+                  We store the pieces as follows:
                   <ul>
                     <li>c = current piece</li> 
                     <li>e = next piece</li> 
                     <li>d = next-next piece</li>
                   </ul> 
-                  And we apply the following check:<br>
-                  reject if <code>c==(c|e|d)</code>, where | is the symbol for the bitwise or operator.<br>
-                  this check is performed a max of 3 times and if it failed 3 times the 4th value is taken regardless.<br>    
+                  We then apply the following check:<br>
+                  Reject if <code>c==(c|e|d)</code>, where | is the symbol for the bitwise OR operator.<br>
+                  This check is performed a maximum of three times, and if it fails three times, the fourth value is taken regardless.<br>
                 </div>
               </div>
               <hr>
               <h3>Game Boy (LR35902) Assembly</h3>
               <h4>1-Player Piece RNG</h4>
-              <b>(Starting Address in ROM: $2041 in V 1.1 / $209c in V 1.0)</b>
+              <b>(Starting address in ROM: $2041 in v1.1 / $209C in v1.0)</b>
 
 <pre><code class="language-gbassembly">  ; max 3 re-rolls
 .getNewDiv:
@@ -222,7 +221,7 @@ c = e;</code></pre>
 ...</code></pre>
 
               <hr>
-              <h3>Let's go Binary to Better Make Sense of the Bitwise-OR</h3>
+              <h3>Let's Use Binary to Better Understand the Bitwise OR</h3>
               <div class="two-column-layout">
                 <div>
                   <table class="normal" id="binary">
@@ -256,7 +255,7 @@ c = e;</code></pre>
                       <tr>
                         <td>O<sub>N</sub></td>
                         <td>0x0C</td>
-                        <td>00001100</span></td>
+                        <td>00001100</td>
                         <td>011</td>
                       </tr>
                       <tr>
@@ -268,7 +267,7 @@ c = e;</code></pre>
                       <tr>
                         <td>S<sub>N</sub></td>
                         <td>0x14</td>
-                        <td>00010100</span></td>
+                        <td>00010100</td>
                         <td>101</td>
                       </tr>
                       <tr>
@@ -281,29 +280,29 @@ c = e;</code></pre>
                   </table>
                 </div>
                 <div>
-                  The masking of the last 2 bits to remove the rotation (<code>and $fc</code>) shows, that in the spawning (north) orientation, the last two bits can be neglected. Additionally the first 3 bits are also 0 in all cases, we can simplify / truncate the binary of the pieces such that:<br>
+                  Masking the last two bits to remove the rotation (<code>and $fc</code>) shows that, in the spawning (north) orientation, the last two bits can be neglected. Additionally, the first three bits are also 0 in all cases, so we can simplify or truncate the binary representations of the pieces as follows:<br>
                   <p>L=<code>000</code>, J=<code>001</code>, I=<code>010</code>, O=<code>011</code>, Z=<code>100</code>, S=<code>101</code>, T=<code>110</code></p>
-                  This is not in violation of the flood check but makes it easier for us humans to work with.<br>
-                  <p>The flood check <code>c==(c|e|d)</code> naturally rejects the next-next piece if the current piece, the next piece and the next-next pieces are the same (<code>c==e==d</code>).<br>
-                    Apart from that wanted trait, many of the 243 combinations are also rejected as a by-product.<br>
+                  This does not alter the flood check, but it makes the values easier for humans to work with.<br>
+                  <p>The flood check <code>c==(c|e|d)</code> naturally rejects the next-next piece if the current piece, the next piece and the next-next piece are the same (<code>c==e==d</code>).<br>
+                    In addition to that intended behavior, many of the 243 combinations are also rejected as a by-product.<br>
                 </div>
               </div>
               <div class="remark">
-                Note that the last 2 (truncated) bits contain the rotation state:
+                Note that the last two (truncated) bits contain the rotation state:
                 <p>N=<code>00</code>, E=<code>01</code>, S=<code>10</code>, W=<code>11</code></p>
-                E.g.: O<sub>S</sub>=<code>01110</code><br>
-                <p>This truncation can also be seen as a division by 4, which could be achieved by bitshifting the value twice to the right.</p>
+                For example: O<sub>S</sub>=<code>01110</code><br>
+                <p>This truncation can also be seen as division by four, which could be achieved by bit-shifting the value twice to the right.</p>
               </div>
               <div class="remark">
-                The unwanted effects of the flood check could have been mitigated if the pieces were assigned a value in the form of 2<sup>n</sup></p>
-                <p>E.g.: L=<code>000000</code>, J=<code>000001</code>, I=<code>000010</code>, O=<code>000100</code>, Z=<code>001000</code>, S=<code>010000</code>, T=<code>100000</code></p>
-                <p>In this case the same pieces, and only the same pieces would be rejected (most of the time).</p>
-                There would be only one problem with such an implementation: it is almost as boring as 7-bag.
+                <p>The unwanted effects of the flood check could have been mitigated if the pieces had been assigned values in the form of 2<sup>n</sup>.</p>
+                <p>For example: L=<code>000000</code>, J=<code>000001</code>, I=<code>000010</code>, O=<code>000100</code>, Z=<code>001000</code>, S=<code>010000</code>, T=<code>100000</code></p>
+                <p>In this case, the same pieces—and only the same pieces—would be rejected most of the time.</p>
+                There would be only one problem with such an implementation: it would be almost as boring as 7-bag.
               </div>
               <hr>
               <h3>Implications on the Piece Probabilities</h3>
-              Theory and a reality could potentially deviate substantially since the DIV register is not independent from the CPU cycle. In the frame when the DIV is read, this in itself could lead to a non-uniform distribution of the values.<br>
-              <p>In order to investigate, both approaches were considered; a theoretical and a practical one.</p> 
+              Theory and reality could potentially deviate substantially since the DIV register is not independent of the CPU cycle. The frame in which DIV is read could itself lead to a non-uniform distribution of values.<br>
+              <p>To investigate this, both a theoretical and a practical approach were considered.</p>
               <hr>
               <h4>A Theoretical Approach</h4>
               <h5>1) The Effect of 4MOD7</h5>
@@ -312,7 +311,7 @@ c = e;</code></pre>
                 <img src="images/after 4MOD7.png" alt="After 4 MOD 7" class="clickable">
                 </div>
                 <div>
-                  Due to the fact that the DIV returns 256 values but there are only 7 pieces, there is already a slight indifference in favor of certain pieces, namely L, J, I and O.<br>
+                  Since DIV returns 256 values but there are only seven pieces, there is already a slight imbalance in favor of certain pieces, namely L, J, I and O.<br>
                   <p>
                     This leads to the following probabilities:
                   </p><p>
@@ -321,13 +320,10 @@ c = e;</code></pre>
                     <code>P(Z)=P(S)=P(T) = 36/256 &cong; 14.06%</code>
                   </p>
                 </div>
-              <div>
-                  &nbsp;
-                </div>
               </div>
               <h5>2) The Effect of the Flood Control</h5>
               <div class="remark">
-                By the nature of the bitwise-or the more zeros the piece contains, the likelier it is being rejected.
+                Due to the nature of the bitwise OR, the more zeros a piece contains, the more likely it is to be rejected.
                 <table class="normal special" style="width: auto;">
                     <tr>
                       <td style="color: black;">1 zero</td>
@@ -399,37 +395,38 @@ c = e;</code></pre>
                   </table>
                 </div>  
                 <div>
-                  If you apply the flood check to all combinations of 3 pieces, which is 7<sup>3</sup>=243 combinations, you get a total of 61 rejected combinations. The numbers in the table reflect this.
+                  If you apply the flood check to all combinations of three pieces—7<sup>3</sup>=243 combinations—you get a total of 61 rejected combinations. The numbers in the table reflect this.
                 </div>
               </div>
-            <p>The probability is calculated as <code>(1-([Piece] rejected/243))*P([Piece])</code></p>
+            <p>The probability is calculated as <code>(1 - ([Piece] rejected / 243)) * P([Piece])</code>.</p>
               <hr>
               <h3>Try it out Yourself</h3>
               <div class="stats-container">
                 <label for="rowCount">Generate Pieces </label>
                 <input type="number" id="rowCount" min="1" max="10000" value="1000">
-                <button id="fillButton">Add</button>
-                <div id="totalRows"></div>
+                <button type="button" id="fillButton">Add</button>
+                <div id="totalRows" aria-live="polite"></div>
               </div>
               <div class="table-container">
-                <table id="piece-generator">
+                  <table id="piece-generator">
+                  <caption>Generated piece sequence and reroll attempts</caption>
                   <thead>
                     <tr>
-                        <th class="piece">#</th>
-                        <th class="piece">c</th>
-                        <th class="piece">e</th>
-                        <th class="group1">DIV<sub>1</sub></th>
-                        <th class="group1">d<sub>1</sub></th>
-                        <th class="group1">Reject<sub>1</sub></th>
-                        <th class="group2">DIV<sub>2</sub></th>
-                        <th class="group2">d<sub>2</sub></th>
-                        <th class="group2">Reject<sub>2</sub></th>
-                        <th class="group3">DIV<sub>3</sub></th>
-                        <th class="group3">d<sub>3</sub></th>
-                        <th class="group3">Reject<sub>3</sub></th>
-                        <th class="group4">DIV<sub>4</sub></th>
-                        <th class="group4">d<sub>4</sub></th>
-                        <th class="piece">Piece</th>
+                        <th scope="col" class="piece">#</th>
+                        <th scope="col" class="piece">c</th>
+                        <th scope="col" class="piece">e</th>
+                        <th scope="col" class="group1">DIV<sub>1</sub></th>
+                        <th scope="col" class="group1">d<sub>1</sub></th>
+                        <th scope="col" class="group1">Reject<sub>1</sub></th>
+                        <th scope="col" class="group2">DIV<sub>2</sub></th>
+                        <th scope="col" class="group2">d<sub>2</sub></th>
+                        <th scope="col" class="group2">Reject<sub>2</sub></th>
+                        <th scope="col" class="group3">DIV<sub>3</sub></th>
+                        <th scope="col" class="group3">d<sub>3</sub></th>
+                        <th scope="col" class="group3">Reject<sub>3</sub></th>
+                        <th scope="col" class="group4">DIV<sub>4</sub></th>
+                        <th scope="col" class="group4">d<sub>4</sub></th>
+                        <th scope="col" class="piece">Piece</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -443,7 +440,7 @@ c = e;</code></pre>
                   <img src="images/Chris&Triss.png" alt="Chris and Triss Piece Count" class="clickable">
                 </div>
                 <div>
-                  <a href="../ChrisAndTriss/index.html" target="_blank">Chris & Triss</a> is a block stacking game that uses an RNG that is expected to yield identical piece probabilities as GB Tetris. At the end of a session, the number of dealt pieces are displayed, which facilitates the piece count. Apart from that, Chris & Triss offers useful modes, such as the ZEN-Mode where the level never changes. Like this, very long continuous games can be played and it can be evaluated, whether RNG is the same in different levels.
+                  <a href="../ChrisAndTriss/index.html" target="_blank" rel="noopener noreferrer">Chris &amp; Triss</a> is a block-stacking game that uses an RNG expected to yield the same piece probabilities as GB Tetris. At the end of a session, the number of pieces dealt is displayed, which facilitates piece counting. In addition, Chris &amp; Triss offers useful modes, such as ZEN Mode, in which the level never changes. This allows very long, continuous games to be played and makes it possible to evaluate whether the RNG is the same at different levels.
                   <p>Playing the game from a cartridge on original hardware yielded the following percentages:</p>
                 </div>
               </div>
@@ -508,30 +505,28 @@ c = e;</code></pre>
 </code></pre>
               
               <hr class="short">
-              <h4>Sources:</h4>
+              <h2>Sources</h2>
               <div class="references">
                 <ol> 
-                  <li><a href="https://harddrop.com/wiki/Tetris_(Game_Boy)#Randomizer" target="_blank">https://harddrop.com/wiki/Tetris_(Game_Boy)#Randomizer</a></li>
-                  <li><a href="https://babeheim.com/blog/2020-12-29-is-tetris-biased/" target="_blank">https://babeheim.com/blog/2020-12-29-is-tetris-biased/</a></li>
-                  <li><a href="https://simon.lc/the-history-of-tetris-randomizers" target="_blank">https://simon.lc/the-history-of-tetris-randomizers</a></li>
-                  <li><a href="https://tetrisconcept.net/threads/randomizer-theory.512/" target="_blank">https://tetrisconcept.net/threads/randomizer-theory.512/</a></li>
+                  <li><a href="https://harddrop.com/wiki/Tetris_(Game_Boy)#Randomizer" target="_blank" rel="noopener noreferrer">https://harddrop.com/wiki/Tetris_(Game_Boy)#Randomizer</a></li>
+                  <li><a href="https://babeheim.com/blog/2020-12-29-is-tetris-biased/" target="_blank" rel="noopener noreferrer">https://babeheim.com/blog/2020-12-29-is-tetris-biased/</a></li>
+                  <li><a href="https://simon.lc/the-history-of-tetris-randomizers" target="_blank" rel="noopener noreferrer">https://simon.lc/the-history-of-tetris-randomizers</a></li>
+                  <li><a href="https://tetrisconcept.net/threads/randomizer-theory.512/" target="_blank" rel="noopener noreferrer">https://tetrisconcept.net/threads/randomizer-theory.512/</a></li>
                 </ol>
               </div>
             </main>
         </div>
       </div>
 
-    <script src="../script.js"></script>
-    <script src="script.js"></script>
-    <script src="prism.min.js"></script>
-    <script src="prism-javascript.min.js"></script>
-    <script src="gb-assembly.js"></script>
-  
-    <div id="imageModal" class="modal" style="display: none;">
+    <div id="imageModal" class="modal" role="dialog" aria-modal="true" aria-label="Image preview" aria-hidden="true">
         <div class="modal-content">
-          <span class="close">&times;</span>
+          <button type="button" class="close" aria-label="Close image preview">&times;</button>
           <img id="modalImage" alt="Modal Image">
         </div>
       </div>
+    <script src="prism.min.js"></script>
+    <script src="prism-javascript.min.js"></script>
+    <script src="gb-assembly.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

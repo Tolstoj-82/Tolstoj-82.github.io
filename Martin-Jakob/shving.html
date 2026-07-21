@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <title>Shving!</title>
@@ -16,18 +16,18 @@
         <b>Shving!</b> ist ein clientseitig eingesetztes Pseudo-Verschlüsselungsverfahren, das dazu dient, bestimmte Inhalte gezielt ein- oder auszublenden. Dabei werden zwei Schlüsselparameter – <b>a</b> und <b>b</b> – mit der URL übergeben.
       </p>
       <p>
-        Das Verfahren basiert auf <b>SH</b>A-256 und im weiteren Sinne auf der <b>Vig</b>enère-Chiffrierung, deswegen der Name <b>Shving!</b> - mit dem vorgezogenen n.
+        Das Verfahren basiert auf <b>SH</b>A-256 und im weiteren Sinne auf der <b>Vig</b>enère-Chiffrierung, daher der Name <b>Shving!</b> – mit vorgezogenem n.
       </p>
       <p>
-        Ich habe die Methode speziell für diese Website entwickelt um Inhalte gezielt zu steuern.
+        Ich habe die Methode speziell für diese Website entwickelt, um Inhalte gezielt zu steuern.
       </p>
         <ul>
           <li>Der Schlüssel a wird mittels SHA-256 in einen Hash umgewandelt, welcher als Lookup-Schlüssel in einer JSON-Datei dient.</li>
-          <li>Der zugehörige Wert in dieser JSON ist mit einer Variante der Vigenère-Verschlüsselung codiert. Dieses Verfahren verschiebt Zeichen um bestimmte Werte – bei Shving! basiert diese Verschiebung auf Unicode-Codepunkten und verwendet Komma-separierte Dezimalzahlen anstelle von Unicode-Zeichen.</li>
-          <li>Um die Verschlüsselung auf längere Texte anzuwenden, wird der Schlüssel b mehrfach wiederholt. Beispiel: Bei b = Apfel ergibt sich eine wiederholte Schlüsselabfolge wie "ApfelApfelApfel....". Dies wird solange wiederholt, bis das Ende des zu verschlüsseltenn Texts erreicht ist.</li>
+          <li>Der zugehörige Wert in dieser JSON-Datei ist mit einer Variante der Vigenère-Verschlüsselung codiert. Dieses Verfahren verschiebt Zeichen um bestimmte Werte – bei Shving! basiert diese Verschiebung auf Unicode-Codepunkten und verwendet kommagetrennte Dezimalzahlen anstelle von Unicode-Zeichen.</li>
+          <li>Um die Verschlüsselung auf längere Texte anzuwenden, wird der Schlüssel b mehrfach wiederholt. Beispiel: Bei b = Apfel ergibt sich eine wiederholte Schlüsselabfolge wie «ApfelApfelApfel…». Dies wird so lange wiederholt, bis das Ende des zu verschlüsselnden Textes erreicht ist.</li>
         </ul>
       <p>
-        Nach erfolgreicher Entschlüsselung wird der Inhalt auf HTML-spezifische Merkmale geprüft (z.B. bestimmte Tags oder Attribute). Erst wenn dieser Test bestanden ist, wird der zweite entschlüsselte Wert in einen Container geladen – andernfalls bleibt der Container leer.
+        Nach erfolgreicher Entschlüsselung wird der Inhalt auf HTML-spezifische Merkmale geprüft (z. B. bestimmte Tags oder Attribute). Erst wenn dieser Test bestanden ist, wird der zweite entschlüsselte Wert in einen Container geladen – andernfalls bleibt der Container leer.
       </p>
     </div>
   
@@ -38,7 +38,7 @@
     </p>
     <hr />
     <p>
-      <b>Unicode-Vigenère Schlüssel</b><br />
+      <b>Unicode-Vigenère-Schlüssel</b><br />
       <label for="key">b: </label>
       <input type="text" id="key" style="width: 60%;"/>
     </p>
@@ -52,14 +52,14 @@
     <p>
       <label for="entrytext"><b>Einführungstext</b></label>
       <textarea id="entrytext" rows="5" style="width: 100%;"></textarea>  
-      <label for="text"><b>HTML Content</b></label>
+      <label for="text"><b>HTML-Inhalt</b></label>
       <textarea id="text" rows="5" style="width: 100%;"></textarea>
   </p>
     <p>
       <div>
         <label
-          ><b>Querystring</b>
-          <a href="#" id="copyQuery" title="Copy to clipboard">🔗</a>
+          ><b>Abfragezeichenfolge</b>
+          <a href="#" id="copyQuery" title="In die Zwischenablage kopieren">🔗</a>
         </label>
         <div id="querystring"></div>
       </div>
@@ -67,15 +67,15 @@
     <p>
       <div>
         <label
-          ><b>JSON Output</b>
-          <a href="#" id="copyJson" title="Copy to clipboard">🔗</a>
+          ><b>JSON-Ausgabe</b>
+          <a href="#" id="copyJson" title="In die Zwischenablage kopieren">🔗</a>
         </label>
         <div id="jsonoutput"></div>
       </div>
     </p>
 
     <p>
-      <label>QR Code</label>
+      <label>QR-Code</label>
       <select id="shapeSelect" onchange="generateQRCode()">
         <option value="square">Eckig</option>
         <option value="circle">Rund</option>
@@ -123,7 +123,7 @@
       <canvas id="qrCanvas"></canvas>
     </p>
 
-    <div id="toast">Copied!</div>
+    <div id="toast">Kopiert!</div>
     <script src="scripts/shving.js"></script>
     <script src="scripts/shving-specific.js"></script>
     <script src="scripts/qr.js"></script>

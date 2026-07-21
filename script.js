@@ -1,72 +1,85 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const images = document.querySelectorAll('.clickable');
+  const menuButton = document.getElementById('hamburger-icon');
+  const closeButton = document.getElementById('close-icon');
+  const menuContainer = document.getElementById('site-menu');
+  const accordions = document.querySelectorAll('.accordion');
   const modal = document.getElementById('imageModal');
   const modalImage = document.getElementById('modalImage');
-  const closeModal = modal.querySelector('.close');
-  const accordions = document.querySelectorAll('.accordion');
+  const modalCloseButton = modal?.querySelector('.close');
+  let lastFocusedElement = null;
+
+  const setMenuOpen = (isOpen) => {
+    menuContainer.classList.toggle('active', isOpen);
+    menuContainer.setAttribute('aria-hidden', String(!isOpen));
+    menuButton.setAttribute('aria-expanded', String(isOpen));
+    menuButton.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+
+    if (isOpen) {
+      closeButton.focus();
+    } else if (menuContainer.contains(document.activeElement)) {
+      menuButton.focus();
+    }
+  };
+
+  menuButton.addEventListener('click', () => {
+    setMenuOpen(!menuContainer.classList.contains('active'));
+  });
+
+  closeButton.addEventListener('click', () => setMenuOpen(false));
 
   accordions.forEach((accordion) => {
     accordion.addEventListener('click', () => {
-      const menu = accordion.nextElementSibling;
-  
-      if (menu && menu.classList.contains('menu')) {
-        menu.classList.toggle('active');
-        accordion.classList.toggle('active');
-  
-        // Toggle the + and - symbols
-        const arrow = accordion.querySelector('.arrow');
-        if (arrow) {
-          arrow.textContent = accordion.classList.contains('active') ? '-' : '+';
-        }
-      }
-    });
-  })
+      const submenu = accordion.nextElementSibling;
+      if (!submenu?.classList.contains('menu')) return;
 
-  // Attach click event to all clickable images
-  images.forEach(image => {
-    image.addEventListener('click', () => {
-      modalImage.src = image.src; // Set the modal image to the clicked image
-      modal.style.display = 'flex'; // Show the modal
+      const isOpen = submenu.classList.toggle('active');
+      accordion.classList.toggle('active', isOpen);
+      accordion.setAttribute('aria-expanded', String(isOpen));
+
+      const arrow = accordion.querySelector('.arrow');
+      if (arrow) arrow.textContent = isOpen ? '−' : '+';
     });
   });
 
-  // Close the modal when the close button is clicked
-  closeModal.addEventListener('click', () => {
-    modal.style.display = 'none'; // Hide the modal
-  });
-
-  // Close the modal when clicking outside the modal-content
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.style.display = 'none';
+  document.addEventListener('click', (event) => {
+    if (
+      menuContainer.classList.contains('active') &&
+      !menuContainer.contains(event.target) &&
+      !menuButton.contains(event.target)
+    ) {
+      setMenuOpen(false);
     }
   });
 
-  // Open the image in a new tab when the modal image is clicked
-  modalImage.addEventListener('click', () => {
-    window.open(modalImage.src, '_blank'); // Open the image in a new tab
+  document.querySelectorAll('.clickable').forEach((image) => {
+    image.addEventListener('click', () => {
+      lastFocusedElement = document.activeElement;
+      modalImage.src = image.src;
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      modalCloseButton?.focus();
+    });
   });
-});
 
-const menuBtn = document.querySelector('.menu-btn');
-const closeBtn = document.querySelector('.close-btn');
-const menuContainer = document.querySelector('.menu-container');
+  const closeModal = () => {
+    if (!modal || modal.style.display === 'none') return;
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+    modalImage.removeAttribute('src');
+    lastFocusedElement?.focus();
+  };
 
-menuBtn.addEventListener('click', () => {
-  menuContainer.classList.add('active');
-});
+  modalCloseButton?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', (event) => {
+    if (event.target === modal) closeModal();
+  });
+  modalImage?.addEventListener('click', () => {
+    if (modalImage.src) window.open(modalImage.src, '_blank', 'noopener');
+  });
 
-closeBtn.addEventListener('click', () => {
-  menuContainer.classList.remove('active');
-});
-
-// Close menu on clicking outside
-document.addEventListener('click', (e) => {
-  if (
-    !menuBtn.contains(e.target) &&
-    !menuContainer.contains(e.target) &&
-    !closeBtn.contains(e.target)
-  ) {
-    menuContainer.classList.remove('active');
-  }
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    closeModal();
+    if (menuContainer.classList.contains('active')) setMenuOpen(false);
+  });
 });

@@ -32,10 +32,10 @@ function pieceToPieceNumber(letter) {
     O: 12,
     Z: 16,
     S: 20,
-    T: 22,
+    T: 24,
   };
 
-  return pieceMap[letter] || "";
+  return pieceMap[letter] ?? "";
 }
 
 function emptyArrays() {
@@ -47,9 +47,11 @@ function emptyArrays() {
 }
 
 function fillRows(nRows) {
+  const fragment = document.createDocumentFragment();
   for (let i = 0; i < nRows; i++) {
-    addRow(i + lastRowNum);
+    fragment.appendChild(addRow(i + lastRowNum));
   }
+  tbody.appendChild(fragment);
   lastRowNum += nRows;
   document.getElementById("totalRows").textContent =
     "(Total Pieces = " + lastRowNum + ")";
@@ -67,8 +69,8 @@ function addRow(rowNum) {
 
   // Generate divHex and corresponding values
   div[0] = getDiv();
-  pieceNumber = divToPieceNumber(div[0]);
-  piece = pieceNumberToPiece(pieceNumber);
+  let pieceNumber = divToPieceNumber(div[0]);
+  let piece = pieceNumberToPiece(pieceNumber);
 
   // Update pieces and calculate related values
   pieces.unshift(piece);
@@ -80,7 +82,7 @@ function addRow(rowNum) {
   div[0] = div[0].toString(16).padStart(2, "0");
 
   if (rowNum > 2) {
-    check = bitcheck(c, e, nextnext[0]); // Reject if c == (c|e|d)
+    let check = bitcheck(c, e, nextnext[0]); // Reject if c == (c|e|d)
     if (check) reject[0] = piece;
     else reject[0] = "";
   }
@@ -92,7 +94,7 @@ function addRow(rowNum) {
       piece = pieceNumberToPiece(pieceNumber);
       nextnext[i] = (4 * (div[i] % 7)).toString(16).padStart(2, "0");
       div[i] = div[i].toString(16).padStart(2, "0");
-      check = bitcheck(c, e, nextnext[i]);
+      const check = bitcheck(c, e, nextnext[i]);
       if (check) reject[i] = piece;
       else reject[i] = "";
     }
@@ -126,7 +128,7 @@ function addRow(rowNum) {
         <td class="piece"><b>${piece}</b></td>
     `;
 
-  tbody.appendChild(newRow);
+  return newRow;
 }
 
 // Set up button click event
@@ -153,5 +155,50 @@ rows.forEach((row) => {
         `<span style="color: grey;">${content.slice(-2)}</span>`;
       binCell.innerHTML = styledContent; // Replace the cell's content
     }
+  }
+});
+
+const clickableImages = document.querySelectorAll("img.clickable");
+const modal = document.getElementById("imageModal");
+const modalImage = document.getElementById("modalImage");
+const closeModalButton = modal.querySelector(".close");
+let imageThatOpenedModal = null;
+
+function openImageModal(image) {
+  imageThatOpenedModal = image;
+  modalImage.src = image.src;
+  modalImage.alt = image.alt;
+  modal.style.display = "flex";
+  modal.setAttribute("aria-hidden", "false");
+  closeModalButton.focus();
+}
+
+function closeImageModal() {
+  modal.style.display = "none";
+  modal.setAttribute("aria-hidden", "true");
+  modalImage.removeAttribute("src");
+  imageThatOpenedModal?.focus();
+}
+
+clickableImages.forEach((image) => {
+  image.tabIndex = 0;
+  image.setAttribute("role", "button");
+  image.setAttribute("aria-label", `Open larger view: ${image.alt}`);
+  image.addEventListener("click", () => openImageModal(image));
+  image.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openImageModal(image);
+    }
+  });
+});
+
+closeModalButton.addEventListener("click", closeImageModal);
+modal.addEventListener("click", (event) => {
+  if (event.target === modal) closeImageModal();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && modal.getAttribute("aria-hidden") === "false") {
+    closeImageModal();
   }
 });

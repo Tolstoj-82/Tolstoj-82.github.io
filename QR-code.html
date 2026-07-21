@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QR Code Generator</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
     <style>
       body {
         text-align: center;
@@ -70,37 +70,47 @@
   </head>
   <body>
     <p>
-      Adresse
+      <label for="qrInput">Adresse</label>
       <input
         type="text"
         id="qrInput"
         placeholder="Text..."
-        oninput="generateQRCode()"
       />
     </p>
     <p>
-      <label>QR Code</label>
-      <select id="shapeSelect" onchange="generateQRCode()">
+      <label for="shapeSelect">QR Code</label>
+      <select id="shapeSelect">
         <option value="square">Eckig</option>
         <option value="circle">Rund</option>
+        <option value="rounded">Abgerundet</option>
+        <option value="diamond">Raute</option>
+        <option value="horizontal">Horizontal</option>
+        <option value="vertical">Vertikal</option>
+        <option value="dot">Kleinere Punkte</option>
       </select>
       <input
         type="color"
         id="colorPicker"
         value="#000000"
-        onchange="generateQRCode()"
+        aria-label="QR code color"
       />
       |
-      <label>Finder</label>
-      <select id="finderShapeSelect" onchange="generateQRCode()">
+      <label for="finderShapeSelect">Finder</label>
+      <select id="finderShapeSelect">
         <option value="square">Eckig</option>
         <option value="circle">Rund</option>
+        <option value="circular">Kreisförmig</option>
+        <option value="rounded-square">Abgerundetes Quadrat</option>
+        <option value="diamond">Raute</option>
+        <option value="ring">Ring</option>
+        <option value="square-circle">Quadrat mit Kreis</option>
+        <option value="circle-square">Kreis mit Quadrat</option>
       </select>
       <input
         type="color"
         id="finderColorPicker"
         value="#000000"
-        onchange="generateQRCode()"
+        aria-label="Finder color"
       />
     </p>
     <input
@@ -109,87 +119,254 @@
       min="200"
       max="700"
       value="300"
-      onchange="generateQRCode()"
+      aria-label="QR code size"
     />
 
-    <p><canvas id="qrCanvas"></canvas></p>
-    <button id="downloadBtn" onclick="downloadQRCode()" style="display: none">
+    <p><canvas id="qrCanvas" aria-label="Generated QR code"></canvas></p>
+    <button id="downloadBtn" type="button" style="display: none">
       Download
     </button>
     <script>
-      function generateQRCode() {
-        const inputText = document.getElementById("qrInput").value.trim();
-        const downloadBtn = document.getElementById("downloadBtn");
+      const qrInput = document.getElementById("qrInput");
+      const shapeSelect = document.getElementById("shapeSelect");
+      const colorPicker = document.getElementById("colorPicker");
+      const finderShapeSelect = document.getElementById("finderShapeSelect");
+      const finderColorPicker = document.getElementById("finderColorPicker");
+      const sizeSlider = document.getElementById("sizeSlider");
+      const canvas = document.getElementById("qrCanvas");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const ctx = canvas.getContext("2d");
 
-        // Hide download button if input is empty
-        if (inputText === "") {
-          downloadBtn.style.display = "none";
-        } else {
-          downloadBtn.style.display = "inline-block";
+      function clearQRCode() {
+        canvas.width = Number.parseInt(sizeSlider.value, 10);
+        canvas.height = canvas.width;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        downloadBtn.style.display = "none";
+      }
+
+      function roundedRectPath(context, x, y, width, height, radius) {
+        const safeRadius = Math.min(radius, width / 2, height / 2);
+        context.beginPath();
+        context.moveTo(x + safeRadius, y);
+        context.lineTo(x + width - safeRadius, y);
+        context.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+        context.lineTo(x + width, y + height - safeRadius);
+        context.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
+        context.lineTo(x + safeRadius, y + height);
+        context.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
+        context.lineTo(x, y + safeRadius);
+        context.quadraticCurveTo(x, y, x + safeRadius, y);
+        context.closePath();
+      }
+
+      function diamondPath(context, centerX, centerY, radius) {
+        context.beginPath();
+        context.moveTo(centerX, centerY - radius);
+        context.lineTo(centerX + radius, centerY);
+        context.lineTo(centerX, centerY + radius);
+        context.lineTo(centerX - radius, centerY);
+        context.closePath();
+      }
+
+      function drawModule(shape, x, y, size) {
+        const centerX = x + size / 2;
+        const centerY = y + size / 2;
+
+        switch (shape) {
+          case "circle":
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+          case "rounded":
+            roundedRectPath(ctx, x, y, size, size, size * 0.3);
+            ctx.fill();
+            break;
+          case "diamond":
+            diamondPath(ctx, centerX, centerY, size / 2);
+            ctx.fill();
+            break;
+          case "horizontal":
+            roundedRectPath(ctx, x, y + size * 0.15, size, size * 0.7, size * 0.35);
+            ctx.fill();
+            break;
+          case "vertical":
+            roundedRectPath(ctx, x + size * 0.15, y, size * 0.7, size, size * 0.35);
+            ctx.fill();
+            break;
+          case "dot":
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, size * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+          default:
+            ctx.fillRect(x, y, size, size);
         }
-        const qr = qrcode(0, "H");
-        qr.addData(inputText);
-        qr.make();
-        const modules = qr.getModuleCount();
-        const canvas = document.getElementById("qrCanvas");
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          console.error("Failed to get canvas context.");
+      }
+
+      function generateQRCode() {
+        const inputText = qrInput.value.trim();
+
+        if (inputText === "") {
+          clearQRCode();
           return;
         }
-        const shape = document.getElementById("shapeSelect").value;
-        const finderShape = document.getElementById("finderShapeSelect").value;
-        const color = document.getElementById("colorPicker").value;
-        const finderColor = document.getElementById("finderColorPicker").value;
-        const size = parseInt(document.getElementById("sizeSlider").value, 10);
-        canvas.width = size;
-        canvas.height = size;
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        const moduleSize = Math.floor((size * 0.8) / modules);
-        const actualQRSize = moduleSize * modules;
-        const padding = Math.floor((canvas.width - actualQRSize) / 2);
-        for (let row = 0; row < modules; row++) {
-          for (let col = 0; col < modules; col++) {
-            if (qr.isDark(row, col)) {
+
+        if (typeof qrcode !== "function") {
+          downloadBtn.style.display = "none";
+          console.error("The QR code library could not be loaded.");
+          return;
+        }
+
+        try {
+          const qr = qrcode(0, "H");
+          qr.addData(inputText);
+          qr.make();
+
+          const modules = qr.getModuleCount();
+          const shape = shapeSelect.value;
+          const finderShape = finderShapeSelect.value;
+          const color = colorPicker.value;
+          const finderColor = finderColorPicker.value;
+          const size = Number.parseInt(sizeSlider.value, 10);
+
+          canvas.width = size;
+          canvas.height = size;
+          ctx.fillStyle = "white";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          const moduleSize = Math.max(1, Math.floor((size * 0.8) / modules));
+          const actualQRSize = moduleSize * modules;
+          const padding = Math.floor((canvas.width - actualQRSize) / 2);
+
+          function drawFinderPattern(style, column, row) {
+            const x = padding + column * moduleSize;
+            const y = padding + row * moduleSize;
+            const centerX = padding + (column + 3.5) * moduleSize;
+            const centerY = padding + (row + 3.5) * moduleSize;
+
+            ctx.fillStyle = finderColor;
+            if (style === "rounded-square") {
+              roundedRectPath(ctx, x, y, moduleSize * 7, moduleSize * 7, moduleSize * 1.25);
+              ctx.fill();
+              ctx.fillStyle = "white";
+              roundedRectPath(ctx, x + moduleSize, y + moduleSize, moduleSize * 5, moduleSize * 5, moduleSize * 0.8);
+              ctx.fill();
+              ctx.fillStyle = finderColor;
+              roundedRectPath(ctx, x + moduleSize * 2, y + moduleSize * 2, moduleSize * 3, moduleSize * 3, moduleSize * 0.5);
+              ctx.fill();
+            } else if (style === "diamond") {
+              diamondPath(ctx, centerX, centerY, moduleSize * 3.5);
+              ctx.fill();
+              ctx.fillStyle = "white";
+              diamondPath(ctx, centerX, centerY, moduleSize * 2.5);
+              ctx.fill();
+              ctx.fillStyle = finderColor;
+              diamondPath(ctx, centerX, centerY, moduleSize * 1.5);
+              ctx.fill();
+            } else if (style === "square-circle") {
+              ctx.fillRect(x, y, moduleSize * 7, moduleSize * 7);
+              ctx.fillStyle = "white";
+              ctx.fillRect(x + moduleSize, y + moduleSize, moduleSize * 5, moduleSize * 5);
+              ctx.fillStyle = finderColor;
+              ctx.beginPath();
+              ctx.arc(centerX, centerY, moduleSize * 1.5, 0, Math.PI * 2);
+              ctx.fill();
+            } else if (style === "circle-square") {
+              ctx.beginPath();
+              ctx.arc(centerX, centerY, moduleSize * 3.5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = "white";
+              ctx.fillRect(x + moduleSize, y + moduleSize, moduleSize * 5, moduleSize * 5);
+              ctx.fillStyle = finderColor;
+              ctx.fillRect(x + moduleSize * 2, y + moduleSize * 2, moduleSize * 3, moduleSize * 3);
+            } else {
+              ctx.beginPath();
+              ctx.arc(centerX, centerY, moduleSize * 3.5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = "white";
+              ctx.beginPath();
+              ctx.arc(centerX, centerY, moduleSize * 2.5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = finderColor;
+
+              if (style === "ring") {
+                ctx.fillRect(
+                  centerX - moduleSize * 1.5,
+                  centerY - moduleSize * 1.5,
+                  moduleSize * 3,
+                  moduleSize * 3
+                );
+              } else {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, moduleSize * 1.5, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+          }
+
+          const customFinderStyles = new Set([
+            "circular",
+            "rounded-square",
+            "diamond",
+            "ring",
+            "square-circle",
+            "circle-square"
+          ]);
+
+          for (let row = 0; row < modules; row++) {
+            for (let col = 0; col < modules; col++) {
+              if (!qr.isDark(row, col)) continue;
+
               const x = padding + col * moduleSize;
               const y = padding + row * moduleSize;
               const isFinderPattern =
                 (row < 7 && col < 7) ||
                 (row < 7 && col > modules - 8) ||
                 (row > modules - 8 && col < 7);
-              ctx.fillStyle = isFinderPattern ? finderColor : color;
+
+              if (isFinderPattern && customFinderStyles.has(finderShape)) continue;
+
               const drawShape = isFinderPattern ? finderShape : shape;
-              if (drawShape === "square") {
-                ctx.fillRect(x, y, moduleSize, moduleSize);
-              } else if (drawShape === "circle") {
-                ctx.beginPath();
-                ctx.arc(
-                  x + moduleSize / 2,
-                  y + moduleSize / 2,
-                  moduleSize / 2,
-                  0,
-                  Math.PI * 2
-                );
-                ctx.fill();
-              }
+              ctx.fillStyle = isFinderPattern ? finderColor : color;
+
+              drawModule(drawShape, x, y, moduleSize);
             }
           }
+
+          if (customFinderStyles.has(finderShape)) {
+            drawFinderPattern(finderShape, 0, 0);
+            drawFinderPattern(finderShape, modules - 7, 0);
+            drawFinderPattern(finderShape, 0, modules - 7);
+          }
+
+          downloadBtn.style.display = "inline-block";
+        } catch (error) {
+          clearQRCode();
+          console.error("The supplied text could not be encoded as a QR code.", error);
         }
       }
 
       function downloadQRCode() {
-        const inputText = document.getElementById("qrInput").value.trim();
-        if (inputText === "") return; // Prevent download if input is empty
+        if (qrInput.value.trim() === "") return;
 
-        const canvas = document.getElementById("qrCanvas");
         const link = document.createElement("a");
-        link.download = `QR-${inputText}.png`;
+        link.download = "QR-code.png";
         link.href = canvas.toDataURL("image/png");
         link.click();
       }
 
-      document.addEventListener("DOMContentLoaded", generateQRCode);
+      [
+        qrInput,
+        shapeSelect,
+        colorPicker,
+        finderShapeSelect,
+        finderColorPicker,
+        sizeSlider
+      ].forEach((control) => control.addEventListener("input", generateQRCode));
+
+      downloadBtn.addEventListener("click", downloadQRCode);
+      clearQRCode();
     </script>
   </body>
 </html>

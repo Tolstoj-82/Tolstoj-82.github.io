@@ -6,12 +6,17 @@
     font-variation-settings: "wdth" 100;
   }
 
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 body {
     font-family: "Open Sans", serif;
     font-size: 1.1rem;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
     background-color: #ffffff;
     color: #333;
     /*background-image: url("../images/background-minos.png");
@@ -163,6 +168,7 @@ a.button {
 
 a.button:hover {
     background-color: #666;
+    color: #fff;
     transform: scale(1.1);
 }
 
@@ -306,4 +312,16 @@ table.normal.special tbody td{
     counter-increment: item;
     position: absolute;
     left: 0;
+}
+
+@media (max-width: 600px) {
+    .page-content {
+        padding: 0 12px;
+    }
+
+    .intro img {
+        float: none;
+        display: block;
+        margin: 0 auto 20px;
+    }
 }
