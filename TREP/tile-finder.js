@@ -18,17 +18,16 @@ const finderElements = {};
 
 document.addEventListener("DOMContentLoaded", () => {
   for (const id of [
-    "finderRomInput", "finderStart", "finderEnd", "shiftLeft", "shiftRight", "shiftReset",
-    "shiftValue", "rowPrevious", "rowNext", "rowReset", "rowValue",
-    "showFinderRange", "restoreFinderTiles",
+    "finderRomInput", "shiftLeft", "shiftRight", "shiftValue", "rowPrevious", "rowNext",
+    "rowValue", "restoreFinderTiles",
     "finderFileStatus", "finderSelectionStatus", "finderViewport", "finderTiles",
     "finderMarquee", "finderSetName", "finderSelectedRange", "addFinderSet",
     "finderSetList", "finderOutput", "copyFinderOutput", "downloadFinderOutput",
-    "finderTileMenu"
+    "finderTileMenu", "openModalButton", "modalOverlay", "modalContent"
   ]) finderElements[id] = document.getElementById(id);
 
   finderElements.finderRomInput.addEventListener("change", loadFinderRom);
-  finderElements.showFinderRange.addEventListener("click", applyFinderRange);
+  finderElements.openModalButton.addEventListener("click", toggleFinderSidebar);
   document.querySelectorAll('input[name="finderBpp"]').forEach(input => {
     input.addEventListener("change", () => {
       finderState.bpp = Number(input.value);
@@ -41,10 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   finderElements.shiftLeft.addEventListener("click", () => changeFinderShift(1));
   finderElements.shiftRight.addEventListener("click", () => changeFinderShift(-1));
-  finderElements.shiftReset.addEventListener("click", () => changeFinderShift(-finderState.shift));
   finderElements.rowPrevious.addEventListener("click", () => changeFinderRow(1));
   finderElements.rowNext.addEventListener("click", () => changeFinderRow(-1));
-  finderElements.rowReset.addEventListener("click", () => changeFinderRow(-finderState.rowOffset));
   finderElements.restoreFinderTiles.addEventListener("click", restoreDeletedFinderTiles);
   finderElements.finderViewport.addEventListener("keydown", event => {
     if ((event.key === "Delete" || event.key === "Backspace") && finderState.selectedAddresses.size) {
@@ -56,6 +53,12 @@ document.addEventListener("DOMContentLoaded", () => {
   finderElements.copyFinderOutput.addEventListener("click", copyFinderOutput);
   finderElements.downloadFinderOutput.addEventListener("click", downloadFinderOutput);
   finderElements.finderSetList.addEventListener("click", handleFinderSetAction);
+  finderElements.finderSetList.addEventListener("keydown", event => {
+    if ((event.key === "Enter" || event.key === " ") && event.target.matches(".finder-set-summary")) {
+      event.preventDefault();
+      event.target.click();
+    }
+  });
   finderElements.finderTileMenu.addEventListener("click", handleFinderTileMenu);
   document.addEventListener("pointerdown", event => {
     if (!event.target.closest("#finderTileMenu")) closeFinderTileMenu();
@@ -68,7 +71,26 @@ document.addEventListener("DOMContentLoaded", () => {
   bindFinderMarquee();
   updateFinderRowControls();
   updateFinderOutput();
+  setFinderSidebar(true);
+  window.addEventListener("resize", () => {
+    if (finderElements.modalOverlay.style.display === "block") setFinderSidebar(true);
+  });
 });
+
+function toggleFinderSidebar() {
+  setFinderSidebar(finderElements.modalOverlay.style.display !== "block");
+}
+
+function setFinderSidebar(isOpen) {
+  const container = document.querySelector(".container");
+  finderElements.modalOverlay.style.display = isOpen ? "block" : "none";
+  finderElements.openModalButton.innerHTML = isOpen ? "&times;" : "&larr;";
+  finderElements.openModalButton.setAttribute("aria-expanded", isOpen);
+  finderElements.openModalButton.setAttribute("aria-label", `${isOpen ? "Close" : "Open"} sidebar`);
+  container.style.width = isOpen
+    ? `${Math.max(0, document.documentElement.clientWidth - finderElements.modalContent.offsetWidth)}px`
+    : "auto";
+}
 
 async function loadFinderRom(event) {
   const file = event.target.files[0];
@@ -83,37 +105,11 @@ async function loadFinderRom(event) {
   finderState.hiddenTiles.clear();
   finderState.assignedTiles.clear();
   finderState.sets = [];
-  finderElements.finderStart.value = formatFinderAddress(finderState.rangeStart);
-  finderElements.finderEnd.value = formatFinderAddress(finderState.rangeEnd - 1);
   finderElements.finderFileStatus.textContent = `${file.name} · ${finderState.rom.length.toLocaleString()} bytes`;
   updateFinderRowControls();
   clearFinderSelection();
   updateFinderOutput();
   renderFinderTiles();
-}
-
-function applyFinderRange() {
-  if (!finderState.rom) return;
-  const start = parseFinderAddress(finderElements.finderStart.value);
-  const inclusiveEnd = parseFinderAddress(finderElements.finderEnd.value);
-  if (start === null || inclusiveEnd === null || start > inclusiveEnd || start >= finderState.rom.length) {
-    finderElements.finderFileStatus.textContent = "Enter a valid hexadecimal address range.";
-    return;
-  }
-
-  finderState.rangeStart = start;
-  finderState.rangeEnd = Math.min(inclusiveEnd + 1, finderState.rom.length);
-  finderState.rowOffset = 0;
-  updateFinderRowControls();
-  finderElements.finderStart.value = formatFinderAddress(finderState.rangeStart);
-  finderElements.finderEnd.value = formatFinderAddress(finderState.rangeEnd - 1);
-  clearFinderSelection();
-  renderFinderTiles();
-}
-
-function parseFinderAddress(value) {
-  const normalized = value.trim().replace(/^\$|^0x/i, "");
-  return /^[0-9a-f]+$/i.test(normalized) ? Number.parseInt(normalized, 16) : null;
 }
 
 function formatFinderAddress(value) {
@@ -147,7 +143,6 @@ function updateFinderRowControls() {
   finderElements.rowValue.textContent = finderState.rowOffset > 0 ? `+${finderState.rowOffset}` : finderState.rowOffset;
   finderElements.rowPrevious.disabled = finderState.rowOffset === 7;
   finderElements.rowNext.disabled = finderState.rowOffset === minimumOffset;
-  finderElements.rowReset.disabled = finderState.rowOffset === 0;
 }
 
 function shiftedFinderByte(address) {
@@ -455,9 +450,14 @@ function renderFinderSetList() {
   finderElements.finderSetList.replaceChildren();
   finderState.sets.forEach((set, index) => {
     const card = document.createElement("article");
-    card.className = "finder-set-card";
+    card.className = "finder-set-card collapsed";
     card.draggable = true;
     card.dataset.index = index;
+    const summary = document.createElement("div");
+    summary.className = "finder-set-summary";
+    summary.setAttribute("role", "button");
+    summary.setAttribute("tabindex", "0");
+    summary.setAttribute("aria-expanded", "false");
     const info = document.createElement("div");
     const name = document.createElement("div");
     name.className = "finder-set-name";
@@ -468,7 +468,7 @@ function renderFinderSetList() {
     const preview = document.createElement("div");
     preview.className = "finder-set-preview";
     const bytesPerTile = set.bpp * 8;
-    for (let tile = 0; tile < Math.min(set.count, 7); tile++) {
+    for (let tile = 0; tile < set.count; tile++) {
       const canvas = document.createElement("canvas");
       const oldShift = finderState.shift;
       finderState.shift = set.shift;
@@ -476,40 +476,25 @@ function renderFinderSetList() {
       finderState.shift = oldShift;
       preview.appendChild(canvas);
     }
-    info.append(name, meta, preview);
-
-    const actions = document.createElement("div");
-    actions.className = "finder-set-actions";
-    actions.innerHTML = `<button type="button" data-action="up" aria-label="Move up">↑</button>
-      <button type="button" data-action="down" aria-label="Move down">↓</button>
-      <button type="button" class="secondary" data-action="remove" aria-label="Remove">×</button>`;
-    card.append(info, actions);
+    const indicator = document.createElement("span");
+    indicator.className = "finder-set-indicator";
+    indicator.textContent = "+";
+    info.append(name, meta);
+    summary.append(info, indicator);
+    card.append(summary, preview);
     bindFinderSetDrag(card);
     finderElements.finderSetList.appendChild(card);
   });
 }
 
 function handleFinderSetAction(event) {
-  const button = event.target.closest("button[data-action]");
+  const summary = event.target.closest(".finder-set-summary");
   const card = event.target.closest(".finder-set-card");
-  if (!button || !card) return;
-  const index = Number(card.dataset.index);
-  if (button.dataset.action === "remove") {
-    finderState.sets.splice(index, 1);
-    rebuildAssignedFinderTiles();
-  }
-  else if (button.dataset.action === "up" && index > 0) moveFinderSet(index, index - 1);
-  else if (button.dataset.action === "down" && index < finderState.sets.length - 1) moveFinderSet(index, index + 1);
-  renderFinderSetList();
-  updateFinderOutput();
-}
-
-function rebuildAssignedFinderTiles() {
-  finderState.assignedTiles.clear();
-  for (const set of finderState.sets) {
-    for (const tileKey of set.tileKeys || []) finderState.assignedTiles.add(tileKey);
-  }
-  renderFinderTiles();
+  if (!summary || !card) return;
+  const isExpanded = card.classList.toggle("expanded");
+  card.classList.toggle("collapsed", !isExpanded);
+  summary.setAttribute("aria-expanded", isExpanded);
+  summary.querySelector(".finder-set-indicator").textContent = isExpanded ? "−" : "+";
 }
 
 function moveFinderSet(from, to) {

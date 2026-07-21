@@ -385,7 +385,9 @@ function downloadBGMapAsBin() {
 // Adds text to the Log
 function addToLog(logText){
   const log = document.getElementById("log");
-  log.value = "* " + logText + " (" + formattedTime() + ")\n" + log.value;
+  const entry = document.createElement("li");
+  entry.textContent = logText + " (" + formattedTime() + ")";
+  log.prepend(entry);
   enableDownload();
   updateChecksums(true);
 }

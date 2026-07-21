@@ -9,54 +9,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
   </head>
   <body class="finder-page">
-    <header class="finder-header">
-      <div>
-        <a class="finder-back" href="index.html">← TREP</a>
-        <h1>Game Settings Builder</h1>
-        <p>Find graphics in a ROM and organize their address ranges into named tilesets.</p>
-      </div>
-      <label class="custom-file-input finder-file-button">
-        Load ROM
-        <input type="file" id="finderRomInput" accept=".gb,.gbc,application/octet-stream">
-      </label>
-    </header>
-
-    <main class="finder-layout">
-      <section class="finder-workspace">
-        <div class="finder-toolbar" aria-label="Tile decoding controls">
-          <label>Start address
-            <input id="finderStart" class="finder-hex-input" value="0000" maxlength="8" inputmode="text">
-          </label>
-          <label>End address
-            <input id="finderEnd" class="finder-hex-input" value="01FF" maxlength="8" inputmode="text">
-          </label>
-          <fieldset class="finder-bpp">
-            <legend>Format</legend>
-            <label><input type="radio" name="finderBpp" value="1"> 1BPP</label>
-            <label><input type="radio" name="finderBpp" value="2" checked> 2BPP</label>
-          </fieldset>
-          <div class="finder-shift-control">
-            <span>Bit alignment</span>
-            <div>
-              <button id="shiftLeft" type="button" title="Shift the ROM bitstream left">« Shift left</button>
-              <output id="shiftValue">0</output>
-              <button id="shiftRight" type="button" title="Shift the ROM bitstream right">Shift right »</button>
-              <button id="shiftReset" class="secondary" type="button">Reset</button>
-            </div>
-          </div>
-          <div class="finder-shift-control">
-            <span>Move inside panel</span>
-            <div>
-              <button id="rowPrevious" type="button">↑ Row</button>
-              <output id="rowValue">0</output>
-              <button id="rowNext" type="button">Row ↓</button>
-              <button id="rowReset" class="secondary" type="button">Reset</button>
-            </div>
-          </div>
-          <button id="showFinderRange" type="button">Show range</button>
-          <button id="restoreFinderTiles" class="secondary" type="button" disabled>Restore deleted</button>
-        </div>
-
+    <div class="container">
+      <div id="wrapper" class="finder-workspace">
         <div class="finder-statusbar">
           <span id="finderFileStatus">Load a ROM to begin.</span>
           <span id="finderSelectionStatus">No tiles selected</span>
@@ -67,29 +21,74 @@
           <div id="finderMarquee" class="finder-marquee" hidden></div>
         </div>
 
-      </section>
+        <button id="openModalButton" type="button" aria-label="Close sidebar" aria-expanded="true">&times;</button>
 
-      <aside class="finder-sidebar">
-        <h2>Tilesets</h2>
-        <p class="finder-help">Select adjacent tile panels, give the range a name, then add it. Drag entries or use the arrows to rearrange them.</p>
-        <label>Name
-          <input id="finderSetName" type="text" placeholder="e.g. Game Play">
-        </label>
-        <div class="finder-range-readout">
-          <span>Selected address range</span>
-          <output id="finderSelectedRange">—</output>
-        </div>
-        <button id="addFinderSet" type="button" disabled>Add selected range</button>
-        <div id="finderSetList" class="finder-set-list"></div>
+        <div id="modalOverlay" style="display:block">
+          <div id="modalContent">
+            <div id="modalBody">
+              <div class="tab-group">
+                <div class="tab-container">
+                  <div class="tab active">Tile Finder</div>
+                  <a class="tab finder-back" href="index.html">← Back to TREP</a>
+                </div>
+              </div>
 
-        <h2>Settings output</h2>
-        <textarea id="finderOutput" readonly spellcheck="false">const tileAddressesInROM = {};</textarea>
-        <div class="finder-output-actions">
-          <button id="copyFinderOutput" type="button">Copy</button>
-          <button id="downloadFinderOutput" class="secondary" type="button">Download .js</button>
+              <div class="content-container">
+                <div class="tab-content finder-sidebar" style="display:block">
+                  <label class="custom-file-input">
+                    <input type="file" id="finderRomInput" accept=".gb,.gbc,application/octet-stream">
+                  </label><br>
+
+                  <b class="finder-section-title">Decoding</b>
+                  <div class="finder-toolbar" aria-label="Tile decoding controls">
+                    <fieldset class="finder-bpp">
+                      <legend>Format</legend>
+                      <label><input type="radio" name="finderBpp" value="1"> 1BPP</label>
+                      <label><input type="radio" name="finderBpp" value="2" checked> 2BPP</label>
+                    </fieldset>
+                    <div class="finder-shift-control">
+                      <span>Bit alignment</span>
+                      <div>
+                        <button id="shiftLeft" type="button" title="Shift the ROM bitstream left">&lt;&lt;</button>
+                        <output id="shiftValue">0</output>
+                        <button id="shiftRight" type="button" title="Shift the ROM bitstream right">&gt;&gt;</button>
+                      </div>
+                    </div>
+                    <div class="finder-shift-control">
+                      <span>Move inside panel</span>
+                      <div>
+                        <button id="rowPrevious" type="button" title="Move one row up">&uarr;</button>
+                        <output id="rowValue">0</output>
+                        <button id="rowNext" type="button" title="Move one row down">&darr;</button>
+                      </div>
+                    </div>
+                    <button id="restoreFinderTiles" class="secondary" type="button" disabled>Restore deleted</button>
+                  </div>
+
+                  <b class="finder-section-title">Tilesets</b>
+                  <label>Name
+                    <input id="finderSetName" type="text" placeholder="e.g. Game Play">
+                  </label>
+                  <div class="finder-range-readout">
+                    <span>Selected address range</span>
+                    <output id="finderSelectedRange">—</output>
+                  </div>
+                  <button id="addFinderSet" type="button" disabled>Add selected range</button>
+                  <div id="finderSetList" class="finder-set-list"></div>
+
+                  <b class="finder-section-title">Settings output</b>
+                  <textarea id="finderOutput" readonly spellcheck="false">const tileAddressesInROM = {};</textarea>
+                  <div class="finder-output-actions">
+                    <button id="copyFinderOutput" type="button">Copy</button>
+                    <button id="downloadFinderOutput" class="secondary" type="button">Download .js</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </aside>
-    </main>
+      </div>
+    </div>
 
     <div id="finderTileMenu" class="finder-context-menu" role="menu" hidden>
       <button type="button" data-delete-side="before" role="menuitem">Delete all tiles before</button>
