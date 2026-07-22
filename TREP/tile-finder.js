@@ -84,12 +84,11 @@ function toggleFinderSidebar() {
 function setFinderSidebar(isOpen) {
   const container = document.querySelector(".container");
   finderElements.modalOverlay.style.display = isOpen ? "block" : "none";
+  container.classList.toggle("with-modal", isOpen);
   finderElements.openModalButton.innerHTML = isOpen ? "&times;" : "&larr;";
   finderElements.openModalButton.setAttribute("aria-expanded", isOpen);
   finderElements.openModalButton.setAttribute("aria-label", `${isOpen ? "Close" : "Open"} sidebar`);
-  container.style.width = isOpen
-    ? `${Math.max(0, document.documentElement.clientWidth - finderElements.modalContent.offsetWidth)}px`
-    : "auto";
+  container.style.removeProperty("width");
 }
 
 async function loadFinderRom(event) {

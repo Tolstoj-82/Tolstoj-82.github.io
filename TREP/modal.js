@@ -104,20 +104,14 @@ openModalButton.addEventListener("click", function () {
       // Modal is open, so close it
       modalOverlay.style.display = "none";
       container.classList.remove("with-modal");
-  
-      container.style.width = "auto";
+      container.style.removeProperty("width");
   
       openModalButton.innerHTML = "&larr;";
     } else {
       // Modal is closed, so open it
       modalOverlay.style.display = "block";
       container.classList.add("with-modal");
-  
-      // Calculate and set the remaining width
-      const modalWidth = document.getElementById("modalContent").offsetWidth;
-      const containerWidth = container.offsetWidth;
-      const remainingWidth = containerWidth - modalWidth;
-      container.style.width = `${remainingWidth}px`;
+      container.style.removeProperty("width");
   
       openModalButton.innerHTML = "&times;";
 
