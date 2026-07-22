@@ -6,7 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('imageModal');
   const modalImage = document.getElementById('modalImage');
   const modalCloseButton = modal?.querySelector('.close');
+  const introPortrait = document.getElementById('intro-portrait');
   let lastFocusedElement = null;
+
+  introPortrait?.addEventListener('click', () => {
+    const isRotated = introPortrait.classList.toggle('is-rotated');
+    introPortrait.setAttribute('aria-pressed', String(isRotated));
+  });
 
   const setMenuOpen = (isOpen) => {
     menuContainer.classList.toggle('active', isOpen);

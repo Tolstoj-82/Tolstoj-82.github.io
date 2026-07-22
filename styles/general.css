@@ -148,14 +148,64 @@ img {
     overflow: hidden;
 }
 
-.intro img {
+.intro-portrait {
     float: right;
+    position: relative;
+    display: block;
     max-width: 400px;
     width: 100%;
-    height: auto;
+    aspect-ratio: 1;
     margin: 0 0 20px 20px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
     border-radius: 8px;
+    background: transparent;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.intro-portrait img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.intro-rotation-background,
+.intro-rotation-foreground {
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.intro-rotation-background {
+    z-index: 1;
+}
+
+.intro-rotation-foreground {
+    z-index: 2;
+    transform-origin: center;
+}
+
+.intro-portrait:hover .intro-rotation-background,
+.intro-portrait:focus-visible .intro-rotation-background {
+    opacity: 0.68;
+}
+
+.intro-portrait:hover .intro-rotation-foreground,
+.intro-portrait:focus-visible .intro-rotation-foreground {
+    opacity: 1;
+}
+
+.intro-portrait.is-rotated .intro-rotation-foreground {
+    transform: rotate(180deg);
+}
+
+.intro-portrait:focus-visible {
+    outline: 3px solid #0066cc;
+    outline-offset: 3px;
 }
 
 .intro .text {
@@ -327,9 +377,8 @@ table.normal.special tbody td{
         padding: 0 12px;
     }
 
-    .intro img {
+    .intro-portrait {
         float: none;
-        display: block;
         margin: 0 auto 20px;
     }
 }
