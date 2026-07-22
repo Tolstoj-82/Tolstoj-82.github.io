@@ -1,5 +1,13 @@
+@font-face {
+    font-family: "Outfit";
+    src: url("../TREP/fonts/Outfit-Variable.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+}
+
 .open-sans {
-    font-family: "Open Sans", serif;
+    font-family: "Outfit", sans-serif;
     font-optical-sizing: auto;
     font-weight: 300;
     font-style: normal;
@@ -13,7 +21,7 @@
 }
 
 body {
-    font-family: "Open Sans", serif;
+    font-family: "Outfit", sans-serif;
     font-size: 1.1rem;
     margin: 0;
     padding: 0;
@@ -235,7 +243,7 @@ hr.short {
 }
 
 code {
-    font-family: monospace;
+    font-family: Consolas, "Courier New", monospace;
     background-color: #777;
     color: #c0c0c0;
     padding: 2px 4px;
@@ -283,7 +291,7 @@ table.normal tbody td:first-child {
 }
   
 table.normal tbody td {
-    font-family: monospace;
+    font-family: Consolas, "Courier New", monospace;
     text-align: center;
     padding: 8px;
     border: 0;
