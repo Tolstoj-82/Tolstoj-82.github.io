@@ -40,9 +40,43 @@
       dialog::backdrop { background: rgb(0 0 0 / 45%); }
       dialog p { margin: 0 0 18px; }
       dialog .actions { justify-content: flex-end; }
+      #mobileHintDialog {
+        width: min(22rem, calc(100% - 40px));
+        padding: 22px 24px 24px;
+        cursor: pointer;
+        text-align: center;
+        border: 0;
+        border-radius: 18px;
+        color: #222;
+        background: linear-gradient(145deg, #fff, #f1f4f7);
+        box-shadow: 0 18px 50px rgb(0 0 0 / 30%);
+      }
+      #mobileHintDialog[open] { animation: hint-in 180ms ease-out; }
+      #mobileHintDialog::before {
+        content: "";
+        display: block;
+        width: 44px;
+        height: 5px;
+        margin: 0 auto 18px;
+        border-radius: 999px;
+        background: #8b949e;
+      }
+      #mobileHintDialog::backdrop {
+        background: rgb(18 24 31 / 58%);
+        backdrop-filter: blur(3px);
+      }
+      #mobileHintDialog p { margin: 0; font-size: 1.05rem; font-weight: 600; line-height: 1.4; }
+      @keyframes hint-in {
+        from { opacity: 0; transform: translateY(18px) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
 
       .chart-wrap { position: relative; min-height: 0; }
+      .pie-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; min-height: 0; }
+      .pie-chart { position: relative; min-width: 0; min-height: 0; }
       canvas { width: 100% !important; height: 100% !important; }
+
+      .mobile-actions { display: none; }
 
       table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
       thead { position: sticky; top: -10px; z-index: 1; background: #ddd; }
@@ -55,6 +89,39 @@
         .left { height: 100dvh; }
         .right { max-height: none; overflow: visible; }
         thead { top: 0; }
+        .mobile-actions {
+          position: fixed;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          z-index: 10;
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          padding: 10px max(10px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+          background: rgb(255 255 255 / 94%);
+          border-top: 1px solid var(--border);
+          box-shadow: 0 -3px 12px rgb(0 0 0 / 18%);
+          transform: translateY(110%);
+          transition: transform 180ms ease-out;
+        }
+        .mobile-actions.visible { transform: translateY(0); }
+        .clear-button {
+          width: 48px;
+          height: 48px;
+          padding: 0;
+          border: 2px solid #fff;
+          border-radius: 50%;
+          color: #fff;
+          font-weight: bold;
+          box-shadow: 0 0 0 1px #777;
+        }
+        .clear-button[data-clear="Single"] { background: #1f77b4; }
+        .clear-button[data-clear="Double"] { background: #ff7f0e; }
+        .clear-button[data-clear="Triple"] { background: #2ca02c; }
+        .clear-button[data-clear="Tetris"] { background: #d62728; }
+        .mobile-actions button:disabled { opacity: 0.45; cursor: not-allowed; }
+        .mobile-undo { min-width: 58px; border-radius: 24px; }
       }
     </style>
   </head>
@@ -65,10 +132,10 @@
           <form id="startForm">
             <div class="inputs">
               <label for="lastScore">Last Known Score:
-                <input type="number" id="lastScore" min="0" max="999999" step="1" required autofocus />
+                <input type="number" id="lastScore" min="0" max="999999" step="1" inputmode="numeric" required autofocus />
               </label>
               <label for="lastLines">Last Known Lines:
-                <input type="number" id="lastLines" min="0" max="9999" step="1" required />
+                <input type="number" id="lastLines" min="0" max="9999" step="1" inputmode="numeric" required />
               </label>
             </div>
           </form>
@@ -86,7 +153,10 @@
           </div>
         </div>
 
-        <div class="panel chart-wrap"><canvas id="pieChart" aria-label="Line-clear distribution"></canvas></div>
+        <div class="panel pie-charts">
+          <div class="pie-chart"><canvas id="pieChart" aria-label="Line-clear distribution"></canvas></div>
+          <div class="pie-chart"><canvas id="scorePieChart" aria-label="Score contribution by line-clear type"></canvas></div>
+        </div>
         <div class="panel chart-wrap"><canvas id="scoreChart" aria-label="Score progress by lines"></canvas></div>
       </section>
 
@@ -97,6 +167,18 @@
         </table>
       </section>
     </main>
+
+    <nav id="mobileActions" class="mobile-actions" aria-label="Mobile score controls">
+      <button type="button" class="clear-button" data-clear="Single" aria-label="Record single" disabled>1</button>
+      <button type="button" class="clear-button" data-clear="Double" aria-label="Record double" disabled>2</button>
+      <button type="button" class="clear-button" data-clear="Triple" aria-label="Record triple" disabled>3</button>
+      <button type="button" class="clear-button" data-clear="Tetris" aria-label="Record Tetris" disabled>4</button>
+      <button type="button" id="mobileUndoButton" class="mobile-undo" disabled>Undo</button>
+    </nav>
+
+    <dialog id="mobileHintDialog" aria-label="Mobile controls hint">
+      <p>Swipe up to show the controls.</p>
+    </dialog>
 
     <dialog id="resetDialog" aria-labelledby="resetTitle">
       <strong id="resetTitle">Reset score tracker?</strong>
@@ -135,11 +217,18 @@
         tablePanel: document.querySelector(".right"),
         clearSummary: document.querySelector("#clearSummary"),
         scoreSummary: document.querySelector("#scoreSummary"),
+        mobileActions: document.querySelector("#mobileActions"),
+        mobileUndoButton: document.querySelector("#mobileUndoButton"),
+        mobileHintDialog: document.querySelector("#mobileHintDialog"),
       };
 
       let history = [];
       let pieChart;
+      let scorePieChart;
       let scoreChart;
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let mobileHintShown = false;
 
       const getLevel = (lines) => Math.min(Math.floor(lines / 10), MAX_LEVEL);
       const currentEntry = () => history.at(-1);
@@ -155,7 +244,21 @@
             responsive: true,
             maintainAspectRatio: false,
             animation: false,
-            plugins: { legend: { display: false } },
+            plugins: { legend: { display: false }, title: { display: true, text: "Line Clears" } },
+          },
+        });
+
+        scorePieChart = new Chart(document.querySelector("#scorePieChart"), {
+          type: "pie",
+          data: {
+            labels: Object.keys(CLEAR_TYPES),
+            datasets: [{ data: [0, 0, 0, 0], backgroundColor: COLORS, borderColor: "#aaa", borderWidth: 1 }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            plugins: { legend: { display: false }, title: { display: true, text: "Score Added" } },
           },
         });
 
@@ -181,6 +284,12 @@
         return counts;
       }
 
+      function getScoreContributions() {
+        const contributions = Object.fromEntries(Object.keys(CLEAR_TYPES).map((type) => [type, 0]));
+        for (const entry of history.slice(1)) contributions[entry.lineClear] += entry.added;
+        return contributions;
+      }
+
       function render() {
         const fragment = document.createDocumentFragment();
         for (const entry of history) {
@@ -197,10 +306,15 @@
 
         const entry = currentEntry();
         const counts = getClearCounts();
+        const scoreContributions = getScoreContributions();
         elements.clearSummary.textContent = Object.entries(counts).map(([type, count]) => `${type}: ${count}`).join(" | ");
         elements.scoreSummary.textContent = `Lines: ${numberFormatter.format(entry.lines)} | Score: ${numberFormatter.format(entry.score)} | Level: ${getLevel(entry.lines)}`;
+        document.querySelectorAll("[data-clear]").forEach((button) => { button.disabled = false; });
+        elements.mobileUndoButton.disabled = history.length <= 1;
         pieChart.data.datasets[0].data = Object.values(counts);
         pieChart.update();
+        scorePieChart.data.datasets[0].data = Object.values(scoreContributions);
+        scorePieChart.update();
         scoreChart.data.datasets[0].data = history.map(({ lines, score }) => ({ x: lines, y: score }));
         scoreChart.update();
 
@@ -217,6 +331,10 @@
         elements.linesInput.disabled = true;
         elements.tracker.hidden = false;
         render();
+        if (!mobileHintShown && window.matchMedia("(max-width: 768px)").matches) {
+          mobileHintShown = true;
+          elements.mobileHintDialog.showModal();
+        }
       }
 
       function recordClear(type) {
@@ -238,9 +356,14 @@
         history = [];
         elements.tableBody.replaceChildren();
         elements.tracker.hidden = true;
+        elements.mobileActions.classList.remove("visible");
+        document.querySelectorAll("[data-clear]").forEach((button) => { button.disabled = true; });
+        elements.mobileUndoButton.disabled = true;
         elements.copyStatus.textContent = "";
         pieChart.data.datasets[0].data = [0, 0, 0, 0];
         pieChart.update();
+        scorePieChart.data.datasets[0].data = [0, 0, 0, 0];
+        scorePieChart.update();
         scoreChart.data.datasets[0].data = [];
         scoreChart.update();
         elements.scoreInput.disabled = false;
@@ -279,6 +402,21 @@
         }
       }
 
+      function handleTouchStart(event) {
+        const touch = event.changedTouches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+      }
+
+      function handleTouchEnd(event) {
+        const touch = event.changedTouches[0];
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+        if (Math.abs(deltaY) < 50 || Math.abs(deltaY) <= Math.abs(deltaX)) return;
+        if (elements.mobileHintDialog.open) elements.mobileHintDialog.close();
+        elements.mobileActions.classList.toggle("visible", deltaY < 0);
+      }
+
       window.addEventListener("DOMContentLoaded", () => {
         if (typeof Chart === "undefined") {
           elements.scoreInput.disabled = true;
@@ -293,7 +431,16 @@
         elements.resetButton.addEventListener("click", () => elements.resetDialog.showModal());
         elements.cancelResetButton.addEventListener("click", () => elements.resetDialog.close());
         elements.confirmResetButton.addEventListener("click", reset);
+        document.querySelectorAll("[data-clear]").forEach((button) => {
+          button.addEventListener("click", () => recordClear(button.dataset.clear));
+        });
+        elements.mobileUndoButton.addEventListener("click", undo);
+        elements.mobileHintDialog.addEventListener("click", () => {
+          if (elements.mobileHintDialog.open) elements.mobileHintDialog.close();
+        });
         document.addEventListener("keydown", handleShortcut);
+        document.addEventListener("touchstart", handleTouchStart, { passive: true });
+        document.addEventListener("touchend", handleTouchEnd, { passive: true });
       });
     </script>
   </body>
