@@ -100,20 +100,22 @@ twoPlayerSpeedSelect.addEventListener('change', function () {
  });
 
 openModalButton.addEventListener("click", function () {
-    if (modalOverlay.style.display === "block") {
+    if (container.classList.contains("with-modal")) {
       // Modal is open, so close it
-      modalOverlay.style.display = "none";
       container.classList.remove("with-modal");
       container.style.removeProperty("width");
   
-      openModalButton.innerHTML = "&larr;";
+      openModalButton.innerHTML = "&#9776;";
+      openModalButton.setAttribute("aria-label", "Open sidebar");
+      openModalButton.setAttribute("aria-expanded", "false");
     } else {
       // Modal is closed, so open it
-      modalOverlay.style.display = "block";
       container.classList.add("with-modal");
       container.style.removeProperty("width");
   
       openModalButton.innerHTML = "&times;";
+      openModalButton.setAttribute("aria-label", "Close sidebar");
+      openModalButton.setAttribute("aria-expanded", "true");
 
     }
 });

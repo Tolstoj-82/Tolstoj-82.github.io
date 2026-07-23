@@ -61,7 +61,6 @@ const sequence = ['I', 'O', 'L', 'T', 'S', 'Z', 'I', 'O', 'T', 'L'];
 let pieceIndex = 0;
 let nextPieceIndex = (pieceIndex + 1) % sequence.length;
 let currentPiece = { shape: tetrominoes[sequence[pieceIndex]][0], x: 3, y: 1 };
-let gameFinished = false;
 
 const gameBoard = Array.from({ length: 15 }, (_, rowIndex) =>
   Array.from({ length: 10 }, (_, colIndex) => {
@@ -73,19 +72,8 @@ const gameBoard = Array.from({ length: 15 }, (_, rowIndex) =>
   })
 );
 
-// The placement region is 4x10, centered inside the border.
-const placementRegion = { startRow: 4, endRow: 13, startCol: 3, endCol: 6 };
-
-function resetBoardCells() {
-  gameBoard.forEach((row, rowIndex) => {
-    row.forEach((_, colIndex) => {
-      row[colIndex] = (
-        rowIndex === 0 || rowIndex === gameBoard.length - 1 ||
-        colIndex === 0 || colIndex === row.length - 1
-      ) ? 'occupied' : null;
-    });
-  });
-}
+// The placement region is 4x10, centered
+const placementRegion = { startRow: 4, endRow: 15, startCol: 3, endCol: 6 };
 
 function drawBoard() {
   const boardDiv = document.getElementById('game-container');
@@ -114,7 +102,7 @@ function drawBoard() {
       if (rowIndex === 0) {
         cellDiv.classList.add('aboveField');
       }
-      if (rowIndex === placementRegion.endRow + 1) {
+      if (rowIndex === placementRegion.endRow - 1) {
         cellDiv.classList.add('belowField');
       }
       if (colIndex === 0) {
@@ -159,24 +147,14 @@ function drawNextPiece(noPiece = false) {
 }
 
 function rotatePiece(direction) {
-  if (gameFinished) {
-    return;
-  }
-
   const currentShapeIndex = tetrominoes[sequence[pieceIndex]].indexOf(currentPiece.shape);
   const newShapeIndex = (currentShapeIndex + direction + tetrominoes[sequence[pieceIndex]].length) % tetrominoes[sequence[pieceIndex]].length;
-  const oldShape = currentPiece.shape;
   currentPiece.shape = tetrominoes[sequence[pieceIndex]][newShapeIndex];
-
-  if (collision(0, 0)) {
-    currentPiece.shape = oldShape;
-  } else {
-    drawBoard();
-  }
+  drawBoard();
 }
 
 function movePiece(dx, dy) {
-  if (!gameFinished && !collision(dx, dy)) {
+  if (!collision(dx, dy)) {
     currentPiece.x += dx;
     currentPiece.y += dy;
     drawBoard();
@@ -203,14 +181,13 @@ function canPlacePiece() {
     const newX = currentPiece.x + x;
     return (
       newY >= placementRegion.startRow && newY <= placementRegion.endRow &&
-      newX >= placementRegion.startCol && newX <= placementRegion.endCol &&
-      gameBoard[newY][newX] === null
+      newX >= placementRegion.startCol && newX <= placementRegion.endCol
     );
   });
 }
 
 function placePiece() {
-  if (!gameFinished && canPlacePiece()) {
+  if (canPlacePiece()) {
     currentPiece.shape.forEach(([y, x]) => {
       const newY = currentPiece.y + y;
       const newX = currentPiece.x + x;
@@ -219,21 +196,17 @@ function placePiece() {
       }
     });
 
-    const won = checkWin();
+    checkWin();
 
-    if (won || pieceIndex === sequence.length - 1) {
-      gameFinished = true;
-      drawNextPiece(true);
-      drawBoard();
-    } else {
+    if (pieceIndex < sequence.length - 1) {
       pieceIndex = nextPieceIndex;
-      nextPieceIndex = pieceIndex + 1;
+      nextPieceIndex = (pieceIndex + 1) % sequence.length;
       currentPiece = { shape: tetrominoes[sequence[pieceIndex]][0], x: 3, y: 1 };
-      drawNextPiece(pieceIndex === sequence.length - 1);
+      if (pieceIndex == sequence.length - 1) drawNextPiece(true);
+      else drawNextPiece();
       drawBoard();
+      beep(500, 30);
     }
-
-    playBeep();
   }
 }
 
@@ -244,42 +217,37 @@ function checkWin() {
   if (isWin) {
     tadaa();
     alert("Congratulations!");
+
   }
-  return isWin;
 }
 
 function resetGame() {
-  resetBoardCells();
+  gameBoard.forEach(row => row.fill(null));
   pieceIndex = 0;
   nextPieceIndex = (pieceIndex + 1) % sequence.length;
   currentPiece = { shape: tetrominoes[sequence[pieceIndex]][0], x: 3, y: 1 };
-  gameFinished = false;
   drawNextPiece();
   drawBoard();
+  collision(0,0);
 }
 
 
 // Keyboard controls
 document.addEventListener('keydown', (event) => {
-  const key = event.key.toLowerCase();
-  if (['arrowleft', 'arrowright', 'arrowdown', 'arrowup', 'z', 'x', 'enter', 'r', 'escape'].includes(key)) {
-    event.preventDefault();
-  }
-
-  switch (key) {
-    case 'arrowleft':
+  switch (event.key) {
+    case 'ArrowLeft':
       movePiece(-1, 0);
       playBeep();
       break;
-    case 'arrowright':
+    case 'ArrowRight':
       movePiece(1, 0);
       playBeep();
       break;
-    case 'arrowdown':
+    case 'ArrowDown':
       movePiece(0, 1);
       playBeep();
       break;
-    case 'arrowup':
+    case 'ArrowUp':
       movePiece(0, -1);
       playBeep();
       break;
@@ -291,11 +259,11 @@ document.addEventListener('keydown', (event) => {
       rotatePiece(1); // CW
       playBeep();
       break;
-    case 'enter':
+    case 'Enter':
       placePiece();
+      playBeep();
       break;
     case 'r':
-    case 'escape':
       resetGame();
       break;
   }

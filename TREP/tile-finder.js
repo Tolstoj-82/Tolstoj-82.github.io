@@ -73,19 +73,18 @@ document.addEventListener("DOMContentLoaded", () => {
   updateFinderOutput();
   setFinderSidebar(true);
   window.addEventListener("resize", () => {
-    if (finderElements.modalOverlay.style.display === "block") setFinderSidebar(true);
+    if (document.querySelector(".container").classList.contains("with-modal")) setFinderSidebar(true);
   });
 });
 
 function toggleFinderSidebar() {
-  setFinderSidebar(finderElements.modalOverlay.style.display !== "block");
+  setFinderSidebar(!document.querySelector(".container").classList.contains("with-modal"));
 }
 
 function setFinderSidebar(isOpen) {
   const container = document.querySelector(".container");
-  finderElements.modalOverlay.style.display = isOpen ? "block" : "none";
   container.classList.toggle("with-modal", isOpen);
-  finderElements.openModalButton.innerHTML = isOpen ? "&times;" : "&larr;";
+  finderElements.openModalButton.innerHTML = isOpen ? "&times;" : "&#9776;";
   finderElements.openModalButton.setAttribute("aria-expanded", isOpen);
   finderElements.openModalButton.setAttribute("aria-label", `${isOpen ? "Close" : "Open"} sidebar`);
   container.style.removeProperty("width");

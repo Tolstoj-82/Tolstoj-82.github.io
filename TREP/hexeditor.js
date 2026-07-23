@@ -17,6 +17,8 @@ let autoApply = false;
 let tileDataReady = Promise.resolve();
 let activeBGMapName = "";
 let bgPreviewRefreshFrame = null;
+let pendingHeaderCell = null;
+let headerAddressesEnabled = false;
 
 // Initialize the pixelData array
 let pixelData = [];
@@ -47,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
   e_searchInput = document.getElementById("searchInput");
 
   document.getElementById("romFileInput").addEventListener("change", validateFile);
+  initializeRomDropZone();
   e_applyCode.addEventListener("click", () => applyCode(true));
   document.getElementById("searchSequenceButton").addEventListener("click", searchSequenceInCode);
   document.getElementById("searchAddressInput").addEventListener("blur", formatSequenceInput);
@@ -76,6 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById("saveBGMapAsBIN").addEventListener("click", downloadBGMapAsBin);
 
   initializeHeaderEditors();
+  initializeHeaderAddressDialog();
   initializeToastCloseButtons();
   initializeBGMapList();
 
@@ -162,10 +166,36 @@ document.addEventListener('DOMContentLoaded', function() {
   // Get all the link elements
   const copyLinks = document.querySelectorAll('.copyLink');
 
-  // Add click event listener to each link
+  function hasValidDisplayedGgCode(linkElement) {
+    const code = linkElement.textContent.replace(/[-\s]/g, "").toUpperCase();
+    return /^[0-9A-F]{6}$/.test(code) || /^[0-9A-F]{9}$/.test(code);
+  }
+
+  function updateCopyLinkState(linkElement) {
+    const isValid = hasValidDisplayedGgCode(linkElement);
+    linkElement.classList.toggle("inactive", !isValid);
+    linkElement.setAttribute("aria-disabled", String(!isValid));
+    if (isValid) {
+      linkElement.removeAttribute("tabindex");
+    } else {
+      linkElement.setAttribute("tabindex", "-1");
+    }
+  }
+
+  // Keep generated labels display-only until they contain a complete valid code.
   copyLinks.forEach(function(linkElement) {
+    updateCopyLinkState(linkElement);
+    new MutationObserver(() => updateCopyLinkState(linkElement)).observe(linkElement, {
+      childList: true,
+      characterData: true,
+      subtree: true
+    });
+
     linkElement.addEventListener('click', function(event) {
       event.preventDefault();
+      if (!hasValidDisplayedGgCode(linkElement)) {
+        return;
+      }
       const textToCopy = linkElement.textContent;
       e_ggCode.value = textToCopy;
 
@@ -209,6 +239,84 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+function initializeRomDropZone() {
+  const input = document.getElementById("romFileInput");
+  const dropZone = document.getElementById("wrapper2");
+  let dragDepth = 0;
+
+  dropZone.addEventListener("dragenter", event => {
+    event.preventDefault();
+    dragDepth++;
+    dropZone.classList.add("drag-over");
+  });
+
+  dropZone.addEventListener("dragover", event => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+  });
+
+  dropZone.addEventListener("dragleave", event => {
+    event.preventDefault();
+    dragDepth = Math.max(0, dragDepth - 1);
+    if (dragDepth === 0) {
+      dropZone.classList.remove("drag-over");
+    }
+  });
+
+  dropZone.addEventListener("drop", event => {
+    event.preventDefault();
+    dragDepth = 0;
+    dropZone.classList.remove("drag-over");
+
+    const file = event.dataTransfer.files[0];
+    if (!file) {
+      return;
+    }
+
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    input.files = transfer.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+}
+
+function initializeHeaderAddressDialog() {
+  const dialog = document.getElementById("enableHeaderDialog");
+  const confirmButton = document.getElementById("enableHeaderAddresses");
+  const cancelButton = document.getElementById("cancelHeaderAddresses");
+
+  confirmButton.addEventListener("click", () => {
+    headerAddressesEnabled = true;
+    document.querySelectorAll("#hexViewer .hexValueCell.header").forEach(cell => {
+      cell.contentEditable = "true";
+      cell.classList.add("header-enabled");
+    });
+    dialog.close();
+    pendingHeaderCell = null;
+  });
+
+  cancelButton.addEventListener("click", () => {
+    pendingHeaderCell = null;
+    dialog.close();
+  });
+
+  dialog.addEventListener("cancel", () => {
+    pendingHeaderCell = null;
+  });
+}
+
+function requestHeaderAddressAccess(cell) {
+  if (headerAddressesEnabled) {
+    return;
+  }
+
+  pendingHeaderCell = cell;
+  const dialog = document.getElementById("enableHeaderDialog");
+  if (!dialog.open) {
+    dialog.showModal();
+  }
+}
 
 
 //------------------------------------------------------------------------------------------
@@ -480,8 +588,11 @@ function validateGameTitle(event) {
     return;
   }
 
+  const previousTitle = (titleBefore || '').trim().toUpperCase();
   gameTitleCell.textContent = validInput;
   gameTitleCell.setAttribute('data-titleBefore', validInput);
+
+  if (validInput === previousTitle) return;
 
   const gameTitle = validInput;
   let hexValues = '';
@@ -679,7 +790,9 @@ function validateFile(event) {
         // header data
         if (cellID >= '0000' && cellID <= '014F'){
           hexValueCell.classList.add('header');
-          hexValueCell.contentEditable = false;
+          hexValueCell.contentEditable = headerAddressesEnabled;
+          hexValueCell.classList.toggle("header-enabled", headerAddressesEnabled);
+          hexValueCell.addEventListener("click", () => requestHeaderAddressAccess(hexValueCell));
         } else {
           hexValueCell.contentEditable = true;
         }
@@ -690,11 +803,10 @@ function validateFile(event) {
       }
       
       hexValueCells.forEach(cell => {
-        cell.addEventListener('focus', function() {
+        cell.addEventListener('focus', function(event) {
           const cell = event.target;
-          if (!cell.hasAttribute('data-previous-value')) {
-            cell.setAttribute('data-previous-value', cell.textContent);
-          }
+          cell.setAttribute('data-previous-value', cell.textContent);
+          cell.textContent = '';
         });
 
         // Set data-previous-value attribute on page load if it's a valid 2-digit hex value
@@ -719,6 +831,12 @@ function validateFile(event) {
           }
 
           cell.textContent = value;
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(cell);
+          range.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(range);
         });
 
         // pressing Enter leaves the cell
@@ -730,15 +848,21 @@ function validateFile(event) {
 
         cell.addEventListener('blur', function(event) {
           const cell = event.target;
-          const value = cell.textContent;
+          let value = cell.textContent;
           const previousValue = cell.getAttribute('data-previous-value');
 
           // Check if the value is not a valid 2-digit hex value
           if (!/^[0-9A-Fa-f]{2}$/.test(value)) {
             // Restore original value
             cell.textContent = previousValue || '';
+            if (value.length > 0) {
+              displayToast("hexValueRestored");
+            }
             return;
           }
+
+          value = value.toUpperCase();
+          cell.textContent = value;
 
           // Check if the value has changed
           if (previousValue && previousValue.toLowerCase() !== value.toLowerCase()) {
@@ -911,10 +1035,11 @@ function showNextToast() {
   }
 
   currentToast = toast;
-  toast.style.setProperty("--toast-duration", `${toastDisplayDuration}ms`);
+  const displayDuration = Number(toast.dataset.duration) || toastDisplayDuration;
+  toast.style.setProperty("--toast-duration", `${displayDuration}ms`);
   requestAnimationFrame(() => toast.classList.add("show"));
 
-  toastHideTimer = setTimeout(dismissCurrentToast, toastDisplayDuration);
+  toastHideTimer = setTimeout(dismissCurrentToast, displayDuration);
 }
 
 function dismissCurrentToast() {
@@ -939,7 +1064,7 @@ function appendHeaderOptions(select, values) {
   for (const [code, description] of Object.entries(values)) {
     const option = document.createElement("option");
     option.value = code;
-    option.textContent = `${code} — ${description}`;
+    option.textContent = description;
     select.appendChild(option);
   }
 }

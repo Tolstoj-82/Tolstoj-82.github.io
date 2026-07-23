@@ -112,41 +112,56 @@ function addrToGgCode(address, newValue, oldValue = "") {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("reverseGGModal");
-  const addressInput = document.getElementById("reverseGGAddress");
-  const newValueInput = document.getElementById("reverseGGNewValue");
-  const oldValueInput = document.getElementById("reverseGGOldValue");
-  const resultInput = document.getElementById("reverseGGResult");
-  const useButton = document.getElementById("useReverseGGCode");
+  const modeLabel = document.getElementById("ggCodeModeLabel");
+  const reverseInputs = [e_romAddr, e_oldVal, e_newVal];
+  let reverseMode = false;
 
-  function updateReverseCode() {
-    for (const input of [addressInput, newValueInput, oldValueInput]) {
+  function setFieldEnabled(input, isEnabled) {
+    input.readOnly = !isEnabled;
+    input.setAttribute("aria-readonly", String(!isEnabled));
+  }
+
+  function updateInlineReverseCode() {
+    if (!reverseMode) return;
+    for (const input of reverseInputs) {
       input.value = input.value.replace(/[^0-9A-F]/gi, "").toUpperCase();
     }
-    resultInput.value = addrToGgCode(addressInput.value, newValueInput.value, oldValueInput.value);
-    useButton.disabled = !resultInput.value;
+    const hasSecondValue = /^[0-9A-F]{2}$/.test(e_newVal.value);
+    const generatedNewValue = hasSecondValue ? e_newVal.value : e_oldVal.value;
+    const generatedOldValue = hasSecondValue ? e_oldVal.value : "";
+    e_ggCode.value = addrToGgCode(e_romAddr.value, generatedNewValue, generatedOldValue);
+    e_ggCode.style.backgroundColor = e_ggCode.value ? "#baf3ba" : "#CCC";
+    e_applyCode.disabled = true;
   }
 
-  document.getElementById("openReverseGGButton").addEventListener("click", () => {
-    modal.style.display = "block";
-    addressInput.focus();
-  });
-  document.getElementById("closeReverseGGButton").addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-  modal.addEventListener("click", event => {
-    if (event.target === modal) modal.style.display = "none";
-  });
-
-  for (const input of [addressInput, newValueInput, oldValueInput]) {
-    input.addEventListener("input", updateReverseCode);
+  function enterReverseMode() {
+    if (reverseMode) return;
+    reverseMode = true;
+    setFieldEnabled(e_ggCode, false);
+    for (const input of reverseInputs) setFieldEnabled(input, true);
+    if (e_oldVal.value === "-") e_oldVal.value = "";
+    updateInlineReverseCode();
   }
 
-  useButton.addEventListener("click", () => {
-    e_ggCode.value = resultInput.value;
-    e_ggCode.dispatchEvent(new Event("input", { bubbles: true }));
-    modal.style.display = "none";
-  });
+  function enterCodeMode(event) {
+    if (event) event.preventDefault();
+    if (reverseMode) {
+      reverseMode = false;
+      setFieldEnabled(e_ggCode, true);
+      for (const input of reverseInputs) setFieldEnabled(input, false);
+      handleInput();
+    }
+    e_ggCode.focus();
+  }
+
+  setFieldEnabled(e_ggCode, true);
+  for (const input of reverseInputs) setFieldEnabled(input, false);
+  for (const input of reverseInputs) {
+    input.addEventListener("focus", enterReverseMode);
+    input.addEventListener("input", updateInlineReverseCode);
+  }
+  e_ggCode.addEventListener("focus", enterCodeMode);
+  modeLabel.addEventListener("click", enterCodeMode);
 });
 
 //-------------------------------------------------------------------------------------------
@@ -188,7 +203,7 @@ function applyCode(force = false) {
       returnValue = true;
 
     }else{
-        alert("According to the Game Genie code you provided, the ROM Address $" + address + " should contain the value 0x" + oldVal + ". This was not the case and nothing has been changed!\nMake sure that the Game Genie code is correct and belongs to this game.\nIf you still want that code, you can force it by leaving the last 3 digits away. The code is in the Game Genie Code field.\nnote that forcing this is only reliable applicable for games up to 32KB.");
+        alert("According to the Game Genie code you provided, ROM address $" + address + " should contain the value 0x" + oldVal + ". This was not the case, so nothing has been changed!\nMake sure that the Game Genie code is correct and belongs to this game.\nIf you still want that code, you can force it by omitting the last 3 digits. The code is in the Game Genie Code field.\nNote that forcing this is only reliable for games up to 32 KB.");
         returnValue = false;
     }
 

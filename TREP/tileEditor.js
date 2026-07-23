@@ -9,6 +9,8 @@ let isDialogOpen = false;
 let clickableDivs;
 let selectedTile;
 let tileToUpdate;
+let tileImportState = null;
+let lastTileImportUndo = null;
 
 //------------------------------------------------------------------------------------------
 // Draws all tiles from the ROM file
@@ -29,7 +31,7 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
   // Add the dropdown and button if there were matching titles
   if (matchingTitles.length > 0) {
     let dropdownHTML = `<p><select id="sprites${tilesetTitle}" class="sprite-selector">`;
-    dropdownHTML += `<option value="no">--Chose--</option>`;
+    dropdownHTML += `<option value="no">--Choose--</option>`;
     for (const title of matchingTitles) {
       dropdownHTML += `<option value="${title}">${title}</option>`;
     }
@@ -86,12 +88,16 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
     currentAddress = nextTileAddress;
   }
 
-  displayTiles(pixelData, addresses, bitsPerPixel);
-
-  // Add a button to save the tile set as a PNG
+  // Add the PNG import button above the tiles.
   let nCols = getTileSetProperty(tilesetTitle, "width");
   let thisSetName = getTileSetProperty(tilesetTitle, "name");
-  let savePngHTML = `<p style="text-align: center;"><button class="secondary save-tile-set-button" data-addresses="${addresses}" data-tile-count="${nTiles}" data-set-name="${thisSetName}" data-column-count="${nCols}">▼ Download Tile Group as "${thisSetName}.png"</button></p>`;
+  const importPngHTML = `<p class="tile-set-import-action"><button class="upload-tile-set-button" data-addresses="${addresses}" data-tile-count="${nTiles}" data-set-name="${thisSetName}" data-set-title="${tilesetTitle}" data-bpp="${bitsPerPixel}" data-column-count="${nCols}">▲ Upload tiles from a .png</button></p>`;
+  tileContainer.insertAdjacentHTML("beforeend", importPngHTML);
+
+  displayTiles(pixelData, addresses, bitsPerPixel, tilesetTitle);
+
+  // Add a button to save the tile set as a PNG
+  let savePngHTML = `<p class="tile-set-actions"><button class="secondary save-tile-set-button" data-addresses="${addresses}" data-tile-count="${nTiles}" data-set-name="${thisSetName}" data-column-count="${nCols}">▼ Download tile group as "${thisSetName}.png"</button></p>`;
   savePngHTML += "<br><hr>";
   tileContainer.insertAdjacentHTML("beforeend", savePngHTML);
   
@@ -118,6 +124,12 @@ document.addEventListener("click", event => {
       saveButton.dataset.setName,
       Number(saveButton.dataset.columnCount)
     );
+    return;
+  }
+
+  const uploadButton = event.target.closest(".upload-tile-set-button");
+  if (uploadButton) {
+    chooseTileSetPng(uploadButton);
   }
 });
 
@@ -226,8 +238,364 @@ function getTileSetProperty(tileSetTitle, property) {
 }
 
 //------------------------------------------------------------------------------------------
+// Import an exported-format PNG and use its 8x8 tiles as replacements.
+
+function chooseTileSetPng(button) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/png,.png";
+  input.addEventListener("change", () => {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.type !== "image/png" && !file.name.toLowerCase().endsWith(".png")) {
+      displayToast("invalidTilePng");
+      return;
+    }
+    loadTileSetPng(file, button.dataset);
+  }, { once: true });
+  input.click();
+}
+
+function loadTileSetPng(file, setData) {
+  const image = new Image();
+  const objectUrl = URL.createObjectURL(file);
+
+  image.addEventListener("load", () => {
+    URL.revokeObjectURL(objectUrl);
+    if (image.naturalWidth % 8 !== 0 || image.naturalHeight % 8 !== 0) {
+      displayToast("invalidTilePng");
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    context.drawImage(image, 0, 0);
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const columns = canvas.width / 8;
+    const rows = canvas.height / 8;
+    const bitsPerPixel = Number(setData.bpp);
+    const tiles = [];
+    let hasTwoBitColors = false;
+
+    for (let tileY = 0; tileY < rows; tileY++) {
+      for (let tileX = 0; tileX < columns; tileX++) {
+        const pixels = [];
+        for (let y = 0; y < 8; y++) {
+          for (let x = 0; x < 8; x++) {
+            const pixelOffset = (((tileY * 8 + y) * canvas.width) + tileX * 8 + x) * 4;
+            const sourceColorIndex = closestExportColor(
+              imageData.data[pixelOffset],
+              imageData.data[pixelOffset + 1],
+              imageData.data[pixelOffset + 2],
+              2
+            );
+            if (sourceColorIndex === 1 || sourceColorIndex === 2) {
+              hasTwoBitColors = true;
+            }
+            pixels.push(bitsPerPixel === 1
+              ? (sourceColorIndex === 0 ? 0 : 3)
+              : sourceColorIndex);
+          }
+        }
+        tiles.push(pixels);
+      }
+    }
+
+    if (bitsPerPixel === 1 && hasTwoBitColors) {
+      displayToast("wrongTilePngBpp");
+      return;
+    }
+
+    const tileCount = Number(setData.tileCount);
+    const expectedColumns = Number(setData.columnCount);
+    tileImportState = {
+      setTitle: setData.setTitle,
+      setName: setData.setName,
+      addresses: setData.addresses.split(","),
+      bitsPerPixel,
+      tileCount,
+      expectedColumns,
+      expectedWidth: expectedColumns * 8,
+      expectedHeight: Math.ceil(tileCount / expectedColumns) * 8,
+      imageWidth: canvas.width,
+      imageHeight: canvas.height,
+      columns,
+      tiles
+    };
+    renderTileImportDialog(file.name);
+  }, { once: true });
+
+  image.addEventListener("error", () => {
+    URL.revokeObjectURL(objectUrl);
+    displayToast("invalidTilePng");
+  }, { once: true });
+  image.src = objectUrl;
+}
+
+function closestExportColor(red, green, blue, bitsPerPixel) {
+  const allowedIndexes = bitsPerPixel === 1 ? [0, 3] : [0, 1, 2, 3];
+  let closestIndex = allowedIndexes[0];
+  let closestDistance = Infinity;
+
+  for (const index of allowedIndexes) {
+    const color = exportColors[index].slice(1);
+    const exportRed = parseInt(color.slice(0, 2), 16);
+    const exportGreen = parseInt(color.slice(2, 4), 16);
+    const exportBlue = parseInt(color.slice(4, 6), 16);
+    const distance = (red - exportRed) ** 2
+      + (green - exportGreen) ** 2
+      + (blue - exportBlue) ** 2;
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestIndex = index;
+    }
+  }
+
+  return closestIndex;
+}
+
+function renderTileImportDialog(fileName) {
+  const dialog = document.getElementById("tileImportDialog");
+  const grid = document.getElementById("tileImportGrid");
+  const replaceAllButton = document.getElementById("replaceEntireTileSet");
+  document.getElementById("tileImportTitle").textContent = `Import tiles: ${tileImportState.setTitle}`;
+  document.getElementById("tileImportInfo").textContent =
+    `${fileName}: ${tileImportState.imageWidth}×${tileImportState.imageHeight}px, `
+    + `${tileImportState.tiles.length} tiles`;
+  grid.innerHTML = "";
+  grid.style.gridTemplateColumns = `repeat(${tileImportState.columns}, 36px)`;
+
+  tileImportState.tiles.forEach((pixels, index) => {
+    const tile = document.createElement("div");
+    tile.className = "imported-tile";
+    tile.draggable = true;
+    tile.dataset.importTileIndex = index;
+    tile.title = `Tile ${index + 1}`;
+
+    for (const colorIndex of pixels) {
+      const pixel = document.createElement("span");
+      pixel.className = `pixel col${colorIndex}`;
+      const picker = document.getElementById(`color-picker-${colorIndex}`);
+      pixel.style.backgroundColor = picker ? picker.value : exportColors[colorIndex];
+      tile.appendChild(pixel);
+    }
+
+    tile.addEventListener("dragstart", event => {
+      event.dataTransfer.effectAllowed = "copy";
+      event.dataTransfer.setData("text/plain", String(index));
+    });
+    grid.appendChild(tile);
+  });
+
+  replaceAllButton.hidden = !(
+    tileImportState.imageWidth === tileImportState.expectedWidth
+    && tileImportState.imageHeight === tileImportState.expectedHeight
+  );
+
+  if (!dialog.open) dialog.show();
+}
+
+function initializeTileImportDialog() {
+  const dialog = document.getElementById("tileImportDialog");
+  const handle = document.getElementById("tileImportDragHandle");
+
+  document.getElementById("closeTileImportDialog").addEventListener("click", () => dialog.close());
+  document.getElementById("replaceEntireTileSet").addEventListener("click", replaceEntireTileSetFromImport);
+  document.querySelector("#tileImportUndo .toast-undo").addEventListener("click", undoLastTileImport);
+
+  document.getElementById("tileContainer").addEventListener("dragover", event => {
+    const target = event.target.closest(".tile[data-tileset-title]");
+    if (!isValidTileImportTarget(target)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    clearTileImportTargets();
+    target.dataset.importTarget = "true";
+  });
+
+  document.getElementById("tileContainer").addEventListener("dragleave", event => {
+    const target = event.target.closest(".tile[data-import-target]");
+    if (target && !target.contains(event.relatedTarget)) {
+      delete target.dataset.importTarget;
+    }
+  });
+
+  document.getElementById("tileContainer").addEventListener("drop", event => {
+    const target = event.target.closest(".tile[data-tileset-title]");
+    clearTileImportTargets();
+    if (!isValidTileImportTarget(target)) return;
+    event.preventDefault();
+    const tileIndex = Number(event.dataTransfer.getData("text/plain"));
+    if (!Number.isInteger(tileIndex) || !tileImportState.tiles[tileIndex]) return;
+    replaceImportedTiles([{ target, pixels: tileImportState.tiles[tileIndex] }], false);
+  });
+
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+  let dragging = false;
+  handle.addEventListener("pointerdown", event => {
+    if (event.target.closest("button")) return;
+    const bounds = dialog.getBoundingClientRect();
+    dragOffsetX = event.clientX - bounds.left;
+    dragOffsetY = event.clientY - bounds.top;
+    dragging = true;
+    handle.setPointerCapture(event.pointerId);
+  });
+  handle.addEventListener("pointermove", event => {
+    if (!dragging) return;
+    const maxLeft = Math.max(0, window.innerWidth - dialog.offsetWidth);
+    const maxTop = Math.max(0, window.innerHeight - dialog.offsetHeight);
+    dialog.style.left = `${Math.min(maxLeft, Math.max(0, event.clientX - dragOffsetX))}px`;
+    dialog.style.top = `${Math.min(maxTop, Math.max(0, event.clientY - dragOffsetY))}px`;
+  });
+  handle.addEventListener("pointerup", () => {
+    dragging = false;
+  });
+  handle.addEventListener("pointercancel", () => {
+    dragging = false;
+  });
+}
+
+function isValidTileImportTarget(target) {
+  return Boolean(
+    target
+    && tileImportState
+    && target.dataset.tilesetTitle === tileImportState.setTitle
+  );
+}
+
+function clearTileImportTargets() {
+  document.querySelectorAll(".tile[data-import-target]").forEach(tile => {
+    delete tile.dataset.importTarget;
+  });
+}
+
+function replaceEntireTileSetFromImport() {
+  if (!tileImportState) return;
+  const replacements = tileImportState.addresses.slice(0, tileImportState.tileCount)
+    .map((address, index) => ({
+      target: document.getElementById(`tileaddr-${address}`),
+      pixels: tileImportState.tiles[index]
+    }))
+    .filter(replacement => replacement.target && replacement.pixels);
+  replaceImportedTiles(replacements, true);
+}
+
+function replaceImportedTiles(replacements, isEntireSet) {
+  const undoActions = replacements.map(({ target, pixels }) => replaceOneImportedTile(target, pixels));
+  lastTileImportUndo = { actions: undoActions, setTitle: tileImportState.setTitle };
+  updateChecksums(false);
+  scheduleBGMapPreviewRefresh();
+
+  const toast = document.getElementById("tileImportUndo");
+  toast.querySelector("span").textContent = isEntireSet
+    ? `${undoActions.length} tiles were replaced.`
+    : "A tile was replaced.";
+  displayToast("tileImportUndo");
+  addToLog(isEntireSet
+    ? `${undoActions.length} tiles in "${tileImportState.setTitle}" were replaced from PNG`
+    : `Tile starting at address $${undoActions[0].address} was replaced from PNG`);
+}
+
+function replaceOneImportedTile(target, pixels) {
+  const address = target.id.replace("tileaddr-", "");
+  const bitsPerPixel = Number(target.dataset.bpp);
+  const oldPixels = getTilePixelValues(target);
+  const oldBytes = readTileBytes(address, bitsPerPixel);
+  const oldEditedStates = readTileEditedStates(address, bitsPerPixel);
+  setTilePixelValues(target, pixels);
+  writeTileBytes(address, encodeTilePixels(pixels, bitsPerPixel));
+  return { target, address, bitsPerPixel, oldPixels, oldBytes, oldEditedStates };
+}
+
+function getTilePixelValues(tile) {
+  return Array.from(tile.querySelectorAll(".pixel")).map(pixel => {
+    const colorClass = Array.from(pixel.classList).find(className => /^col[0-3]$/.test(className));
+    return colorClass ? Number(colorClass.slice(3)) : 0;
+  });
+}
+
+function setTilePixelValues(tile, pixels) {
+  const pixelElements = tile.querySelectorAll(".pixel");
+  pixelElements.forEach((pixel, index) => {
+    const colorIndex = pixels[index] ?? 0;
+    pixel.className = `pixel col${colorIndex}`;
+    const picker = document.getElementById(`color-picker-${colorIndex}`);
+    pixel.style.backgroundColor = picker ? picker.value : exportColors[colorIndex];
+  });
+}
+
+function encodeTilePixels(pixels, bitsPerPixel) {
+  const bytes = [];
+  for (let row = 0; row < 8; row++) {
+    const rowPixels = pixels.slice(row * 8, row * 8 + 8);
+    if (bitsPerPixel === 1) {
+      const binary = rowPixels.map(value => value === 0 ? "0" : "1").join("");
+      bytes.push(parseInt(binary, 2).toString(16).padStart(2, "0").toUpperCase());
+    } else {
+      const lowBits = rowPixels.map(value => value & 1).join("");
+      const highBits = rowPixels.map(value => (value >> 1) & 1).join("");
+      bytes.push(parseInt(lowBits, 2).toString(16).padStart(2, "0").toUpperCase());
+      bytes.push(parseInt(highBits, 2).toString(16).padStart(2, "0").toUpperCase());
+    }
+  }
+  return bytes;
+}
+
+function readTileBytes(address, bitsPerPixel) {
+  const byteCount = bitsPerPixel === 1 ? 8 : 16;
+  const start = parseInt(address, 16);
+  return Array.from({ length: byteCount }, (_, index) => {
+    const cellId = (start + index).toString(16).toUpperCase().padStart(4, "0");
+    return document.getElementById(cellId)?.textContent || "00";
+  });
+}
+
+function readTileEditedStates(address, bitsPerPixel) {
+  const byteCount = bitsPerPixel === 1 ? 8 : 16;
+  const start = parseInt(address, 16);
+  return Array.from({ length: byteCount }, (_, index) => {
+    const cellId = (start + index).toString(16).toUpperCase().padStart(4, "0");
+    return document.getElementById(cellId)?.classList.contains("edited") || false;
+  });
+}
+
+function writeTileBytes(address, bytes) {
+  const start = parseInt(address, 16);
+  bytes.forEach((value, index) => {
+    const cellId = (start + index).toString(16).toUpperCase().padStart(4, "0");
+    const cell = document.getElementById(cellId);
+    if (cell) {
+      cell.textContent = value;
+      cell.classList.add("edited");
+    }
+  });
+}
+
+function undoLastTileImport() {
+  if (!lastTileImportUndo) return;
+  for (const action of lastTileImportUndo.actions) {
+    setTilePixelValues(action.target, action.oldPixels);
+    writeTileBytes(action.address, action.oldBytes);
+    const start = parseInt(action.address, 16);
+    action.oldEditedStates.forEach((wasEdited, index) => {
+      const cellId = (start + index).toString(16).toUpperCase().padStart(4, "0");
+      document.getElementById(cellId)?.classList.toggle("edited", wasEdited);
+    });
+  }
+  updateChecksums(false);
+  scheduleBGMapPreviewRefresh();
+  addToLog(`PNG tile replacement in "${lastTileImportUndo.setTitle}" was undone`);
+  lastTileImportUndo = null;
+  if (currentToast === document.getElementById("tileImportUndo")) dismissCurrentToast();
+}
+
+document.addEventListener("DOMContentLoaded", initializeTileImportDialog);
+
+//------------------------------------------------------------------------------------------
 // gets pixel data from the ROM and displays them as tiles
-function displayTiles(pixelValues, tileAddress, bitsPerPixel) {
+function displayTiles(pixelValues, tileAddress, bitsPerPixel, tilesetTitle) {
   const container = document.getElementById("tileContainer");
 
   const tileCount = Math.ceil(pixelValues.length / 8);
@@ -242,6 +610,7 @@ function displayTiles(pixelValues, tileAddress, bitsPerPixel) {
     tile.className = "tile";
     tile.id = "tileaddr-" + tileAddress[t];
     tile.setAttribute("data-bpp", bitsPerPixel);    
+    tile.dataset.tilesetTitle = tilesetTitle;
 
     let pixelCount = 0;
 

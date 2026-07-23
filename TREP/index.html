@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TREP - Tolstoj's ROM Editor Plus</title>
     <link rel="stylesheet" href="style.css">
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
@@ -10,13 +11,16 @@
   </head>
   <body>
     <div class="container">
+      <header class="site-header-bar">
+        <span>TREP v. 1.0 <span class="site-header-meta">2023–2026 Tolstoj</span></span>
+      </header>
       <div id="wrapper2" style="text-align: center;">
-        <h1>TREP Beta 1.0</h1>
+        <h1>TREP v. 1.0</h1>
         <h2>Henlo friens!</h2>
         <label class="custom-file-input">
           <input type="file" id="romFileInput">
-        </label><br>
-        Build: 19 July 2026
+        </label>
+        <div class="build-info">Build: 23 July 2026</div>
       </div>
 
       <div id="loadingAnimation" style="display: none; text-align: center;">
@@ -27,15 +31,22 @@
       <div id="wrapper" style="display: none;">
 
         <div class="gg-section-heading">
-          <b>Game Genie Code</b>
-          <button id="openReverseGGButton" type="button">Address → GG Code</button>
+          <label id="ggCodeModeLabel" for="ggCode"><b>Game Genie Code</b></label>
         </div>
-        <input type="text" id="ggCode" placeholder="e.g. 145-F2E-C4E">
         
-        Address: <input type="text" id="romAddr" class="four" maxlength="4" readonly>
-        Value: <input type="text" id="oldVal" class="two" maxlength="2" readonly> &rarr;
-        <input type="text" id="newVal" class="two" maxlength="2" readonly>
-        <button id="applyCode" disabled>Apply</button>
+        <div class="gg-inline-fields">
+          <div class="gg-input-row">
+            <input type="text" id="ggCode" placeholder="e.g. 145-F2E-C4E">
+            <div class="gg-value-fields">
+              <label>Address: <input type="text" id="romAddr" class="four" maxlength="4" readonly></label>
+              <label>Value:
+                <input type="text" id="oldVal" class="two" maxlength="2" readonly> &rarr;
+                <input type="text" id="newVal" class="two" maxlength="2" readonly>
+              </label>
+            </div>
+          </div>
+          <button id="applyCode" disabled>Apply</button>
+        </div>
         <hr>
         <p>  
           <!-- Input field for the search sequence -->
@@ -58,7 +69,7 @@
         </p>
         <hr>
         <p>
-          <b>Jump to Address (Hex values)</b><br>
+          <b class="jump-address-title">Jump to Address (Hex values)</b><br>
           <input type="text" id="searchInput">
           <button id="navigateAddressButton">Navigate to ROM Address</button>
         </p>
@@ -108,7 +119,18 @@
           </div><br>
           <div id="checksumContainer">
             <b>Checksums</b>
-            <p><b>Header</b> <input type="text" id="headerChecksum" readonly> ($014D) | <b>Global</b> <input type="text" id="globalChecksum" readonly> ($014E, $014F)</p>
+            <div class="checksum-items">
+              <div class="checksum-item">
+                <b>Header</b>
+                <input type="text" id="headerChecksum" readonly>
+                <span>($014D)</span>
+              </div>
+              <div class="checksum-item">
+                <b>Global</b>
+                <input type="text" id="globalChecksum" readonly>
+                <span>($014E, $014F)</span>
+              </div>
+            </div>
           </div>
         </p>
         <p>
@@ -119,9 +141,7 @@
           <b>Log (newest on top)</b><br>
           <ul id="log" aria-live="polite"></ul>
         </p>
-        <p>2023–2026 Tolstoj (TREP Beta 1.0)</p>
-        
-        <button id="openModalButton">&larr;</button>      
+        <button id="openModalButton" aria-label="Open sidebar" aria-expanded="false">&#9776;</button>
 
         <div id="modalOverlay">
           <div id="modalContent">
@@ -414,7 +434,7 @@
                       <td><a href="#" class="copyLink">1B5-1AE-B36</a></td>
                     </tr>
                     <tr>
-                      <td>Replaces A-TYPE with Russian Dance Song 1, BTYPE with Russian Dance 2, C-TYPE with Rocket Shootoff, and OFF with 2-Player Win Music</td>
+                      <td>Replaces A-TYPE with Russian Dance Song 1, B-TYPE with Russian Dance 2, C-TYPE with Rocket Shootoff, and OFF with 2-Player Win Music</td>
                       <td>nensondubois</td>
                       <td><a href="#" class="copyLink">0E5-1AE-B36</a></td>
                     </tr>
@@ -508,33 +528,6 @@
       </div>
 
       <!-- Tile Editor (Modal) -->
-      <div id="reverseGGModal" class="dialog-container" style="display: none;">
-        <div class="converter-modal-content">
-          <button id="closeReverseGGButton" class="modal-close-button" type="button" aria-label="Close Game Genie code creator">&times;</button>
-          <h2>Create Game Genie Code</h2>
-          <p>Convert a ROM address and value into a Game Genie code.</p>
-
-          <div class="converter-fields">
-            <label><span class="converter-field-label">ROM address</span>
-              <input id="reverseGGAddress" type="text" maxlength="4" placeholder="1234" autocomplete="off">
-            </label>
-            <label><span class="converter-field-label">New value</span>
-              <input id="reverseGGNewValue" type="text" maxlength="2" placeholder="AB" autocomplete="off">
-            </label>
-            <label><span class="converter-field-label">Old value <small>(optional)</small></span>
-              <input id="reverseGGOldValue" type="text" maxlength="2" placeholder="CD" autocomplete="off">
-            </label>
-          </div>
-
-          <label class="converter-result-label" for="reverseGGResult">Game Genie code</label>
-          <div class="converter-result-row">
-            <input id="reverseGGResult" type="text" readonly placeholder="Enter an address and value">
-            <button id="useReverseGGCode" type="button" disabled>Use code</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tile Editor (Modal) -->
       <div id="tileModal" class="dialog-container" style="display: none;">
           <div class="dialog-box" id="dialog-box">
               <div class="tile-editor-text" id="tile-editor-text">Tile Editor</div>
@@ -556,7 +549,7 @@
                   <div class="toggle-switch" id="tileBorderToggle">
                     <input type="checkbox" id="tileBorders">
                     <label for="tileBorders"></label>
-                    <span class="toggle-text">&nbsp;Tile Border</span>
+                    <span class="toggle-text">&nbsp;Tile border</span>
                   </div>
                 </div>
               </p>
@@ -580,28 +573,53 @@
           </div>
           <p>
             <div class="button-group">
-              <button id="applyBGMap">Save Changes</button>
-              <button id="discardBGMap" class="secondary">Discard Changes</button>
+              <button id="applyBGMap">Save changes</button>
+              <button id="discardBGMap" class="secondary">Discard changes</button>
               <input type="text" id="BGMapStartAddress" disabled style="display: none;">
               <div class="toggle-switch">
                 <input type="checkbox" id="addressesToggle">
                 <label for="addressesToggle"></label>
                 <span class="toggle-text">Images / VRAM Addresses</span>
               </div>
-              <button id="saveBGMapAsBIN" class="secondary">Download Background Map as .bin</button>
+              <button id="saveBGMapAsBIN" class="secondary">Download background map as .bin</button>
             </div>
           </p>
         </div>
       </div>
+
+      <dialog id="enableHeaderDialog" class="confirmation-dialog">
+        <b>Enable header addresses?</b>
+        <p>Editing header bytes directly can affect how the ROM is identified and loaded.</p>
+        <div class="button-group">
+          <button id="enableHeaderAddresses" type="button">Enable</button>
+          <button id="cancelHeaderAddresses" class="secondary" type="button">Cancel</button>
+        </div>
+      </dialog>
+
+      <dialog id="tileImportDialog" class="tile-import-dialog">
+        <div id="tileImportDragHandle" class="tile-import-drag-handle">
+          <b id="tileImportTitle">Import tiles</b>
+          <button id="closeTileImportDialog" class="modal-close-button" type="button" aria-label="Close">&times;</button>
+        </div>
+        <div id="tileImportInfo" class="tile-import-info"></div>
+        <div id="tileImportGrid" class="tile-import-grid"></div>
+        <div class="tile-import-actions">
+          <button id="replaceEntireTileSet" type="button" hidden>Replace entire tile group</button>
+        </div>
+      </dialog>
     
       <!-- TOAST MESSAGES -->
       <div class="toast green" id="hexValueChanged">A value has been altered!</div>
+      <div class="toast red" id="hexValueRestored">Invalid byte. The original value was restored.</div>
       <div class="toast red" id="wrongAddress">The address you provided does not exist in this ROM data.</div>
       <div class="toast green" id="GLHF">** Good luck, have fun! **</div>
-      <div class="toast red" id="invalidGameTitle">The game title must have 16 LETTERS or less.</div>
-      <div class="toast green" id="gameTitleChanged">The game title was changed</div>
-      <div class="toast green" id="manuallySet">The code is ready to be applied</div>
+      <div class="toast red" id="invalidGameTitle">The game title must contain no more than 16 characters.</div>
+      <div class="toast green" id="gameTitleChanged">The game title was changed.</div>
+      <div class="toast green" id="manuallySet">The code is ready to be applied.</div>
       <div class="toast green" id="tileSetSaved">A tile set has been saved!</div>
+      <div class="toast green" id="tileImportUndo" data-duration="6500"><span>A tile was replaced.</span><button class="toast-undo" type="button">Undo</button></div>
+      <div class="toast red" id="invalidTilePng">Choose a PNG with dimensions that are multiples of 8 pixels.</div>
+      <div class="toast red" id="wrongTilePngBpp">A 1BPP tile group requires a 1BPP PNG.</div>
 
     </div>
     
