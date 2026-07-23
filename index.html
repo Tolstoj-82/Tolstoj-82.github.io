@@ -1,267 +1,506 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tolstoj's Workbench</title>
-  <link rel="stylesheet" href="styles/general.css">
-  <link rel="stylesheet" href="styles/grid.css">
-  <link rel="stylesheet" href="styles/header.css">
-  <link rel="stylesheet" href="styles/layouts.css">
-  <link rel="stylesheet" href="styles/modal.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tolstoj's Workbench</title>
+    <link rel="stylesheet" href="styles/general.css" />
+    <link rel="stylesheet" href="styles/grid.css" />
+    <link rel="stylesheet" href="styles/header.css" />
+    <link rel="stylesheet" href="styles/layouts.css" />
+    <link rel="stylesheet" href="styles/modal.css" />
 
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="manifest" href="site.webmanifest">
-</head>
-<body>
-
-  <div class="content">
-  <header>
-    <h1>Tolstoj's GBTris Workbench</h1>
-    <button class="menu-btn" id="hamburger-icon" type="button" aria-label="Open menu" aria-controls="site-menu" aria-expanded="false">☰</button>
-  </header>
-  <div class="menu-container" id="site-menu" aria-hidden="true">
-    <button class="close-btn" id="close-icon" type="button" aria-label="Close menu">✖</button>
-    <button class="accordion" type="button" aria-expanded="false" aria-controls="projects-menu">My Projects <span class="arrow" aria-hidden="true">+</span></button>
-    <ul class="menu" id="projects-menu">
-        <li><a href="Live/refactored/index.html">OCR</a></li>
-        <li><a href="firmwarelabeller/index.html">Re-labbeler</a></li>
-        <li><a href="LUTer/index.html">LUT Tool</a></li>
-        <li><a href="TREP/index.html">TREP</a></li>
-        <li><a href="music-Editor/index.html">ASM Music Editor</a></li>
-        <li><a href="genetic-engineering/index.html">Genetic Engineering</a></li>
-        <li><a href="ChrisAndTriss/index.html">Chris &amp; Triss</a></li>
-    </ul>
-    <button class="accordion" type="button" aria-expanded="false" aria-controls="other-things-menu">Other Things <span class="arrow" aria-hidden="true">+</span></button>
-    <ul class="menu" id="other-things-menu">
-        <li><a href="Tolstoj/index.html">About Me</a></li>
-        <li><a href="TwoPlayer/index.html">2-Player</a></li>
-        <li><a href="ROMHacks/index.html">ROM Patches</a></li>
-        <li><a href="Collection/index.html">My Tetris Collection</a></li>
-        <li><a href="RNG/index.html">RNG in GB Tetris</a></li>
-    </ul>
-  </div>
-
-  <div class="page-content">
-    <main>
-      <section class="intro">
-        <button class="intro-portrait" id="intro-portrait" type="button" aria-label="Rotate the Tolstoj logo" aria-pressed="false">
-          <img class="intro-portrait-photo" src="images/tolstoj.jpg" alt="Tolstoj">
-          <img class="intro-rotation-background" src="images/background.png" alt="" aria-hidden="true">
-          <img class="intro-rotation-foreground" src="images/foreground.png" alt="" aria-hidden="true">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="manifest" href="site.webmanifest" />
+  </head>
+  <body>
+    <div class="content">
+      <header>
+        <h1>Tolstoj's Workbench</h1>
+        <button
+          class="menu-btn"
+          id="hamburger-icon"
+          type="button"
+          aria-label="Open menu"
+          aria-controls="site-menu"
+          aria-expanded="false"
+        >
+          ☰
         </button>
-        <div class="text">
-          <p>Hello, friends! I'm <a href="Tolstoj/index.html">Tolstoj</a>. I've spent the last few years deep-diving into the inner workings of Game Boy Tetris and its competitive scene, and now I’m sharing my knowledge with you.</p>
-          <p>On my journey, I met a lot of cool and talented people whom I will introduce in the future. At this point, there are four people I'd like to give a shout-out to: Toni, Pascal, -JJ and Sebastian Staacks.</p>
-          <p>Below, you will find a growing collection of tools I developed, such as a firmware re-labeler and an OCR tool.</p>
-          <p>Most of my work revolves around DiCon X's (Sebastian Staacks) <a href="https://github.com/Staacks/gbinterceptor">GB&nbsp;Interceptor</a>, GB Tetris' biggest and most important asset: a&nbsp;Game&nbsp;Boy "capture card".</p>
-          <p>And yes, I do use AI to help me with my projects, and no, I don't think that's bad at all. Embrace the future!</p>
-        </div>
-      </section>
-      <hr>
-      <h2>New to Game Boy Tetris?</h2>
-      <a href="new-to-tetris/index.html" class="button secondary">Start Here</a>
-      <hr>
-      <h2>My Projects</h2>
-      <section class="grid">
+      </header>
+      <div class="menu-container" id="site-menu" aria-hidden="true">
+        <button
+          class="close-btn"
+          id="close-icon"
+          type="button"
+          aria-label="Close menu"
+        >
+          ✖
+        </button>
+        <button
+          class="accordion"
+          type="button"
+          aria-expanded="false"
+          aria-controls="projects-menu"
+        >
+          My Projects <span class="arrow" aria-hidden="true">+</span>
+        </button>
+        <ul class="menu" id="projects-menu">
+          <li><a href="TREP/index.html">TREP</a></li>
+          <li><a href="GB-OCR/index.html">GB OCR</a></li>
+          <li><a href="PostMaxCounter/index.html">Post Max Counter</a></li>
+          <li><a href="Live/refactored/index.html">OCR</a></li>
+          <li><a href="firmwarelabeller/index.html">Re-labbeler</a></li>
+          <li><a href="LUTer/index.html">LUT Tool</a></li>
+          <li><a href="music-Editor/index.html">ASM Music Editor</a></li>
+          <li>
+            <a href="genetic-engineering/index.html">Genetic Engineering</a>
+          </li>
+          <li><a href="ChrisAndTriss/index.html">Chris &amp; Triss</a></li>
+        </ul>
+        <button
+          class="accordion"
+          type="button"
+          aria-expanded="false"
+          aria-controls="other-things-menu"
+        >
+          Other Things <span class="arrow" aria-hidden="true">+</span>
+        </button>
+        <ul class="menu" id="other-things-menu">
+          <li><a href="Tolstoj/index.html">About Me</a></li>
+          <li><a href="TwoPlayer/index.html">2-Player</a></li>
+          <li><a href="ROMHacks/index.html">ROM Patches</a></li>
+          <li><a href="Collection/index.html">My Tetris Collection</a></li>
+          <li><a href="RNG/index.html">RNG in GB Tetris</a></li>
+        </ul>
+      </div>
 
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="Live/refactored/index.html" class="grid-item-clickable">
-              <img src="images/OCR.png" alt="GB Interceptor OCR 2">
-              <h3>GB Interceptor Tetris OCR</h3>
+      <div class="page-content">
+        <main>
+          <section class="intro">
+            <button
+              class="intro-portrait"
+              id="intro-portrait"
+              type="button"
+              aria-label="Rotate the Tolstoj logo"
+              aria-pressed="false"
+            >
+              <img
+                class="intro-portrait-photo"
+                src="images/tolstoj.jpg"
+                alt="Tolstoj"
+              />
+              <img
+                class="intro-rotation-background"
+                src="images/background.png"
+                alt=""
+                aria-hidden="true"
+              />
+              <img
+                class="intro-rotation-foreground"
+                src="images/foreground.png"
+                alt=""
+                aria-hidden="true"
+              />
+            </button>
+            <div class="text">
               <p>
-                Send your GB Tetris footage from the interceptor through OCR and let the computer do its magic.
+                Hello, friends! I'm <a href="Tolstoj/index.html">Tolstoj</a>.
+                I've spent the last few years deep-diving into the inner
+                workings of Game Boy Tetris and its competitive scene, and now
+                I’m sharing my knowledge with you.
               </p>
-            </a>
-            <div class="grid-item-buttons">
-              <a href="https://www.youtube.com/watch?v=ET6S309U-8Q" class="button secondary" target="_blank" rel="noopener noreferrer">Explainer Video</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="firmwarelabeller/index.html" class="grid-item-clickable">
-              <img src="images/relabeller.png" alt="GB Interceptor Re-labeller">
-              <h3>GB Interceptor Re-labeller</h3>
               <p>
-                Using multiple interceptors on one computer can be confusing, especially if you try to choose the correct one from the label. This very simple tool lets you re-label the firmware for clear identification.
+                On my journey, I met a lot of cool and talented people whom I
+                will introduce in the future. At this point, there are four
+                people I'd like to give a shout-out to: Toni, Pascal, -JJ and
+                Sebastian Staacks.
               </p>
-            </a>
-          </div>
-        </div>
-
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="LUTer/index.html" class="grid-item-clickable">
-              <img src="images/LUTs.png" alt="GB Interceptor LUT tool">
-              <h3>GB Interceptor LUT Tool</h3>
               <p>
-                Stand out by using a custom color palette (LUTs = lookup table) for your GB Interceptor to use in software such as OBS.                
+                Below, you will find a growing collection of tools I developed,
+                such as a firmware re-labeler and an OCR tool.
               </p>
-            </a>
-            <div class="grid-item-buttons">
-              <a href="https://www.youtube.com/watch?v=9h_nTtzD1bw" class="button secondary" target="_blank" rel="noopener noreferrer">Explainer Video</a>
+              <p>
+                Most of my work revolves around DiCon X's (Sebastian Staacks)
+                <a href="https://github.com/Staacks/gbinterceptor"
+                  >GB&nbsp;Interceptor</a
+                >, GB Tetris' biggest and most important asset:
+                a&nbsp;Game&nbsp;Boy "capture card".
+              </p>
+              <p>
+                And yes, I do use AI to help me with my projects, and no, I
+                don't think that's bad at all. Embrace the future!
+              </p>
             </div>
-          </div>
-        </div>
-
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="TREP/index.html" class="grid-item-clickable">
-              <img src="images/TREP.png" alt="TREP Version Beta 1">
-              <h3>TREP Version Beta 1</h3>
-              <p><b>T</b>olstoj's <b>R</b>OM <b>E</b>ditor <b>P</b>lus. Load a legally acquired GB Tetris ROM and edit it to your liking.<br>
-              <b>Info:</b> This tool is for demonstration purposes only. Don't use it for weird stuff, please!</p>        
-            </a>
-            <div class="grid-item-buttons">
-              <a href="https://www.youtube.com/watch?v=dNZec32Avxg" class="button secondary" target="_blank" rel="noopener noreferrer">Explainer Video</a>
+          </section>
+          <hr />
+          <h2>New to Game Boy Tetris?</h2>
+          <a href="new-to-tetris/index.html" class="button secondary"
+            >Start Here</a
+          >
+          <hr />
+          <h2>My Projects</h2>
+          <section class="grid">
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a href="TREP/index.html" class="grid-item-clickable">
+                  <img src="images/TREP.png" alt="TREP" />
+                  <h3>TREP v. 1.0</h3>
+                  <p>
+                    Tolstoj's ROM Editor Plus. Load a legally acquired GB Tetris
+                    ROM and edit it to your liking.<br />
+                    Info: This tool is for demonstration purposes only. Don't
+                    use it for weird stuff, please!
+                  </p>
+                </a>
+                <div class="grid-item-buttons">
+                  <a
+                    href="https://www.youtube.com/watch?v=dNZec32Avxg"
+                    class="button secondary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Explainer Video</a
+                  >
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="ChrisAndTriss/index.html" class="grid-item-clickable">
-              <img src="images/chris-and-triss.png" alt="Chris and Triss">
-              <h3>Chris &amp; Triss</h3>
-              <p>I created a Tetromino-based puzzler / block stacking game for the DMG Game Boy. It was done as a collaboration with EuroChrisKA. Some people claim it closely resembles other classics - its resemblance is a mere coincidence.</p>        
-            </a>
-          </div>
-        </div>
-
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="music-Editor/index.html" class="grid-item-clickable">
-              <img src="images/music.png" alt="ASM music editor">
-              <h3>ASM Music Editor</h3>
-              <p>Experimental and unfinished music editor to use with GB ASM disassemblies. This one is absolutely unusable and makes annoying noises. I left it in nonetheless - might get back on the project at one point.</p>        
-            </a>
-          </div>
-        </div>
-
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="genetic-engineering/index.html" class="grid-item-clickable">
-              <img src="images/genetic-engineering.png" alt="YT">
-              <h3>Genetic Engineering</h3>
-              <p>According to Vadim Gerasimov, the then-16-year-old prodigy who ported Tetris to the IBM, Alexey Pajitnov created a precursor game to Tetris on the Electronika-60 called Genetic Engineering.<br>
-                This is my attempt to recreate this game for a presentation.</p>
-            </a>
-            <div class="grid-item-buttons">
-              <a href="https://vadim.oversigma.com/Tetris.htm" class="button secondary" target="_blank" rel="noopener noreferrer">Vadim's Website</a>
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a href="GB-OCR/index.html" class="grid-item-clickable">
+                  <img src="images/General-OCR.png" alt="General Purpose OCR" />
+                  <h3>GB OCR</h3>
+                  <p>
+                    Configure and run OCR for Game Boy Games. This one is quite
+                    powerful.
+                  </p>
+                </a>
+              </div>
             </div>
-          </div>
-        </div>        
 
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="TwoPlayer/index.html" class="grid-item-clickable">
-              <img src="images/2-player.png" alt="YT">
-              <h3>2-Player Reverse Engineering</h3>
-              <p>The legendary -JJ from Finland and I reverse-engineered the 2-player Game Boy Tetris' link cable protocol.</p>
-            </a>
-          </div>
-        </div>
-
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="ROMHacks/index.html" class="grid-item-clickable">
-              <img src="images/ROM.png" alt="YT">
-              <h3>ROM Patches</h3>
-              <p>Find some interesting ROM patches made by Pascal and me.</p>
-            </a>
-          </div>
-        </div>
-
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="Collection/index.html" class="grid-item-clickable">
-              <img src="images/collection.png" alt="YT">
-              <h3>My Tetris Collection</h3>
-              <p></p>
-            </a>
-          </div>
-        </div>
-        
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="https://www.youtube.com/@tolstoj_" class="grid-item-clickable">
-              <img src="images/youtube.png" alt="YT">
-              <h3>My Youtube Channel</h3>
-              <p></p>
-            </a>
-          </div>
-        </div> 
-
-      </section>
-      <hr>
-      <h2>Other Peoples' Projects</h2>
-      <section class="grid">
-  
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="http://online-gb.tetris.yt" class="grid-item-clickable">
-              <img src="images/online-2-player.png" alt="Online 2 Player">
-              <h3>Toni's 2-Player Online Server</h3>
-              <p>Connect your Game Boy with a Link Cable to USB adapter and play GB Tetris online against someone. (Based on Stacksmashing's site)</p>          
-            </a>
-          </div>
-        </div> 
-
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <div class="grid-item-clickable">
-              <img src="images/youtube.png" alt="YT">
-              <h3>Past GB Events (Pascal's Site)</h3>
-              <p></p>
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a href="PostMaxCounter/index.html" class="grid-item-clickable">
+                  <img
+                    src="images/post-max-counter.png"
+                    alt="Post Max Counter"
+                  />
+                  <h3>Post Max Counter</h3>
+                  <p>
+                    Track post-max results with a compact counter made for
+                    competitive Game Boy Tetris.
+                  </p>
+                </a>
+              </div>
             </div>
-          </div>
-        </div>
-        
-        <div class="grid-item">
-          <div class="grid-item-wrapper">
-            <a href="https://gbdev.io/pandocs/" class="grid-item-clickable">
-              <img src="images/pandocs.png" alt="Pandocs">
-              <h3>Game Boy Pan Docs</h3>
-          <p>The most comprehensive documentation about the inner workings of the Game Boy.</p>
-            </a>
-          </div>
-        </div>
-        
-  </section>
 
-  <nav>
-    <hr>
-    <h2>External Links</h2>
-      <a href="https://there.oughta.be/" target="_blank" rel="noopener noreferrer">There Oughta Be (Sebastian Staacks' Blog)</a><br>
-      <a href="https://tinyurl.com/GB-Tetris" target="_blank" rel="noopener noreferrer">Game Boy Tetris Discord</a><br>
-      <a href="https://docs.google.com/spreadsheets/d/1PJZ50b5Y6RqHNW1PH5BFn-wvc7IPxu3m0JastDksMtQ/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer">Game Boy Tetris Leaderboards</a><br>
-      <a href="https://classictetris.eu/" target="_blank" rel="noopener noreferrer">CTEC (Classic Tetris European Championships)</a><br>
-      <a href="https://lieblings.be/dates.html" target="_blank" rel="noopener noreferrer">Lieblings Bern</a><br>
-      <span>CTG (Classic Tetromino-Games Germany e. V.)</span><br>
-      <a href="http://www.kobash.com/tetris/tetris.html" target="_blank" rel="noopener noreferrer">The OG GB Tetris Website (Brian Kobashikawa, 1999)</a><br>
-  </nav>
-  <p>
-    <img src="images/CTEC Team GB 2022.png" class="fullwidth"><br>
-    <b>CTEC Game Boy Team 2023</b> aka "The Lads": Kirjava, Toni, BV, -JJ, Tolstoj, (Jacob)
-  </p>
-  <p>
-    <img src="images/PopCon.jpg" class="fullwidth"><br>
-    <b>PopCon 2024</b>: Pusteblume, Nitsrek85, Pascal, Tolstoj, Toni
-  </p>
-</main>
-</div>
-</div>
-<script src="script.js"></script>
-<div id="imageModal" class="modal" role="dialog" aria-modal="true" aria-label="Image preview" aria-hidden="true" style="display: none;">
-  <div class="modal-content">
-    <button class="close" type="button" aria-label="Close image preview">&times;</button>
-    <img id="modalImage" alt="Modal Image">
-  </div>
-</div>
-</body>
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a
+                  href="Live/refactored/index.html"
+                  class="grid-item-clickable"
+                >
+                  <img src="images/OCR.png" alt="GB Interceptor OCR 2" />
+                  <h3>GB Interceptor Tetris OCR</h3>
+                  <p>
+                    Send your GB Tetris footage from the interceptor through OCR
+                    and let the computer do its magic.
+                  </p>
+                </a>
+                <div class="grid-item-buttons">
+                  <a
+                    href="https://www.youtube.com/watch?v=ET6S309U-8Q"
+                    class="button secondary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Explainer Video</a
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a
+                  href="firmwarelabeller/index.html"
+                  class="grid-item-clickable"
+                >
+                  <img
+                    src="images/relabeller.png"
+                    alt="GB Interceptor Re-labeller"
+                  />
+                  <h3>GB Interceptor Re-labeller</h3>
+                  <p>
+                    Using multiple interceptors on one computer can be
+                    confusing, especially if you try to choose the correct one
+                    from the label. This very simple tool lets you re-label the
+                    firmware for clear identification.
+                  </p>
+                </a>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a href="LUTer/index.html" class="grid-item-clickable">
+                  <img src="images/LUTs.png" alt="GB Interceptor LUT tool" />
+                  <h3>GB Interceptor LUT Tool</h3>
+                  <p>
+                    Stand out by using a custom color palette (LUTs = lookup
+                    table) for your GB Interceptor to use in software such as
+                    OBS.
+                  </p>
+                </a>
+                <div class="grid-item-buttons">
+                  <a
+                    href="https://www.youtube.com/watch?v=9h_nTtzD1bw"
+                    class="button secondary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Explainer Video</a
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a href="ChrisAndTriss/index.html" class="grid-item-clickable">
+                  <img src="images/chris-and-triss.png" alt="Chris and Triss" />
+                  <h3>Chris &amp; Triss</h3>
+                  <p>
+                    I created a Tetromino-based puzzler / block stacking game
+                    for the DMG Game Boy. It was done as a collaboration with
+                    EuroChrisKA. Some people claim it closely resembles other
+                    classics - its resemblance is a mere coincidence.
+                  </p>
+                </a>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a href="music-Editor/index.html" class="grid-item-clickable">
+                  <img src="images/music.png" alt="ASM music editor" />
+                  <h3>ASM Music Editor</h3>
+                  <p>
+                    Experimental and unfinished music editor to use with GB ASM
+                    disassemblies. This one is absolutely unusable and makes
+                    annoying noises. I left it in nonetheless - might get back
+                    on the project at one point.
+                  </p>
+                </a>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a
+                  href="genetic-engineering/index.html"
+                  class="grid-item-clickable"
+                >
+                  <img src="images/genetic-engineering.png" alt="YT" />
+                  <h3>Genetic Engineering</h3>
+                  <p>
+                    According to Vadim Gerasimov, the then-16-year-old prodigy
+                    who ported Tetris to the IBM, Alexey Pajitnov created a
+                    precursor game to Tetris on the Electronika-60 called
+                    Genetic Engineering.<br />
+                    This is my attempt to recreate this game for a presentation.
+                  </p>
+                </a>
+                <div class="grid-item-buttons">
+                  <a
+                    href="https://vadim.oversigma.com/Tetris.htm"
+                    class="button secondary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Vadim's Website</a
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a href="TwoPlayer/index.html" class="grid-item-clickable">
+                  <img src="images/2-player.png" alt="YT" />
+                  <h3>2-Player Reverse Engineering</h3>
+                  <p>
+                    The legendary -JJ from Finland and I reverse-engineered the
+                    2-player Game Boy Tetris' link cable protocol.
+                  </p>
+                </a>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a href="ROMHacks/index.html" class="grid-item-clickable">
+                  <img src="images/ROM.png" alt="YT" />
+                  <h3>ROM Patches</h3>
+                  <p>
+                    Find some interesting ROM patches made by Pascal and me.
+                  </p>
+                </a>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a href="Collection/index.html" class="grid-item-clickable">
+                  <img src="images/collection.png" alt="YT" />
+                  <h3>My Tetris Collection</h3>
+                  <p></p>
+                </a>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a
+                  href="https://www.youtube.com/@tolstoj_"
+                  class="grid-item-clickable"
+                >
+                  <img src="images/youtube.png" alt="YT" />
+                  <h3>My Youtube Channel</h3>
+                  <p></p>
+                </a>
+              </div>
+            </div>
+          </section>
+          <hr />
+          <h2>Other Peoples' Projects</h2>
+          <section class="grid">
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a
+                  href="http://online-gb.tetris.yt"
+                  class="grid-item-clickable"
+                >
+                  <img src="images/online-2-player.png" alt="Online 2 Player" />
+                  <h3>Toni's 2-Player Online Server</h3>
+                  <p>
+                    Connect your Game Boy with a Link Cable to USB adapter and
+                    play GB Tetris online against someone. (Based on
+                    Stacksmashing's site)
+                  </p>
+                </a>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <div class="grid-item-clickable">
+                  <img src="images/youtube.png" alt="YT" />
+                  <h3>Past GB Events (Pascal's Site)</h3>
+                  <p></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a href="https://gbdev.io/pandocs/" class="grid-item-clickable">
+                  <img src="images/pandocs.png" alt="Pandocs" />
+                  <h3>Game Boy Pan Docs</h3>
+                  <p>
+                    The most comprehensive documentation about the inner
+                    workings of the Game Boy.
+                  </p>
+                </a>
+              </div>
+            </div>
+          </section>
+
+          <nav class="external-links" aria-labelledby="external-links-title">
+            <hr />
+            <h2 id="external-links-title">External Links</h2>
+            <div class="external-links-grid">
+              <a
+                href="https://there.oughta.be/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>There Oughta Be</strong>
+                <span>Sebastian Staacks' blog</span>
+              </a>
+              <a
+                href="https://tinyurl.com/GB-Tetris"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>Game Boy Tetris Discord</strong>
+                <span>Join the community</span>
+              </a>
+              <a
+                href="https://docs.google.com/spreadsheets/d/1PJZ50b5Y6RqHNW1PH5BFn-wvc7IPxu3m0JastDksMtQ/edit?gid=0#gid=0"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>Game Boy Tetris Leaderboards</strong>
+                <span>Records and rankings</span>
+              </a>
+              <a
+                href="https://classictetris.eu/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>CTEC</strong>
+                <span>Classic Tetris European Championships</span>
+              </a>
+              <a
+                href="https://lieblings.be/dates.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>Lieblings Bern</strong>
+                <span>Events and dates</span>
+              </a>
+      <a href="https://ctgev.de/" target="_blank" rel="noopener noreferrer">
+        <strong>CTG</strong>
+        <span>Classic Tetromino-Games Germany e. V.</span>
+      </a>
+              <a
+                href="http://www.kobash.com/tetris/tetris.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>The OG GB Tetris Website</strong>
+                <span>Brian Kobashikawa, 1999</span>
+              </a>
+            </div>
+          </nav>
+          <p>
+            <img src="images/CTEC Team GB 2022.png" class="fullwidth" /><br />
+            <b>CTEC Game Boy Team 2023</b> aka "The Lads": Kirjava, Toni, BV,
+            -JJ, Tolstoj, (Jacob)
+          </p>
+          <p>
+            <img src="images/PopCon.jpg" class="fullwidth" /><br />
+            <b>PopCon 2024</b>: Pusteblume, Nitsrek85, Pascal, Tolstoj, Toni
+          </p>
+        </main>
+      </div>
+    </div>
+    <script src="script.js"></script>
+    <div
+      id="imageModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Image preview"
+      aria-hidden="true"
+      style="display: none"
+    >
+      <div class="modal-content">
+        <button class="close" type="button" aria-label="Close image preview">
+          &times;
+        </button>
+        <img id="modalImage" alt="Modal Image" />
+      </div>
+    </div>
+  </body>
 </html>

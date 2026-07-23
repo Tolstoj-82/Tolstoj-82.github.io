@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Arvo&display=swap");
+
 @font-face {
     font-family: "Outfit";
     src: url("../TREP/fonts/Outfit-Variable.ttf") format("truetype");
@@ -25,12 +27,68 @@ body {
     font-size: 1.1rem;
     margin: 0;
     padding: 0;
-    background-color: #ffffff;
+    min-height: 100vh;
+    background-color: #f8fafc;
     color: #333;
+    isolation: isolate;
     /*background-image: url("../images/background-minos.png");
     background-repeat: repeat;
     background-size: auto;
     background-position: top left;*/
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    z-index: 0;
+    inset: -20vmax;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 18% 22%, rgba(96, 165, 250, 0.58), transparent 34%),
+        radial-gradient(circle at 82% 28%, rgba(167, 139, 250, 0.46), transparent 38%),
+        radial-gradient(circle at 62% 82%, rgba(52, 211, 153, 0.4), transparent 36%),
+        linear-gradient(135deg, #f5f9ff 0%, #f4f1ff 48%, #f2fbf7 100%);
+    background-position: 0% 0%, 100% 0%, 50% 100%, center;
+    background-size: 115% 115%, 125% 125%, 120% 120%, 100% 100%;
+    opacity: 0.92;
+    animation: ambient-gradient 24s ease-in-out infinite alternate;
+}
+
+.content {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes ambient-gradient {
+    0% {
+        background-position: 0% 0%, 100% 0%, 50% 100%, center;
+        background-size: 115% 115%, 125% 125%, 120% 120%, 100% 100%;
+        transform: rotate(-1deg) scale(1);
+        filter: hue-rotate(0deg);
+    }
+
+    48% {
+        background-position: 24% 16%, 78% 28%, 36% 78%, center;
+        background-size: 135% 105%, 110% 140%, 132% 112%, 100% 100%;
+        transform: rotate(1.2deg) scale(1.035);
+        filter: hue-rotate(9deg);
+    }
+
+    100% {
+        background-position: 42% 26%, 62% 12%, 74% 64%, center;
+        background-size: 108% 138%, 142% 112%, 112% 142%, 100% 100%;
+        transform: rotate(-0.5deg) scale(1.02);
+        filter: hue-rotate(-8deg);
+    }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Arvo", serif;
 }
 
 .center {
@@ -42,7 +100,7 @@ main {
 }
 
 h2 {
-    background-color: #4c795c;
+    background-color: #215E99;
     color: #fff;
     padding: 10px 15px;
     margin-bottom: 10px;
@@ -52,7 +110,7 @@ h2 {
 }
 
 h3 {
-    color: #274732;
+    color: #215E99;
 }
 
 .book-block {
@@ -86,7 +144,7 @@ h3 {
     max-width: 1000px;
     margin: auto;
     padding: 0 20px;
-    background-color: #dcf2cd;
+    background-color: rgba(238, 238, 238, 0.76);
     box-shadow: -30px 0 30px rgba(0, 0, 0, 0.2), 30px 0 30px rgba(0, 0, 0, 0.2);
 }
 
@@ -135,12 +193,12 @@ img {
 
 .remark {
     border-radius: 8px;
-    background-color: #f9f6ff;
+    background-color: #fff;
     color: #555;
     padding: 15px;
     margin: 20px 0;
     position: relative;
-    border-left: 6px solid #7b5cbf;
+    border-left: 6px solid #215E99;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -204,8 +262,32 @@ img {
 }
 
 .intro-portrait:focus-visible {
-    outline: 3px solid #0066cc;
+    outline: 3px solid #215E99;
     outline-offset: 3px;
+}
+
+.intro-portrait::after {
+    content: "Click me!";
+    position: absolute;
+    z-index: 3;
+    right: 14px;
+    bottom: 14px;
+    padding: 7px 11px;
+    border: 2px solid #215E99;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.92);
+    color: #215E99;
+    font-family: "Outfit", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.intro-portrait:hover::after,
+.intro-portrait:focus-visible::after {
+    opacity: 1;
 }
 
 .intro .text {
@@ -227,15 +309,80 @@ a.button {
 a.button:hover {
     background-color: #666;
     color: #fff;
-    transform: scale(1.1);
 }
 
 a.button.secondary {
-    background-color: #0056b3;
+    background-color: #fff;
+    color: #215E99;
+    border: 3px solid #215E99;
 }
 
 a.button.secondary:hover {
-    background-color: #007bff;
+    background-color: #215E99;
+    color: #eae4e4;
+}
+
+.external-links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.external-links-grid > a,
+.external-link-static {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 76px;
+    padding: 16px 42px 16px 18px;
+    border: 3px solid #215E99;
+    border-radius: 10px;
+    background-color: #fff;
+    color: #333;
+    box-shadow: 0 3px 8px rgba(33, 94, 153, 0.1);
+}
+
+.external-links-grid > a::after {
+    content: "↗";
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    color: #215E99;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.external-links-grid > a {
+    text-decoration: none;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.external-links-grid > a:hover {
+    color: #fff;
+    background-color: #215E99;
+    border-color: #215E99;
+    box-shadow: 0 6px 14px rgba(33, 94, 153, 0.2);
+}
+
+.external-links-grid > a:hover::after,
+.external-links-grid > a:hover strong,
+.external-links-grid > a:hover strong + span {
+    color: #fff;
+}
+
+.external-links-grid > a:focus-visible {
+    outline: 3px solid #215E99;
+    outline-offset: 2px;
+}
+
+.external-links-grid strong {
+    color: #215E99;
+}
+
+.external-links-grid strong + span {
+    color: #666;
+    font-size: 0.9rem;
 }
 
 /*a {
@@ -251,7 +398,7 @@ a:hover {
 a {
     color: #0066cc;
     text-decoration: none;
-    transition: transform 0.3s ease, text-decoration-color 0.3s ease;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 a:hover {
@@ -269,7 +416,7 @@ img.fullwidth {
 
 hr {
     border: 0;
-    border-top: 2px dotted #274732;
+    border-top: 2px dotted #215E99;
     margin: 20px 0;
 }
 
@@ -280,13 +427,12 @@ hr.short {
 
 .clickable {
     display: inline-block;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
     border: 2px solid transparent;
     box-sizing: border-box;
 }
 
 .clickable:hover {
-    transform: translate(-2px, -2px);
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.6);
     border: 2px solid white;
     cursor: pointer;
@@ -380,5 +526,11 @@ table.normal.special tbody td{
     .intro-portrait {
         float: none;
         margin: 0 auto 20px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body::before {
+        animation: none;
     }
 }

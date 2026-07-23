@@ -2,7 +2,7 @@ header {
   position: sticky;
   top: 0;
   text-align: center;
-  background-color: #274732;
+  background-color: #215E99;
   color: #fff;
   height: 80px;
   z-index: 1000;
@@ -150,18 +150,19 @@ header h1 {
   justify-content: space-between;
   align-items: center;
   transition: background-color 0.3s ease;
-  color: #274732;
+  color: #215E99;
   font: inherit;
   font-weight: bold;
   text-align: left;
 }
 
 .accordion:hover {
-  background-color: #e2eadd;
+  background-color: #C0DBEB;
 }
 
 .accordion.active {
-  background-color: #dcf2cd;
+  background-color: #215E99;
+  color: #fff;
 }
 
 .arrow {
