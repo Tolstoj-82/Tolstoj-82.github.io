@@ -179,6 +179,12 @@ function applyCode(force = false) {
   const newVal = e_newVal.value.trim();
   let returnValue = false;
 
+  if (isProtectedRomAddress(address)) {
+    scrollToAddress(address);
+    displayToast("protectedRomAddress");
+    return false;
+  }
+
   let element = document.getElementById(address);
 
   if (element) {

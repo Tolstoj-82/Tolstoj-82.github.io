@@ -457,6 +457,13 @@ td.header.header-enabled {
   color:#333
 }
 
+td.protected-rom-byte,
+td.protected-rom-byte.header-enabled {
+  cursor:not-allowed;
+  color:#777;
+  background-color:#DDD
+}
+
 #headerData {
   width:100%;
   table-layout:fixed
@@ -935,14 +942,14 @@ button:disabled {
   transition:background-color .15s ease
 }
 
-.tab-content .external-link {
+.external-link {
   color:#075E8F;
   font-weight:600;
   text-decoration:underline;
   text-underline-offset:2px
 }
 
-.tab-content .external-link:hover {
+.external-link:hover {
   color:#A24A00
 }
 

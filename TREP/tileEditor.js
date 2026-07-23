@@ -566,7 +566,7 @@ function writeTileBytes(address, bytes) {
   bytes.forEach((value, index) => {
     const cellId = (start + index).toString(16).toUpperCase().padStart(4, "0");
     const cell = document.getElementById(cellId);
-    if (cell) {
+    if (cell && !isProtectedRomAddress(cellId)) {
       cell.textContent = value;
       cell.classList.add("edited");
     }
@@ -1096,7 +1096,7 @@ function saveTilesAfterDrawing(){
         let cellId = currentAddress.toUpperCase();
         let cell = document.querySelector(`td.hexValueCell[id="${cellId}"]`);
 
-        if (cell) {
+        if (cell && !isProtectedRomAddress(cellId)) {
           cell.textContent = hexVals[i];
         }
 

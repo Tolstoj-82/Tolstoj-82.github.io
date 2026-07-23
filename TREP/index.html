@@ -116,7 +116,14 @@
               </tr>
             </table>
 
-          </div><br>
+          </div>
+          <p class="header-map-links">
+            <a class="external-link" href="https://datacrystal.tcrf.net/wiki/Tetris_(Game_Boy)/ROM_map" target="_blank" rel="noopener noreferrer">ROM Map</a>
+            (Credits to Ospin)
+            ·
+            <a class="external-link" href="https://datacrystal.tcrf.net/wiki/Tetris_(Game_Boy)/RAM_map" target="_blank" rel="noopener noreferrer">RAM Map</a>
+            (Credits to Ospin)
+          </p>
           <div id="checksumContainer">
             <b>Checksums</b>
             <div class="checksum-items">
@@ -492,12 +499,6 @@
                   <h2>Edit Background Maps</h2>
                   <p><b>Select a Background Screen</b></p>
                   <div id="bgMapList" class="bg-map-list"></div>
-                  <p>
-                    Credits to Ospin:
-                    <a class="external-link" href="https://datacrystal.tcrf.net/wiki/Tetris_(Game_Boy)/ROM_map" target="_blank" rel="noopener noreferrer">ROM Map</a>
-                    ·
-                    <a class="external-link" href="https://datacrystal.tcrf.net/wiki/Tetris_(Game_Boy)/RAM_map" target="_blank" rel="noopener noreferrer">RAM Map</a>
-                  </p>
                 </div>
             
                 <div id="tab3" class="tab-content" style="display: none;">
@@ -612,6 +613,7 @@
       <div class="toast green" id="hexValueChanged">A value has been altered!</div>
       <div class="toast red" id="hexValueRestored">Invalid byte. The original value was restored.</div>
       <div class="toast red" id="wrongAddress">The address you provided does not exist in this ROM data.</div>
+      <div class="toast red" id="protectedRomAddress">Addresses $01FD–$01FF are permanently locked and cannot be edited.</div>
       <div class="toast green" id="GLHF">** Good luck, have fun! **</div>
       <div class="toast red" id="invalidGameTitle">The game title must contain no more than 16 characters.</div>
       <div class="toast green" id="gameTitleChanged">The game title was changed.</div>

@@ -19,6 +19,11 @@ let activeBGMapName = "";
 let bgPreviewRefreshFrame = null;
 let pendingHeaderCell = null;
 let headerAddressesEnabled = false;
+const protectedRomAddresses = new Set(["01FD", "01FE", "01FF"]);
+
+function isProtectedRomAddress(address) {
+  return protectedRomAddresses.has(String(address).trim().toUpperCase().padStart(4, "0"));
+}
 
 // Initialize the pixelData array
 let pixelData = [];
@@ -289,6 +294,7 @@ function initializeHeaderAddressDialog() {
   confirmButton.addEventListener("click", () => {
     headerAddressesEnabled = true;
     document.querySelectorAll("#hexViewer .hexValueCell.header").forEach(cell => {
+      if (isProtectedRomAddress(cell.id)) return;
       cell.contentEditable = "true";
       cell.classList.add("header-enabled");
     });
@@ -427,7 +433,7 @@ function saveBGMap(bgMap) {
     let hexAddress = (currentAddress + tileNumber).toString(16).toUpperCase().padStart(4, '0');
 
     let td = document.getElementById(hexAddress);
-    td.textContent = tileID;
+    if (td && !isProtectedRomAddress(hexAddress)) td.textContent = tileID;
   });
 
   closeBGModal();
@@ -714,7 +720,9 @@ function validateFile(event) {
 
       for (let j = 1; j < cells.length; j++) {
         const cell = cells[j];
-        const hexValue = cell.textContent || '00';
+        const hexValue = isProtectedRomAddress(cell.id)
+          ? cell.getAttribute('data-original-value') || cell.textContent || '00'
+          : cell.textContent || '00';
         const byteValue = parseInt(hexValue, 16);
         fileData[(i - 1) * 16 + (j - 1)] = byteValue;
       }
@@ -787,8 +795,14 @@ function validateFile(event) {
         hexValueCell.id = cellID;
         hexValueCells.push(hexValueCell);
         
+        if (isProtectedRomAddress(cellID)) {
+          hexValueCell.contentEditable = "false";
+          hexValueCell.classList.add("protected-rom-byte");
+          hexValueCell.setAttribute("aria-readonly", "true");
+          hexValueCell.title = "This ROM byte is permanently locked.";
+          hexValueCell.setAttribute("data-original-value", hexValue);
         // header data
-        if (cellID >= '0000' && cellID <= '014F'){
+        } else if (cellID >= '0000' && cellID <= '014F'){
           hexValueCell.classList.add('header');
           hexValueCell.contentEditable = headerAddressesEnabled;
           hexValueCell.classList.toggle("header-enabled", headerAddressesEnabled);
@@ -803,6 +817,8 @@ function validateFile(event) {
       }
       
       hexValueCells.forEach(cell => {
+        if (isProtectedRomAddress(cell.id)) return;
+
         cell.addEventListener('focus', function(event) {
           const cell = event.target;
           cell.setAttribute('data-previous-value', cell.textContent);
@@ -1070,6 +1086,7 @@ function appendHeaderOptions(select, values) {
 }
 
 function writeHeaderByte(address, value) {
+  if (isProtectedRomAddress(address)) return false;
   const cell = document.getElementById(address);
   if (!cell) return false;
   cell.textContent = value;
