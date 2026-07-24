@@ -20,6 +20,8 @@
 
 .article-toc {
     width: min(360px, 88vw);
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
 }
 
 .article-toc-header {
@@ -61,6 +63,14 @@ body.menu-open #hamburger-icon {
 }
 
 @media (min-width: 1000px) {
+    header .article-title {
+        transition: left 0.3s ease, font-size 0.3s ease;
+    }
+
+    body.menu-open header .article-title {
+        left: calc(50% - 180px);
+    }
+
     body.menu-open .page-content {
         max-width: min(1000px, calc(100% - 360px));
         transform: translateX(-180px);
@@ -69,6 +79,46 @@ body.menu-open #hamburger-icon {
 
 .article-toc nav {
     padding: 18px 0 24px;
+}
+
+.article-related-links {
+    padding: 14px 20px;
+    border-bottom: 1px solid #d6dde4;
+    background-color: #f7f9fb;
+}
+
+.article-related-links a {
+    color: #215e99;
+    font-size: 0.86rem;
+    font-weight: bold;
+}
+
+.collection-guide-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.article-page-navigation {
+    margin: 12px 0 28px;
+    padding: 0;
+    border-top: 1px solid #d6dde4;
+    border-bottom: 1px solid #d6dde4;
+    background-color: #f7f9fb;
+}
+
+.article-page-link {
+    display: block;
+    width: 100%;
+    padding: 15px 20px;
+    color: #215e99;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.article-page-link:hover {
+    background-color: #edf0f2;
+    color: #172b4d;
 }
 
 .article-toc-list {
@@ -95,6 +145,14 @@ body.menu-open #hamburger-icon {
     padding-left: 29px;
     color: #607286;
     font-size: 0.81rem;
+}
+
+.article-toc-item--h3 {
+    display: none;
+}
+
+.article-toc-item--h3.is-in-active-section {
+    display: block;
 }
 
 .article-toc-link:hover {
@@ -257,6 +315,17 @@ h2.article-accordion-heading {
     flex: 0 0 auto;
     font-size: 1.3em;
     line-height: 1;
+}
+
+.article-accordion-label {
+    display: inline-flex;
+    align-items: baseline;
+}
+
+.article-heading-number {
+    flex: 0 0 auto;
+    margin-right: 0.42em;
+    font-variant-numeric: tabular-nums;
 }
 
 .article-accordion-trigger[aria-expanded="true"] {

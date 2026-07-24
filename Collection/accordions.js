@@ -1,6 +1,7 @@
-document.addEventListener("DOMContentLoaded", () => {
+function initializeArticleAccordions() {
   const main = document.querySelector("main");
-  if (!main) return;
+  if (!main || main.dataset.accordionsReady === "true") return;
+  main.dataset.accordionsReady = "true";
 
   const usedIds = new Set();
   const makeId = (text) => {
@@ -23,8 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return id;
   };
 
-  const headings = Array.from(main.children).filter(
-    (element) => element.tagName === "H2"
+  const headings = Array.from(main.querySelectorAll("h2")).filter(
+    (heading) => !heading.closest(".article-accordion")
   );
   const accordionItems = [];
 
@@ -35,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const trigger = document.createElement("button");
     const icon = document.createElement("span");
     const title = heading.textContent.trim();
+    const sectionNumber = index + 1;
     const panelId = `article-accordion-panel-${index + 1}`;
 
     section.className = "article-accordion";
@@ -46,9 +48,19 @@ document.addEventListener("DOMContentLoaded", () => {
     trigger.setAttribute("aria-expanded", "true");
     trigger.setAttribute("aria-controls", panelId);
 
+    const headingLabel = document.createElement("span");
+    const headingNumber = document.createElement("span");
+
+    headingLabel.className = "article-accordion-label";
+    headingNumber.className = "article-heading-number";
+    headingNumber.setAttribute("aria-hidden", "true");
+    headingNumber.textContent = `${sectionNumber}.`;
+    headingLabel.appendChild(headingNumber);
+
     while (heading.firstChild) {
-      trigger.appendChild(heading.firstChild);
+      headingLabel.appendChild(heading.firstChild);
     }
+    trigger.appendChild(headingLabel);
 
     icon.className = "article-accordion-icon";
     icon.setAttribute("aria-hidden", "true");
@@ -68,7 +80,15 @@ document.addEventListener("DOMContentLoaded", () => {
       panel.appendChild(section.nextSibling);
     }
 
-    accordionItems.push({ section, heading, trigger, icon, panel, title });
+    accordionItems.push({
+      section,
+      heading,
+      trigger,
+      icon,
+      panel,
+      title,
+      sectionNumber,
+    });
 
     trigger.addEventListener("click", () => {
       const isOpen = trigger.getAttribute("aria-expanded") === "true";
@@ -147,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
     link.textContent = title;
     listItem.appendChild(link);
     tocList.appendChild(listItem);
-    tocEntries.push({ target, link, item });
+    tocEntries.push({ target, link, item, listItem, level });
 
     link.addEventListener("click", (event) => {
       event.preventDefault();
@@ -165,20 +185,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   accordionItems.forEach((item) => {
-    addTocEntry(item.section, item.title, 2, item);
+    addTocEntry(
+      item.section,
+      `${item.sectionNumber}. ${item.title}`,
+      2,
+      item
+    );
 
-    item.panel.querySelectorAll("h3").forEach((subheading) => {
+    item.panel.querySelectorAll("h3").forEach((subheading, subheadingIndex) => {
       const title = subheading.textContent.trim();
+      const subsectionNumber = `${item.sectionNumber}.${subheadingIndex + 1}`;
+      const headingNumber = document.createElement("span");
+
+      headingNumber.className = "article-heading-number";
+      headingNumber.setAttribute("aria-hidden", "true");
+      headingNumber.textContent = subsectionNumber;
+      subheading.prepend(headingNumber);
       subheading.id = subheading.id || makeId(title);
-      addTocEntry(subheading, title, 3, item);
+      addTocEntry(subheading, `${subsectionNumber} ${title}`, 3, item);
     });
   });
 
   function setCurrentEntry(currentLink) {
     const currentIndex = tocEntries.findIndex(({ link }) => link === currentLink);
+    const activeItem = tocEntries[currentIndex]?.item;
 
-    tocEntries.forEach(({ link }, index) => {
+    tocEntries.forEach(({ link, item, listItem, level }, index) => {
       const isCurrent = link === currentLink;
+      listItem.classList.toggle(
+        "is-in-active-section",
+        level === 3 && item === activeItem
+      );
       link.classList.toggle("is-passed", index < currentIndex);
       link.classList.toggle("is-current", isCurrent);
       if (isCurrent) {
@@ -234,4 +271,10 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     updateCurrentFromScroll();
   }
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeArticleAccordions);
+} else {
+  initializeArticleAccordions();
+}
