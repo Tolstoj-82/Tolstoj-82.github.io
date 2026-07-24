@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const setMenuOpen = (isOpen) => {
     menuContainer.classList.toggle('active', isOpen);
+    document.body.classList.toggle('menu-open', isOpen);
     menuContainer.setAttribute('aria-hidden', String(!isOpen));
     menuButton.setAttribute('aria-expanded', String(isOpen));
     menuButton.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
@@ -26,6 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
       menuButton.focus();
     }
   };
+
+  document.body.classList.toggle(
+    'menu-open',
+    menuContainer.classList.contains('active')
+  );
 
   menuButton.addEventListener('click', () => {
     setMenuOpen(!menuContainer.classList.contains('active'));
@@ -49,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('click', (event) => {
     if (
+      !menuContainer.hasAttribute('data-persistent') &&
       menuContainer.classList.contains('active') &&
       !menuContainer.contains(event.target) &&
       !menuButton.contains(event.target)

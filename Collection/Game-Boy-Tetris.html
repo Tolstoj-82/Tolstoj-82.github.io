@@ -11,23 +11,31 @@
     <link rel="stylesheet" href="../styles/modal.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="menu-open">
     <div class="content">
         <header>
-            <h1>Game Boy Tetris: The Collector's Guide</h1>
-            <button class="menu-btn" id="hamburger-icon" aria-label="Toggle Menu">☰</button>
-        <div class="menu-container">
-          <button class="close-btn" id="close-icon" aria-label="Close Menu">✖</button>
-          <!--<h3 class="accordion">Boxes <span class="arrow">+</span></h3>
-          <ul class="menu">
-              <li><a href="Live/refactored/index.html">OCR</a></li>
-          </ul>
-          <h3 class="accordion">Labels <span class="arrow">+</span></h3>
-          <ul class="menu">
-              <li><a href="Tolstoj/index.html">About Me</a></li>
-          </ul>-->
-        </div>
+            <h1 class="article-title">
+                <span>Game Boy Tetris</span>
+                <span class="article-subtitle">The Collector's Guide</span>
+            </h1>
+            <button
+                class="menu-btn"
+                id="hamburger-icon"
+                type="button"
+                aria-label="Close table of contents"
+                aria-controls="site-menu"
+                aria-expanded="true"
+            >☰</button>
         </header>
+        <aside class="menu-container article-toc active" id="site-menu" aria-hidden="false" data-persistent>
+          <div class="article-toc-header">
+            <span class="article-toc-header-title">Contents</span>
+            <button class="close-btn" id="close-icon" type="button" aria-label="Close table of contents">✖</button>
+          </div>
+          <nav aria-label="On this page">
+            <ol class="article-toc-list" id="article-toc-list"></ol>
+          </nav>
+        </aside>
         <div class="page-content">
             <main>
                 <h3>Author: Tolstoj (2025)</h3>
@@ -2357,6 +2365,7 @@ https://datassette.org/revistas/nintendo-world-->
         </div>
     </div>
     <script src="../script.js"></script>
+    <script src="accordions.js"></script>
     <script>
 /*
         window.onload = function () {
@@ -2400,5 +2409,3 @@ https://datassette.org/revistas/nintendo-world-->
       </div>
     </body>
 </html>
-
-    
