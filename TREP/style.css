@@ -175,10 +175,12 @@ td:first-child {
   background-color:#EEE;
   color:#333;
   width:100%;
-  min-height:60px;
-  max-height:140px;
+  min-height:110px;
+  max-height:230px;
   margin:0;
   padding:8px 8px 8px 30px;
+  border:1px solid #CCC;
+  border-radius:4px;
   overflow:auto;
   box-sizing:border-box
 }
@@ -262,8 +264,8 @@ button:hover {
 
 #openModalButton:hover,
 #openModalButton:active {
-  border-color:#0AC;
-  background:#0AC;
+  border-color:#006680;
+  background:#006680;
   color:#FFF
 }
 
@@ -278,8 +280,67 @@ a:focus-visible {
 .gg-section-heading {
   display:flex;
   align-items:center;
-  justify-content:space-between;
+  justify-content:flex-start;
+  gap:7px;
   margin-bottom:8px
+}
+
+.field-heading {
+  display:inline-flex;
+  align-items:center;
+  gap:7px
+}
+
+.info-tooltip {
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:17px;
+  height:17px;
+  border:1px solid #777;
+  border-radius:50%;
+  color:#555;
+  background:#FFF;
+  font-family:Georgia,serif;
+  font-size:12px;
+  font-weight:700;
+  font-style:normal;
+  line-height:1;
+  cursor:default
+}
+
+.info-tooltip [role="tooltip"] {
+  visibility:hidden;
+  position:absolute;
+  left:50%;
+  top:calc(100% + 8px);
+  z-index:1300;
+  width:max-content;
+  max-width:min(280px,calc(100vw - 32px));
+  padding:7px 9px;
+  border-radius:5px;
+  background:#333;
+  color:#FFF;
+  font-family:'Outfit',sans-serif;
+  font-size:13px;
+  font-style:normal;
+  font-weight:400;
+  line-height:1.35;
+  text-align:left;
+  white-space:normal;
+  opacity:0;
+  transform:translate(-50%,-4px);
+  transition:opacity .15s ease,transform .15s ease,visibility 0s linear .15s;
+  pointer-events:none
+}
+
+.info-tooltip:hover [role="tooltip"],
+.info-tooltip:focus [role="tooltip"] {
+  visibility:visible;
+  opacity:1;
+  transform:translate(-50%,0);
+  transition-delay:0s
 }
 
 #ggCodeModeLabel {
@@ -355,8 +416,8 @@ input.input-invalid {
 }
 
 button:active {
-  border-color:#0BC;
-  background-color:#0BC;
+  border-color:#004D66;
+  background-color:#004D66;
   color:#FFF;
   transform:none
 }
@@ -590,8 +651,8 @@ tr:nth-child(even),
 
 button:not(.secondary):not(.accordion):not(.bg-map-entry):not(.modal-close-button):not(.toast-close):not(.upload-tile-set-button):not(:disabled):hover,
 .custom-file-input:hover {
-  border-color:#067D9F;
-  background-color:#067D9F;
+  border-color:#006680;
+  background-color:#006680;
   color:#FFF
 }
 
@@ -950,12 +1011,15 @@ button:disabled {
 
 #modalBody {
   height:100vh;
+  display:flex;
+  flex-direction:column;
   box-sizing:border-box;
   overflow:hidden
 }
 
 .content-container {
-  height:calc(100% - 40px);
+  height:auto;
+  min-height:0;
   flex:1;
   box-sizing:border-box;
   overflow:hidden
@@ -1001,6 +1065,11 @@ button:disabled {
   border-top:0
 }
 
+.bg-map-item {
+  padding:16px 8px;
+  border-top:2px dotted currentColor
+}
+
 button.bg-map-entry,
 button.bg-map-entry:hover,
 button.bg-map-entry:active {
@@ -1010,8 +1079,8 @@ button.bg-map-entry:active {
   justify-items:start;
   gap:8px;
   width:100%;
-  min-height:112px;
-  padding:12px 8px;
+  min-height:0;
+  padding:8px 0;
   border:0;
   border-radius:0;
   background:transparent;
@@ -1028,12 +1097,6 @@ button.bg-map-entry:active {
   color:#333
 }
 
-button.bg-map-entry:not(:last-child),
-button.bg-map-entry:not(:last-child):hover,
-button.bg-map-entry:not(:last-child):active {
-  border-bottom:2px dotted currentColor
-}
-
 .bg-map-preview {
   display:block;
   width:auto;
@@ -1043,12 +1106,26 @@ button.bg-map-entry:not(:last-child):active {
   border:1px solid #AAA;
   background-color:#FFF;
   image-rendering:pixelated;
-  image-rendering:crisp-edges
+  image-rendering:crisp-edges;
+  transform-origin:left center;
+  transition:transform .18s ease
+}
+
+button.bg-map-entry:hover .bg-map-preview {
+  transform:scale(1.04)
 }
 
 .bg-map-name {
   font-size:15px;
   font-weight:700
+}
+
+.bg-map-actions {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px
 }
 
 @media (max-width:620px) {
@@ -1122,6 +1199,10 @@ button.bg-map-entry:not(:last-child):active {
   box-sizing:border-box
 }
 
+#tileContainer .tile:not(.selected):hover {
+  border-color:#09C
+}
+
 .tile.selected {
   border-color:orange
 }
@@ -1142,11 +1223,32 @@ button.bg-map-entry:not(:last-child):active {
 
 .color-scheme-container {
   display:flex;
-  align-items:center
+  align-items:center;
+  flex-wrap:wrap;
+  gap:6px
 }
 
 .color-scheme-container > * {
-  margin-right:6px
+  margin-right:0
+}
+
+#palette-dropdown optgroup {
+  font-weight:700
+}
+
+#palette-dropdown option {
+  font-weight:400
+}
+
+.shared-palette {
+  flex:none;
+  padding:10px 20px;
+  border-bottom:2px dotted #AAA;
+  background:#F2F2F2
+}
+
+.shared-palette[hidden] {
+  display:none
 }
 
 .color-picker {
@@ -1447,9 +1549,69 @@ li.BG-stack {
   gap:8px
 }
 
-.tab-content .tile-set-import-action {
-  margin:10px 0 24px;
-  text-align:left
+.tile-set-heading {
+  margin:18px 0 10px
+}
+
+.tile-set-settings {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top:7px;
+  font-weight:400
+}
+
+.tile-set-settings input,
+.tile-set-settings select {
+  box-sizing:border-box;
+  padding:5px 7px;
+  font-family:Consolas,'Courier New',monospace;
+  font-size:13px
+}
+
+.tile-set-address {
+  width:calc(4ch + 16px);
+  text-transform:uppercase
+}
+
+.tile-set-address-control {
+  display:inline-flex;
+  align-items:center;
+  gap:0
+}
+
+.tile-set-count {
+  width:calc(3ch + 28px)
+}
+
+.tile-set-bpp {
+  width:auto;
+  max-width:100%
+}
+
+button.tile-set-revert,
+button.tile-set-revert:hover,
+button.tile-set-revert:active {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  min-width:30px;
+  padding:0;
+  border-radius:50%;
+  font-size:18px;
+  font-style:normal;
+  line-height:1
+}
+
+.tile-set-transfer-actions {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:10px 0 24px
 }
 
 .upload-tile-set-button {
@@ -1517,13 +1679,29 @@ li.BG-stack {
 
 .tile-import-grid {
   display:grid;
+  position:relative;
   gap:4px;
   width:max-content;
   padding:8px;
   overflow:visible;
   border:1px solid #CCC;
   border-radius:4px;
-  background:#EEE
+  background:#EEE;
+  user-select:none;
+  touch-action:none
+}
+
+.import-marquee-box {
+  position:absolute;
+  z-index:2;
+  box-sizing:border-box;
+  border:1px solid #0078D7;
+  background:rgba(0,120,215,.2);
+  pointer-events:none
+}
+
+.import-marquee-box[hidden] {
+  display:none
 }
 
 .imported-tile {
@@ -1538,6 +1716,11 @@ li.BG-stack {
 
 .imported-tile:active {
   cursor:grabbing
+}
+
+.imported-tile.selected {
+  outline:2px solid orange;
+  outline-offset:-2px
 }
 
 .imported-tile .pixel {

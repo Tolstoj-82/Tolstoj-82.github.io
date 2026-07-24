@@ -343,6 +343,15 @@ const vRamTileSets = {
 // this was taken from here: https://bulbapedia.bulbagarden.net/wiki/Color_palette_(Generations_I%E2%80%93II)
 // at the moment, it only shows the background colors
 const paletteLookup = {
+  "CTWC UK 2024 (Lucy)":  ["DFEDA2", "BDCF59", "668235", "18482B"],
+  "Realistic GB (Tolstoj)":["696C04", "415625", "203828", "0E0F02"],
+  "Bright Super GB (Alecat)": ["FFFFFF", "F8C65F", "CE3B05", "0D0100"],
+  "Candy Carnival (Alecat)":  ["FFED8A", "FFFCFF", "E84499", "5F1368"],
+  "Desert (Alecat)":          ["FFC5A0", "FD6057", "C32269", "4B1D6B"],
+  "Pan Pride (Alecat)":       ["FF6871", "F8E168", "407BE1", "482075"],
+  "Ace Pride (Alecat)":       ["FFFFFF", "B35DBD", "AAB4D4", "000033"],
+  "Trans Pride (Alecat)":     ["FFFFFF", "FF9AF4", "8ECEFF", "2A2455"],
+  "Bright GB (Alecat)":       ["99B640", "5A833B", "294F39", "122D24"],
   "BGB Emulator":        ["E0F8D0", "88C070", "346856", "081820"],
   "MGB-001":             ["F8F8F8", "A8A8A8", "585858", "080808"],
   "DMG-01":              ["B8F878", "80B050", "486828", "102000"],

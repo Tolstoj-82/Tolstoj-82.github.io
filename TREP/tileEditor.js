@@ -11,19 +11,60 @@ let selectedTile;
 let tileToUpdate;
 let tileImportState = null;
 let lastTileImportUndo = null;
+let pendingTileSetRevert = null;
+let selectedImportTileIndexes = new Set();
+let importMarqueeAnchor = null;
+let importMarqueeActive = false;
+let draggedImportTileIndexes = [];
+let importMarqueePointerId = null;
+let importMarqueeOrigin = null;
+let importSelectionAnchorIndex = null;
 
 //------------------------------------------------------------------------------------------
 // Draws all tiles from the ROM file
 function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
+  startAddress = String(startAddress).toUpperCase().padStart(4, "0");
+  nTiles = Number(nTiles);
+  bitsPerPixel = Number(bitsPerPixel);
   const pixelData = [];
   const addresses = [];
   let currentAddress = startAddress;
 
-  const tileContainer = document.getElementById("tileContainer");
+  const tileRoot = document.getElementById("tileContainer");
+  let tileContainer = Array.from(tileRoot.children)
+    .find(child => child.dataset.tilesetSection === tilesetTitle);
+  if (!tileContainer) {
+    tileContainer = document.createElement("section");
+    tileContainer.className = "tile-set-section";
+    tileContainer.dataset.tilesetSection = tilesetTitle;
+    tileContainer.dataset.originalAddress = startAddress;
+    tileContainer.dataset.originalTileCount = nTiles;
+    tileContainer.dataset.originalBpp = bitsPerPixel;
+    tileRoot.appendChild(tileContainer);
+  }
+  tileContainer.dataset.currentAddress = startAddress;
+  tileContainer.dataset.currentTileCount = nTiles;
+  tileContainer.dataset.currentBpp = bitsPerPixel;
+  tileContainer.replaceChildren();
 
-  // Add a title
+  // Add a title and editable tile-set settings on a separate, non-bold line.
   tileContainer.insertAdjacentHTML("beforeend", `
-    <p><b>${tilesetTitle} (ROM Entry Address = ${startAddress}, ${nTiles} Tiles, ${bitsPerPixel}BPP)</b></p>`);
+    <div class="tile-set-heading">
+      <b>Tile Set: "${tilesetTitle}"</b>
+      <div class="tile-set-settings">
+        <span>Entry</span>
+        <span class="tile-set-address-control"><span>$</span><input class="tile-set-address" type="text" value="${startAddress}" maxlength="4" inputmode="text" aria-label="${tilesetTitle} ROM entry address"></span>
+        <span>,</span>
+        <span># Tiles</span>
+        <input class="tile-set-count" type="number" value="${nTiles}" min="1" max="250" aria-label="${tilesetTitle} tile count">
+        <span>,</span>
+        <select class="tile-set-bpp" aria-label="${tilesetTitle} bits per pixel">
+          <option value="1"${bitsPerPixel === 1 ? " selected" : ""}>1BPP</option>
+          <option value="2"${bitsPerPixel === 2 ? " selected" : ""}>2BPP</option>
+        </select>
+        <button class="tile-set-revert" type="button" title="Revert tile group settings" aria-label="Revert ${tilesetTitle} settings">↺</button>
+      </div>
+    </div>`);
 
   // Check if tilesetTitle exists in the first entry of any object in spriteObjects
   const matchingTitles = Object.keys(spriteObjects).filter(title => spriteObjects[title][0] === tilesetTitle);
@@ -50,12 +91,13 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
     const currentTd = document.getElementById(currentAddress);
     const thisValue = currentTd.textContent;
 
-    const nextAddress = (parseInt(currentAddress, 16) + 1).toString(16).toUpperCase();
-    const nextTd = document.getElementById(nextAddress);
-    const nextValue = nextTd.textContent;
-
     const thisBinary = parseInt(thisValue, 16).toString(2).padStart(8, '0');
-    const nextBinary = parseInt(nextValue, 16).toString(2).padStart(8, '0');
+    let nextBinary = "00000000";
+    if (bitsPerPixel === 2) {
+      const nextAddress = (parseInt(currentAddress, 16) + 1).toString(16).toUpperCase().padStart(4, "0");
+      const nextTd = document.getElementById(nextAddress);
+      nextBinary = parseInt(nextTd.textContent, 16).toString(2).padStart(8, '0');
+    }
 
     let pixelValues = "";
 
@@ -84,32 +126,43 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
     }
   
     const skip = (bitsPerPixel === 2) ? 2 : 1;
-    const nextTileAddress = (parseInt(currentAddress, 16) + skip).toString(16).toUpperCase();
+    const nextTileAddress = (parseInt(currentAddress, 16) + skip).toString(16).toUpperCase().padStart(4, "0");
     currentAddress = nextTileAddress;
   }
 
-  // Add the PNG import button above the tiles.
+  // Prepare the PNG transfer buttons for placement below the tiles.
   let nCols = getTileSetProperty(tilesetTitle, "width");
   let thisSetName = getTileSetProperty(tilesetTitle, "name");
-  const importPngHTML = `<p class="tile-set-import-action"><button class="upload-tile-set-button" data-addresses="${addresses}" data-tile-count="${nTiles}" data-set-name="${thisSetName}" data-set-title="${tilesetTitle}" data-bpp="${bitsPerPixel}" data-column-count="${nCols}">▲ Upload tiles from a .png</button></p>`;
-  tileContainer.insertAdjacentHTML("beforeend", importPngHTML);
+  const transferPngHTML = `<div class="tile-set-transfer-actions"><button class="upload-tile-set-button" data-addresses="${addresses}" data-tile-count="${nTiles}" data-set-name="${thisSetName}" data-set-title="${tilesetTitle}" data-bpp="${bitsPerPixel}" data-column-count="${nCols}">⇧ Upload a .png</button><button class="secondary save-tile-set-button" data-addresses="${addresses}" data-tile-count="${nTiles}" data-set-name="${thisSetName}" data-column-count="${nCols}">⇩ Download as "${thisSetName}.png"</button></div>`;
 
-  displayTiles(pixelData, addresses, bitsPerPixel, tilesetTitle);
+  displayTiles(pixelData, addresses, bitsPerPixel, tilesetTitle, tileContainer);
+  tileContainer.insertAdjacentHTML("beforeend", transferPngHTML);
 
-  // Add a button to save the tile set as a PNG
-  let savePngHTML = `<p class="tile-set-actions"><button class="secondary save-tile-set-button" data-addresses="${addresses}" data-tile-count="${nTiles}" data-set-name="${thisSetName}" data-column-count="${nCols}">▼ Download tile group as "${thisSetName}.png"</button></p>`;
-  savePngHTML += "<br><hr>";
-  tileContainer.insertAdjacentHTML("beforeend", savePngHTML);
+  tileContainer.insertAdjacentHTML("beforeend", "<br><hr>");
   
 }
 
 document.addEventListener("input", event => {
   if (event.target.matches(".sprite-selector")) {
     loadObjectSprite(event.target.value, true);
+  } else if (event.target.matches(".tile-set-address")) {
+    event.target.value = event.target.value.replace(/[^0-9A-F]/gi, "").toUpperCase().slice(0, 4);
+  }
+});
+
+document.addEventListener("change", event => {
+  if (event.target.matches(".tile-set-address, .tile-set-count, .tile-set-bpp")) {
+    applyTileSetSettingChanges(event.target.closest(".tile-set-section"));
   }
 });
 
 document.addEventListener("click", event => {
+  const revertButton = event.target.closest(".tile-set-revert");
+  if (revertButton) {
+    requestTileSetSettingsRevert(revertButton.closest(".tile-set-section"));
+    return;
+  }
+
   const loadButton = event.target.closest(".load-sprite-button");
   if (loadButton) {
     loadObjectSprite(document.getElementById(loadButton.dataset.selectorId).value, false);
@@ -132,6 +185,82 @@ document.addEventListener("click", event => {
     chooseTileSetPng(uploadButton);
   }
 });
+
+//------------------------------------------------------------------------------------------
+// Editable tile-set decoding settings
+
+function applyTileSetSettingChanges(section) {
+  if (!section) return;
+  const addressInput = section.querySelector(".tile-set-address");
+  const countInput = section.querySelector(".tile-set-count");
+  const bppInput = section.querySelector(".tile-set-bpp");
+  const address = addressInput.value.toUpperCase().padStart(4, "0");
+  const tileCount = Number(countInput.value);
+  const bitsPerPixel = Number(bppInput.value);
+  const start = parseInt(address, 16);
+  const lastByte = start + tileCount * 8 * bitsPerPixel - 1;
+
+  if (!/^[0-7][0-9A-F]{3}$/.test(address)
+      || !Number.isInteger(tileCount)
+      || tileCount < 1
+      || tileCount > 250
+      || ![1, 2].includes(bitsPerPixel)
+      || lastByte > 0x7FFF) {
+    addressInput.value = section.dataset.currentAddress;
+    countInput.value = section.dataset.currentTileCount;
+    bppInput.value = section.dataset.currentBpp;
+    displayToast("invalidTileSetSettings");
+    return;
+  }
+
+  if (tileImportState?.setTitle === section.dataset.tilesetSection) {
+    const importDialog = document.getElementById("tileImportDialog");
+    if (importDialog.open) importDialog.close();
+    tileImportState = null;
+  }
+
+  getTileData(address, tileCount, bitsPerPixel, section.dataset.tilesetSection);
+}
+
+function tileSetSettingsChanged(section) {
+  return section.dataset.currentAddress !== section.dataset.originalAddress
+    || section.dataset.currentTileCount !== section.dataset.originalTileCount
+    || section.dataset.currentBpp !== section.dataset.originalBpp;
+}
+
+function requestTileSetSettingsRevert(section) {
+  if (!section || !tileSetSettingsChanged(section)) return;
+  pendingTileSetRevert = section;
+  document.getElementById("revertTileSetName").textContent = section.dataset.tilesetSection;
+  const dialog = document.getElementById("revertTileSetDialog");
+  if (!dialog.open) dialog.showModal();
+}
+
+function initializeTileSetSettingsDialog() {
+  const dialog = document.getElementById("revertTileSetDialog");
+  document.getElementById("confirmTileSetRevert").addEventListener("click", () => {
+    if (pendingTileSetRevert) {
+      const section = pendingTileSetRevert;
+      getTileData(
+        section.dataset.originalAddress,
+        Number(section.dataset.originalTileCount),
+        Number(section.dataset.originalBpp),
+        section.dataset.tilesetSection
+      );
+    }
+    pendingTileSetRevert = null;
+    dialog.close();
+  });
+  document.getElementById("cancelTileSetRevert").addEventListener("click", () => {
+    pendingTileSetRevert = null;
+    dialog.close();
+  });
+  dialog.addEventListener("cancel", () => {
+    pendingTileSetRevert = null;
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initializeTileSetSettingsDialog);
 
 //------------------------------------------------------------------------------------------
 // Save a tile set as a PNG, this is used to import into the disassembly
@@ -266,6 +395,11 @@ function loadTileSetPng(file, setData) {
       displayToast("invalidTilePng");
       return;
     }
+    const importedTileCount = (image.naturalWidth / 8) * (image.naturalHeight / 8);
+    if (importedTileCount > 250) {
+      displayToast("tilePngTooLarge");
+      return;
+    }
 
     const canvas = document.createElement("canvas");
     canvas.width = image.naturalWidth;
@@ -366,6 +500,11 @@ function renderTileImportDialog(fileName) {
     + `${tileImportState.tiles.length} tiles`;
   grid.innerHTML = "";
   grid.style.gridTemplateColumns = `repeat(${tileImportState.columns}, 36px)`;
+  selectedImportTileIndexes = new Set();
+  importMarqueeAnchor = null;
+  importMarqueeActive = false;
+  importMarqueeOrigin = null;
+  importSelectionAnchorIndex = null;
 
   tileImportState.tiles.forEach((pixels, index) => {
     const tile = document.createElement("div");
@@ -383,8 +522,19 @@ function renderTileImportDialog(fileName) {
     }
 
     tile.addEventListener("dragstart", event => {
+      hideImportMarqueeBox();
+      if (!selectedImportTileIndexes.has(index)) {
+        selectImportedTiles([index]);
+      }
+      const selectedIndexes = Array.from(selectedImportTileIndexes).sort((a, b) => a - b);
+      draggedImportTileIndexes = selectedIndexes;
       event.dataTransfer.effectAllowed = "copy";
       event.dataTransfer.setData("text/plain", String(index));
+      event.dataTransfer.setData("application/x-trep-tile-indexes", JSON.stringify(selectedIndexes));
+    });
+    tile.addEventListener("dragend", () => {
+      draggedImportTileIndexes = [];
+      clearTileImportTargets();
     });
     grid.appendChild(tile);
   });
@@ -400,18 +550,96 @@ function renderTileImportDialog(fileName) {
 function initializeTileImportDialog() {
   const dialog = document.getElementById("tileImportDialog");
   const handle = document.getElementById("tileImportDragHandle");
+  const grid = document.getElementById("tileImportGrid");
 
   document.getElementById("closeTileImportDialog").addEventListener("click", () => dialog.close());
   document.getElementById("replaceEntireTileSet").addEventListener("click", replaceEntireTileSetFromImport);
   document.querySelector("#tileImportUndo .toast-undo").addEventListener("click", undoLastTileImport);
+
+  grid.addEventListener("pointerdown", event => {
+    if (event.button !== 0) return;
+    const tile = event.target.closest(".imported-tile");
+    if (!tile) return;
+    const index = Number(tile.dataset.importTileIndex);
+
+    if (event.ctrlKey || event.metaKey) {
+      event.preventDefault();
+      const indexes = new Set(selectedImportTileIndexes);
+      if (indexes.has(index)) indexes.delete(index);
+      else indexes.add(index);
+      selectImportedTiles(indexes);
+      importSelectionAnchorIndex = index;
+      return;
+    }
+
+    if (event.shiftKey) {
+      event.preventDefault();
+      const anchor = importSelectionAnchorIndex ?? index;
+      const indexes = new Set(selectedImportTileIndexes);
+      for (let current = Math.min(anchor, index); current <= Math.max(anchor, index); current++) {
+        indexes.add(current);
+      }
+      selectImportedTiles(indexes);
+      return;
+    }
+
+    // A second gesture on an existing multi-selection starts dragging it.
+    if (selectedImportTileIndexes.has(index)) {
+      importMarqueeActive = false;
+      return;
+    }
+
+    event.preventDefault();
+    importMarqueeAnchor = index;
+    importSelectionAnchorIndex = index;
+    importMarqueeActive = true;
+    importMarqueePointerId = event.pointerId;
+    importMarqueeOrigin = { x: event.clientX, y: event.clientY };
+    grid.setPointerCapture(event.pointerId);
+    selectImportedTileRectangle(index, index);
+    updateImportMarqueeBox(event.clientX, event.clientY, event.clientX, event.clientY);
+  });
+
+  grid.addEventListener("pointermove", event => {
+    if (!importMarqueeActive) return;
+    event.preventDefault();
+    selectImportedTilesInMarquee(
+      importMarqueeOrigin.x,
+      importMarqueeOrigin.y,
+      event.clientX,
+      event.clientY
+    );
+    updateImportMarqueeBox(
+      importMarqueeOrigin.x,
+      importMarqueeOrigin.y,
+      event.clientX,
+      event.clientY
+    );
+  });
+
+  document.addEventListener("pointerup", event => {
+    if (importMarqueePointerId !== null && grid.hasPointerCapture(importMarqueePointerId)) {
+      grid.releasePointerCapture(importMarqueePointerId);
+    }
+    importMarqueeActive = false;
+    importMarqueePointerId = null;
+    importMarqueeOrigin = null;
+    hideImportMarqueeBox();
+  });
+  window.addEventListener("blur", () => {
+    importMarqueeActive = false;
+    importMarqueePointerId = null;
+    importMarqueeOrigin = null;
+    hideImportMarqueeBox();
+  });
 
   document.getElementById("tileContainer").addEventListener("dragover", event => {
     const target = event.target.closest(".tile[data-tileset-title]");
     if (!isValidTileImportTarget(target)) return;
     event.preventDefault();
     event.dataTransfer.dropEffect = "copy";
-    clearTileImportTargets();
-    target.dataset.importTarget = "true";
+    const importIndexes = getDraggedImportTileIndexes(event.dataTransfer);
+    previewImportedTileTargets(target, importIndexes.length);
   });
 
   document.getElementById("tileContainer").addEventListener("dragleave", event => {
@@ -426,9 +654,19 @@ function initializeTileImportDialog() {
     clearTileImportTargets();
     if (!isValidTileImportTarget(target)) return;
     event.preventDefault();
-    const tileIndex = Number(event.dataTransfer.getData("text/plain"));
-    if (!Number.isInteger(tileIndex) || !tileImportState.tiles[tileIndex]) return;
-    replaceImportedTiles([{ target, pixels: tileImportState.tiles[tileIndex] }], false);
+    const importIndexes = getDraggedImportTileIndexes(event.dataTransfer);
+    const targetAddress = target.id.replace("tileaddr-", "");
+    const targetIndex = tileImportState.addresses.indexOf(targetAddress);
+    if (targetIndex < 0 || importIndexes.length === 0) return;
+
+    const availableCount = tileImportState.addresses.length - targetIndex;
+    const appliedIndexes = importIndexes.slice(0, availableCount);
+    const replacements = appliedIndexes.map((importIndex, offset) => ({
+      target: document.getElementById(`tileaddr-${tileImportState.addresses[targetIndex + offset]}`),
+      pixels: tileImportState.tiles[importIndex]
+    })).filter(replacement => replacement.target && replacement.pixels);
+
+    replaceImportedTiles(replacements, false, appliedIndexes.length < importIndexes.length);
   });
 
   let dragOffsetX = 0;
@@ -457,6 +695,111 @@ function initializeTileImportDialog() {
   });
 }
 
+function selectImportedTiles(indexes) {
+  selectedImportTileIndexes = new Set(indexes);
+  document.querySelectorAll("#tileImportGrid .imported-tile").forEach(tile => {
+    tile.classList.toggle("selected", selectedImportTileIndexes.has(Number(tile.dataset.importTileIndex)));
+  });
+}
+
+function updateImportMarqueeBox(startX, startY, endX, endY) {
+  const grid = document.getElementById("tileImportGrid");
+  let marquee = grid.querySelector(".import-marquee-box");
+  if (!marquee) {
+    marquee = document.createElement("div");
+    marquee.className = "import-marquee-box";
+    grid.appendChild(marquee);
+  }
+
+  const gridBounds = grid.getBoundingClientRect();
+  const left = Math.max(0, Math.min(startX, endX) - gridBounds.left);
+  const top = Math.max(0, Math.min(startY, endY) - gridBounds.top);
+  const right = Math.min(gridBounds.width, Math.max(startX, endX) - gridBounds.left);
+  const bottom = Math.min(gridBounds.height, Math.max(startY, endY) - gridBounds.top);
+
+  marquee.style.left = `${left}px`;
+  marquee.style.top = `${top}px`;
+  marquee.style.width = `${Math.max(1, right - left)}px`;
+  marquee.style.height = `${Math.max(1, bottom - top)}px`;
+  marquee.hidden = false;
+}
+
+function hideImportMarqueeBox() {
+  const marquee = document.querySelector("#tileImportGrid .import-marquee-box");
+  if (marquee) marquee.hidden = true;
+}
+
+function selectImportedTilesInMarquee(startX, startY, endX, endY) {
+  const left = Math.min(startX, endX);
+  const top = Math.min(startY, endY);
+  const right = Math.max(startX, endX);
+  const bottom = Math.max(startY, endY);
+  const indexes = [];
+
+  document.querySelectorAll("#tileImportGrid .imported-tile").forEach(tile => {
+    const bounds = tile.getBoundingClientRect();
+    const intersects = bounds.right >= left
+      && bounds.left <= right
+      && bounds.bottom >= top
+      && bounds.top <= bottom;
+    if (intersects) indexes.push(Number(tile.dataset.importTileIndex));
+  });
+  selectImportedTiles(indexes);
+}
+
+function selectImportedTileRectangle(startIndex, endIndex) {
+  if (!tileImportState) return;
+  const columns = tileImportState.columns;
+  const startRow = Math.floor(startIndex / columns);
+  const startColumn = startIndex % columns;
+  const endRow = Math.floor(endIndex / columns);
+  const endColumn = endIndex % columns;
+  const firstRow = Math.min(startRow, endRow);
+  const lastRow = Math.max(startRow, endRow);
+  const firstColumn = Math.min(startColumn, endColumn);
+  const lastColumn = Math.max(startColumn, endColumn);
+  const indexes = [];
+
+  for (let row = firstRow; row <= lastRow; row++) {
+    for (let column = firstColumn; column <= lastColumn; column++) {
+      const index = row * columns + column;
+      if (index < tileImportState.tiles.length) indexes.push(index);
+    }
+  }
+  selectImportedTiles(indexes);
+}
+
+function getDraggedImportTileIndexes(dataTransfer) {
+  if (draggedImportTileIndexes.length > 0) {
+    return draggedImportTileIndexes;
+  }
+  try {
+    const indexes = JSON.parse(dataTransfer.getData("application/x-trep-tile-indexes"));
+    if (Array.isArray(indexes)) {
+      return indexes.filter(index => Number.isInteger(index) && tileImportState?.tiles[index]);
+    }
+  } catch {
+    // Fall back to the single-tile payload.
+  }
+  const index = Number(dataTransfer.getData("text/plain"));
+  return Number.isInteger(index) && tileImportState?.tiles[index] ? [index] : [];
+}
+
+function previewImportedTileTargets(target, sourceCount) {
+  clearTileImportTargets();
+  if (!tileImportState || sourceCount < 1) return;
+  const targetAddress = target.id.replace("tileaddr-", "");
+  const targetIndex = tileImportState.addresses.indexOf(targetAddress);
+  if (targetIndex < 0) return;
+
+  tileImportState.addresses
+    .slice(targetIndex, targetIndex + sourceCount)
+    .forEach(address => {
+      const tile = document.getElementById(`tileaddr-${address}`);
+      if (tile) tile.dataset.importTarget = "true";
+    });
+}
+
 function isValidTileImportTarget(target) {
   return Boolean(
     target
@@ -482,18 +825,22 @@ function replaceEntireTileSetFromImport() {
   replaceImportedTiles(replacements, true);
 }
 
-function replaceImportedTiles(replacements, isEntireSet) {
+function replaceImportedTiles(replacements, isEntireSet, wasTruncated = false) {
+  if (replacements.length === 0) return;
   const undoActions = replacements.map(({ target, pixels }) => replaceOneImportedTile(target, pixels));
   lastTileImportUndo = { actions: undoActions, setTitle: tileImportState.setTitle };
   updateChecksums(false);
   scheduleBGMapPreviewRefresh();
 
   const toast = document.getElementById("tileImportUndo");
-  toast.querySelector("span").textContent = isEntireSet
-    ? `${undoActions.length} tiles were replaced.`
-    : "A tile was replaced.";
+  const replacementMessage = undoActions.length === 1
+    ? "A tile was replaced."
+    : `${undoActions.length} tiles were replaced.`;
+  toast.querySelector("span").textContent = wasTruncated
+    ? `${replacementMessage} Tiles outside this tile set were ignored.`
+    : replacementMessage;
   displayToast("tileImportUndo");
-  addToLog(isEntireSet
+  addToLog(undoActions.length > 1 || isEntireSet
     ? `${undoActions.length} tiles in "${tileImportState.setTitle}" were replaced from PNG`
     : `Tile starting at address $${undoActions[0].address} was replaced from PNG`);
 }
@@ -595,8 +942,8 @@ document.addEventListener("DOMContentLoaded", initializeTileImportDialog);
 
 //------------------------------------------------------------------------------------------
 // gets pixel data from the ROM and displays them as tiles
-function displayTiles(pixelValues, tileAddress, bitsPerPixel, tilesetTitle) {
-  const container = document.getElementById("tileContainer");
+function displayTiles(pixelValues, tileAddress, bitsPerPixel, tilesetTitle, targetContainer) {
+  const container = targetContainer || document.getElementById("tileContainer");
 
   const tileCount = Math.ceil(pixelValues.length / 8);
   selectedTile = null;
@@ -634,6 +981,8 @@ function displayTiles(pixelValues, tileAddress, bitsPerPixel, tilesetTitle) {
         pixel.setAttribute("data-pixelNumber", pixelCount);
         
         pixel.classList.add(`col${digit}`);
+        const colorPicker = document.getElementById(`color-picker-${digit}`);
+        pixel.style.backgroundColor = colorPicker ? colorPicker.value : exportColors[Number(digit)];
 
         rowContainer.appendChild(pixel);
         pixelCount++;
@@ -646,9 +995,10 @@ function displayTiles(pixelValues, tileAddress, bitsPerPixel, tilesetTitle) {
   }
 
   // ...add only if the element has none yet (I had massive redundancy before that)
-  if (!container.hasListener) {
-    container.addEventListener("click", handleClick);
-    container.hasListener = true;
+  const tileRoot = document.getElementById("tileContainer");
+  if (!tileRoot.hasListener) {
+    tileRoot.addEventListener("click", handleClick);
+    tileRoot.hasListener = true;
   }
 }
 
@@ -708,11 +1058,8 @@ function openTileDialog(tileIDs, flags, setName) {
 
   // Find the matching tiles based on the provided IDs
   const tilesToOpen = [];
-  const allTiles = document.querySelectorAll(".tile");
-
   tileIDs.forEach((idPart) => {
-    const matchingTile = Array.from(allTiles).find((tile) => tile.id.includes("tileaddr-" + idPart));
-    if (matchingTile) tilesToOpen.push(matchingTile);
+    tilesToOpen.push(idPart ? document.getElementById("tileaddr-" + idPart) : null);
   });
 
   // Show the modal with the selected tiles
@@ -795,16 +1142,13 @@ function openTileDialog(tileIDs, flags, setName) {
     // Append the cloned tile to the current row
     currentRow.appendChild(clonedTile);
 
-    // Fetch colors from color pickers
-    const colors = [];
-    for (let i = 0; i < 4; i++) {
-      const chosenColor = document.getElementById("color-picker-" + i).value;
-      colors.push(chosenColor);
-    }
-
-    // Pass the colors array and the clonedTile to the generateColorSelector function
-    generateColorSelector(colors, clonedTile); // Pass the cloned tile in an array
   });
+
+  // The drawing palette is shared by the complete group and only needs building once.
+  const colors = Array.from({ length: 4 }, (_, index) =>
+    document.getElementById("color-picker-" + index).value
+  );
+  generateColorSelector(colors);
 
   // add the data attribute nclones to the tile
   let dataBppValue;

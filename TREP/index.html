@@ -12,15 +12,15 @@
   <body>
     <div class="container">
       <header class="site-header-bar">
-        <span>TREP v. 1.0 <span class="site-header-meta">2023–2026 Tolstoj</span></span>
+        <span>TREP v 1.0 <span class="site-header-meta">2023–2026 Tolstoj</span></span>
       </header>
       <div id="wrapper2" style="text-align: center;">
-        <h1>TREP v. 1.0</h1>
+        <h1>TREP v 1.0</h1>
         <h2>Henlo friens!</h2>
         <label class="custom-file-input">
           <input type="file" id="romFileInput">
         </label>
-        <div class="build-info">Build: 23 July 2026</div>
+        <div class="build-info">Build: 24 July 2026</div>
       </div>
 
       <div id="loadingAnimation" style="display: none; text-align: center;">
@@ -32,11 +32,14 @@
 
         <div class="gg-section-heading">
           <label id="ggCodeModeLabel" for="ggCode"><b>Game Genie Code</b></label>
+          <span class="info-tooltip" tabindex="0" aria-label="Game Genie code format information">i
+            <span role="tooltip">Example: 145-F2E-C4E</span>
+          </span>
         </div>
         
         <div class="gg-inline-fields">
           <div class="gg-input-row">
-            <input type="text" id="ggCode" placeholder="e.g. 145-F2E-C4E">
+            <input type="text" id="ggCode">
             <div class="gg-value-fields">
               <label>Address: <input type="text" id="romAddr" class="four" maxlength="4" readonly></label>
               <label>Value:
@@ -50,10 +53,15 @@
         <hr>
         <p>  
           <!-- Input field for the search sequence -->
-          <b>Find a Sequence in the Code (Hex, comma-separated) </b><br>
+          <span class="field-heading">
+            <b>Find a Sequence in the Code</b>
+            <span class="info-tooltip" tabindex="0" aria-label="Hex sequence format information">i
+              <span role="tooltip">Enter hexadecimal bytes, for example 00 FF A3 or 00FFA3.</span>
+            </span>
+          </span><br>
           <div id="hex-search-wrapper">
             <div id="search-container">
-              <input type="text" id="searchAddressInput" placeholder="e.g. 00 FF A3 or 00FFA3" />
+              <input type="text" id="searchAddressInput" />
               <button id="searchSequenceButton">Search Code</button>
             </div>
           
@@ -69,7 +77,12 @@
         </p>
         <hr>
         <p>
-          <b class="jump-address-title">Jump to Address (Hex values)</b><br>
+          <span class="jump-address-title">
+            <b>Jump to Address (Hex values)</b>
+            <span class="info-tooltip" tabindex="0" aria-label="ROM address format information">i
+              <span role="tooltip">Enter a hexadecimal ROM address from 0000 to 7FFF.</span>
+            </span>
+          </span><br>
           <input type="text" id="searchInput">
           <button id="navigateAddressButton">Navigate to ROM Address</button>
         </p>
@@ -160,7 +173,18 @@
                   <div class="tab" data-tab="tab2">BG Maps</div>
                   <div class="tab" data-tab="tab3">Edit Tiles</div>
                 </div>
-              </div>    
+              </div>
+
+              <div id="sharedPalette" class="shared-palette" hidden>
+                <div class="color-scheme-container">
+                  <b>Color Palette</b>
+                  <select id="palette-dropdown"></select>
+                  <input type="color" id="color-picker-0" class="color-picker" value="#E0F8D0">
+                  <input type="color" id="color-picker-1" class="color-picker" value="#88C070">
+                  <input type="color" id="color-picker-2" class="color-picker" value="#346856">
+                  <input type="color" id="color-picker-3" class="color-picker" value="#081820">
+                </div>
+              </div>
 
               <div class="content-container">
                 <div id="tab1" class="tab-content" style="display: block;">
@@ -502,18 +526,6 @@
             
                 <div id="tab3" class="tab-content" style="display: none;">
                   <h2>Tile Editor</h2>
-                  <div class="color-scheme-picker">
-                    <p class="color-scheme-container">
-                      <b>Color Palette</b>
-                      <select id="palette-dropdown"></select>
-                      <input type="color" id="color-picker-0" class="color-picker" value="#E0F8D0" style="margin-right: 10px;">
-                      <input type="color" id="color-picker-1" class="color-picker" value="#88C070" style="margin-right: 10px;">
-                      <input type="color" id="color-picker-2" class="color-picker" value="#346856" style="margin-right: 10px;">
-                      <input type="color" id="color-picker-3" class="color-picker" value="#081820">
-                    </p>
-                    <br>
-                  </div>
-                  <hr>
                   <p>
                     <div id="tileContainer"></div>
                   </p>
@@ -581,7 +593,6 @@
                 <label for="addressesToggle"></label>
                 <span class="toggle-text">Images / VRAM Addresses</span>
               </div>
-              <button id="saveBGMapAsBIN" class="secondary">Download background map as .bin</button>
             </div>
           </p>
         </div>
@@ -593,6 +604,24 @@
         <div class="button-group">
           <button id="enableHeaderAddresses" type="button">Enable</button>
           <button id="cancelHeaderAddresses" class="secondary" type="button">Cancel</button>
+        </div>
+      </dialog>
+
+      <dialog id="revertTileSetDialog" class="confirmation-dialog">
+        <b>Revert tile group settings?</b>
+        <p>Restore the original address, tile count, and BPP for <strong id="revertTileSetName"></strong>?</p>
+        <div class="button-group">
+          <button id="confirmTileSetRevert" type="button">Revert</button>
+          <button id="cancelTileSetRevert" class="secondary" type="button">Cancel</button>
+        </div>
+      </dialog>
+
+      <dialog id="importBGMapBinDialog" class="confirmation-dialog">
+        <b>Import background map?</b>
+        <p id="importBGMapBinMessage"></p>
+        <div class="button-group">
+          <button id="confirmBGMapBinImport" type="button">Import</button>
+          <button id="cancelBGMapBinImport" class="secondary" type="button">Cancel</button>
         </div>
       </dialog>
 
@@ -620,7 +649,11 @@
       <div class="toast green" id="tileSetSaved">A tile set has been saved!</div>
       <div class="toast green" id="tileImportUndo" data-duration="6500"><span>A tile was replaced.</span><button class="toast-undo" type="button">Undo</button></div>
       <div class="toast red" id="invalidTilePng">Choose a PNG with dimensions that are multiples of 8 pixels.</div>
+      <div class="toast red" id="tilePngTooLarge">The PNG can contain no more than 250 tiles.</div>
       <div class="toast red" id="wrongTilePngBpp">A 1BPP tile group requires a 1BPP PNG.</div>
+      <div class="toast red" id="invalidTileSetSettings">Use an address from 0000 to 7FFF, 1 to 250 tiles, and keep the complete tile range inside the ROM.</div>
+      <div class="toast red" id="invalidBGMapBinSize">The BIN file must have the exact dimensions of the selected background map.</div>
+      <div class="toast green" id="bgMapBinImported">The background map was imported.</div>
 
     </div>
     

@@ -18,6 +18,7 @@ let tileDataReady = Promise.resolve();
 let activeBGMapName = "";
 let bgPreviewRefreshFrame = null;
 let pendingHeaderCell = null;
+let pendingBGMapBinImport = null;
 let headerAddressesEnabled = false;
 const protectedRomAddresses = new Set(["01FD", "01FE", "01FF"]);
 
@@ -81,12 +82,11 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById("applyBGMap").addEventListener("click", saveBGMap);
   document.getElementById("discardBGMap").addEventListener("click", closeBGModal);
   document.getElementById("closeBGMapButton").addEventListener("click", closeBGModal);
-  document.getElementById("saveBGMapAsBIN").addEventListener("click", downloadBGMapAsBin);
-
   initializeHeaderEditors();
   initializeHeaderAddressDialog();
   initializeToastCloseButtons();
   initializeBGMapList();
+  initializeBGMapBinImportDialog();
 
   e_applyCode.setAttribute("title", disabledButtonText);
 
@@ -215,17 +215,63 @@ document.addEventListener('DOMContentLoaded', function() {
   // Get the dropdown element
   const dropdown = document.getElementById("palette-dropdown");
 
-  // Iterate over the paletteLookup object keys and create an option for each palette
-  for (const palette in paletteLookup) {
-    // Create a new option element
-    const option = document.createElement("option");
+  const userPaletteNames = new Set([
+    "CTWC UK 2024 (Lucy)",
+    "Realistic GB (Tolstoj)",
+    "Bright Super GB (Alecat)",
+    "Candy Carnival (Alecat)",
+    "Desert (Alecat)",
+    "Pan Pride (Alecat)",
+    "Ace Pride (Alecat)",
+    "Trans Pride (Alecat)",
+    "Bright GB (Alecat)"
+  ]);
+  const paletteGroups = [
+    {
+      label: "User Palettes",
+      matches: name => userPaletteNames.has(name),
+      optionLabel: name => name
+    },
+    {
+      label: "GB Standard Palettes",
+      matches: name => !userPaletteNames.has(name)
+        && !name.startsWith("SGB-")
+        && !name.startsWith("GBC:"),
+      optionLabel: name => name
+    },
+    {
+      label: "Super GB Palettes",
+      matches: name => name.startsWith("SGB-"),
+      optionLabel: name => name.slice(4)
+    },
+    {
+      label: "GB Color Palettes",
+      matches: name => name.startsWith("GBC:") && !name.startsWith("GBC: Pokémon"),
+      optionLabel: name => name.slice(5)
+    },
+    {
+      label: "GB Color Pokémon Palettes",
+      matches: name => name.startsWith("GBC: Pokémon"),
+      optionLabel: name => name.slice(5)
+    }
+  ];
 
-    // Set the option text to the palette name
-    option.text = palette;
+  paletteGroups.forEach(groupDefinition => {
+    const group = document.createElement("optgroup");
+    group.label = groupDefinition.label;
 
-    // Append the option to the dropdown
-    dropdown.add(option);
-  }
+    Object.keys(paletteLookup)
+      .filter(groupDefinition.matches)
+      .forEach(paletteName => {
+        const option = document.createElement("option");
+        option.value = paletteName;
+        option.textContent = groupDefinition.optionLabel(paletteName);
+        group.appendChild(option);
+      });
+
+    if (group.children.length > 0) dropdown.appendChild(group);
+  });
+  dropdown.value = "BGB Emulator";
 
   dropdown.addEventListener("change", function() {
     // Get the selected palette name
@@ -331,22 +377,43 @@ function initializeBGMapList() {
   const list = document.getElementById("bgMapList");
 
   for (const [name, mapInfo] of Object.entries(bgMaps)) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "bg-map-entry";
-    button.dataset.bgMapName = name;
+    const item = document.createElement("section");
+    item.className = "bg-map-item";
+
+    const label = document.createElement("div");
+    label.className = "bg-map-name";
+    label.textContent = name;
+
+    const previewButton = document.createElement("button");
+    previewButton.type = "button";
+    previewButton.className = "bg-map-entry";
+    previewButton.dataset.bgMapName = name;
+    previewButton.setAttribute("aria-label", `Edit ${name}`);
 
     const preview = document.createElement("img");
     preview.className = "bg-map-preview";
     preview.alt = `${name} preview`;
 
-    const label = document.createElement("span");
-    label.className = "bg-map-name";
-    label.textContent = name;
+    const actions = document.createElement("div");
+    actions.className = "bg-map-actions";
 
-    button.append(preview, label);
-    button.addEventListener("click", () => getBGMap(mapInfo[0], name));
-    list.appendChild(button);
+    const downloadButton = document.createElement("button");
+    downloadButton.type = "button";
+    downloadButton.className = "secondary";
+    downloadButton.textContent = `⇩ Download as "${mapInfo[4]}"`;
+    downloadButton.addEventListener("click", () => downloadBGMapAsBin(name));
+
+    const uploadButton = document.createElement("button");
+    uploadButton.type = "button";
+    uploadButton.className = "upload-tile-set-button upload-bg-map-button";
+    uploadButton.textContent = "⇧ Upload a .bin";
+    uploadButton.addEventListener("click", () => chooseBGMapBin(name));
+
+    previewButton.appendChild(preview);
+    previewButton.addEventListener("click", () => getBGMap(mapInfo[0], name));
+    actions.append(downloadButton, uploadButton);
+    item.append(label, previewButton, actions);
+    list.appendChild(item);
   }
 }
 
@@ -447,31 +514,19 @@ function saveBGMap(bgMap) {
 
 
 //-----------------------------------------------------------------------------------------
-// save the bg map and close the modal
-function downloadBGMapAsBin() {
-  let olElement = document.getElementById("selectable");
-  let imgElements = olElement.querySelectorAll("li img");
-  let tileIDs = [];
-
-  imgElements.forEach(function (imgElement) {
-    let tileID = imgElement.getAttribute("data-tile-id");
-    tileIDs.push(parseInt(tileID, 16)); // Ensure IDs are treated as numbers
-    
-  });
-
-  let byteArray = new Uint8Array(tileIDs.length);
-
-
-  for (let i = 0; i < tileIDs.length; i++) {
-    byteArray[i] = tileIDs[i];
+// Download a background map directly from its ROM address range.
+function downloadBGMapAsBin(bgMapName) {
+  const [startAddress, columns, rows, , bgMapFileName, gapValue] = bgMaps[bgMapName];
+  const start = parseInt(startAddress, 16);
+  const gap = gapValue ? parseInt(gapValue, 10) : 1;
+  const byteArray = new Uint8Array(columns * rows);
+  for (let index = 0; index < byteArray.length; index++) {
+    const address = (start + index * gap).toString(16).toUpperCase().padStart(4, "0");
+    byteArray[index] = parseInt(document.getElementById(address).textContent, 16);
   }
 
   let blob = new Blob([byteArray], { type: "application/octet-stream" });
   let url = URL.createObjectURL(blob);
-
-  let bgMapName = activeBGMapName;
-  let bgMapInfo = bgMaps[bgMapName];
-  let bgMapFileName = bgMapInfo[4];
 
   let a = document.createElement("a");
   a.href = url;
@@ -484,6 +539,69 @@ function downloadBGMapAsBin() {
   URL.revokeObjectURL(url);
 
   addToLog("BG Map Saved: \"" + bgMapName + "\" >> \"" + bgMapFileName + "\"");
+}
+
+function chooseBGMapBin(bgMapName) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".bin,application/octet-stream";
+  input.addEventListener("change", async () => {
+    const file = input.files[0];
+    if (!file) return;
+    const [, columns, rows] = bgMaps[bgMapName];
+    const expectedSize = columns * rows;
+    if (file.size !== expectedSize) {
+      displayToast("invalidBGMapBinSize");
+      return;
+    }
+
+    pendingBGMapBinImport = {
+      bgMapName,
+      fileName: file.name,
+      bytes: new Uint8Array(await file.arrayBuffer())
+    };
+    document.getElementById("importBGMapBinMessage").textContent =
+      `Replace "${bgMapName}" with the ${expectedSize}-byte file "${file.name}"?`;
+    document.getElementById("importBGMapBinDialog").showModal();
+  }, { once: true });
+  input.click();
+}
+
+function initializeBGMapBinImportDialog() {
+  const dialog = document.getElementById("importBGMapBinDialog");
+  document.getElementById("confirmBGMapBinImport").addEventListener("click", () => {
+    if (pendingBGMapBinImport) {
+      const { bgMapName, fileName, bytes } = pendingBGMapBinImport;
+      const [startAddress, , , , , gapValue] = bgMaps[bgMapName];
+      const start = parseInt(startAddress, 16);
+      const gap = gapValue ? parseInt(gapValue, 10) : 1;
+
+      bytes.forEach((byte, index) => {
+        const address = (start + index * gap).toString(16).toUpperCase().padStart(4, "0");
+        const cell = document.getElementById(address);
+        const value = byte.toString(16).toUpperCase().padStart(2, "0");
+        if (cell && cell.textContent !== value) {
+          cell.textContent = value;
+          cell.classList.add("edited");
+        }
+      });
+
+      document.getElementById("createFileBtn").removeAttribute("disabled");
+      updateChecksums(false);
+      renderBGMapPreview(bgMapName);
+      displayToast("bgMapBinImported");
+      addToLog(`Background map "${bgMapName}" was imported from "${fileName}"`);
+    }
+    pendingBGMapBinImport = null;
+    dialog.close();
+  });
+  document.getElementById("cancelBGMapBinImport").addEventListener("click", () => {
+    pendingBGMapBinImport = null;
+    dialog.close();
+  });
+  dialog.addEventListener("cancel", () => {
+    pendingBGMapBinImport = null;
+  });
 }
 
 //------------------------------------------------------------------------------------------
@@ -1258,34 +1376,24 @@ async function getBGMap(id, bgMap) {
 
   document.getElementById("BGMapStartAddress").value = id;
 
-  let button = document.getElementById("saveBGMapAsBIN");
-  const thisMapName = bgMaps[bgMap][4];
-  let suffix = "";
-  if(thisMapName !== "undefined") suffix = " as \"" + thisMapName  + "\"";
-  button.innerHTML = "▼ Download" + suffix;
 }
 
 //------------------------------------------------------------------------------------------
 // tab group
 function openTab(event, tabName) {
-  let i, tabContent, tab;
+  const selectedTab = event.currentTarget;
+  if (selectedTab.classList.contains("active")) return;
 
-  tabContent = document.getElementsByClassName("tab-content");
-  for (i = 0; i < tabContent.length; i++) {
-    tabContent[i].style.display = "none";
-  }
+  document.querySelectorAll(".tab-content").forEach(content => {
+    content.style.display = content.id === tabName ? "block" : "none";
+  });
 
-  tab = document.getElementsByClassName("tab");
-  for (i = 0; i < tab.length; i++) {
-    tab[i].className = tab[i].className.replace(" active", "");
-  }
+  document.querySelectorAll(".tab[data-tab]").forEach(tab => {
+    tab.classList.toggle("active", tab === selectedTab);
+  });
 
-  document.getElementById(tabName).style.display = "block";
-
-  event.currentTarget.className += " active";
-
-  // add the correct color to the tiles
-  if(tabName === "tab3") document.getElementById("palette-dropdown").dispatchEvent(new Event("change"));
+  const sharedPalette = document.getElementById("sharedPalette");
+  sharedPalette.hidden = tabName === "tab1";
 }
 
 
@@ -1297,17 +1405,18 @@ function loadObjectSprite(objectName, highlightOnly) {
 
   const objectData = spriteObjects[objectName];
   
-  // Remove the "highlighted" class from all tiles before proceeding
-  const allTiles = document.getElementsByClassName('tile');
-  for (let i = 0; i < allTiles.length; i++) {
-    allTiles[i].classList.remove('highlighted');
-  }
+  // Only touch tiles that are currently highlighted.
+  document.querySelectorAll(".tile.highlighted").forEach(tile => {
+    tile.classList.remove("highlighted");
+  });
 
   // assign some variables
   const romTileSet = objectData[0];
-  const startingAddressHex = tileAddressesInROM[romTileSet][0];
+  const renderedTileSet = Array.from(document.querySelectorAll(".tile-set-section"))
+    .find(section => section.dataset.tilesetSection === romTileSet);
+  const startingAddressHex = renderedTileSet?.dataset.currentAddress || tileAddressesInROM[romTileSet][0];
   const startingAddress = parseInt(startingAddressHex, 16);
-  const bitsPerPixel = tileAddressesInROM[romTileSet][2];
+  const bitsPerPixel = Number(renderedTileSet?.dataset.currentBpp || tileAddressesInROM[romTileSet][2]);
 
   // arrays
   const tileAddresses = [];
