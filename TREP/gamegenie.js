@@ -131,7 +131,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const generatedOldValue = hasSecondValue ? e_oldVal.value : "";
     e_ggCode.value = addrToGgCode(e_romAddr.value, generatedNewValue, generatedOldValue);
     e_ggCode.style.backgroundColor = e_ggCode.value ? "#baf3ba" : "#CCC";
-    e_applyCode.disabled = true;
+    e_applyCode.disabled = !e_ggCode.value;
+    if (e_ggCode.value) {
+      e_applyCode.removeAttribute("title");
+    } else {
+      e_applyCode.setAttribute("title", disabledButtonText);
+    }
   }
 
   function enterReverseMode() {
@@ -232,6 +237,8 @@ function formatInputs(input){
   
   let c_red = '#f3baba';
   let c_orange = "'#ffe6b7'";
+  e_applyCode.disabled = true;
+  e_applyCode.setAttribute("title", disabledButtonText);
   
   if(input.length < 6 || !/^[0-9A-Fa-f]+$/.test(input)) {
     clearFields(e_ggCode);

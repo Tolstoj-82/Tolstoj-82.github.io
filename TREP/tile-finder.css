@@ -276,17 +276,19 @@
 .finder-context-menu button {
   display:block;
   width:auto;
-  border-radius:3px;
-  background:transparent;
-  color:#333;
+  border:3px solid #333;
+  border-radius:5px;
+  background:#333;
+  color:#FFF;
   box-shadow:none;
   text-align:left
 }
 
 .finder-context-menu button:hover,
 .finder-context-menu button:focus-visible {
-  background:#E6F5FA;
-  color:#075F78;
+  border-color:#666;
+  background:#666;
+  color:#FFF;
   transform:none;
   box-shadow:none
 }

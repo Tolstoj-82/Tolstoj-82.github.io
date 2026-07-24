@@ -138,7 +138,10 @@ a:hover {
   right:0;
   z-index:998;
   font-size:x-large;
-  border-radius:0;
+  border:3px solid #09C;
+  border-radius:5px;
+  background:#09C;
+  color:#FFF;
   width:40px;
   height:40px;
   display:flex;
@@ -193,10 +196,16 @@ td:first-child {
 #oldVal,
 #newVal,
 #searchAddressInput,
-#searchInput,
+#searchInput {
+  font-family:Consolas,'Courier New',monospace !important
+}
+
 #log,
 #log * {
-  font-family:Consolas,'Courier New',monospace !important
+  font-family:'Lucida Console','Cascadia Mono',Consolas,monospace !important;
+  font-size:12px;
+  line-height:1.5;
+  font-variant-numeric:tabular-nums
 }
 
 hr {
@@ -236,18 +245,26 @@ button,
   background-color:#09C;
   font-weight:700;
   color:#FFF;
-  border:none;
-  border-radius:4px;
+  border:3px solid #09C;
+  border-radius:5px;
   font-family:'Outfit',sans-serif;
   font-size:14px;
   cursor:pointer;
-  box-shadow:0 2px 5px rgba(0,0,0,.16);
-  transition:background-color .15s ease,box-shadow .15s ease,transform .1s ease
+  box-shadow:none;
+  transform:none;
+  transition:background-color .3s ease,color .3s ease,border-color .3s ease
 }
 
 button:hover {
-  transform:translateY(-1px);
-  box-shadow:0 4px 9px rgba(0,0,0,.2)
+  transform:none;
+  box-shadow:none
+}
+
+#openModalButton:hover,
+#openModalButton:active {
+  border-color:#0AC;
+  background:#0AC;
+  color:#FFF
 }
 
 button:focus-visible,
@@ -338,16 +355,23 @@ input.input-invalid {
 }
 
 button:active {
+  border-color:#0BC;
   background-color:#0BC;
-  transform:translateY(0)
+  color:#FFF;
+  transform:none
 }
 
 button.secondary {
-  background-color:#333
+  border:3px solid #333;
+  background-color:#FFF;
+  color:#333
 }
 
-button.secondary:hover {
-  background-color:#777
+button.secondary:hover,
+button.secondary:active {
+  border-color:#333;
+  background-color:#333;
+  color:#FFF
 }
 
 .loader {
@@ -365,22 +389,24 @@ button.secondary:hover {
   box-shadow:0 0 0 3px rgba(52,152,219,0.5)
 }
 
-.accordion,
-button.accordion,
 .panel {
   background-color:#EEE;
   color:#444;
   font-size:16px
 }
 
-.accordion:hover,
-button.accordion:hover,
-.accordion.active {
-  background-color:#CCC
+button.accordion {
+  border:3px solid #EEE;
+  background-color:#EEE;
+  color:#444;
+  font-size:16px
 }
 
-button.accordion {
-  border:1px solid #CCC
+button.accordion:hover,
+button.accordion.active {
+  border-color:#CCC;
+  background-color:#CCC;
+  color:#444
 }
 
 #checksumContainer {
@@ -513,7 +539,7 @@ input.two {
 }
 
 button {
-  padding:10px 20px
+  padding:10px 15px
 }
 
 .custom-file-input {
@@ -522,8 +548,8 @@ button {
   cursor:pointer;
   width:210px;
   padding:8px 12px;
-  border:none;
-  border-radius:4px;
+  border:3px solid #09C;
+  border-radius:5px;
   overflow:hidden;
   box-sizing:border-box;
   text-align:center
@@ -562,14 +588,21 @@ tr:nth-child(even),
   background-color:#FFF
 }
 
-button:hover,
-.custom-file-input:hover,.tab:hover {
+button:not(.secondary):not(.accordion):not(.bg-map-entry):not(.modal-close-button):not(.toast-close):not(.upload-tile-set-button):not(:disabled):hover,
+.custom-file-input:hover {
+  border-color:#067D9F;
+  background-color:#067D9F;
+  color:#FFF
+}
+
+.tab:hover {
   background-color:#0AC
 }
 
-button.secondary:active,
 button:disabled {
-  background-color:#AAA
+  border-color:#AAA;
+  background-color:#AAA;
+  color:#FFF
 }
 
 .hexValueCell.edited,
@@ -625,7 +658,7 @@ button:disabled {
 }
 
 button.accordion {
-  border-radius:0
+  border-radius:5px
 }
 
 .table-wrapper + button.accordion {
@@ -826,7 +859,9 @@ button:disabled {
   line-height:1
 }
 
-.toast-close:hover {
+.toast-close:hover,
+.toast-close:active {
+  border:0;
   color:#000;
   background-color:rgba(255,255,255,.35)
 }
@@ -904,7 +939,13 @@ button:disabled {
 
 .toggle-text {
   margin-left:10px;
-  color:#333
+  color:#333;
+  white-space:nowrap
+}
+
+#tileBorderToggle {
+  flex:none;
+  white-space:nowrap
 }
 
 #modalBody {
@@ -957,7 +998,7 @@ button:disabled {
   display:flex;
   flex-direction:column;
   margin-top:12px;
-  border-top:1px solid #DDD
+  border-top:0
 }
 
 button.bg-map-entry,
@@ -972,7 +1013,6 @@ button.bg-map-entry:active {
   min-height:112px;
   padding:12px 8px;
   border:0;
-  border-bottom:1px solid #DDD;
   border-radius:0;
   background:transparent;
   color:#333;
@@ -981,13 +1021,17 @@ button.bg-map-entry:active {
   text-align:left
 }
 
-button.bg-map-entry:hover {
-  background-color:#EEF8FB
+button.bg-map-entry:hover,
+button.bg-map-entry:active {
+  border:0;
+  background-color:#EEF8FB;
+  color:#333
 }
 
-button.bg-map-entry.active {
-  background-color:#DDF2F8;
-  box-shadow:inset 3px 0 0 #09C
+button.bg-map-entry:not(:last-child),
+button.bg-map-entry:not(:last-child):hover,
+button.bg-map-entry:not(:last-child):active {
+  border-bottom:2px dotted currentColor
 }
 
 .bg-map-preview {
@@ -1193,7 +1237,10 @@ button.bg-map-entry.active {
   line-height:1
 }
 
-.modal-close-button:hover {
+.modal-close-button:hover,
+.modal-close-button:active {
+  border:0;
+  background:transparent;
   color:#000
 }
 
@@ -1405,14 +1452,24 @@ li.BG-stack {
   text-align:left
 }
 
-.upload-tile-set-button,
-.upload-tile-set-button:hover,
-.upload-tile-set-button:active {
-  background-color:#6854A5
+.upload-tile-set-button {
+  padding:10px 15px;
+  border:3px solid #6854A5;
+  border-radius:5px;
+  background-color:#FFF;
+  color:#6854A5;
+  box-shadow:none;
+  transform:none;
+  transition:background-color .3s ease,color .3s ease
 }
 
-.upload-tile-set-button:hover {
-  background-color:#7A66B8
+.upload-tile-set-button:hover,
+.upload-tile-set-button:active {
+  border-color:#6854A5;
+  background-color:#6854A5;
+  color:#FFF;
+  box-shadow:none;
+  transform:none
 }
 
 .confirmation-dialog .button-group {
@@ -1502,16 +1559,20 @@ li.BG-stack {
 .toast .toast-undo {
   margin-left:12px;
   padding:5px 11px;
-  border:1px solid rgba(255,255,255,.75);
-  border-radius:4px;
-  background:#067D9F;
-  color:#FFF;
+  border:3px solid #067D9F;
+  border-radius:5px;
+  background:#FFF;
+  color:#067D9F;
   font-weight:700;
-  box-shadow:0 2px 5px rgba(0,0,0,.18)
+  box-shadow:none;
+  transform:none
 }
 
-.toast .toast-undo:hover {
-  background:#09C
+.toast .toast-undo:hover,
+.toast .toast-undo:active {
+  border-color:#067D9F;
+  background:#067D9F;
+  color:#FFF
 }
 
 .selection-marquee {
@@ -1716,6 +1777,18 @@ div.pixel.cole {
   gap:4px;
 }
 
+button:disabled,
+button:disabled:hover,
+button:disabled:active {
+  border-color:#AAA;
+  background-color:#AAA;
+  color:#FFF;
+  cursor:not-allowed;
+  box-shadow:none;
+  transform:none;
+  transition:none
+}
+
 #slider {
   -webkit-appearance:none;
   appearance:none;
@@ -1757,7 +1830,7 @@ div.pixel.cole {
   width:22px;
   height:28px;
   border:0;
-  border-radius:0;
+  border-radius:5px;
   background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='28' viewBox='0 0 22 28'%3E%3Cpath d='M4 1h14a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3h-3l-4 6-4-6H4a3 3 0 0 1-3-3V4a3 3 0 0 1 3-3Z' fill='%23009ACC' stroke='%23006788'/%3E%3C/svg%3E") center/22px 28px no-repeat;
   cursor:grab
 }
