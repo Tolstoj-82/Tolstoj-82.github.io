@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-labelledby="title">
+  <title id="title">Default portrait</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#dce7ef"/>
+      <stop offset="1" stop-color="#aebfcd"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" fill="url(#bg)"/>
+  <circle cx="300" cy="220" r="105" fill="#f7fafc"/>
+  <path d="M105 570c18-133 91-210 195-210s177 77 195 210" fill="#f7fafc"/>
+</svg>

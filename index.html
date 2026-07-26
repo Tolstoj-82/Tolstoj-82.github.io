@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tolstoj's Workbench</title>
-    <link rel="stylesheet" href="styles/general.css" />
-    <link rel="stylesheet" href="styles/grid.css" />
-    <link rel="stylesheet" href="styles/header.css" />
-    <link rel="stylesheet" href="styles/layouts.css" />
-    <link rel="stylesheet" href="styles/modal.css" />
+    <link rel="stylesheet" href="assets/styles/general.css?v=20260726-12" />
+    <link rel="stylesheet" href="assets/styles/grid.css?v=20260725-3" />
+    <link rel="stylesheet" href="assets/styles/header.css" />
+    <link rel="stylesheet" href="assets/styles/layouts.css" />
+    <link rel="stylesheet" href="assets/styles/modal.css?v=20260726-3" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
@@ -45,20 +45,26 @@
           aria-expanded="false"
           aria-controls="projects-menu"
         >
-          My Projects <span class="arrow" aria-hidden="true">+</span>
+          My Tools <span class="arrow" aria-hidden="true">+</span>
         </button>
         <ul class="menu" id="projects-menu">
-          <li><a href="TREP/index.html">TREP</a></li>
-          <li><a href="GB-OCR/index.html">GB OCR</a></li>
-          <li><a href="PostMaxCounter/index.html">Post Max Counter</a></li>
-          <li><a href="Live/refactored/index.html">OCR</a></li>
-          <li><a href="firmwarelabeller/index.html">Re-labbeler</a></li>
-          <li><a href="LUTer/index.html">LUT Tool</a></li>
-          <li><a href="music-Editor/index.html">ASM Music Editor</a></li>
+          <li><a href="apps/trep/index.html">TREP</a></li>
+          <li><a href="apps/gb-ocr/index.html">GB OCR</a></li>
           <li>
-            <a href="genetic-engineering/index.html">Genetic Engineering</a>
+            <a href="apps/post-max-counter/index.html">Post Max Counter</a>
           </li>
-          <li><a href="ChrisAndTriss/index.html">Chris &amp; Triss</a></li>
+          <li><a href="apps/live/refactored/index.html">OCR</a></li>
+          <li><a href="apps/firmware-labeller/index.html">Re-labbeler</a></li>
+          <li><a href="apps/luter/index.html">LUT Tool</a></li>
+          <li><a href="apps/music-editor/index.html">ASM Music Editor</a></li>
+          <li>
+            <a href="apps/genetic-engineering/index.html"
+              >Genetic Engineering</a
+            >
+          </li>
+          <li>
+            <a href="games/chris-and-triss/index.html">Chris &amp; Triss</a>
+          </li>
         </ul>
         <button
           class="accordion"
@@ -69,48 +75,75 @@
           Other Things <span class="arrow" aria-hidden="true">+</span>
         </button>
         <ul class="menu" id="other-things-menu">
-          <li><a href="Tolstoj/index.html">About Me</a></li>
-          <li><a href="TwoPlayer/index.html">2-Player</a></li>
-          <li><a href="ROMHacks/index.html">ROM Patches</a></li>
-          <li><a href="Collection/index.html">My Tetris Collection</a></li>
-          <li><a href="RNG/index.html">RNG in GB Tetris</a></li>
+          <li><a href="articles/about-me/index.html">About Me</a></li>
+          <li>
+            <a href="articles/two-player-reverse-engineering/index.html"
+              >2-Player</a
+            >
+          </li>
+          <li><a href="games/rom-hacks/index.html">ROM Patches</a></li>
+          <li>
+            <a href="articles/tetris-collection/index.html"
+              >My Tetris Collection</a
+            >
+          </li>
+          <li><a href="articles/rng/index.html">RNG in GB Tetris</a></li>
         </ul>
       </div>
 
       <div class="page-content">
         <main>
           <section class="intro">
-            <button
+            <div
               class="intro-portrait"
               id="intro-portrait"
-              type="button"
-              aria-label="Rotate the Tolstoj logo"
-              aria-pressed="false"
             >
               <img
                 class="intro-portrait-photo"
-                src="images/tolstoj.jpg"
+                src="assets/images/tolstoj.jpg"
                 alt="Tolstoj"
               />
               <img
                 class="intro-rotation-background"
-                src="images/background.png"
+                src="assets/images/background.png"
                 alt=""
                 aria-hidden="true"
               />
               <img
                 class="intro-rotation-foreground"
-                src="images/foreground.png"
+                src="assets/images/foreground.png"
                 alt=""
                 aria-hidden="true"
               />
-            </button>
+              <button
+                class="intro-rotate-button"
+                id="intro-rotate-button"
+                type="button"
+                aria-label="Rotate the Tolstoj logo"
+                aria-pressed="false"
+              ></button>
+              <button
+                class="intro-audio-button"
+                id="intro-audio-button"
+                type="button"
+                aria-label="Play Tolstoj's song"
+                aria-pressed="false"
+              >
+                <span aria-hidden="true">▶</span>
+              </button>
+              <audio
+                id="intro-audio"
+                src="assets/music/Tolstoj-Song.mp3"
+                preload="metadata"
+              ></audio>
+            </div>
             <div class="text">
               <p>
-                Hello, friends! I'm <a href="Tolstoj/index.html">Tolstoj</a>.
-                I've spent the last few years deep-diving into the inner
-                workings of Game Boy Tetris and its competitive scene, and now
-                I’m sharing my knowledge with you.
+                Hello, friends! I'm
+                <a href="articles/about-me/index.html">Tolstoj</a>. I've spent
+                the last few years deep-diving into the inner workings of Game
+                Boy Tetris and its competitive scene, and now I’m sharing my
+                knowledge with you.
               </p>
               <p>
                 On my journey, I met a lot of cool and talented people whom I
@@ -135,24 +168,35 @@
               </p>
             </div>
           </section>
-          <hr />
-          <h2>New to Game Boy Tetris?</h2>
-          <a href="new-to-tetris/index.html" class="button secondary"
-            >Start Here</a
+          <h2 class="section-accordion-heading" id="tools-section">
+            <button
+              class="section-accordion"
+              type="button"
+              aria-expanded="true"
+              aria-controls="projects-panel"
+            >
+              <span>My Tools</span
+              ><span class="section-accordion-icon" aria-hidden="true">−</span>
+            </button>
+          </h2>
+          <section
+            class="grid section-apps accordion-panel"
+            id="projects-panel"
           >
-          <hr />
-          <h2>My Projects</h2>
-          <section class="grid">
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="TREP/index.html" class="grid-item-clickable">
-                  <img src="images/TREP.png" alt="TREP" />
+                <a href="apps/trep/index.html" class="grid-item-clickable">
+                  <img src="assets/images/TREP.png" alt="TREP" />
                   <h3>TREP v. 1.0</h3>
+                  <div class="card-labels" aria-label="Status">
+                    <span class="card-label status-final">Final</span>
+                    <span class="card-label status-working">Working</span>
+                  </div>
                   <p>
-                    Tolstoj's ROM Editor Plus. Load a legally acquired GB Tetris
-                    ROM and edit it to your liking.<br />
-                    Info: This tool is for demonstration purposes only. Don't
-                    use it for weird stuff, please!
+                    TREP = Tolstoj's ROM Editor Plus.<br />
+                    Edit a Tetris.gb ROM to your liking.<br />
+                    <b>! Demonstration purposes only !</b><br />
+                    Don't use a modified ROM for deception.
                   </p>
                 </a>
                 <div class="grid-item-buttons">
@@ -169,28 +213,19 @@
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="GB-OCR/index.html" class="grid-item-clickable">
-                  <img src="images/General-OCR.png" alt="General Purpose OCR" />
+                <a href="apps/gb-ocr/index.html" class="grid-item-clickable">
+                  <img
+                    src="assets/images/General-OCR.png"
+                    alt="General Purpose OCR"
+                  />
                   <h3>GB OCR</h3>
+                  <div class="card-labels" aria-label="Status">
+                    <span class="card-label status-working">Working</span>
+                  </div>
                   <p>
                     Configure and run OCR for Game Boy Games. This one is quite
-                    powerful.
-                  </p>
-                </a>
-              </div>
-            </div>
-
-            <div class="grid-item">
-              <div class="grid-item-wrapper">
-                <a href="PostMaxCounter/index.html" class="grid-item-clickable">
-                  <img
-                    src="images/post-max-counter.png"
-                    alt="Post Max Counter"
-                  />
-                  <h3>Post Max Counter</h3>
-                  <p>
-                    Track post-max results with a compact counter made for
-                    competitive Game Boy Tetris.
+                    powerful.<br />
+                    (i) Local settings (JSON) required!
                   </p>
                 </a>
               </div>
@@ -199,11 +234,39 @@
             <div class="grid-item">
               <div class="grid-item-wrapper">
                 <a
-                  href="Live/refactored/index.html"
+                  href="apps/post-max-counter/index.html"
                   class="grid-item-clickable"
                 >
-                  <img src="images/OCR.png" alt="GB Interceptor OCR 2" />
+                  <img
+                    src="assets/images/post-max-counter.png"
+                    alt="Post Max Counter"
+                  />
+                  <h3>Post Max Counter</h3>
+                  <div class="card-labels" aria-label="Status">
+                    <span class="card-label status-working">Working</span>
+                  </div>
+                  <p>
+                    On the original GB Tetris ROM the score caps at 999,999.<br />
+                    Use 1,2,3 and 4 (keyboard or buttons) to track the score
+                    past a maxout.
+                  </p>
+                </a>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a
+                  href="apps/live/refactored/index.html"
+                  class="grid-item-clickable"
+                >
+                  <img src="assets/images/OCR.png" alt="GB Interceptor OCR 2" />
                   <h3>GB Interceptor Tetris OCR</h3>
+                  <div class="card-labels" aria-label="Status">
+                    <span class="card-label status-unavailable"
+                      >Not functional</span
+                    >
+                  </div>
                   <p>
                     Send your GB Tetris footage from the interceptor through OCR
                     and let the computer do its magic.
@@ -224,19 +287,24 @@
             <div class="grid-item">
               <div class="grid-item-wrapper">
                 <a
-                  href="firmwarelabeller/index.html"
+                  href="apps/firmware-labeller/index.html"
                   class="grid-item-clickable"
                 >
                   <img
-                    src="images/relabeller.png"
+                    src="assets/images/relabeller.png"
                     alt="GB Interceptor Re-labeller"
                   />
                   <h3>GB Interceptor Re-labeller</h3>
+                  <div class="card-labels" aria-label="Status">
+                    <span class="card-label status-working">Working</span>
+                    <span class="card-label status-experimental"
+                      >Experimental</span
+                    >
+                  </div>
                   <p>
-                    Using multiple interceptors on one computer can be
-                    confusing, especially if you try to choose the correct one
-                    from the label. This very simple tool lets you re-label the
-                    firmware for clear identification.
+                    This lets you re-label the GBI firmware for clear
+                    identification.<br />
+                    Somewhat obsolete: Toni can build the firmware from scratch.
                   </p>
                 </a>
               </div>
@@ -244,13 +312,17 @@
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="LUTer/index.html" class="grid-item-clickable">
-                  <img src="images/LUTs.png" alt="GB Interceptor LUT tool" />
-                  <h3>GB Interceptor LUT Tool</h3>
+                <a href="apps/luter/index.html" class="grid-item-clickable">
+                  <img src="assets/images/LUTs.png" alt="GBI LUTer" />
+                  <h3>GBI LUTer</h3>
+                  <div class="card-labels" aria-label="Status">
+                    <span class="card-label status-final">Final</span>
+                    <span class="card-label status-working">Working</span>
+                  </div>
                   <p>
-                    Stand out by using a custom color palette (LUTs = lookup
-                    table) for your GB Interceptor to use in software such as
-                    OBS.
+                    Create a LUT for OBS using a custom color palette or your
+                    own colors.<br />
+                    This tool is optimzed for GB (reliable 4 color mapping).
                   </p>
                 </a>
                 <div class="grid-item-buttons">
@@ -267,29 +339,24 @@
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="ChrisAndTriss/index.html" class="grid-item-clickable">
-                  <img src="images/chris-and-triss.png" alt="Chris and Triss" />
-                  <h3>Chris &amp; Triss</h3>
-                  <p>
-                    I created a Tetromino-based puzzler / block stacking game
-                    for the DMG Game Boy. It was done as a collaboration with
-                    EuroChrisKA. Some people claim it closely resembles other
-                    classics - its resemblance is a mere coincidence.
-                  </p>
-                </a>
-              </div>
-            </div>
-
-            <div class="grid-item">
-              <div class="grid-item-wrapper">
-                <a href="music-Editor/index.html" class="grid-item-clickable">
-                  <img src="images/music.png" alt="ASM music editor" />
+                <a
+                  href="apps/music-editor/index.html"
+                  class="grid-item-clickable"
+                >
+                  <img src="assets/images/music.png" alt="ASM music editor" />
                   <h3>ASM Music Editor</h3>
+                  <div class="card-labels" aria-label="Status">
+                    <span class="card-label status-unavailable"
+                      >Not functional</span
+                    >
+                    <span class="card-label status-experimental"
+                      >Experimental</span
+                    >
+                  </div>
                   <p>
-                    Experimental and unfinished music editor to use with GB ASM
-                    disassemblies. This one is absolutely unusable and makes
-                    annoying noises. I left it in nonetheless - might get back
-                    on the project at one point.
+                    Experimental and unfinished. Music editor for GB ASM
+                    disassemblies - Unusable and makes annoying noises.
+                    <br />Might get back on it at one point.
                   </p>
                 </a>
               </div>
@@ -298,17 +365,21 @@
             <div class="grid-item">
               <div class="grid-item-wrapper">
                 <a
-                  href="genetic-engineering/index.html"
+                  href="apps/genetic-engineering/index.html"
                   class="grid-item-clickable"
                 >
-                  <img src="images/genetic-engineering.png" alt="YT" />
+                  <img src="assets/images/genetic-engineering.png" alt="YT" />
                   <h3>Genetic Engineering</h3>
+                  <div class="card-labels" aria-label="Status">
+                    <span class="card-label status-working">Working</span>
+                    <span class="card-label status-experimental"
+                      >Experimental</span
+                    >
+                  </div>
                   <p>
-                    According to Vadim Gerasimov, the then-16-year-old prodigy
-                    who ported Tetris to the IBM, Alexey Pajitnov created a
-                    precursor game to Tetris on the Electronika-60 called
-                    Genetic Engineering.<br />
-                    This is my attempt to recreate this game for a presentation.
+                    According to Vadim Gerasimov, before Tetris Alexey Pajitnov
+                    created a precursor game called Genetic Engineering.<br />
+                    This is me envisioning it.
                   </p>
                 </a>
                 <div class="grid-item-buttons">
@@ -323,14 +394,76 @@
               </div>
             </div>
 
+          </section>
+          <h2 class="section-accordion-heading" id="games-section">
+            <button
+              class="section-accordion"
+              type="button"
+              aria-expanded="true"
+              aria-controls="games-patches-panel"
+            >
+              <span>GB Games and Patches</span
+              ><span class="section-accordion-icon" aria-hidden="true">−</span>
+            </button>
+          </h2>
+          <section
+            class="people-grid game-directory-grid section-games-patches accordion-panel"
+            id="games-patches-panel"
+            aria-label="GB Games and Patches"
+          ></section>
+          <section
+            class="people-grid game-directory-grid section-games-patches accordion-panel"
+            id="games-patches-static-fallback"
+            aria-label="GB Games and Patches fallback"
+            hidden
+          >
+            <button
+              class="person-card game-directory-card"
+              type="button"
+              data-game-name="Chris &amp; Triss"
+              data-game-image="assets/images/chris-and-triss.png"
+              data-game-description="A Tetromino-based puzzle and block-stacking game for the original Game Boy, created with EuroChrisKA."
+            ></button>
+            <button
+              class="person-card game-directory-card"
+              type="button"
+              data-game-name="ROM Patches"
+              data-game-image="assets/images/ROM.png"
+              data-game-description="Game Boy ROM patches mostly created by Pascal and Tolstoj, with contributions from Kirjava, Ospin, and Toni."
+            ></button>
+          </section>
+          <h2 class="section-accordion-heading" id="articles-section">
+            <button
+              class="section-accordion"
+              type="button"
+              aria-expanded="true"
+              aria-controls="articles-panel"
+            >
+              <span>Articles</span
+              ><span class="section-accordion-icon" aria-hidden="true">−</span>
+            </button>
+          </h2>
+          <section
+            class="grid section-articles accordion-panel"
+            id="articles-panel"
+          >
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="TwoPlayer/index.html" class="grid-item-clickable">
-                  <img src="images/2-player.png" alt="YT" />
-                  <h3>2-Player Reverse Engineering</h3>
+                <a
+                  href="articles/new-to-tetris/index.html"
+                  class="grid-item-clickable"
+                >
+                  <img
+                    src="assets/images/background-minos.png"
+                    alt="Game Boy Tetris pieces"
+                  />
+                  <h3>New to Game Boy Tetris?</h3>
+                  <div class="card-labels" aria-label="Estimated reading time">
+                    <span class="card-label reading-time">5 min read</span>
+                  </div>
                   <p>
-                    The legendary -JJ from Finland and I reverse-engineered the
-                    2-player Game Boy Tetris' link cable protocol.
+                    A starting point for players who want to learn Game Boy
+                    Tetris and explore its community.
                   </p>
                 </a>
               </div>
@@ -338,11 +471,21 @@
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="ROMHacks/index.html" class="grid-item-clickable">
-                  <img src="images/ROM.png" alt="YT" />
-                  <h3>ROM Patches</h3>
+                <a
+                  href="articles/two-player-reverse-engineering/index.html"
+                  class="grid-item-clickable"
+                >
+                  <img
+                    src="assets/images/2-player.png"
+                    alt="Two-player link cable diagram"
+                  />
+                  <h3>2-Player</h3>
+                  <div class="card-labels" aria-label="Estimated reading time">
+                    <span class="card-label reading-time">10 min read</span>
+                  </div>
                   <p>
-                    Find some interesting ROM patches made by Pascal and me.
+                    How we reverse-engineered Game Boy Tetris' link cable
+                    protocol.
                   </p>
                 </a>
               </div>
@@ -350,42 +493,20 @@
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="Collection/index.html" class="grid-item-clickable">
-                  <img src="images/collection.png" alt="YT" />
+                <a
+                  href="articles/tetris-collection/index.html"
+                  class="grid-item-clickable"
+                >
+                  <img
+                    src="assets/images/collection.png"
+                    alt="Tetris collection"
+                  />
                   <h3>My Tetris Collection</h3>
-                  <p></p>
-                </a>
-              </div>
-            </div>
-
-            <div class="grid-item">
-              <div class="grid-item-wrapper">
-                <a
-                  href="https://www.youtube.com/@tolstoj_"
-                  class="grid-item-clickable"
-                >
-                  <img src="images/youtube.png" alt="YT" />
-                  <h3>My Youtube Channel</h3>
-                  <p></p>
-                </a>
-              </div>
-            </div>
-          </section>
-          <hr />
-          <h2>Other Peoples' Projects</h2>
-          <section class="grid">
-            <div class="grid-item">
-              <div class="grid-item-wrapper">
-                <a
-                  href="http://online-gb.tetris.yt"
-                  class="grid-item-clickable"
-                >
-                  <img src="images/online-2-player.png" alt="Online 2 Player" />
-                  <h3>Toni's 2-Player Online Server</h3>
+                  <div class="card-labels" aria-label="Estimated reading time">
+                    <span class="card-label reading-time">20 min read</span>
+                  </div>
                   <p>
-                    Connect your Game Boy with a Link Cable to USB adapter and
-                    play GB Tetris online against someone. (Based on
-                    Stacksmashing's site)
+                    Highlights and stories from my collection of Tetris items.
                   </p>
                 </a>
               </div>
@@ -393,32 +514,587 @@
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <div class="grid-item-clickable">
-                  <img src="images/youtube.png" alt="YT" />
-                  <h3>Past GB Events (Pascal's Site)</h3>
-                  <p></p>
-                </div>
+                <a href="articles/rng/index.html" class="grid-item-clickable">
+                  <img
+                    src="articles/rng/images/overview.png"
+                    alt="Game Boy Tetris RNG flow overview"
+                  />
+                  <h3>RNG in GB Tetris</h3>
+                  <div class="card-labels" aria-label="Estimated reading time">
+                    <span class="card-label reading-time">30+ min read</span>
+                  </div>
+                  <p>
+                    A deep dive into the random number generation routines used
+                    by Game Boy Tetris.
+                  </p>
+                </a>
               </div>
             </div>
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="https://gbdev.io/pandocs/" class="grid-item-clickable">
-                  <img src="images/pandocs.png" alt="Pandocs" />
-                  <h3>Game Boy Pan Docs</h3>
+                <a
+                  href="articles/about-me/index.html"
+                  class="grid-item-clickable"
+                >
+                  <img src="assets/images/tolstoj.jpg" alt="Tolstoj" />
+                  <h3>About Me</h3>
+                  <div class="card-labels" aria-label="Estimated reading time">
+                    <span class="card-label reading-time">5 min read</span>
+                  </div>
                   <p>
-                    The most comprehensive documentation about the inner
-                    workings of the Game Boy.
+                    My Tetris journey and the story behind the name Tolstoj.
+                  </p>
+                </a>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a
+                  href="articles/tetris-collection/Game-Boy-Tetris.html"
+                  class="grid-item-clickable"
+                >
+                  <img
+                    src="articles/tetris-collection/images/My-Game-Boy-Tetris-Collection.JPG"
+                    alt="Game Boy Tetris collection"
+                  />
+                  <h3>GB Tetris Collector's Guide</h3>
+                  <div class="card-labels" aria-label="Estimated reading time">
+                    <span class="card-label reading-time">45+ min read</span>
+                  </div>
+                  <p>
+                    A detailed guide to Game Boy Tetris releases, cartridges,
+                    labels, production details, and regional variants.
                   </p>
                 </a>
               </div>
             </div>
           </section>
+          <h2 class="section-accordion-heading" id="people-section">
+            <button
+              class="section-accordion"
+              type="button"
+              aria-expanded="true"
+              aria-controls="people-panel"
+            >
+              <span
+                >People in GB Tetris
+                <span
+                  id="people-count"
+                  aria-label="Number of people"
+                ></span></span
+              ><span class="section-accordion-icon" aria-hidden="true">−</span>
+            </button>
+          </h2>
+          <section
+            class="people-grid accordion-panel"
+            id="people-panel"
+            aria-label="People in GB Tetris"
+          >
+            <a
+              class="button secondary people-rankings-link"
+              id="people-rankings-link"
+              href="apps/top-scores/index.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >View rankings</a>
+          </section>
+          <section
+            class="people-grid accordion-panel"
+            id="people-static-fallback"
+            aria-label="People in GB Tetris fallback"
+            hidden
+          >
+            <button
+              class="person-card"
+              type="button"
+              data-achievement="gold"
+              data-achievement-event="CTEC 2025"
+              data-person-name="Toni"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="Toni is a Game Boy Tetris community contributor and the creator of the online two-player server."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="Toni"
+                />
+                <span class="person-summary">
+                  <span class="person-name">Toni</span>
+                  <span class="person-details"
+                    >Community contributor and creator of the online two-player
+                    server.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/ch.svg"
+                  alt="Flag of Switzerland"
+                  title="Switzerland"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-achievement="silver"
+              data-achievement-event="CTEC 2025"
+              data-person-name="Pascal"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="Pascal collaborates on Game Boy Tetris research, reverse engineering, and ROM patches."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="Pascal"
+                />
+                <span class="person-summary">
+                  <span class="person-name">Pascal</span>
+                  <span class="person-details"
+                    >Research, reverse-engineering, and ROM-hacking
+                    collaborator.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/ch.svg"
+                  alt="Flag of Switzerland"
+                  title="Switzerland"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-achievement="silver"
+              data-achievement-event="CTEC 2018"
+              data-person-name="-JJ"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="-JJ collaborated on reverse engineering the Game Boy Tetris two-player link protocol."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="-JJ"
+                />
+                <span class="person-summary">
+                  <span class="person-name">-JJ</span>
+                  <span class="person-details"
+                    >Two-player link protocol reverse-engineering
+                    collaborator.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/fi.svg"
+                  alt="Flag of Finland"
+                  title="Finland"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-vip="true"
+              data-vip-event="Tolstoj's Workbench"
+              data-person-name="Sebastian Staacks"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="Sebastian Staacks is the creator of the GB Interceptor, the capture hardware behind much of this work."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="Sebastian Staacks"
+                />
+                <span class="person-summary">
+                  <span class="person-name">Sebastian Staacks</span>
+                  <span class="person-details"
+                    >Creator of the GB Interceptor capture hardware.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/de.svg"
+                  alt="Flag of Germany"
+                  title="Germany"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-vip="true"
+              data-vip-event="Tolstoj's Workbench"
+              data-person-name="M-J"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="More information about M-J will be added soon."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="M-J"
+                />
+                <span class="person-summary">
+                  <span class="person-name">M-J</span>
+                  <span class="person-details"
+                    >More information coming soon.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/fi.svg"
+                  alt="Flag of Finland"
+                  title="Finland"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-person-name="EuroChrisKA"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="EuroChrisKA collaborated with M-J on the Game Boy puzzle game Chris &amp; Triss."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="EuroChrisKA"
+                />
+                <span class="person-summary">
+                  <span class="person-name">EuroChrisKA</span>
+                  <span class="person-details"
+                    >Chris &amp; Triss collaborator.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/de.svg"
+                  alt="Flag of Germany"
+                  title="Germany"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-person-name="Kerstin"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="More information about Kerstin will be added soon."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="Kerstin"
+                />
+                <span class="person-summary">
+                  <span class="person-name">Kerstin</span>
+                  <span class="person-details"
+                    >More information coming soon.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/de.svg"
+                  alt="Flag of Germany"
+                  title="Germany"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-person-name="Anders"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="More information about Anders will be added soon."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="Anders"
+                />
+                <span class="person-summary">
+                  <span class="person-name">Anders</span>
+                  <span class="person-details"
+                    >More information coming soon.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/dk.svg"
+                  alt="Flag of Denmark"
+                  title="Denmark"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-person-name="Nells"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="More information about Nells will be added soon."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="Nells"
+                />
+                <span class="person-summary">
+                  <span class="person-name">Nells</span>
+                  <span class="person-details"
+                    >More information coming soon.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/ca.svg"
+                  alt="Flag of Canada"
+                  title="Canada"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-person-name="Frank"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="More information about Frank will be added soon."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="Frank"
+                />
+                <span class="person-summary">
+                  <span class="person-name">Frank</span>
+                  <span class="person-details"
+                    >More information coming soon.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/gb-sct.svg"
+                  alt="Flag of Scotland"
+                  title="Scotland"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-person-name="BV"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="More information about BV will be added soon."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="BV"
+                />
+                <span class="person-summary">
+                  <span class="person-name">BV</span>
+                  <span class="person-details"
+                    >More information coming soon.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/gb-sct.svg"
+                  alt="Flag of Scotland"
+                  title="Scotland"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-vip="true"
+              data-vip-event="Tolstoj's Workbench"
+              data-person-name="Andrew Ray"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="More information about Andrew Ray will be added soon."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="Andrew Ray"
+                />
+                <span class="person-summary">
+                  <span class="person-name">Andrew Ray</span>
+                  <span class="person-details"
+                    >More information coming soon.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/ca.svg"
+                  alt="Flag of Canada"
+                  title="Canada"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-person-name="Grim"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="More information about Grim will be added soon."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="Grim"
+                />
+                <span class="person-summary">
+                  <span class="person-name">Grim</span>
+                  <span class="person-details"
+                    >More information coming soon.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/ca.svg"
+                  alt="Flag of Canada"
+                  title="Canada"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-person-name="Miner Tyler"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="More information about Miner Tyler will be added soon."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="Miner Tyler"
+                />
+                <span class="person-summary">
+                  <span class="person-name">Miner Tyler</span>
+                  <span class="person-details"
+                    >More information coming soon.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/us.svg"
+                  alt="Flag of the United States"
+                  title="United States"
+                />
+              </span>
+            </button>
+            <button
+              class="person-card"
+              type="button"
+              data-person-name="Blue Scuti"
+              data-person-image="assets/images/people/default.svg"
+              data-person-details="More information about Blue Scuti will be added soon."
+            >
+              <span class="person-photo-wrap">
+                <img
+                  class="person-photo"
+                  src="assets/images/people/default.svg"
+                  alt="Blue Scuti"
+                />
+                <span class="person-summary">
+                  <span class="person-name">Blue Scuti</span>
+                  <span class="person-details"
+                    >More information coming soon.</span
+                  >
+                </span>
+                <img
+                  class="person-flag"
+                  src="assets/images/flags/us.svg"
+                  alt="Flag of the United States"
+                  title="United States"
+                />
+              </span>
+            </button>
+          </section>
+          <h2 class="section-accordion-heading" id="community-projects-section">
+            <button
+              class="section-accordion"
+              type="button"
+              aria-expanded="true"
+              aria-controls="community-projects-panel"
+            >
+              <span>Other Peoples' Projects</span
+              ><span class="section-accordion-icon" aria-hidden="true">−</span>
+            </button>
+          </h2>
+          <nav
+            class="external-links-grid community-project-links accordion-panel"
+            id="community-projects-panel"
+            aria-label="Other peoples' projects"
+          >
+            <a
+              href="http://online-gb.tetris.yt"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <strong>Toni's 2-Player Online Server</strong>
+              <span
+                >Play Game Boy Tetris online through a Link Cable adapter</span
+              >
+            </a>
+            <div class="external-link-static">
+              <strong>Past GB Events</strong>
+              <span>Pascal's archive of previous Game Boy events</span>
+            </div>
+            <a
+              href="https://gbdev.io/pandocs/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <strong>Game Boy Pan Docs</strong>
+              <span>Technical documentation for the Game Boy</span>
+            </a>
+          </nav>
 
           <nav class="external-links" aria-labelledby="external-links-title">
-            <hr />
-            <h2 id="external-links-title">External Links</h2>
-            <div class="external-links-grid">
+            <h2 id="external-links-title" class="section-accordion-heading">
+              <button
+                class="section-accordion"
+                type="button"
+                aria-expanded="true"
+                aria-controls="external-links-panel"
+              >
+                <span>External Links</span
+                ><span class="section-accordion-icon" aria-hidden="true"
+                  >−</span
+                >
+              </button>
+            </h2>
+            <div
+              class="external-links-grid accordion-panel"
+              id="external-links-panel"
+            >
+              <a
+                href="https://tetris.yt/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>Tetris Link Collection</strong>
+                <span
+                  >Tetris community links, records, events, and resources</span
+                >
+              </a>
               <a
                 href="https://there.oughta.be/"
                 target="_blank"
@@ -459,10 +1135,14 @@
                 <strong>Lieblings Bern</strong>
                 <span>Events and dates</span>
               </a>
-      <a href="https://ctgev.de/" target="_blank" rel="noopener noreferrer">
-        <strong>CTG</strong>
-        <span>Classic Tetromino-Games Germany e. V.</span>
-      </a>
+              <a
+                href="https://ctgev.de/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>CTG</strong>
+                <span>Classic Tetromino-Games Germany e. V.</span>
+              </a>
               <a
                 href="http://www.kobash.com/tetris/tetris.html"
                 target="_blank"
@@ -474,12 +1154,15 @@
             </div>
           </nav>
           <p>
-            <img src="images/CTEC Team GB 2022.png" class="fullwidth" /><br />
+            <img
+              src="assets/images/CTEC Team GB 2022.png"
+              class="fullwidth"
+            /><br />
             <b>CTEC Game Boy Team 2023</b> aka "The Lads": Kirjava, Toni, BV,
             -JJ, Tolstoj, (Jacob)
           </p>
           <p>
-            <img src="images/PopCon.jpg" class="fullwidth" /><br />
+            <img src="assets/images/PopCon.jpg" class="fullwidth" /><br />
             <b>PopCon 2024</b>: Pusteblume, Nitsrek85, Pascal, Tolstoj, Toni
           </p>
         </main>
@@ -488,47 +1171,75 @@
       <footer class="site-footer">
         <div class="site-footer-inner">
           <div class="site-footer-brand">
-            <a class="site-footer-logo" href="index.html">Tolstoj's Workbench</a>
+            <a class="site-footer-logo" href="index.html"
+              >Tolstoj's Workbench</a
+            >
             <p>
               Tools, research, and experiments centered around Game Boy Tetris
               and the community that keeps it moving.
             </p>
-            <a class="button site-footer-button" href="new-to-tetris/index.html">
+            <a
+              class="button site-footer-button"
+              href="articles/new-to-tetris/index.html"
+            >
               New to Game Boy Tetris?
             </a>
           </div>
 
-          <nav class="site-footer-column" aria-label="Footer projects">
-            <h2>Projects</h2>
-            <a href="TREP/index.html">TREP</a>
-            <a href="GB-OCR/index.html">GB OCR</a>
-            <a href="PostMaxCounter/index.html">Post Max Counter</a>
-            <a href="LUTer/index.html">LUT Tool</a>
+          <nav class="site-footer-column" aria-label="Footer tools">
+            <h2>Tools</h2>
+            <a href="apps/trep/index.html">TREP</a>
+            <a href="apps/gb-ocr/index.html">GB OCR</a>
+            <a href="apps/post-max-counter/index.html">Post Max Counter</a>
+            <a href="apps/luter/index.html">LUT Tool</a>
           </nav>
 
           <nav class="site-footer-column" aria-label="Footer explore">
             <h2>Explore</h2>
-            <a href="Tolstoj/index.html">About Me</a>
-            <a href="Collection/index.html">Tetris Collection</a>
-            <a href="ROMHacks/index.html">ROM Patches</a>
-            <a href="RNG/index.html">Tetris RNG</a>
+            <a href="articles/about-me/index.html">About Me</a>
+            <a href="articles/tetris-collection/index.html"
+              >Tetris Collection</a
+            >
+            <a href="games/rom-hacks/index.html">ROM Patches</a>
+            <a href="articles/rng/index.html">Tetris RNG</a>
           </nav>
 
           <nav class="site-footer-column" aria-label="Footer community">
             <h2>Community</h2>
-            <a href="https://tinyurl.com/GB-Tetris" target="_blank" rel="noopener noreferrer">Discord <span aria-hidden="true">↗</span></a>
-            <a href="https://www.youtube.com/@tolstoj_" target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span></a>
-            <a href="https://ctgev.de/" target="_blank" rel="noopener noreferrer">CTG <span aria-hidden="true">↗</span></a>
+            <a
+              href="https://tinyurl.com/GB-Tetris"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Discord <span aria-hidden="true">↗</span></a
+            >
+            <a
+              href="https://www.youtube.com/@tolstoj_"
+              target="_blank"
+              rel="noopener noreferrer"
+              >YouTube <span aria-hidden="true">↗</span></a
+            >
+            <a
+              href="https://ctgev.de/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >CTG <span aria-hidden="true">↗</span></a
+            >
           </nav>
         </div>
 
         <div class="site-footer-bottom">
           <span>&copy; 2026 Tolstoj's Workbench</span>
-          <a href="#top">Back to top <span aria-hidden="true">↑</span></a>
+          <div class="site-footer-legal">
+            <button class="footer-text-link" type="button" id="openImpressum">
+              Impressum
+            </button>
+            <a href="#top">Back to top <span aria-hidden="true">↑</span></a>
+          </div>
         </div>
       </footer>
     </div>
-    <script src="script.js"></script>
+    <script src="assets/data/players-fallback.js?v=20260726-2"></script>
+    <script src="script.js?v=20260726-14"></script>
     <div
       id="imageModal"
       class="modal"
@@ -543,6 +1254,113 @@
           &times;
         </button>
         <img id="modalImage" alt="Modal Image" />
+      </div>
+    </div>
+    <div
+      id="personModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="personModalTitle"
+      aria-hidden="true"
+      style="display: none"
+    >
+      <div class="modal-content person-modal-content">
+        <button class="close" type="button" aria-label="Close person details">
+          &times;
+        </button>
+        <img id="personModalImage" alt="" />
+        <div class="person-modal-copy">
+          <h2 id="personModalTitle"></h2>
+          <p id="personModalDetails"></p>
+          <ul id="personModalAchievements" class="person-modal-achievements"></ul>
+        </div>
+      </div>
+    </div>
+    <div
+      id="gameModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="gameModalTitle"
+      aria-hidden="true"
+      style="display: none"
+    >
+      <div class="modal-content person-modal-content">
+        <button class="close" type="button" aria-label="Close game details">
+          &times;
+        </button>
+        <img id="gameModalImage" alt="" />
+        <div class="person-modal-copy">
+          <h2 id="gameModalTitle"></h2>
+          <p id="gameModalDescription"></p>
+          <a id="gameModalDownload" class="button" download>Download</a>
+          <p id="gameModalUnavailable" class="download-unavailable" hidden>
+            Download coming soon.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      id="maintenanceModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="maintenanceModalTitle"
+      aria-describedby="maintenanceModalDescription"
+      aria-hidden="true"
+      style="display: none"
+    >
+      <div class="modal-content maintenance-modal-content">
+        <div class="maintenance-modal-header">
+          <div class="maintenance-modal-icon" aria-hidden="true">!</div>
+          <h2 id="maintenanceModalTitle">Major changes in progress</h2>
+          <button class="close" type="button" aria-label="Close site notice">
+            &times;
+          </button>
+        </div>
+        <div class="maintenance-modal-body">
+          <p id="maintenanceModalDescription">
+            This site is currently undergoing major changes. Some pages, tools,
+            or features may not work fully while the updates are in progress.
+          </p>
+          <button class="maintenance-modal-dismiss" type="button">
+            Continue to the site
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      id="impressumModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="impressumTitle"
+      aria-hidden="true"
+      style="display: none"
+    >
+      <div class="modal-content impressum-modal-content">
+        <button class="close" type="button" aria-label="Close Impressum">
+          &times;
+        </button>
+        <div>
+          <h2 id="impressumTitle">Impressum</h2>
+          <p><strong>Angaben gemäss § 18 MStV</strong></p>
+          <p>
+            Martin Jakob<br />
+            Tolstoj's Workbench<br />
+            Gesellschaftsstrasse 89<br />
+            3012 Bern<br />
+            Schweiz
+          </p>
+          <h3>Kontakt</h3>
+          <p>E-Mail: martinjakob1982[at]gmail[dot]com</p>
+          <h3>Verantwortlich für den Inhalt</h3>
+          <p>
+            Martin Jakob<br />
+            Anschrift wie oben
+          </p>
+        </div>
       </div>
     </div>
   </body>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="description"
+        content="Game Boy ROM patches created by Pascal and Tolstoj."
+    >
+    <title>ROM Patches — Tolstoj's Workbench</title>
+    <link rel="stylesheet" href="../../assets/styles/general.css?v=20260724-10">
+    <link rel="stylesheet" href="../../assets/styles/grid.css?v=20260724-7">
+    <link rel="stylesheet" href="../../assets/styles/header.css">
+    <link rel="stylesheet" href="../../assets/styles/layouts.css">
+    <link rel="stylesheet" href="../../assets/styles/modal.css?v=20260724-4">
+    <link rel="stylesheet" href="../../articles/tetris-collection/style.css">
+</head>
+<body class="menu-open">
+    <div class="content">
+        <header>
+            <a class="article-back-button" href="../../index.html#games-section" aria-label="Back to all games and patches">← Games &amp; patches</a>
+            <h1 class="article-title">
+                <span>ROM Patches</span>
+                <span class="article-subtitle">Game Boy Tetris modifications</span>
+            </h1>
+            <button
+                class="menu-btn"
+                id="hamburger-icon"
+                type="button"
+                aria-label="Close table of contents"
+                aria-controls="site-menu"
+                aria-expanded="true"
+            >☰</button>
+        </header>
+
+        <aside
+            class="menu-container article-toc active"
+            id="site-menu"
+            aria-hidden="false"
+            data-persistent
+        >
+            <div class="article-toc-header">
+                <span class="article-toc-header-title">Contents</span>
+                <button
+                    class="close-btn"
+                    id="close-icon"
+                    type="button"
+                    aria-label="Close table of contents"
+                >✖</button>
+            </div>
+            <nav aria-label="On this page">
+                <ol class="article-toc-list" id="article-toc-list"></ol>
+            </nav>
+        </aside>
+
+        <div class="page-content">
+            <main>
+                <h2>About the patches</h2>
+                <p>
+                    Game Boy ROM patches created by Pascal and me.
+                </p>
+                <img
+                    class="center-image"
+                    src="../../assets/images/ROM.png"
+                    alt="ROM patch illustration"
+                >
+
+                <h2>Availability</h2>
+                <p class="remark">
+                    The ROM patches are coming soon.
+                </p>
+            </main>
+        </div>
+    </div>
+
+    <script src="../../script.js?v=20260724-4"></script>
+    <script src="../../articles/tetris-collection/accordions.js?v=3"></script>
+
+    <div
+        id="imageModal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Image preview"
+        aria-hidden="true"
+        style="display: none"
+    >
+        <div class="modal-content">
+            <button class="close" type="button" aria-label="Close image preview">
+                &times;
+            </button>
+            <img id="modalImage" alt="Modal image">
+        </div>
+    </div>
+</body>
+</html>

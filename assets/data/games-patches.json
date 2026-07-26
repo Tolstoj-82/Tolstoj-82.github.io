@@ -1,0 +1,14 @@
+[
+  {
+    "image": "assets/images/chris-and-triss.png",
+    "name": "Chris & Triss",
+    "description": "A Tetromino-based puzzle and block-stacking game for the original Game Boy, created with EuroChrisKA.",
+    "link": null
+  },
+  {
+    "image": "assets/images/ROM.png",
+    "name": "ROM Patches",
+    "description": "Game Boy ROM patches mostly created by Pascal and Tolstoj, with contributions from Kirjava, Ospin, and Toni.",
+    "link": null
+  }
+]

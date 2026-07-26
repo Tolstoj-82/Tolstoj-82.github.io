@@ -1,0 +1,2326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Top Scores</title>
+
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #fff;
+      --text: #17181c;
+      --muted: #707681;
+      --line: #e6e8ed;
+      --shadow: 0 12px 32px rgba(18, 22, 33, 0.07);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+                   BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .wrap {
+      width: min(920px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 48px 0 72px;
+    }
+
+    header { margin-bottom: 28px; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 6vw, 60px);
+      line-height: .95;
+      letter-spacing: -.055em;
+    }
+
+    .subtitle {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    #medal-standings {
+      margin-bottom: 26px;
+    }
+
+    #leaderboards {
+      display: grid;
+      gap: 20px;
+    }
+
+    .standings-card {
+      width: 100%;
+      max-width: 920px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .standings-title {
+      margin: 0 0 14px;
+      font-size: 22px;
+      letter-spacing: -.03em;
+    }
+
+    .standings-table {
+      min-width: 460px;
+    }
+
+    .standings-table th:not(:first-child),
+    .standings-table td:not(:first-child) {
+      text-align: center;
+      width: 90px;
+    }
+
+    .standings-table .rank-col {
+      width: 46px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .player-aliases {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.78em;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .standings-table .total-medals {
+      font-weight: 800;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 920px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-head {
+      margin: 0;
+    }
+
+    .accordion-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      background: #eceff3;
+      border: 1px solid #e1e4e9;
+      border-radius: 14px;
+      color: inherit;
+      font: inherit;
+      font-weight: 800;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .accordion-toggle:hover {
+      background: #e6e9ee;
+    }
+
+    .accordion-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .accordion-chevron {
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      font-size: 24px;
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .accordion-panel {
+      padding-top: 12px;
+    }
+
+    .accordion-panel[hidden] {
+      display: none;
+    }
+
+    .category {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+
+    .metric-note {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-top: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    thead th {
+      border-top: 0;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    tbody td {
+      font-size: 14px;
+    }
+
+    .medal {
+      width: 54px;
+      font-size: 23px;
+      line-height: 1;
+    }
+
+    .name {
+      font-weight: 750;
+      min-width: 150px;
+    }
+
+    .name-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 100%;
+    }
+
+    .info-tip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: #fff;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .info-tip:hover,
+    .info-tip:focus-visible {
+      color: var(--text);
+      border-color: #c8ccd5;
+      box-shadow: 0 0 0 3px rgba(23, 24, 28, 0.06);
+    }
+
+    .note-popover {
+      position: fixed;
+      z-index: 2147483647;
+      width: min(340px, calc(100vw - 24px));
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      background: #17181c;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.5;
+      box-shadow: 0 18px 50px rgba(0,0,0,.28);
+    }
+
+    .note-popover[hidden] {
+      display: none;
+    }
+
+    .note-popover a {
+      color: #9ec5ff;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      overflow-wrap: anywhere;
+    }
+
+    .medal-count-wrap {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .medal-count-tip {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 7px;
+      background: #f1f2f4;
+      cursor: default;
+      transition:
+        background .12s ease,
+        color .12s ease;
+    }
+
+    .medal-count-tip:hover {
+      background: #dfe2e7;
+      color: #111;
+    }
+
+    .duplicate-medals {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .medal-tooltip {
+      position: fixed;
+      z-index: 2147483647;
+      width: max-content;
+      max-width: min(360px, calc(100vw - 24px));
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #111;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.45;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .30);
+      pointer-events: none;
+      white-space: normal;
+    }
+
+    .medal-tooltip[hidden] {
+      display: none;
+    }
+
+    .medal-tooltip-title {
+      margin-bottom: 7px;
+      font-weight: 800;
+    }
+
+    .medal-tooltip ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .medal-tooltip li + li {
+      margin-top: 4px;
+    }
+
+    .metric {
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .time-stack {
+      display: grid;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .frame-count {
+      font-weight: 800;
+    }
+
+    .time-detail {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .corrected-time {
+      color: #2563eb;
+      font-weight: 750;
+    }
+
+    .legacy-time {
+      color: #b45309;
+    }
+
+    .icon-cell {
+      width: 84px;
+    }
+
+    .icon-img {
+      display: block;
+      width: 58px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .platform-img {
+      object-fit: contain;
+      padding: 4px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.2;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .tag-das {
+      background: #e8eefc;
+      color: #3157a4;
+      border-color: #d5e0f8;
+    }
+
+    .tag-tap {
+      background: #fff0d8;
+      color: #9a5b00;
+      border-color: #f6dfb9;
+    }
+
+    .tag-roll {
+      background: #e8f6ea;
+      color: #2f7140;
+      border-color: #d3ead7;
+    }
+
+    .tag-thor {
+      background: #f2eafb;
+      color: #68449a;
+      border-color: #e3d6f3;
+    }
+
+    .tag-style-other {
+      background: #f0f1f3;
+      color: #5d6470;
+      border-color: #e1e3e7;
+    }
+
+    .tag-emulator {
+      background: #f0e9fb;
+      color: #6945a4;
+      border-color: #e1d6f4;
+    }
+
+    .tag-switch {
+      background: #fde9e9;
+      color: #9b3a3a;
+      border-color: #f6d4d4;
+    }
+
+    .tag-snes,
+    .tag-sgb {
+      background: #eee9fa;
+      color: #645096;
+      border-color: #ddd5f1;
+    }
+
+    .tag-gba {
+      background: #e7f2fb;
+      color: #386b91;
+      border-color: #d2e6f5;
+    }
+
+    .tag-gbc {
+      background: #f6e9f4;
+      color: #8d4d81;
+      border-color: #ecd5e8;
+    }
+
+    .tag-gbl {
+      background: #fff7d8;
+      color: #876f13;
+      border-color: #f3e8aa;
+    }
+
+    .tag-gbp {
+      background: #edf0f3;
+      color: #545d68;
+      border-color: #dde1e6;
+    }
+
+    .tag-gb {
+      background: #e8efe6;
+      color: #4c6b49;
+      border-color: #d7e4d4;
+    }
+
+    .tag-platform-other {
+      background: #f0f1f3;
+      color: #5d6470;
+      border-color: #e1e3e7;
+    }
+
+    .metric-primary {
+      display: block;
+      font-weight: 800;
+    }
+
+    .metric-secondary {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .date {
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .proof-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 58px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .proof-link:hover {
+      background: var(--bg);
+    }
+
+    .empty {
+      color: var(--muted);
+    }
+
+    .show-all {
+      display: block;
+      margin: 14px auto 0;
+      padding: 9px 13px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .show-all:hover {
+      background: var(--bg);
+    }
+
+    .copy-players {
+      margin-top: 10px;
+      padding: 9px 13px;
+      background: #17181c;
+      border: 1px solid #17181c;
+      border-radius: 10px;
+      color: #fff;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .copy-players:hover {
+      background: #2a2b30;
+    }
+
+    .copy-feedback {
+      display: inline-block;
+      margin-left: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .copy-players-wrap {
+      margin-top: 26px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .status,
+    .error {
+      padding: 22px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .status { color: var(--muted); }
+
+    @media (max-width: 620px) {
+      .wrap {
+        width: min(100% - 16px, 920px);
+        padding-top: 28px;
+      }
+
+      .card {
+        padding: 16px;
+        border-radius: 17px;
+      }
+
+      .card-head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Game Boy Tetris Rankings</h1>
+      <p class="subtitle">Leaderboard by category: <a href="https://docs.google.com/spreadsheets/d/1PJZ50b5Y6RqHNW1PH5BFn-wvc7IPxu3m0JastDksMtQ/" target="_blank">Google Sheet</a></p>
+    </header>
+
+    <section id="medal-standings">
+      <div class="status">Loading medal standings…</div>
+    </section>
+
+    <section id="leaderboards">
+      <div class="status">Loading scores…</div>
+    </section>
+
+    <div class="copy-players-wrap">
+      <button
+        id="copyPlayersButton"
+        class="copy-players"
+        type="button"
+        disabled
+      >
+        Copy unique players
+      </button>
+      <span id="copyPlayersFeedback" class="copy-feedback"></span>
+    </div>
+  </main>
+
+  <div id="notePopover" class="note-popover" hidden></div>
+  <div id="medalTooltip" class="medal-tooltip" hidden></div>
+
+  <script>
+    // ==========================================================
+    // CONFIGURATION
+    // ==========================================================
+
+    const SPREADSHEET_ID =
+      '1PJZ50b5Y6RqHNW1PH5BFn-wvc7IPxu3m0JastDksMtQ';
+
+    // Kept from your current file.
+    const SHEETS = [
+      { tab: 'LVL 9', title: 'Level 9 Highscore' },
+      { tab: 'LVL A-J', title: 'Highscore Level A-J' },
+      { tab: 'LVL 9 ♥', title: 'Level 9♥ Highscore' },
+      { tab: 'LVL K', title: 'Level K Highscore' },
+      { tab: 'LVL L', title: 'Level L Highscore' },
+      { tab: 'LVL M', title: 'Level M Highscore' },
+      { tab: 'LINES', title: 'Most Lines reached' },
+      { tab: 'LVL 10 TR', title: 'Transition into Level 10 Highscore' },
+      { tab: 'LVL 20 TR', title: 'Transition into Level 20 Highscore' },
+      { tab: 'CAP 300', title: '300 Lines Cap Highscore' },
+      { tab: 'EARL MAX', title: 'Earliest Maxout (Lines)' },
+      { tab: 'Awaytris', title: 'Awaytris Highscore (Traintris, Planetris, Cartris...)' },
+      { tab: 'B 19-5', title: 'B-Type 9♥-5' },
+      { tab: 'B 20-4', title: 'B-Type K-4' },
+      { tab: 'B 20-5', title: 'B-Type K-5' },
+      { tab: 'SR 30 L', title: 'Speedrun 30 lines' },
+      { tab: 'SR 40 L', title: 'Speedrun 40 lines' },
+      { tab: 'SR 100 L', title: 'Speedrun 100 lines' },
+      { tab: 'SR 100 L LVL 0', title: 'Speedrun 100 lines from a Level 0 start' },
+      { tab: 'Gamescom24', title: 'Gamescom 2024 Highscore' },
+    ];
+
+    const HEADERS = {
+      name: ['name', 'player', 'participant', 'contestant'],
+      score: ['score', 'points', 'point', 'total', 'value'],
+      lines: ['lines', 'line'],
+      platform: ['platform', 'system', 'console'],
+      style: ['style', 'playstyle', 'play style', 'technique'],
+      proof: ['proof'],
+      date: ['date', 'submitted', 'submission date'],
+      notes: ['notes', 'note', 'comment', 'comments'],
+      proofLink: ['proof link', 'link', 'proof url', 'url']
+    };
+
+    const MEDALS = ['🥇', '🥈', '🥉'];
+
+    // Keep every distinct source spelling once, before canonicalizing aliases.
+    const RAW_PLAYERS = new Map();
+
+    const PLAYER_ALIASES = {
+      'Zircon': [
+        'Zircon D'
+      ],
+
+      'Blue Scuti': [
+        'Blue_Scuti',
+        'BlueScuti'
+      ],
+
+      'Creepercraftyt': [
+        'Creepercraft'
+      ],
+
+      'Duży K': [
+        'Duzy K'
+      ],
+
+      'IceBlade73': [
+        'IceBlade'
+      ],
+
+      'M-J': [
+        'm minus j'
+      ],
+
+      'MarkTris': [
+        'MarkTrisFromHungary'
+      ],
+
+      'minertyler': [
+        'Minertyler100'
+      ],
+
+      'Mr.Faq': [
+        'Mr FAQ'
+      ]
+    };
+
+    // Categories where the leaderboard metric comes from the Lines column.
+    const LINES_METRIC_SHEETS = new Set([
+      'lines',
+      'earl max'
+    ]);
+
+    // Legacy timing: hexadecimal frame field + 61 fps.
+    // SR 30 L uses this format for every entry.
+    const LEGACY_HEX_TIME_SHEETS = new Set([
+      'sr 30 l'
+    ]);
+
+    function getPlayerAliases(name) {
+      const canonical = canonicalPlayerName(name);
+      return PLAYER_ALIASES[canonical] || [];
+    }
+
+    function formatPlayerWithAliases(name) {
+      const aliases = getPlayerAliases(name);
+
+      if (!aliases.length) {
+        return escapeHtml(name);
+      }
+
+      return `
+        ${escapeHtml(name)}
+        <span class="player-aliases">
+          (aka. ${aliases.map(escapeHtml).join(', ')})
+        </span>
+      `;
+    }
+
+    function canonicalPlayerName(name) {
+      const raw = String(name || '').trim();
+      const input = normalize(raw);
+
+      for (const [canonical, aliases] of Object.entries(PLAYER_ALIASES)) {
+        if (normalize(canonical) === input) {
+          return canonical;
+        }
+
+        if (aliases.some(alias => normalize(alias) === input)) {
+          return canonical;
+        }
+      }
+
+      return raw;
+    }
+
+    // SR categories use Score, but Score represents elapsed time.
+    // Therefore lower values rank better.
+    function isTimeCategory(sheetName) {
+      return /^sr\b/i.test(sheetName.trim());
+    }
+
+    function isBTypeCategory(sheetName) {
+      return /^b\s/i.test(String(sheetName || '').trim());
+    }
+
+    // ==========================================================
+    // LOAD
+    // ==========================================================
+
+    async function loadLeaderboards() {
+      const root = document.getElementById('leaderboards');
+
+      const results = await Promise.all(
+        SHEETS.map(async sheet => {
+          try {
+            return await loadSheet(sheet.tab, sheet.title);
+          } catch (error) {
+            console.error(`Failed to load "${sheet.tab}"`, error);
+            return {
+              category: sheet.title,
+              sheetName: sheet.tab,
+              rows: [],
+              error: true
+            };
+          }
+        })
+      );
+
+      renderMedalStandings(results);
+      render(results);
+
+      const uniquePlayers = getUniquePlayers();
+      window.uniquePlayers = uniquePlayers;
+
+      const copyButton = document.getElementById('copyPlayersButton');
+      const copyFeedback = document.getElementById('copyPlayersFeedback');
+
+      if (copyButton) {
+        copyButton.disabled = uniquePlayers.length === 0;
+      }
+
+      if (copyFeedback) {
+        copyFeedback.textContent =
+          `${uniquePlayers.length} unique source name${uniquePlayers.length === 1 ? '' : 's'}`;
+      }
+}
+
+    function loadSheet(sheetName, displayTitle) {
+      /*
+        JSONP avoids the CORS problem from fetch().
+      */
+      return new Promise((resolve, reject) => {
+        const callbackName =
+          '__sheetCallback_' +
+          Date.now() + '_' +
+          Math.random().toString(36).slice(2);
+
+        const script = document.createElement('script');
+
+        const cleanup = () => {
+          delete window[callbackName];
+          script.remove();
+        };
+
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error(`Timed out loading "${sheetName}"`));
+        }, 15000);
+
+        window[callbackName] = data => {
+          clearTimeout(timeout);
+
+          try {
+            if (!data || data.status === 'error') {
+              throw new Error(
+                data?.errors?.map(error => error.message).join(', ') ||
+                'Google Sheets query failed'
+              );
+            }
+
+            const columns = data.table.cols.map((column, index) => ({
+              index,
+              label: normalize(column.label || column.id || '')
+            }));
+
+            const col = {};
+            for (const [key, aliases] of Object.entries(HEADERS)) {
+              col[key] = findColumn(columns, aliases);
+            }
+
+            if (col.name === -1) {
+              throw new Error('Could not identify Name column');
+            }
+
+            const useLines = LINES_METRIC_SHEETS.has(normalize(sheetName));
+            const isBType = isBTypeCategory(sheetName);
+            const metricColumn = useLines ? col.lines : col.score;
+
+            if (
+              metricColumn === -1 &&
+              !(isBType && col.lines !== -1)
+            ) {
+              throw new Error(
+                `Could not identify ${useLines ? 'Lines' : 'Score'} column`
+              );
+            }
+
+            const rows = data.table.rows
+              .map(row => {
+                const cells = row.c || [];
+
+                const scoreCell = col.score !== -1
+                  ? cells[col.score]
+                  : null;
+
+                const linesCell = col.lines !== -1
+                  ? cells[col.lines]
+                  : null;
+
+                const metricCell = useLines
+                  ? linesCell
+                  : scoreCell;
+
+                const metricDisplay = getCellText(metricCell);
+                const date = getCellText(cells[col.date]);
+
+                const timing = isTimeCategory(sheetName)
+                  ? parseRunTime(metricDisplay, sheetName, date)
+                  : null;
+
+                const rawPlayerName = getCellText(cells[col.name]);
+
+                if (rawPlayerName) {
+                  const rawKey = normalize(rawPlayerName);
+
+                  if (rawKey && !RAW_PLAYERS.has(rawKey)) {
+                    RAW_PLAYERS.set(rawKey, rawPlayerName);
+                  }
+                }
+
+                const playerName = canonicalPlayerName(rawPlayerName);
+
+                return {
+                  name: playerName,
+                  metricValue: timing
+                    ? timing.totalFrames
+                    : (
+                        isBType &&
+                        !Number.isFinite(getCellNumber(scoreCell)) &&
+                        Number.isFinite(getCellNumber(linesCell))
+                      )
+                        ? getCellNumber(linesCell)
+                        : getCellNumber(metricCell),
+                  metricDisplay,
+                  timing,
+                  scoreValue: getCellNumber(scoreCell),
+                  scoreDisplay: getCellText(scoreCell),
+                  linesValue: getCellNumber(linesCell),
+                  linesDisplay: getCellText(linesCell),
+                  bTypeUsesLines:
+                    isBType &&
+                    !Number.isFinite(getCellNumber(scoreCell)) &&
+                    Number.isFinite(getCellNumber(linesCell)),
+                  platform: getCellText(cells[col.platform]),
+                  style: getCellText(cells[col.style]),
+                  proof: getCellText(cells[col.proof]),
+                  date,
+                  notes: getCellText(cells[col.notes]),
+                  proofLink:
+                    getCellLink(cells[col.proofLink]) ||
+                    getCellLink(cells[col.proof])
+                };
+              })
+              .filter(item =>
+                item.name &&
+                Number.isFinite(item.metricValue)
+              );
+
+            // Speedrun sheets: fastest/lower time first.
+            // Everything else: highest metric first.
+            rows.sort((a, b) => {
+              // B-Type:
+              // 1) entries with Score first, highest Score first
+              // 2) entries without Score but with Lines afterwards,
+              //    highest Lines first
+              if (isBTypeCategory(sheetName)) {
+                if (a.bTypeUsesLines !== b.bTypeUsesLines) {
+                  return a.bTypeUsesLines ? 1 : -1;
+                }
+
+                if (a.bTypeUsesLines && b.bTypeUsesLines) {
+                  return (
+                    b.linesValue - a.linesValue ||
+                    a.name.localeCompare(b.name)
+                  );
+                }
+
+                return (
+                  b.scoreValue - a.scoreValue ||
+                  a.name.localeCompare(b.name)
+                );
+              }
+
+              // Speedruns: smallest time/frame count first.
+              // EARL MAX: fewer lines = earlier maxout = better.
+              // Everything else: highest metric first.
+              const ascending =
+                isTimeCategory(sheetName) ||
+                normalize(sheetName) === 'earl max';
+
+              const delta = ascending
+                ? a.metricValue - b.metricValue
+                : b.metricValue - a.metricValue;
+
+              return delta || a.name.localeCompare(b.name);
+            });
+
+            cleanup();
+
+            resolve({
+              category: displayTitle || sheetName,
+              sheetName,
+              metricName: useLines ? 'Lines' : (isTimeCategory(sheetName) ? 'Frames' : 'Score'),
+              rows
+            });
+
+          } catch (error) {
+            cleanup();
+            reject(error);
+          }
+        };
+
+        script.onerror = () => {
+          clearTimeout(timeout);
+          cleanup();
+          reject(new Error(`Could not load "${sheetName}"`));
+        };
+
+        const params = new URLSearchParams({
+          tqx: `out:json;responseHandler:${callbackName}`,
+          sheet: sheetName
+        });
+
+        script.src =
+          `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}` +
+          `/gviz/tq?${params.toString()}`;
+
+        document.head.appendChild(script);
+      });
+    }
+
+    // ==========================================================
+    // RENDER
+    // ==========================================================
+
+    function renderMedalStandings(categories) {
+      const root = document.getElementById('medal-standings');
+      const people = new Map();
+
+      categories
+        .filter(category => !category.error)
+        .forEach(category => {
+          const seenInCategory = new Set();
+
+          category.rows.slice(0, 3).forEach((row, index) => {
+            const key = normalize(row.name);
+            if (!key) return;
+
+            if (!people.has(key)) {
+              people.set(key, {
+                name: row.name,
+
+                gold: 0,
+                silver: 0,
+                bronze: 0,
+
+                duplicateGold: 0,
+                duplicateSilver: 0,
+                duplicateBronze: 0,
+
+                goldBoards: [],
+                silverBoards: [],
+                bronzeBoards: [],
+
+                goldMetrics: [],
+                silverMetrics: [],
+                bronzeMetrics: [],
+
+                duplicateGoldBoards: [],
+                duplicateSilverBoards: [],
+                duplicateBronzeBoards: [],
+
+                duplicateGoldMetrics: [],
+                duplicateSilverMetrics: [],
+                duplicateBronzeMetrics: []
+              });
+            }
+
+            const person = people.get(key);
+            const isDuplicate = seenInCategory.has(key);
+            const boardTitle = category.category;
+
+            if (!isDuplicate) {
+              seenInCategory.add(key);
+
+              if (index === 0) {
+                person.gold++;
+                person.goldBoards.push(boardTitle);
+                person.goldMetrics.push(formatMedalMetric(row, category));
+              }
+
+              if (index === 1) {
+                person.silver++;
+                person.silverBoards.push(boardTitle);
+                person.silverMetrics.push(formatMedalMetric(row, category));
+              }
+
+              if (index === 2) {
+                person.bronze++;
+                person.bronzeBoards.push(boardTitle);
+                person.bronzeMetrics.push(formatMedalMetric(row, category));
+              }
+            } else {
+              if (index === 0) {
+                person.duplicateGold++;
+                person.duplicateGoldBoards.push(boardTitle);
+                person.duplicateGoldMetrics.push(formatMedalMetric(row, category));
+              }
+
+              if (index === 1) {
+                person.duplicateSilver++;
+                person.duplicateSilverBoards.push(boardTitle);
+                person.duplicateSilverMetrics.push(formatMedalMetric(row, category));
+              }
+
+              if (index === 2) {
+                person.duplicateBronze++;
+                person.duplicateBronzeBoards.push(boardTitle);
+                person.duplicateBronzeMetrics.push(formatMedalMetric(row, category));
+              }
+            }
+          });
+        });
+
+      const standings = [...people.values()]
+        .sort((a, b) =>
+          b.gold - a.gold ||
+          b.silver - a.silver ||
+          b.bronze - a.bronze ||
+          a.name.localeCompare(b.name)
+        );
+
+      let previousMedals = null;
+      let previousRank = 0;
+
+      standings.forEach((person, index) => {
+        const medalKey =
+          `${person.gold}|${person.silver}|${person.bronze}`;
+
+        if (medalKey === previousMedals) {
+          person.rank = previousRank;
+        } else {
+          person.rank = index + 1;
+          previousRank = person.rank;
+          previousMedals = medalKey;
+        }
+      });
+
+      if (!standings.length) {
+        root.innerHTML = '';
+        return;
+      }
+
+      root.innerHTML = `
+        <article class="standings-card">
+          <h2 class="standings-title">Medal Standings</h2>
+
+          <div class="table-scroll">
+            <table class="standings-table">
+              <thead>
+                <tr>
+                  <th class="rank-col">#</th>
+                  <th>Player</th>
+                  <th>🥇 Gold</th>
+                  <th>🥈 Silver</th>
+                  <th>🥉 Bronze</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${standings.map((person, index) => `
+                  <tr data-medal-rank="${index + 1}" ${index >= 5 ? 'hidden' : ''}>
+                    <td class="rank-col">${person.rank}</td>
+                    <td class="name">${formatPlayerWithAliases(person.name)}</td>
+
+                    <td>
+                      ${formatMedalCountWithTooltip(
+                        person.gold,
+                        person.duplicateGold,
+                        person.goldBoards,
+                        person.duplicateGoldBoards,
+                        person.goldMetrics,
+                        person.duplicateGoldMetrics,
+                        'Gold'
+                      )}
+                    </td>
+
+                    <td>
+                      ${formatMedalCountWithTooltip(
+                        person.silver,
+                        person.duplicateSilver,
+                        person.silverBoards,
+                        person.duplicateSilverBoards,
+                        person.silverMetrics,
+                        person.duplicateSilverMetrics,
+                        'Silver'
+                      )}
+                    </td>
+
+                    <td>
+                      ${formatMedalCountWithTooltip(
+                        person.bronze,
+                        person.duplicateBronze,
+                        person.bronzeBoards,
+                        person.duplicateBronzeBoards,
+                        person.bronzeMetrics,
+                        person.duplicateBronzeMetrics,
+                        'Bronze'
+                      )}
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          ${standings.length > 5 ? `
+            <button
+              id="medalShowMore"
+              class="show-all"
+              type="button"
+              aria-expanded="false"
+            >Show more</button>
+          ` : ''}
+        </article>
+      `;
+
+      const medalButton = document.getElementById('medalShowMore');
+
+      if (medalButton) {
+        medalButton.addEventListener('click', () => {
+          const expanded =
+            medalButton.getAttribute('aria-expanded') === 'true';
+
+          root.querySelectorAll('tr[data-medal-rank]').forEach(row => {
+            if (Number(row.dataset.medalRank) > 5) {
+              row.hidden = expanded;
+            }
+          });
+
+          medalButton.setAttribute(
+            'aria-expanded',
+            String(!expanded)
+          );
+
+          medalButton.textContent =
+            expanded ? 'Show more' : 'Show less';
+        });
+      }
+
+      setupMedalTooltips();
+    }
+
+    function formatMedalCountWithTooltip(
+      actual,
+      duplicates,
+      boards,
+      duplicateBoards,
+      metrics,
+      duplicateMetrics,
+      medalLabel
+    ) {
+      const actualItems = boards.map((board, index) => ({
+        board,
+        metric: metrics[index] || ''
+      }));
+
+      const duplicateItems = duplicateBoards.map((board, index) => ({
+        board,
+        metric: duplicateMetrics[index] || ''
+      }));
+
+      const actualPart = actual > 0
+        ? `
+          <span
+            class="medal-count-tip"
+            data-tooltip-title="${escapeAttribute(`${medalLabel} medal${actual === 1 ? '' : 's'}`)}"
+            data-tooltip-items="${escapeAttribute(JSON.stringify(actualItems))}"
+          >${actual}</span>
+        `
+        : '0';
+
+      const duplicatePart = duplicates > 0
+        ? `
+          <span
+            class="duplicate-medals medal-count-tip"
+            data-tooltip-title="Duplicate entries in the same board"
+            data-tooltip-items="${escapeAttribute(JSON.stringify(duplicateItems))}"
+          >(${duplicates})</span>
+        `
+        : '';
+
+      return `
+        <span class="medal-count-wrap">
+          ${actualPart}
+          ${duplicatePart}
+        </span>
+      `;
+    }
+
+    function formatMedalMetric(row, category) {
+      const sheetName = normalize(
+        category.sheetName || category.category
+      );
+
+      if (row.timing) {
+        // 30L / 40L: show frames and the associated time.
+        if (
+          sheetName === 'sr 30 l' ||
+          sheetName === 'sr 40 l'
+        ) {
+          const frameCount =
+            `${formatInteger(row.timing.totalFrames)} frames`;
+
+          if (row.timing.is2023) {
+            return (
+              `${frameCount} ` +
+              `(Time ${row.timing.originalTime}, ` +
+              `Corrected ${row.timing.correctedTime})`
+            );
+          }
+
+          return (
+            `${frameCount} ` +
+            `(Time ${row.timing.originalTime})`
+          );
+        }
+
+        // 100-line speedruns stay as their normal time value.
+        if (row.timing.displayMode === 'time-only') {
+          return row.timing.originalTime;
+        }
+
+        return `${formatInteger(row.timing.totalFrames)} frames`;
+      }
+
+      if (category.metricName === 'Lines') {
+        return new Intl.NumberFormat('en-US', {
+          maximumFractionDigits: 0
+        }).format(row.metricValue);
+      }
+
+      return new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: 2
+      }).format(row.metricValue);
+    }
+
+    function setupMedalTooltips() {
+      const tooltip = document.getElementById('medalTooltip');
+      if (!tooltip) return;
+
+      document.querySelectorAll('.medal-count-tip').forEach(target => {
+        target.addEventListener('mouseenter', event => {
+          showMedalTooltip(event, target, tooltip);
+        });
+
+        target.addEventListener('mousemove', event => {
+          if (!tooltip.hidden) {
+            positionMedalTooltipAtMouse(event, tooltip);
+          }
+        });
+
+        target.addEventListener('mouseleave', () => {
+          tooltip.hidden = true;
+          tooltip.innerHTML = '';
+        });
+      });
+    }
+
+    function showMedalTooltip(event, target, tooltip) {
+      let items = [];
+
+      try {
+        items = JSON.parse(target.dataset.tooltipItems || '[]');
+      } catch (error) {
+        console.error('Could not parse medal tooltip items:', error);
+      }
+
+      const title = target.dataset.tooltipTitle || '';
+
+      tooltip.innerHTML = `
+        <div class="medal-tooltip-title">
+          ${escapeHtml(title)}
+        </div>
+        ${items.length
+          ? `<ul>${items.map(item => `
+              <li>
+                ${escapeHtml(item.board)}
+                ${item.metric ? `: <strong>${escapeHtml(item.metric)}</strong>` : ''}
+              </li>
+            `).join('')}</ul>`
+          : '<div>No categories found.</div>'
+        }
+      `;
+
+      tooltip.hidden = false;
+      positionMedalTooltipAtMouse(event, tooltip);
+    }
+
+    function positionMedalTooltipAtMouse(event, tooltip) {
+      const gap = 14;
+
+      let left = event.clientX + gap;
+      let top = event.clientY + gap;
+
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+
+      const rect = tooltip.getBoundingClientRect();
+
+      if (left + rect.width > window.innerWidth - 8) {
+        left = event.clientX - rect.width - gap;
+      }
+
+      if (top + rect.height > window.innerHeight - 8) {
+        top = event.clientY - rect.height - gap;
+      }
+
+      left = Math.max(8, left);
+      top = Math.max(8, top);
+
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    }
+
+    function render(categories) {
+      const root = document.getElementById('leaderboards');
+
+      root.innerHTML = categories.map((category, categoryIndex) => {
+        if (category.error) {
+          return `
+            <article class="card">
+              <div class="card-head">
+                <h2 class="category">${escapeHtml(category.category)}</h2>
+              </div>
+              <div class="status">Could not load this category.</div>
+            </article>
+          `;
+        }
+
+        if (!category.rows.length) {
+          return `
+            <article class="card">
+              <div class="card-head">
+                <h2 class="category">${escapeHtml(category.category)}</h2>
+              </div>
+              <div class="status">No leaderboard rows found.</div>
+            </article>
+          `;
+        }
+
+        const isFirst = categoryIndex === 0;
+
+        return `
+          <article class="card" data-category="${categoryIndex}">
+            <div class="card-head">
+              <button
+                class="accordion-toggle"
+                type="button"
+                aria-expanded="${isFirst ? 'true' : 'false'}"
+                aria-controls="panel-${categoryIndex}"
+              >
+                <span class="accordion-title-wrap">
+                  <span class="category">${escapeHtml(category.category)}</span>
+                  <span class="metric-note">
+                    Ranked by ${escapeHtml(category.metricName)}
+                  </span>
+                </span>
+                <span class="accordion-chevron" aria-hidden="true">${isFirst ? "−" : "+"}</span>
+              </button>
+            </div>
+
+            <div
+              id="panel-${categoryIndex}"
+              class="accordion-panel"
+              ${isFirst ? '' : 'hidden'}
+            >
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Medal</th>
+                      <th>Player</th>
+                      <th>${escapeHtml(category.metricName)}</th>
+                      <th>Playstyle</th>
+                      <th>Platform</th>
+                      <th>Date</th>
+                      <th>Link</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${category.rows.map((row, index) =>
+                      renderRow(row, index, category)
+                    ).join('')}
+                  </tbody>
+                </table>
+              </div>
+
+              ${category.rows.length > 3 ? `
+                <button
+                  class="show-all"
+                  type="button"
+                  data-category="${categoryIndex}"
+                  aria-expanded="false"
+                >Show all</button>
+              ` : ''}
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      // Hide everything after the top 3 initially.
+      document.querySelectorAll('tbody tr[data-rank]').forEach(row => {
+        if (Number(row.dataset.rank) > 3) row.hidden = true;
+      });
+
+      document.querySelectorAll('.accordion-toggle').forEach(button => {
+        button.addEventListener('click', () => {
+          const panelId = button.getAttribute('aria-controls');
+          const panel = document.getElementById(panelId);
+          const expanded = button.getAttribute('aria-expanded') === 'true';
+
+          button.setAttribute('aria-expanded', String(!expanded));
+          panel.hidden = expanded;
+
+          const symbol = button.querySelector('.accordion-chevron');
+          if (symbol) {
+            symbol.textContent = expanded ? '+' : '−';
+          }
+        });
+      });
+
+      document.querySelectorAll('.show-all').forEach(button => {
+        button.addEventListener('click', () => {
+          const card = button.closest('.card');
+          if (!card) return;
+
+          const expanded = button.getAttribute('aria-expanded') === 'true';
+
+          card.querySelectorAll('tbody tr[data-rank]').forEach(row => {
+            if (Number(row.dataset.rank) > 3) {
+              row.hidden = expanded ? true : false;
+            }
+          });
+
+          button.setAttribute('aria-expanded', String(!expanded));
+          button.textContent = expanded ? 'Show all' : 'Show top 3';
+        });
+      });
+
+      setupNotePopovers();
+    }
+
+    function renderRow(row, index, category) {
+      const rank = index + 1;
+      const medal = MEDALS[index] || '';
+
+      const styleTag = getPlaystyleTag(row.style);
+      const platformTag = getPlatformTag(row.platform);
+
+      const metric = row.bTypeUsesLines
+        ? '<span class="empty">—</span>'
+        : formatMetric(
+            row.metricValue,
+            row.metricDisplay,
+            category.sheetName || category.category,
+            row.timing
+          );
+
+      const secondaryMetric = formatSecondaryMetric(row, category);
+
+      const link = safeUrl(row.proofLink);
+
+      return `
+        <tr data-rank="${rank}">
+          <td class="medal">${medal || rank}</td>
+          <td class="name">
+            <span class="name-wrap">
+              <span>${escapeHtml(row.name)}</span>
+              ${row.notes ? `
+                <button
+                  class="info-tip"
+                  type="button"
+                  aria-label="Show note for ${escapeHtml(row.name)}"
+                  data-note="${escapeAttribute(row.notes)}"
+                >i</button>
+              ` : ''}
+            </span>
+          </td>
+          <td class="metric">
+            <span class="metric-primary">${metric}</span>
+            ${secondaryMetric
+              ? `<span class="metric-secondary">${secondaryMetric}</span>`
+              : ''}
+          </td>
+
+          <td class="icon-cell">
+            ${styleTag
+              ? `<span class="tag ${styleTag.className}">
+                   ${escapeHtml(styleTag.label)}
+                 </span>`
+              : `<span class="empty">—</span>`}
+          </td>
+
+          <td class="icon-cell">
+            ${platformTag
+              ? `<span class="tag ${platformTag.className}">
+                   ${escapeHtml(platformTag.label)}
+                 </span>`
+              : `<span class="empty">—</span>`}
+          </td>
+
+          <td class="date">${escapeHtml(row.date || '—')}</td>
+
+          <td>
+            ${link
+              ? `<a class="proof-link"
+                    href="${escapeHtml(link)}"
+                    target="_blank"
+                    rel="noopener noreferrer">Proof ↗</a>`
+              : `<span class="empty">—</span>`}
+          </td>
+        </tr>
+      `;
+    }
+
+    function setupNotePopovers() {
+      const popover = document.getElementById('notePopover');
+      if (!popover) return;
+
+      let activeButton = null;
+      let hideTimer = null;
+
+      document.querySelectorAll('.info-tip').forEach(button => {
+        const show = () => {
+          clearTimeout(hideTimer);
+
+          activeButton = button;
+          popover.innerHTML = linkifyNote(button.dataset.note || '');
+          popover.hidden = false;
+
+          positionNotePopover(button, popover);
+        };
+
+        const scheduleHide = () => {
+          clearTimeout(hideTimer);
+
+          hideTimer = setTimeout(() => {
+            popover.hidden = true;
+            popover.innerHTML = '';
+            activeButton = null;
+          }, 180);
+        };
+
+        button.addEventListener('mouseenter', show);
+        button.addEventListener('mouseleave', scheduleHide);
+        button.addEventListener('focus', show);
+        button.addEventListener('blur', scheduleHide);
+      });
+
+      popover.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimer);
+      });
+
+      popover.addEventListener('mouseleave', () => {
+        clearTimeout(hideTimer);
+
+        hideTimer = setTimeout(() => {
+          popover.hidden = true;
+          popover.innerHTML = '';
+          activeButton = null;
+        }, 180);
+      });
+
+      window.addEventListener('resize', () => {
+        if (activeButton && !popover.hidden) {
+          positionNotePopover(activeButton, popover);
+        }
+      });
+
+      window.addEventListener('scroll', () => {
+        if (activeButton && !popover.hidden) {
+          positionNotePopover(activeButton, popover);
+        }
+      }, true);
+    }
+
+    function positionNotePopover(button, popover) {
+      const rect = button.getBoundingClientRect();
+      const gap = 8;
+
+      // First measure after making it visible.
+      const popRect = popover.getBoundingClientRect();
+
+      let left = rect.left + rect.width / 2 - popRect.width / 2;
+      let top = rect.top - popRect.height - gap;
+
+      left = Math.max(8, Math.min(left, window.innerWidth - popRect.width - 8));
+
+      // If there isn't enough room above, place below.
+      if (top < 8) {
+        top = rect.bottom + gap;
+      }
+
+      popover.style.left = `${left}px`;
+      popover.style.top = `${top}px`;
+    }
+
+    function linkifyNote(note) {
+      const escaped = escapeHtml(note);
+
+      return escaped.replace(
+        /(https?:\/\/[^\s<]+)/gi,
+        url => {
+          const safe = safeUrl(
+            url.replace(/[),.;!?]+$/, '')
+          );
+
+          if (!safe) return url;
+
+          const trailing = url.slice(safe.length);
+
+          return (
+            `<a href="${escapeHtml(safe)}"` +
+            ` target="_blank" rel="noopener noreferrer">` +
+            `${escapeHtml(safe)}</a>${escapeHtml(trailing)}`
+          );
+        }
+      ).replace(/\n/g, '<br>');
+    }
+
+    // ==========================================================
+    // METRICS
+    // ==========================================================
+
+    function formatMetric(value, displayValue, sheetName, timing) {
+      if (isTimeCategory(sheetName) && timing) {
+        // 100-line categories stay as time displays.
+        if (timing.displayMode === 'time-only') {
+          return `
+            <div class="time-stack">
+              <span class="frame-count">
+                ${escapeHtml(timing.originalTime)}
+              </span>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="time-stack">
+            <span class="frame-count">
+              ${formatInteger(timing.totalFrames)} frames
+            </span>
+            <span class="time-detail">
+              (
+              Time ${escapeHtml(timing.originalTime)}
+              ${timing.is2023 ? `
+                ·
+                <span class="corrected-time">
+                  Corrected ${escapeHtml(timing.correctedTime)}
+                </span>
+              ` : ''}
+              )
+            </span>
+          </div>
+        `;
+      }
+
+      return escapeHtml(
+        new Intl.NumberFormat('en-US', {
+          maximumFractionDigits: 2
+        }).format(value)
+      );
+    }
+
+    function parseRunTime(value, sheetName, dateText) {
+      const raw = String(value ?? '').trim();
+      if (!raw) return null;
+
+      const sheet = normalize(sheetName);
+
+      /*
+        Normalize the source into MM:SS.frames.
+
+        Important Google-Sheet cases:
+          119       -> 1:19.00
+          126       -> 1:26.00
+          135       -> 1:35.00
+          1:19      -> 1:19.00
+          1:19.0A   -> 1:19.0A
+
+        A bare integer in these speedrun sheets is therefore interpreted
+        as M:SS, NOT as a frame count.
+      */
+      const parsed = parseDisplayedRunTime(raw);
+      if (!parsed) return null;
+
+      const {
+        minutes,
+        seconds,
+        frameText,
+        normalizedTime
+      } = parsed;
+
+      const is30Lines = sheet === 'sr 30 l';
+      const is40Lines = sheet === 'sr 40 l';
+      const is100Lines =
+        sheet === 'sr 100 l' ||
+        sheet === 'sr 100 l lvl 0';
+
+      /*
+        30 lines:
+          always 2023 timing
+          hexadecimal frame field
+          61 fps
+
+        40 lines:
+          mixed
+          2023 rows use hex + 61 fps
+          later rows use decimal + 60 fps
+
+        100 lines:
+          leave displayed as time
+          use decimal/60fps for numeric ranking
+      */
+      let is2023 = false;
+
+      if (is30Lines) {
+        is2023 = true;
+      } else if (is40Lines) {
+        const year = getYearFromDate(dateText);
+
+        // Date is the primary signal. A-F remains a safe fallback for rows
+        // whose date is unavailable.
+        is2023 =
+          year === 2023 ||
+          (year === null && /[A-F]/i.test(frameText));
+      }
+
+      if (is100Lines) {
+        const decimalFrames = parseInt(frameText || '0', 10);
+
+        if (!Number.isFinite(decimalFrames)) return null;
+
+        const totalFrames =
+          decimalFrames +
+          60 * (seconds + 60 * minutes);
+
+        return {
+          totalFrames,
+          is2023: false,
+          originalTime: normalizedTime,
+          correctedTime: normalizedTime,
+          displayMode: 'time-only'
+        };
+      }
+
+      const frames = parseInt(
+        frameText || '0',
+        is2023 ? 16 : 10
+      );
+
+      if (!Number.isFinite(frames)) return null;
+
+      // Mirrors the spreadsheet formula exactly.
+      const totalFrames = is2023
+        ? frames + 61 * (seconds + 60 * minutes)
+        : frames + 60 * (seconds + 60 * minutes);
+
+      return {
+        totalFrames,
+        is2023,
+        originalTime: normalizedTime,
+        correctedTime: framesTo60FpsTime(totalFrames),
+        displayMode: 'frames'
+      };
+    }
+
+    function parseDisplayedRunTime(rawValue) {
+      let raw = String(rawValue || '').trim();
+      if (!raw) return null;
+
+      let minutes;
+      let seconds;
+      let frameText = '00';
+
+      // Normal form: M:SS or M:SS.frames
+      let match = raw.match(
+        /^(\d+):(\d{1,2})(?:\.([0-9A-Fa-f]+))?$/
+      );
+
+      if (match) {
+        minutes = Number(match[1]);
+        seconds = Number(match[2]);
+        frameText = (match[3] || '00').toUpperCase();
+      } else {
+        /*
+          Bare digits are interpreted as M:SS:
+            119 -> 1:19
+            59  -> 0:59
+            1005 -> 10:05
+        */
+        const digits = raw.replace(/\s+/g, '');
+
+        if (!/^\d+$/.test(digits)) {
+          return null;
+        }
+
+        if (digits.length <= 2) {
+          minutes = 0;
+          seconds = Number(digits);
+        } else {
+          minutes = Number(digits.slice(0, -2));
+          seconds = Number(digits.slice(-2));
+        }
+      }
+
+      if (
+        !Number.isFinite(minutes) ||
+        !Number.isFinite(seconds) ||
+        seconds < 0 ||
+        seconds > 59
+      ) {
+        return null;
+      }
+
+      return {
+        minutes,
+        seconds,
+        frameText,
+        normalizedTime:
+          `${minutes}:${String(seconds).padStart(2, '0')}.` +
+          `${frameText.padStart(2, '0')}`
+      };
+    }
+
+    function getYearFromDate(value) {
+      const text = String(value || '').trim();
+      if (!text) return null;
+
+      const explicitYear = text.match(/\b(20\d{2})\b/);
+      if (explicitYear) {
+        return Number(explicitYear[1]);
+      }
+
+      const parsed = new Date(text);
+      return Number.isNaN(parsed.getTime())
+        ? null
+        : parsed.getFullYear();
+    }
+
+    function framesTo60FpsTime(totalFrames) {
+      const totalSeconds = Math.floor(totalFrames / 60);
+      const frames = totalFrames % 60;
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+
+      return (
+        `${minutes}:` +
+        `${String(seconds).padStart(2, '0')}.` +
+        `${String(frames).padStart(2, '0')}`
+      );
+    }
+
+    function formatInteger(value) {
+      return new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function formatSecondaryMetric(row, category) {
+      const sheetName = normalize(category.sheetName || category.category);
+
+      if (isBTypeCategory(category.sheetName || category.category)) {
+        if (Number.isFinite(row.linesValue)) {
+          return `Lines: ${new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: 0
+          }).format(row.linesValue)}`;
+        }
+      }
+
+      // Speedruns use Score as time; Lines is the useful secondary metric.
+      if (isTimeCategory(category.sheetName || category.category)) {
+        if (Number.isFinite(row.linesValue)) {
+          return `Lines: ${new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: 0
+          }).format(row.linesValue)}`;
+        }
+
+        return '';
+      }
+
+      // Lines-based categories show Score as secondary when available.
+      if (
+        category.metricName === 'Lines' &&
+        Number.isFinite(row.scoreValue)
+      ) {
+        return `Score: ${new Intl.NumberFormat('en-US', {
+          maximumFractionDigits: 2
+        }).format(row.scoreValue)}`;
+      }
+
+      // Score-based categories show Lines as secondary when available.
+      if (
+        category.metricName === 'Score' &&
+        Number.isFinite(row.linesValue)
+      ) {
+        return `Lines: ${new Intl.NumberFormat('en-US', {
+          maximumFractionDigits: 0
+        }).format(row.linesValue)}`;
+      }
+
+      return '';
+    }
+
+    // ==========================================================
+    // PLAYSTYLE / PLATFORM LABELS
+    // ==========================================================
+
+    function getPlaystyleTag(styleText) {
+      const text = normalize(styleText);
+      if (!text) return null;
+
+      if (text.includes('roll')) {
+        return {
+          label: 'Rolling',
+          className: 'tag-roll'
+        };
+      }
+
+      if (
+        text === 'thor' ||
+        text.includes('thor grip')
+      ) {
+        return {
+          label: 'Thor Grip',
+          className: 'tag-thor'
+        };
+      }
+
+      if (
+        text.includes('hypertap') ||
+        text.includes('hyper tap') ||
+        text.includes('tap')
+      ) {
+        return {
+          label: 'Tap',
+          className: 'tag-tap'
+        };
+      }
+
+      if (text.includes('das')) {
+        return {
+          label: 'DAS',
+          className: 'tag-das'
+        };
+      }
+
+      return {
+        label: styleText,
+        className: 'tag-style-other'
+      };
+    }
+
+    // ==========================================================
+    // PLATFORM LABELS
+    // ==========================================================
+
+    function getPlatformTag(platformText) {
+      const text = normalize(platformText);
+      if (!text) return null;
+
+      if (text.includes('emulator')) {
+        return { label: 'Emulator', className: 'tag-emulator' };
+      }
+
+      if (text.includes('switch')) {
+        return { label: 'Switch', className: 'tag-switch' };
+      }
+
+      if (text.includes('snes')) {
+        return { label: 'SNES', className: 'tag-snes' };
+      }
+
+      if (
+        text.includes('super gb') ||
+        text.includes('super game boy') ||
+        text.includes('sgb')
+      ) {
+        return { label: 'Super Game Boy', className: 'tag-sgb' };
+      }
+
+      if (
+        text.includes('advance') ||
+        text.includes('gba') ||
+        text.includes('gbasp')
+      ) {
+        return { label: 'GBA', className: 'tag-gba' };
+      }
+
+      if (
+        text.includes('color') ||
+        text.includes('colour') ||
+        text === 'gbc'
+      ) {
+        return { label: 'Game Boy Color', className: 'tag-gbc' };
+      }
+
+      if (text.includes('light')) {
+        return { label: 'Game Boy Light', className: 'tag-gbl' };
+      }
+
+      if (text.includes('pocket')) {
+        return { label: 'Game Boy Pocket', className: 'tag-gbp' };
+      }
+
+      if (
+        text.includes('gameboy') ||
+        text.includes('game boy') ||
+        text.includes('original gb') ||
+        text.includes('orignal gb') ||
+        text.includes('brick')
+      ) {
+        return { label: 'Game Boy', className: 'tag-gb' };
+      }
+
+      return {
+        label: platformText,
+        className: 'tag-platform-other'
+      };
+    }
+
+
+    // ==========================================================
+    // CELL HELPERS
+    // ==========================================================
+
+    function findColumn(columns, aliases) {
+      return columns.findIndex(column =>
+        aliases.includes(column.label)
+      );
+    }
+
+    function getCellText(cell) {
+      if (!cell) return '';
+
+      if (cell.f !== undefined && cell.f !== null) {
+        return String(cell.f).trim();
+      }
+
+      if (cell.v !== undefined && cell.v !== null) {
+        return String(cell.v).trim();
+      }
+
+      return '';
+    }
+
+    function getCellNumber(cell) {
+      if (!cell) return NaN;
+
+      if (typeof cell.v === 'number') {
+        return cell.v;
+      }
+
+      return parseLooseNumber(getCellText(cell));
+    }
+
+    function getCellLink(cell) {
+      if (!cell) return '';
+
+      const candidates = [cell.f, cell.v]
+        .filter(v => v !== undefined && v !== null)
+        .map(String);
+
+      for (const value of candidates) {
+        const match = value.match(/https?:\/\/[^\s)"']+/i);
+        if (match) return match[0];
+      }
+
+      return '';
+    }
+
+    function parseLooseNumber(value) {
+      const cleaned = String(value)
+        .trim()
+        .replace(/\s/g, '')
+        .replace(/'/g, '')
+        .replace(/,/g, '.')
+        .replace(/[^\d.+-]/g, '');
+
+      if (!cleaned) return NaN;
+
+      const number = Number(cleaned);
+      return Number.isFinite(number) ? number : NaN;
+    }
+
+    function safeUrl(value) {
+      if (!value) return '';
+
+      try {
+        const url = new URL(value);
+        return ['http:', 'https:'].includes(url.protocol)
+          ? url.href
+          : '';
+      } catch {
+        return '';
+      }
+    }
+
+    function normalize(value) {
+      return String(value || '').trim().toLowerCase();
+    }
+
+    function xmlEscape(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&apos;');
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function escapeAttribute(value) {
+      return escapeHtml(value)
+        .replaceAll('`', '&#096;')
+        .replaceAll('\n', '&#10;')
+        .replaceAll('\r', '');
+    }
+
+
+    function getUniquePlayers() {
+      return [...RAW_PLAYERS.values()]
+        .map(rawName => {
+          const canonical = canonicalPlayerName(rawName);
+          const isAlias =
+            normalize(rawName) !== normalize(canonical);
+
+          return {
+            rawName,
+            canonical,
+            isAlias,
+            display: isAlias
+              ? `${rawName} → ${canonical}`
+              : rawName
+          };
+        })
+        .sort((a, b) =>
+          a.rawName.localeCompare(
+            b.rawName,
+            undefined,
+            { sensitivity: 'base' }
+          )
+        );
+    }
+    async function copyUniquePlayersToClipboard() {
+      const players = window.uniquePlayers || [];
+      const feedback = document.getElementById('copyPlayersFeedback');
+
+      if (!players.length) {
+        if (feedback) {
+          feedback.textContent = 'No players loaded.';
+        }
+        return;
+      }
+
+      const textToCopy = players
+        .map(player => player.display)
+        .join('\n');
+
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+
+        if (feedback) {
+          feedback.textContent =
+            `Copied ${players.length} unique source names.`;
+        }
+      } catch (error) {
+        console.error('Clipboard copy failed:', error);
+
+        /*
+          Fallback for file:// pages or browsers that block Clipboard API.
+        */
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        const copied = document.execCommand('copy');
+
+        textarea.remove();
+
+        if (feedback) {
+          feedback.textContent = copied
+            ? `Copied ${players.length} unique source names.`
+            : 'Copy failed.';
+        }
+      }
+    }
+
+    document
+      .getElementById('copyPlayersButton')
+      ?.addEventListener('click', copyUniquePlayersToClipboard);
+
+    loadLeaderboards();
+
+
+  </script>
+</body>
+</html>

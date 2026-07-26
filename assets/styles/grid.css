@@ -1,0 +1,343 @@
+/* General grid styles */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.section-games-patches {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.accordion-panel[hidden] {
+    display: none;
+}
+
+/* Grid item styles */
+.grid-item {
+    background-color: #fff;
+    border: 1px solid #d8d8d8;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    transform: translateY(0);
+    transition: transform 0.22s ease;
+}
+
+/* Section identities */
+.section-apps .grid-item {
+    background-color: #fff;
+}
+
+.section-games-patches .grid-item {
+    background-color: #fff;
+}
+
+.section-articles .grid-item {
+    background-color: #fff;
+}
+
+.section-apps {
+    border: 2px solid #007DCC;
+    border-top: 0;
+    background-color: #eef8ff;
+}
+
+.section-games-patches {
+    border: 2px solid #FFB900;
+    border-top: 0;
+    background-color: #fff9e6;
+}
+
+.section-articles {
+    border: 2px solid #B2054C;
+    border-top: 0;
+    background-color: #fff0f6;
+}
+
+#people-panel {
+    border: 2px solid #008A78;
+    border-top: 0;
+    background-color: #eaf8f5;
+}
+
+#community-projects-panel {
+    border: 2px solid #6750A4;
+    border-top: 0;
+    background-color: #f4f0ff;
+}
+
+#external-links-panel {
+    border: 2px solid #D95D0B;
+    border-top: 0;
+    background-color: #fff4ea;
+}
+
+.section-accordion[aria-controls="projects-panel"] {
+    border-color: #007DCC;
+    background-color: #007DCC;
+}
+
+.section-accordion[aria-controls="games-patches-panel"] {
+    border-color: #FFB900;
+    background-color: #FFB900;
+    color: #172b4d;
+}
+
+.section-accordion[aria-controls="articles-panel"] {
+    border-color: #B2054C;
+    background-color: #B2054C;
+}
+
+.section-accordion[aria-controls="people-panel"] {
+    border-color: #008A78;
+    background-color: #008A78;
+}
+
+.section-accordion[aria-controls="community-projects-panel"] {
+    border-color: #6750A4;
+    background-color: #6750A4;
+}
+
+.section-accordion[aria-controls="external-links-panel"] {
+    border-color: #D95D0B;
+    background-color: #D95D0B;
+}
+
+.section-accordion[aria-controls="projects-panel"]:hover {
+    background-color: #006eae;
+}
+
+.section-accordion[aria-controls="games-patches-panel"]:hover {
+    background-color: #e6a700;
+}
+
+.section-accordion[aria-controls="articles-panel"]:hover {
+    background-color: #940441;
+}
+
+.section-accordion[aria-controls="people-panel"]:hover {
+    background-color: #007263;
+}
+
+.section-accordion[aria-controls="community-projects-panel"]:hover {
+    background-color: #56428b;
+}
+
+.section-accordion[aria-controls="external-links-panel"]:hover {
+    background-color: #b94e08;
+}
+
+.section-apps .grid-item-clickable h3 {
+    color: #007DCC;
+}
+
+.section-games-patches .grid-item-clickable h3 {
+    color: #FFB900;
+}
+
+.section-articles .grid-item-clickable h3 {
+    color: #B2054C;
+}
+
+.section-community .grid-item {
+    background-color: #fff;
+}
+
+.grid-item:hover {
+    transform: translateY(-5px);
+}
+
+/* Grid item wrapper */
+.grid-item-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+/* Clickable area within grid item */
+.grid-item-clickable {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    text-decoration: none;
+    color: inherit;
+    padding: 15px;
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+}
+
+.card-media {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    border-radius: 6px;
+}
+
+.grid-item-clickable img,
+.card-media .project-card-art {
+    width: 100%;
+    max-width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border: 2px solid #c0c0c0;
+    border-radius: inherit;
+    box-sizing: border-box;
+}
+
+.grid-item-clickable h3 {
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+.card-labels {
+    display: flex;
+    order: -1;
+    min-height: 26px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 0 0 8px;
+}
+
+.card-label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 3px 8px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.025em;
+}
+
+.status-final {
+    background-color: #e8f5fd;
+    color: #006da8;
+}
+
+.status-working {
+    background-color: #eaf7ee;
+    color: #26723d;
+}
+
+.status-unavailable {
+    background-color: #fbecee;
+    color: #a32b38;
+}
+
+.status-experimental {
+    background-color: #fff4dc;
+    color: #8a5b00;
+}
+
+.reading-time {
+    background-color: #f1f3f5;
+    color: #59636e;
+}
+
+.card-media p {
+    position: absolute;
+    z-index: 5;
+    inset: 0;
+    width: 100%;
+    height: 150px;
+    box-sizing: border-box;
+    display: block;
+    align-content: center;
+    margin: 0;
+    padding: 16px 18px;
+    border: 2px solid #426b87;
+    border-radius: inherit;
+    background: #244f6c;
+    color: #fff;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    text-align: center;
+    text-wrap: balance;
+    opacity: 1;
+    pointer-events: none;
+    transform: translateY(100%);
+    transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.section-apps .card-media p {
+    border-color: #007DCC;
+    background: linear-gradient(135deg, #007DCC 0%, #2697dd 100%);
+}
+
+.section-games-patches .card-media p {
+    border-color: #FFB900;
+    background: linear-gradient(135deg, #FFB900 0%, #ffd258 100%);
+    color: #172b4d;
+}
+
+.section-articles .card-media p {
+    border-color: #B2054C;
+    background: linear-gradient(135deg, #B2054C 0%, #d12b6c 100%);
+}
+
+.grid-item-clickable:hover .card-media p,
+.grid-item-clickable:focus-visible .card-media p {
+    transform: translateY(0);
+}
+
+.grid-item-clickable > p {
+    display: none;
+}
+
+/* Buttons within grid item */
+.grid-item-buttons {
+    display: none;
+}
+
+/* Shared hover effects */
+.grid-item a:hover {
+    font-weight: normal;
+}
+
+.project-card-art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 150px;
+    border: 2px solid #c0c0c0;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #215E99, #C0DBEB);
+    color: #fff;
+    font-family: "Arvo", serif;
+    font-size: 1.8rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+}
+
+.project-card-art--counter {
+    background: linear-gradient(135deg, #172b4d, #215E99 55%, #C0DBEB);
+}
+
+@media (max-width: 900px) {
+    .section-games-patches {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .section-games-patches {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .section-games-patches {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
