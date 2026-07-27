@@ -170,13 +170,17 @@
       let data;
 
       try {
-        const response = await fetch(
-          '../../assets/data/players.json?v=20260726-3'
-        );
-        if (!response.ok) {
-          throw new Error(`Player data returned ${response.status}`);
+        if (location.protocol === 'file:') {
+          data = window.PLAYER_DATA;
+        } else {
+          const response = await fetch(
+            '../../assets/data/players.json?v=20260727-2'
+          );
+          if (!response.ok) {
+            throw new Error(`Player data returned ${response.status}`);
+          }
+          data = await response.json();
         }
-        data = await response.json();
       } catch (error) {
         data = window.PLAYER_DATA;
       }
@@ -1274,6 +1278,11 @@
       const secondaryMetric = formatSecondaryMetric(row, category);
 
       const link = safeUrl(row.proofLink);
+      const rowInformation = [
+        row.style ? `Playstyle: ${row.style}` : 'Playstyle: Not specified',
+        row.platform ? `Platform: ${row.platform}` : 'Platform: Not specified',
+        row.notes ? `Notes: ${row.notes}` : ''
+      ].filter(Boolean).join('\n');
 
       return `
         <tr data-rank="${rank}" data-player="${escapeAttribute(row.name)}">
@@ -1282,17 +1291,16 @@
             <span class="name-wrap">
               ${formatPlayerFlag(row.name)}
               <span>${escapeHtml(row.name)}</span>
-              ${row.notes ? `
-                <button
-                  class="info-tip"
-                  type="button"
-                  aria-label="Show note for ${escapeHtml(row.name)}"
-                  data-note="${escapeAttribute(row.notes)}"
-                >i</button>
-              ` : ''}
+              <button
+                class="info-tip"
+                type="button"
+                aria-label="Show playstyle and platform for ${escapeHtml(row.name)}"
+                data-note="${escapeAttribute(rowInformation)}"
+              >i</button>
             </span>
           </td>
           <td class="metric">
+            <span class="mobile-metric-label">Score</span>
             <span class="metric-primary">${metric}</span>
             ${secondaryMetric
               ? `<span class="metric-secondary">${secondaryMetric}</span>`
@@ -1317,7 +1325,7 @@
 
           <td class="date">${escapeHtml(formatAmericanDate(row.date))}</td>
 
-          <td>
+          <td class="proof-cell">
             ${link
               ? `<a class="proof-link"
                     href="${escapeHtml(link)}"

@@ -414,6 +414,12 @@ table {
     box-shadow: none;
 }
 
+.table-scroll {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
 th, td {
     padding: 12px;
     text-align: left;
@@ -541,7 +547,75 @@ img{
     max-width: 100%;
 }
 
+main img {
+    width: auto;
+    max-width: 100% !important;
+    height: auto;
+}
+
+main .article-image--medium {
+    max-width: min(100%, 600px) !important;
+}
+
 .check::before {
     content: "✔";
     color: green;
+}
+
+@media (max-width: 700px) {
+    .table-scroll {
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-inline: contain;
+        scrollbar-color: var(--collection-blue-light) rgba(33, 94, 153, 0.12);
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-scroll table {
+        width: max-content;
+        min-width: 100%;
+        max-width: none;
+    }
+
+    .table-scroll:focus-visible {
+        border-radius: 8px;
+        outline: 3px solid rgba(33, 94, 153, 0.25);
+        outline-offset: 3px;
+    }
+
+    .table-scroll::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-scroll::-webkit-scrollbar-track {
+        border-radius: 999px;
+        background: rgba(33, 94, 153, 0.12);
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: var(--collection-blue-light);
+    }
+
+    .variants-article .table-scroll {
+        overflow-x: visible;
+    }
+
+    .variants-article .table-scroll table {
+        width: 100%;
+        min-width: 0;
+        table-layout: fixed;
+    }
+
+    .variants-article .table-scroll th,
+    .variants-article .table-scroll td {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    .variants-article .table-scroll th:first-child {
+        width: 38%;
+    }
 }

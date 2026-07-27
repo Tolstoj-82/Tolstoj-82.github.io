@@ -35,6 +35,8 @@ window.PLAYER_DATA = {
     {
       "id": "toni",
       "name": "Toni",
+      "highlighted": true,
+      "highlightOrder": 1,
       "country": "ch",
       "summary": "Community contributor and creator of the online two-player server.",
       "details": "Toni is a Game Boy Tetris community contributor and the creator of the online two-player server.",
@@ -48,6 +50,8 @@ window.PLAYER_DATA = {
     {
       "id": "pascal",
       "name": "Pascal",
+      "highlighted": true,
+      "highlightOrder": 2,
       "country": "ch",
       "summary": "Research, reverse-engineering, and ROM-hacking collaborator.",
       "details": "Pascal collaborates on Game Boy Tetris research, reverse engineering, and ROM patches.",
@@ -61,6 +65,8 @@ window.PLAYER_DATA = {
     {
       "id": "jj",
       "name": "-JJ",
+      "highlighted": true,
+      "highlightOrder": 4,
       "aliases": ["JJ"],
       "country": "fi",
       "summary": "Two-player link protocol reverse-engineering collaborator.",
@@ -83,6 +89,8 @@ window.PLAYER_DATA = {
     {
       "id": "sebastian-staacks",
       "name": "Sebastian Staacks",
+      "highlighted": true,
+      "highlightOrder": 3,
       "country": "de",
       "summary": "Creator of the GB Interceptor.",
       "details": "Sebastian Staacks is the creator of the GB Interceptor, the capture hardware behind much of this work.",
@@ -96,6 +104,8 @@ window.PLAYER_DATA = {
     {
       "id": "mj",
       "name": "M-J",
+      "highlighted": true,
+      "highlightOrder": 6,
       "country": "fi",
       "summary": "Founder of the Game Boy Discord and former world-record holder.",
       "details": "M-J is a founder of the Game Boy Discord and a former world-record holder.",
@@ -164,6 +174,8 @@ window.PLAYER_DATA = {
     {
       "id": "bv",
       "name": "BV",
+      "highlighted": true,
+      "highlightOrder": 5,
       "country": "gb-sct",
       "summary": "More information coming soon.",
       "details": "More information about BV will be added soon."
@@ -171,6 +183,8 @@ window.PLAYER_DATA = {
     {
       "id": "andrew-ray",
       "name": "Andrew Ray",
+      "highlighted": true,
+      "highlightOrder": 7,
       "country": "ca",
       "summary": "Founder of the Game Boy Discord.",
       "details": "Andrew Ray is a founder of the Game Boy Discord.",
@@ -259,11 +273,16 @@ window.PLAYER_DATA = {
     },
     {
       "id": "jani",
-      "name": "Jani",
+      "name": "Jani Janutzka",
+      "aliases": ["Jani", "janutzska"],
       "country": "fi",
-      "summary": "CTEC Game Boy Tetris champion.",
-      "details": "Jani won the Game Boy Tetris championship at CTEC 2018.",
+      "summary": "CTEC Game Boy Tetris champion and 2016 runner-up.",
+      "details": "Jani Janutzka finished second in the Game Boy Tetris tournament at CTEC 2016 and won the championship in 2018.",
       "achievements": [
+        {
+          "type": "silver",
+          "event": "CTEC 2016"
+        },
         {
           "type": "gold",
           "event": "CTEC 2018"
@@ -559,13 +578,6 @@ window.PLAYER_DATA = {
       "country": "us",
       "summary": "More information coming soon.",
       "details": "More information about indiana_bonsai will be added soon."
-    },
-    {
-      "id": "janutzska",
-      "name": "janutzska",
-      "country": "fi",
-      "summary": "More information coming soon.",
-      "details": "More information about janutzska will be added soon."
     },
     {
       "id": "kirjava",
@@ -1683,4 +1695,6 @@ window.PLAYER_DATA = {
       "details": "More information about Zircon will be added soon."
     }
   ]
-};
+}
+;
+

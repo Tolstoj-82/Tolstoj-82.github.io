@@ -242,6 +242,19 @@
     color: #59636e;
 }
 
+.device-label {
+    border-color: transparent;
+    color: #fff;
+}
+
+.device-mobile {
+    background: #278044;
+}
+
+.device-desktop {
+    background: #6750a4;
+}
+
 .card-media p {
     position: absolute;
     z-index: 5;
@@ -284,8 +297,13 @@
 }
 
 .grid-item-clickable:hover .card-media p,
-.grid-item-clickable:focus-visible .card-media p {
+.grid-item-clickable:focus-visible .card-media p,
+.grid-item-clickable.show-mobile-description .card-media p {
     transform: translateY(0);
+}
+
+.mobile-card-info {
+    display: none;
 }
 
 .grid-item-clickable > p {
@@ -333,6 +351,40 @@
 @media (max-width: 700px) {
     .section-games-patches {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .mobile-card-info {
+        position: absolute;
+        z-index: 9;
+        right: 10px;
+        bottom: 10px;
+        display: grid;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        place-items: center;
+        border: 2px solid rgba(255, 255, 255, 0.94);
+        border-radius: 50%;
+        background: rgba(23, 43, 77, 0.88);
+        color: #fff;
+        font: 800 0.9rem/1 "Arvo", serif;
+        box-shadow: 0 2px 7px rgba(16, 31, 48, 0.3);
+        cursor: pointer;
+    }
+
+    .mobile-card-info[aria-pressed="true"] {
+        background: #fff;
+        color: #172b4d;
+    }
+}
+
+@media (max-width: 700px) and (hover: none) {
+    .grid-item-clickable:hover .card-media p {
+        transform: translateY(100%);
+    }
+
+    .grid-item-clickable.show-mobile-description .card-media p {
+        transform: translateY(0);
     }
 }
 

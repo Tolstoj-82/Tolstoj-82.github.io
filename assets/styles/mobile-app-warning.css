@@ -1,0 +1,86 @@
+.mobile-app-warning {
+  position: fixed;
+  z-index: 2147483647;
+  inset: 0;
+  display: none;
+  padding: 16px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 24, 38, 0.72);
+  font-family: "Outfit", Arial, sans-serif;
+}
+
+.mobile-app-warning.is-visible {
+  display: flex;
+}
+
+.mobile-app-warning__dialog {
+  width: min(460px, 100%);
+  overflow: hidden;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.3);
+  color: #172b4d;
+}
+
+.mobile-app-warning__header {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #215e99;
+  color: #fff;
+}
+
+.mobile-app-warning__icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.mobile-app-warning__header h2 {
+  margin: 0;
+  background: none;
+  color: inherit;
+  font-family: "Arvo", Georgia, serif;
+  font-size: 1.15rem;
+}
+
+.mobile-app-warning__body {
+  padding: 22px 20px 20px;
+}
+
+.mobile-app-warning__body p {
+  margin: 0 0 20px;
+  line-height: 1.55;
+}
+
+.mobile-app-warning__continue {
+  min-height: 42px;
+  padding: 8px 15px;
+  border: 2px solid #215e99;
+  border-radius: 6px;
+  background: #fff;
+  color: #215e99;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mobile-app-warning__continue:hover,
+.mobile-app-warning__continue:focus-visible {
+  background: #215e99;
+  color: #fff;
+}
+
+.mobile-app-warning__continue:focus-visible {
+  outline: 3px solid rgba(33, 94, 153, 0.25);
+  outline-offset: 2px;
+}

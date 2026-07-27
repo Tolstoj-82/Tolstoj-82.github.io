@@ -4,16 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tolstoj's Workbench</title>
-    <link rel="stylesheet" href="assets/styles/general.css?v=20260726-12" />
-    <link rel="stylesheet" href="assets/styles/grid.css?v=20260725-3" />
+    <link rel="stylesheet" href="assets/styles/general.css?v=20260727-15" />
+    <link rel="stylesheet" href="assets/styles/grid.css?v=20260727-4" />
     <link rel="stylesheet" href="assets/styles/header.css" />
     <link rel="stylesheet" href="assets/styles/layouts.css" />
-    <link rel="stylesheet" href="assets/styles/modal.css?v=20260726-3" />
+    <link rel="stylesheet" href="assets/styles/modal.css?v=20260727-1" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
-    <link rel="manifest" href="site.webmanifest" />
+    <script src="assets/scripts/register-manifest.js?v=20260727-1"></script>
   </head>
   <body id="top">
     <div class="content">
@@ -115,6 +115,15 @@
                 alt=""
                 aria-hidden="true"
               />
+              <div class="intro-letter-overlays" aria-hidden="true">
+                <img src="assets/images/intro-letters/T.png" alt="" />
+                <img src="assets/images/intro-letters/O.png" alt="" />
+                <img src="assets/images/intro-letters/L.png" alt="" />
+                <img src="assets/images/intro-letters/S.png" alt="" />
+                <img src="assets/images/intro-letters/T2.png" alt="" />
+                <img src="assets/images/intro-letters/O2.png" alt="" />
+                <img src="assets/images/intro-letters/J.png" alt="" />
+              </div>
               <button
                 class="intro-rotate-button"
                 id="intro-rotate-button"
@@ -122,6 +131,45 @@
                 aria-label="Rotate the Tolstoj logo"
                 aria-pressed="false"
               ></button>
+              <div
+                class="intro-quartet"
+                id="intro-quartet"
+                aria-label="Frequency-responsive barbershop quartet"
+                aria-hidden="true"
+              >
+                <div class="intro-singer" data-band="0" role="img" aria-label="Bass">
+                  <div class="intro-singer-motion">
+                    <span class="intro-hat"></span>
+                    <span class="intro-head"><i class="intro-mouth"></i></span>
+                    <span class="intro-bow-tie"></span>
+                    <span class="intro-singer-body"></span>
+                  </div>
+                </div>
+                <div class="intro-singer" data-band="1" role="img" aria-label="Baritone">
+                  <div class="intro-singer-motion">
+                    <span class="intro-hat"></span>
+                    <span class="intro-head"><i class="intro-mouth"></i></span>
+                    <span class="intro-bow-tie"></span>
+                    <span class="intro-singer-body"></span>
+                  </div>
+                </div>
+                <div class="intro-singer" data-band="2" role="img" aria-label="Lead">
+                  <div class="intro-singer-motion">
+                    <span class="intro-hat"></span>
+                    <span class="intro-head"><i class="intro-mouth"></i></span>
+                    <span class="intro-bow-tie"></span>
+                    <span class="intro-singer-body"></span>
+                  </div>
+                </div>
+                <div class="intro-singer" data-band="3" role="img" aria-label="Tenor">
+                  <div class="intro-singer-motion">
+                    <span class="intro-hat"></span>
+                    <span class="intro-head"><i class="intro-mouth"></i></span>
+                    <span class="intro-bow-tie"></span>
+                    <span class="intro-singer-body"></span>
+                  </div>
+                </div>
+              </div>
               <button
                 class="intro-audio-button"
                 id="intro-audio-button"
@@ -188,9 +236,10 @@
                 <a href="apps/trep/index.html" class="grid-item-clickable">
                   <img src="assets/images/TREP.png" alt="TREP" />
                   <h3>TREP v. 1.0</h3>
-                  <div class="card-labels" aria-label="Status">
+                  <div class="card-labels" aria-label="Status and optimized devices">
                     <span class="card-label status-final">Final</span>
                     <span class="card-label status-working">Working</span>
+                    <span class="card-label device-label device-desktop">Desktop</span>
                   </div>
                   <p>
                     TREP = Tolstoj's ROM Editor Plus.<br />
@@ -219,8 +268,9 @@
                     alt="General Purpose OCR"
                   />
                   <h3>GB OCR</h3>
-                  <div class="card-labels" aria-label="Status">
+                  <div class="card-labels" aria-label="Status and optimized devices">
                     <span class="card-label status-working">Working</span>
+                    <span class="card-label device-label device-desktop">Desktop</span>
                   </div>
                   <p>
                     Configure and run OCR for Game Boy Games. This one is quite
@@ -242,8 +292,9 @@
                     alt="Post Max Counter"
                   />
                   <h3>Post Max Counter</h3>
-                  <div class="card-labels" aria-label="Status">
+                  <div class="card-labels" aria-label="Status and optimized devices">
                     <span class="card-label status-working">Working</span>
+                    <span class="card-label device-label device-desktop">Desktop</span>
                   </div>
                   <p>
                     On the original GB Tetris ROM the score caps at 999,999.<br />
@@ -262,10 +313,9 @@
                 >
                   <img src="assets/images/OCR.png" alt="GB Interceptor OCR 2" />
                   <h3>GB Interceptor Tetris OCR</h3>
-                  <div class="card-labels" aria-label="Status">
-                    <span class="card-label status-unavailable"
-                      >Not functional</span
-                    >
+                  <div class="card-labels" aria-label="Status and optimized devices">
+                    <span class="card-label status-unavailable">Broken</span>
+                    <span class="card-label device-label device-desktop">Desktop</span>
                   </div>
                   <p>
                     Send your GB Tetris footage from the interceptor through OCR
@@ -295,11 +345,11 @@
                     alt="GB Interceptor Re-labeller"
                   />
                   <h3>GB Interceptor Re-labeller</h3>
-                  <div class="card-labels" aria-label="Status">
+                  <div class="card-labels" aria-label="Status and optimized devices">
                     <span class="card-label status-working">Working</span>
-                    <span class="card-label status-experimental"
-                      >Experimental</span
-                    >
+                    <span class="card-label status-experimental">Beta</span>
+                    <span class="card-label device-label device-mobile">Mobile</span>
+                    <span class="card-label device-label device-desktop">Desktop</span>
                   </div>
                   <p>
                     This lets you re-label the GBI firmware for clear
@@ -315,9 +365,11 @@
                 <a href="apps/luter/index.html" class="grid-item-clickable">
                   <img src="assets/images/LUTs.png" alt="GBI LUTer" />
                   <h3>GBI LUTer</h3>
-                  <div class="card-labels" aria-label="Status">
+                  <div class="card-labels" aria-label="Status and optimized devices">
                     <span class="card-label status-final">Final</span>
                     <span class="card-label status-working">Working</span>
+                    <span class="card-label device-label device-mobile">Mobile</span>
+                    <span class="card-label device-label device-desktop">Desktop</span>
                   </div>
                   <p>
                     Create a LUT for OBS using a custom color palette or your
@@ -345,13 +397,10 @@
                 >
                   <img src="assets/images/music.png" alt="ASM music editor" />
                   <h3>ASM Music Editor</h3>
-                  <div class="card-labels" aria-label="Status">
-                    <span class="card-label status-unavailable"
-                      >Not functional</span
-                    >
-                    <span class="card-label status-experimental"
-                      >Experimental</span
-                    >
+                  <div class="card-labels" aria-label="Status and optimized devices">
+                    <span class="card-label status-unavailable">Broken</span>
+                    <span class="card-label status-experimental">Beta</span>
+                    <span class="card-label device-label device-desktop">Desktop</span>
                   </div>
                   <p>
                     Experimental and unfinished. Music editor for GB ASM
@@ -370,11 +419,10 @@
                 >
                   <img src="assets/images/genetic-engineering.png" alt="YT" />
                   <h3>Genetic Engineering</h3>
-                  <div class="card-labels" aria-label="Status">
+                  <div class="card-labels" aria-label="Status and optimized devices">
                     <span class="card-label status-working">Working</span>
-                    <span class="card-label status-experimental"
-                      >Experimental</span
-                    >
+                    <span class="card-label status-experimental">Beta</span>
+                    <span class="card-label device-label device-desktop">Desktop</span>
                   </div>
                   <p>
                     According to Vadim Gerasimov, before Tetris Alexey Pajitnov
@@ -459,7 +507,7 @@
                   />
                   <h3>New to Game Boy Tetris?</h3>
                   <div class="card-labels" aria-label="Estimated reading time">
-                    <span class="card-label reading-time">5 min read</span>
+                    <span class="card-label reading-time">1 min read</span>
                   </div>
                   <p>
                     A starting point for players who want to learn Game Boy
@@ -481,7 +529,7 @@
                   />
                   <h3>2-Player</h3>
                   <div class="card-labels" aria-label="Estimated reading time">
-                    <span class="card-label reading-time">10 min read</span>
+                    <span class="card-label reading-time">30+ min read</span>
                   </div>
                   <p>
                     How we reverse-engineered Game Boy Tetris' link cable
@@ -503,7 +551,7 @@
                   />
                   <h3>My Tetris Collection</h3>
                   <div class="card-labels" aria-label="Estimated reading time">
-                    <span class="card-label reading-time">20 min read</span>
+                    <span class="card-label reading-time">5 min read</span>
                   </div>
                   <p>
                     Highlights and stories from my collection of Tetris items.
@@ -521,7 +569,7 @@
                   />
                   <h3>RNG in GB Tetris</h3>
                   <div class="card-labels" aria-label="Estimated reading time">
-                    <span class="card-label reading-time">30+ min read</span>
+                    <span class="card-label reading-time">12 min read</span>
                   </div>
                   <p>
                     A deep dive into the random number generation routines used
@@ -540,7 +588,7 @@
                   <img src="assets/images/tolstoj.jpg" alt="Tolstoj" />
                   <h3>About Me</h3>
                   <div class="card-labels" aria-label="Estimated reading time">
-                    <span class="card-label reading-time">5 min read</span>
+                    <span class="card-label reading-time">1 min read</span>
                   </div>
                   <p>
                     My Tetris journey and the story behind the name Tolstoj.
@@ -561,7 +609,7 @@
                   />
                   <h3>GB Tetris Collector's Guide</h3>
                   <div class="card-labels" aria-label="Estimated reading time">
-                    <span class="card-label reading-time">45+ min read</span>
+                    <span class="card-label reading-time">30 min read</span>
                   </div>
                   <p>
                     A detailed guide to Game Boy Tetris releases, cartridges,
@@ -1238,8 +1286,9 @@
         </div>
       </footer>
     </div>
-    <script src="assets/data/players-fallback.js?v=20260726-2"></script>
-    <script src="script.js?v=20260726-14"></script>
+    <script src="assets/data/players-fallback.js?v=20260727-4"></script>
+    <script src="assets/data/player-images.js?v=20260727-2"></script>
+    <script src="script.js?v=20260727-8"></script>
     <div
       id="imageModal"
       class="modal"
@@ -1286,15 +1335,15 @@
       aria-hidden="true"
       style="display: none"
     >
-      <div class="modal-content person-modal-content">
+      <div class="modal-content person-modal-content game-modal-content">
         <button class="close" type="button" aria-label="Close game details">
           &times;
         </button>
         <img id="gameModalImage" alt="" />
-        <div class="person-modal-copy">
+        <div class="person-modal-copy game-modal-copy">
           <h2 id="gameModalTitle"></h2>
           <p id="gameModalDescription"></p>
-          <a id="gameModalDownload" class="button" download>Download</a>
+          <a id="gameModalDownload" class="button game-modal-action" download>Download</a>
           <p id="gameModalUnavailable" class="download-unavailable" hidden>
             Download coming soon.
           </p>

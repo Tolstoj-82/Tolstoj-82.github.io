@@ -3,6 +3,23 @@ function initializeArticleAccordions() {
   if (!main || main.dataset.accordionsReady === "true") return;
   main.dataset.accordionsReady = "true";
 
+  main.querySelectorAll("table").forEach((table, index) => {
+    if (table.parentElement?.classList.contains("table-scroll")) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "table-scroll";
+    wrapper.tabIndex = 0;
+    wrapper.setAttribute("role", "region");
+    wrapper.setAttribute(
+      "aria-label",
+      table.querySelector(".table-title")?.textContent.trim() ||
+        `Scrollable table ${index + 1}`
+    );
+
+    table.before(wrapper);
+    wrapper.appendChild(table);
+  });
+
   const usedIds = new Set();
   const makeId = (text) => {
     const base =

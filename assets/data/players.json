@@ -34,6 +34,8 @@
     {
       "id": "toni",
       "name": "Toni",
+      "highlighted": true,
+      "highlightOrder": 1,
       "country": "ch",
       "summary": "Community contributor and creator of the online two-player server.",
       "details": "Toni is a Game Boy Tetris community contributor and the creator of the online two-player server.",
@@ -47,6 +49,8 @@
     {
       "id": "pascal",
       "name": "Pascal",
+      "highlighted": true,
+      "highlightOrder": 2,
       "country": "ch",
       "summary": "Research, reverse-engineering, and ROM-hacking collaborator.",
       "details": "Pascal collaborates on Game Boy Tetris research, reverse engineering, and ROM patches.",
@@ -60,6 +64,8 @@
     {
       "id": "jj",
       "name": "-JJ",
+      "highlighted": true,
+      "highlightOrder": 4,
       "aliases": ["JJ"],
       "country": "fi",
       "summary": "Two-player link protocol reverse-engineering collaborator.",
@@ -82,6 +88,8 @@
     {
       "id": "sebastian-staacks",
       "name": "Sebastian Staacks",
+      "highlighted": true,
+      "highlightOrder": 3,
       "country": "de",
       "summary": "Creator of the GB Interceptor.",
       "details": "Sebastian Staacks is the creator of the GB Interceptor, the capture hardware behind much of this work.",
@@ -95,6 +103,8 @@
     {
       "id": "mj",
       "name": "M-J",
+      "highlighted": true,
+      "highlightOrder": 6,
       "country": "fi",
       "summary": "Founder of the Game Boy Discord and former world-record holder.",
       "details": "M-J is a founder of the Game Boy Discord and a former world-record holder.",
@@ -163,6 +173,8 @@
     {
       "id": "bv",
       "name": "BV",
+      "highlighted": true,
+      "highlightOrder": 5,
       "country": "gb-sct",
       "summary": "More information coming soon.",
       "details": "More information about BV will be added soon."
@@ -170,6 +182,8 @@
     {
       "id": "andrew-ray",
       "name": "Andrew Ray",
+      "highlighted": true,
+      "highlightOrder": 7,
       "country": "ca",
       "summary": "Founder of the Game Boy Discord.",
       "details": "Andrew Ray is a founder of the Game Boy Discord.",

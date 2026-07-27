@@ -17,9 +17,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const introRotateButton = document.getElementById('intro-rotate-button');
   const introAudioButton = document.getElementById('intro-audio-button');
   const introAudio = document.getElementById('intro-audio');
+  const introQuartet = document.getElementById('intro-quartet');
+  const introSingers = Array.from(
+    introQuartet?.querySelectorAll('.intro-singer') || []
+  );
+  const introLetterOverlays = Array.from(
+    introPortrait?.querySelectorAll('.intro-letter-overlays img') || []
+  );
   let lastFocusedElement = null;
 
   introRotateButton?.addEventListener('click', () => {
+    if (introAudioStarting || (introAudio && !introAudio.paused)) return;
     const isRotated = introPortrait.classList.toggle('is-rotated');
     introRotateButton.setAttribute('aria-pressed', String(isRotated));
   });
@@ -28,6 +36,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const focusedControl = introPortrait.querySelector(':focus');
     focusedControl?.blur();
   });
+
+  const introQuartetOutline = introQuartet?.cloneNode(true);
+  introQuartetOutline?.removeAttribute('id');
+  introQuartetOutline?.classList.add('intro-quartet--outline');
+  introQuartetOutline?.setAttribute('aria-hidden', 'true');
+  introQuartetOutline
+    ?.querySelectorAll('[role], [aria-label]')
+    .forEach((element) => {
+      element.removeAttribute('role');
+      element.removeAttribute('aria-label');
+    });
+  introQuartet?.before(introQuartetOutline);
+  const introOutlineSingers = Array.from(
+    introQuartetOutline?.querySelectorAll('.intro-singer') || []
+  );
+  const introBands = [
+    [20, 180],
+    [180, 500],
+    [500, 2000],
+    [2000, 8000]
+  ];
+  const introCueTimes = [0.05, 0.88, 1.56, 2.28, 3.04, 3.74, 4.52];
+  const introCueDurations = [0.46, 0.46, 0.46, 0.46, 0.46, 0.46, 1.2];
+  const introEnergy = [0, 0, 0, 0];
+  let introAudioContext;
+  let introAnalyser;
+  let introAudioSource;
+  let introFrequencyData;
+  let introAnalysisAvailable = false;
+  let introAnimationFrame;
+  let introLetterFrame;
+  let introTransitionTimer;
+  let introRotationTimer;
+  let introOverlayTimer;
+  let introOverlayCleanupTimer;
+  let introAudioStarting = false;
 
   const setIntroAudioPlaying = (isPlaying) => {
     if (!introPortrait || !introAudioButton) return;
@@ -42,24 +86,244 @@ document.addEventListener('DOMContentLoaded', () => {
     if (icon) icon.textContent = isPlaying ? '■' : '▶';
   };
 
+  const clearIntroPerformanceTimers = () => {
+    clearTimeout(introRotationTimer);
+    clearTimeout(introOverlayTimer);
+    clearTimeout(introOverlayCleanupTimer);
+    cancelAnimationFrame(introLetterFrame);
+    introLetterFrame = undefined;
+    introPortrait?.classList.remove(
+      'is-intro-overlay',
+      'is-overlay-dismissing',
+      'is-overlay-dismissed'
+    );
+    introLetterOverlays.forEach((overlay) =>
+      overlay.classList.remove('is-visible')
+    );
+    if (introRotateButton) introRotateButton.disabled = false;
+  };
+
+  const updateIntroLetterCues = () => {
+    introLetterOverlays.forEach((overlay, index) => {
+      overlay.classList.toggle(
+        'is-visible',
+        introAudio.currentTime >= introCueTimes[index] &&
+          introAudio.currentTime <
+            introCueTimes[index] + introCueDurations[index]
+      );
+    });
+    if (!introAudio.paused && introAudio.currentTime < 7) {
+      introLetterFrame = requestAnimationFrame(updateIntroLetterCues);
+    }
+  };
+
+  const startIntroLogoSequence = () => {
+    clearIntroPerformanceTimers();
+    introPortrait.classList.add('is-resetting-logo');
+    introPortrait.classList.remove('is-rotated');
+    introRotateButton.setAttribute('aria-pressed', 'false');
+    void introPortrait.offsetWidth;
+    introPortrait.classList.remove('is-resetting-logo');
+    introPortrait.classList.add('is-intro-overlay');
+    introRotateButton.disabled = true;
+    updateIntroLetterCues();
+
+    introRotationTimer = setTimeout(() => {
+      introPortrait.classList.add('is-rotated');
+      introRotateButton.setAttribute('aria-pressed', 'true');
+    }, 7000);
+    introOverlayTimer = setTimeout(() => {
+      introPortrait.classList.remove('is-intro-overlay');
+      introPortrait.classList.add('is-overlay-dismissing');
+      introOverlayCleanupTimer = setTimeout(() => {
+        introPortrait.classList.remove('is-overlay-dismissing');
+        introPortrait.classList.add('is-overlay-dismissed');
+      }, 1350);
+    }, 8000);
+  };
+
+  const setupIntroAudioGraph = () => {
+    if (introAudioContext) return;
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    try {
+      introAudioContext = new AudioContext();
+      introAnalyser = introAudioContext.createAnalyser();
+      introAnalyser.fftSize = 2048;
+      introAnalyser.smoothingTimeConstant = 0.68;
+      introFrequencyData = new Uint8Array(introAnalyser.frequencyBinCount);
+      if (location.protocol !== 'file:') {
+        introAudioSource =
+          introAudioContext.createMediaElementSource(introAudio);
+        introAudioSource.connect(introAnalyser);
+        introAnalyser.connect(introAudioContext.destination);
+        introAnalysisAvailable = true;
+      }
+    } catch (error) {
+      introAnalysisAvailable = false;
+      console.warn('Portrait audio analysis is unavailable.', error);
+    }
+  };
+
+  const attachIntroLocalAnalysis = () => {
+    if (
+      introAnalysisAvailable ||
+      location.protocol !== 'file:' ||
+      !introAudioContext ||
+      !introAnalyser
+    ) return;
+    const captureStream = introAudio.captureStream || introAudio.mozCaptureStream;
+    if (!captureStream) return;
+    try {
+      const stream = captureStream.call(introAudio);
+      if (!stream.getAudioTracks().length) return;
+      introAudioSource = introAudioContext.createMediaStreamSource(stream);
+      introAudioSource.connect(introAnalyser);
+      introAnalysisAvailable = true;
+    } catch (error) {
+      console.warn('Live portrait audio analysis is unavailable.', error);
+    }
+  };
+
+  const getIntroBandEnergy = (lowFrequency, highFrequency) => {
+    const nyquist = introAudioContext.sampleRate / 2;
+    const firstBin = Math.max(
+      1,
+      Math.floor((lowFrequency / nyquist) * introFrequencyData.length)
+    );
+    const lastBin = Math.min(
+      introFrequencyData.length - 1,
+      Math.ceil((highFrequency / nyquist) * introFrequencyData.length)
+    );
+    let total = 0;
+    let peak = 0;
+    let count = 0;
+    for (let index = firstBin; index <= lastBin; index += 1) {
+      const value = introFrequencyData[index] / 255;
+      total += value * value;
+      peak = Math.max(peak, value);
+      count += 1;
+    }
+    if (!count) return 0;
+    return Math.min(1, Math.sqrt(total / count) * 1.65 + peak * 0.28);
+  };
+
+  const animateIntroSingers = () => {
+    const time = performance.now() / 1000;
+    if (introAnalysisAvailable) {
+      introAnalyser.getByteFrequencyData(introFrequencyData);
+    }
+    const hasAnalysis =
+      introAnalysisAvailable &&
+      introFrequencyData.some((value) => value > 3);
+    introSingers.forEach((singer, index) => {
+      const measured = hasAnalysis
+        ? getIntroBandEnergy(...introBands[index])
+        : 0.28 +
+          Math.max(0, Math.sin(time * (2.35 + index * 0.18) + index * 0.8)) *
+            0.48;
+      const release = measured > introEnergy[index] ? 0.48 : 0.14;
+      introEnergy[index] += (measured - introEnergy[index]) * release;
+      const energy = Math.max(0, Math.min(1, introEnergy[index]));
+      singer.style.setProperty(
+        '--lift',
+        `${(-energy * (6.5 + index * 0.55)).toFixed(2)}px`
+      );
+      singer.style.setProperty(
+        '--drift',
+        `${(
+          Math.sin(time * (1.15 + index * 0.07) + index * 1.4) *
+          energy *
+          0.8
+        ).toFixed(2)}px`
+      );
+      singer.style.setProperty('--mouth', `${(1 + energy * 4.5).toFixed(2)}px`);
+      if (introOutlineSingers[index]) {
+        introOutlineSingers[index].style.cssText = singer.style.cssText;
+      }
+    });
+    introAnimationFrame = requestAnimationFrame(animateIntroSingers);
+  };
+
+  const resetIntroSingers = () => {
+    cancelAnimationFrame(introAnimationFrame);
+    introAnimationFrame = undefined;
+    introEnergy.fill(0);
+    introSingers.forEach((singer, index) => {
+      singer.style.setProperty('--lift', '0px');
+      singer.style.setProperty('--drift', '0px');
+      singer.style.setProperty('--mouth', '1px');
+      if (introOutlineSingers[index]) {
+        introOutlineSingers[index].style.cssText = singer.style.cssText;
+      }
+    });
+  };
+
+  const showIntroSingers = () => {
+    clearTimeout(introTransitionTimer);
+    introQuartet?.classList.add('is-visible');
+    introQuartetOutline?.classList.add('is-visible');
+    introQuartet?.setAttribute('aria-hidden', 'false');
+    return new Promise((resolve) => {
+      introTransitionTimer = setTimeout(resolve, 480);
+    });
+  };
+
+  const hideIntroSingers = () => {
+    clearTimeout(introTransitionTimer);
+    introQuartet?.classList.remove('is-visible');
+    introQuartetOutline?.classList.remove('is-visible');
+    introQuartet?.setAttribute('aria-hidden', 'true');
+    introTransitionTimer = setTimeout(resetIntroSingers, 480);
+  };
+
+  const stopIntroPerformance = () => {
+    introAudio.pause();
+    introAudio.currentTime = 0;
+    introAudio.volume = 1;
+    clearIntroPerformanceTimers();
+    setIntroAudioPlaying(false);
+    hideIntroSingers();
+  };
+
   introAudioButton?.addEventListener('click', async () => {
-    if (!introAudio) return;
+    if (!introAudio || introAudioStarting) return;
     if (!introAudio.paused) {
-      introAudio.pause();
-      introAudio.currentTime = 0;
-      setIntroAudioPlaying(false);
+      stopIntroPerformance();
       return;
     }
+    introAudioStarting = true;
+    introAudioButton.disabled = true;
+    introRotateButton.disabled = true;
+    introPortrait.classList.add('is-intro-overlay');
+    setIntroAudioPlaying(true);
     try {
+      setupIntroAudioGraph();
+      await introAudioContext?.resume();
+      introAudio.volume = 0;
       await introAudio.play();
-      setIntroAudioPlaying(true);
+      await showIntroSingers();
+      introAudio.currentTime = 0;
+      introAudio.volume = 1;
+      attachIntroLocalAnalysis();
+      startIntroLogoSequence();
+      if (!introAnimationFrame) animateIntroSingers();
     } catch {
+      introAudio.pause();
+      introAudio.currentTime = 0;
+      introAudio.volume = 1;
+      clearIntroPerformanceTimers();
       setIntroAudioPlaying(false);
+      hideIntroSingers();
+    } finally {
+      introAudioStarting = false;
+      introAudioButton.disabled = false;
     }
   });
   introAudio?.addEventListener('ended', () => {
-    introAudio.currentTime = 0;
+    clearIntroPerformanceTimers();
     setIntroAudioPlaying(false);
+    hideIntroSingers();
   });
 
   const setMenuOpen = (isOpen) => {
@@ -78,10 +342,17 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   if (menuContainer) {
-    document.body.classList.toggle(
-      'menu-open',
-      menuContainer.classList.contains('active')
-    );
+    const closePersistentMenuOnMobile =
+      menuContainer.hasAttribute('data-persistent') &&
+      window.matchMedia('(max-width: 999px)').matches;
+    if (closePersistentMenuOnMobile) {
+      setMenuOpen(false);
+    } else {
+      document.body.classList.toggle(
+        'menu-open',
+        menuContainer.classList.contains('active')
+      );
+    }
   }
 
   menuButton?.addEventListener('click', () => {
@@ -141,6 +412,47 @@ document.addEventListener('DOMContentLoaded', () => {
     mediaStage.className = 'card-media';
     card.insertBefore(mediaStage, media);
     mediaStage.append(media, description);
+    addMobileCardInfo(card, mediaStage);
+  });
+
+  function addMobileCardInfo(card, container) {
+    if (!card || !container || card.querySelector('.mobile-card-info')) return;
+    const button = document.createElement('button');
+    button.className = 'mobile-card-info';
+    button.type = 'button';
+    button.textContent = 'i';
+    button.setAttribute('aria-label', 'Show card information');
+    button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const willOpen = !card.classList.contains('show-mobile-description');
+      document.querySelectorAll('.show-mobile-description').forEach((openCard) => {
+        openCard.classList.remove('show-mobile-description');
+        openCard.querySelector('.mobile-card-info')?.setAttribute(
+          'aria-pressed',
+          'false'
+        );
+      });
+      card.classList.toggle('show-mobile-description', willOpen);
+      button.setAttribute('aria-pressed', String(willOpen));
+      button.setAttribute(
+        'aria-label',
+        willOpen ? 'Hide card information' : 'Show card information'
+      );
+    });
+    container.append(button);
+  }
+
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('.show-mobile-description')) return;
+    document.querySelectorAll('.show-mobile-description').forEach((card) => {
+      card.classList.remove('show-mobile-description');
+      card.querySelector('.mobile-card-info')?.setAttribute(
+        'aria-pressed',
+        'false'
+      );
+    });
   });
 
   const expandablePanels = [];
@@ -226,6 +538,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const search = document.createElement('input');
       search.className = 'directory-search';
       search.type = 'search';
+      search.id = `${panel.id}-search`;
+      search.name = `${panel.id}-search`;
       search.placeholder = {
         'projects-panel': 'Search tools…',
         'games-patches-panel': 'Search games and patches…',
@@ -342,6 +656,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const search = document.createElement('input');
     search.className = 'directory-search';
     search.type = 'search';
+    search.id = 'games-patches-search';
+    search.name = 'games-patches-search';
     search.placeholder = 'Search games and patches…';
     search.setAttribute('aria-label', search.placeholder);
     const resultCount = document.createElement('span');
@@ -396,13 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const loadGamesDirectory = async () => {
     if (!gamesPanel) return;
-    try {
-      const response = await fetch('assets/data/games-patches.json');
-      if (!response.ok) {
-        throw new Error(`Game data returned ${response.status}`);
-      }
-      setupGamesDirectory(await response.json());
-    } catch (error) {
+    const loadFallbackGames = () => {
       const fallback = document.getElementById(
         'games-patches-static-fallback'
       );
@@ -416,7 +726,22 @@ document.addEventListener('DOMContentLoaded', () => {
       }));
       if (entries.length) setupGamesDirectory(entries);
       else gamesPanel.textContent = 'Game and patch data could not be loaded.';
-      console.error(error);
+    };
+
+    if (location.protocol === 'file:') {
+      loadFallbackGames();
+      return;
+    }
+
+    try {
+      const response = await fetch('assets/data/games-patches.json');
+      if (!response.ok) {
+        throw new Error(`Game data returned ${response.status}`);
+      }
+      setupGamesDirectory(await response.json());
+    } catch (error) {
+      loadFallbackGames();
+      console.warn('Using the embedded games and patches data.', error);
     }
   };
 
@@ -556,8 +881,9 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     if (!validAchievements.length) return;
 
-    const container = document.createElement('span');
+    const container = document.createElement('button');
     container.className = 'person-achievements';
+    container.type = 'button';
     const tooltip = document.createElement('span');
     tooltip.className = 'achievement-tooltip';
 
@@ -607,6 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'aria-label',
       `Achievements: ${tooltipText}`
     );
+    container.setAttribute('aria-expanded', 'false');
     container.append(tooltip);
 
     const priority = ['gold', 'silver', 'bronze', 'wr', 'vip', 'former-wr'];
@@ -629,9 +956,34 @@ document.addEventListener('DOMContentLoaded', () => {
         ? 'FWR'
         : primaryType.toUpperCase();
     container.append(badge);
+    container.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const willOpen = !container.classList.contains(
+        'show-achievement-tooltip'
+      );
+      document
+        .querySelectorAll('.person-achievements.show-achievement-tooltip')
+        .forEach((openBadge) => {
+          openBadge.classList.remove('show-achievement-tooltip');
+          openBadge.setAttribute('aria-expanded', 'false');
+        });
+      container.classList.toggle('show-achievement-tooltip', willOpen);
+      container.setAttribute('aria-expanded', String(willOpen));
+    });
 
     card.querySelector('.person-photo-wrap')?.append(container);
   };
+
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('.person-achievements')) return;
+    document
+      .querySelectorAll('.person-achievements.show-achievement-tooltip')
+      .forEach((badge) => {
+        badge.classList.remove('show-achievement-tooltip');
+        badge.setAttribute('aria-expanded', 'false');
+      });
+  });
 
   document
     .querySelectorAll('.person-card[data-achievement], .person-card[data-vip]')
@@ -656,6 +1008,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!personModal || personModal.style.display === 'none') return;
     personModal.style.display = 'none';
     personModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
     lastPersonTrigger?.focus();
   };
 
@@ -693,6 +1046,7 @@ document.addEventListener('DOMContentLoaded', () => {
     personModalAchievements.hidden = achievements.length === 0;
     personModal.style.display = 'flex';
     personModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
     personModalCloseButton?.focus();
   });
 
@@ -710,10 +1064,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const createPersonCard = (player, countries) => {
     const card = document.createElement('div');
     card.className = 'person-card';
+    card.classList.toggle(
+      'person-card--highlighted',
+      Boolean(player.highlighted)
+    );
     card.setAttribute('role', 'button');
     card.tabIndex = 0;
     card.dataset.personName = player.name;
-    card.dataset.personImage = `assets/images/people/${player.id}.png`;
+    const portraitFile = window.PLAYER_IMAGE_FILES?.[player.id];
+    card.dataset.personImage = portraitFile
+      ? `assets/images/people/${portraitFile}`
+      : 'assets/images/people/default.svg';
     card.dataset.personDetails = player.details || player.summary || '';
     card.dataset.personAchievements = JSON.stringify(
       player.achievements || []
@@ -814,12 +1175,23 @@ document.addEventListener('DOMContentLoaded', () => {
     return card;
   };
 
+  let multiFilterSequence = 0;
   const createMultiFilter = (label, options, { searchable = false } = {}) => {
-    const details = document.createElement('details');
-    details.className = 'multi-filter';
-    const summary = document.createElement('summary');
+    multiFilterSequence += 1;
+    const filterId = `multi-filter-${multiFilterSequence}`;
+    const filter = document.createElement('div');
+    filter.className = 'multi-filter';
+    const trigger = searchable
+      ? document.createElement('div')
+      : document.createElement('button');
+    trigger.className = 'multi-filter-trigger';
+    if (!searchable) trigger.type = 'button';
+    trigger.setAttribute('aria-controls', `${filterId}-options`);
+    trigger.setAttribute('aria-expanded', 'false');
     const optionList = document.createElement('div');
     optionList.className = 'multi-filter-options';
+    optionList.id = `${filterId}-options`;
+    optionList.hidden = true;
     const clearButton = document.createElement('button');
     clearButton.className = 'multi-filter-clear';
     clearButton.type = 'button';
@@ -833,6 +1205,9 @@ document.addEventListener('DOMContentLoaded', () => {
       optionSearch.className =
         'multi-filter-search multi-filter-search--summary';
       optionSearch.type = 'search';
+      optionSearch.id = `${filterId}-search`;
+      optionSearch.name = `${filterId}-search`;
+      optionSearch.autocomplete = 'off';
       optionSearch.placeholder = `All ${label.toLocaleLowerCase()}`;
       optionSearch.setAttribute(
         'aria-label',
@@ -847,37 +1222,49 @@ document.addEventListener('DOMContentLoaded', () => {
       );
       searchClearButton.textContent = '×';
       searchClearButton.hidden = true;
-      summary.append(optionSearch, searchClearButton);
-      optionSearch.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        details.open = true;
-      });
+      trigger.append(optionSearch, searchClearButton);
     } else {
-      summary.textContent = `All ${label.toLocaleLowerCase()}`;
+      trigger.textContent = `All ${label.toLocaleLowerCase()}`;
     }
     optionList.append(clearButton);
 
-    options.forEach(({ value, text }) => {
+    options.forEach(({ value, text }, optionIndex) => {
       const option = document.createElement('label');
       option.className = 'multi-filter-option';
       option.dataset.filterText = text.toLocaleLowerCase();
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
+      checkbox.id = `${filterId}-option-${optionIndex + 1}`;
+      checkbox.name = `${filterId}-options`;
       checkbox.value = value;
       option.append(checkbox, document.createTextNode(text));
       optionList.append(option);
     });
 
+    const setOpen = (isOpen) => {
+      filter.classList.toggle('is-open', isOpen);
+      trigger.setAttribute('aria-expanded', String(isOpen));
+      optionList.hidden = !isOpen;
+    };
+
+    if (searchable) {
+      optionSearch.addEventListener('focus', () => setOpen(true));
+      optionSearch.addEventListener('click', () => setOpen(true));
+    } else {
+      trigger.addEventListener('click', () => {
+        setOpen(!filter.classList.contains('is-open'));
+      });
+    }
+
     const filterOptionsBySearch = () => {
       const query = optionSearch.value.trim().toLocaleLowerCase();
-      details.open = true;
+      setOpen(true);
       optionList.querySelectorAll('.multi-filter-option').forEach((option) => {
         option.hidden =
           Boolean(query) && !option.dataset.filterText.includes(query);
       });
       searchClearButton.hidden = !query;
-      details.dispatchEvent(new Event('change', { bubbles: true }));
+      filter.dispatchEvent(new Event('change', { bubbles: true }));
     };
     optionSearch?.addEventListener('input', filterOptionsBySearch);
     optionSearch?.addEventListener('search', filterOptionsBySearch);
@@ -897,7 +1284,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (optionSearch) {
         optionSearch.placeholder = text;
       } else {
-        summary.textContent = text;
+        trigger.textContent = text;
       }
       clearButton.disabled = count === 0;
     };
@@ -918,12 +1305,12 @@ document.addEventListener('DOMContentLoaded', () => {
           checkbox.checked = false;
         });
       updateFilterLabel();
-      details.dispatchEvent(new Event('change', { bubbles: true }));
+      filter.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
-    details.append(summary, optionList);
+    filter.append(trigger, optionList);
     return {
-      element: details,
+      element: filter,
       getValues,
       getSearchQuery: () =>
         optionSearch?.value.trim().toLocaleLowerCase() || ''
@@ -931,8 +1318,15 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   document.addEventListener('click', (event) => {
-    document.querySelectorAll('.multi-filter[open]').forEach((filter) => {
-      if (!filter.contains(event.target)) filter.removeAttribute('open');
+    document.querySelectorAll('.multi-filter.is-open').forEach((filter) => {
+      if (filter.contains(event.target)) return;
+      filter.classList.remove('is-open');
+      filter.querySelector('.multi-filter-trigger')?.setAttribute(
+        'aria-expanded',
+        'false'
+      );
+      const options = filter.querySelector('.multi-filter-options');
+      if (options) options.hidden = true;
     });
   });
 
@@ -940,21 +1334,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!peoplePanel) return;
 
     try {
-      const playerData = await fetch(
-        'assets/data/players.json?v=20260726-3'
-      )
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Player data returned ${response.status}`);
-          }
-          return response.json();
-        })
-        .catch((error) => {
-          if (window.PLAYER_DATA) {
-            return window.PLAYER_DATA;
-          }
-          throw error;
-        });
+      const playerData = location.protocol === 'file:'
+        ? window.PLAYER_DATA
+        : await fetch('assets/data/players.json?v=20260727-4')
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`Player data returned ${response.status}`);
+              }
+              return response.json();
+            })
+            .catch((error) => {
+              if (window.PLAYER_DATA) return window.PLAYER_DATA;
+              throw error;
+            });
+      if (!playerData) {
+        throw new Error('No player data is available.');
+      }
       const countries = playerData.countries || {};
       const players = (
         Array.isArray(playerData) ? playerData : playerData.players || []
@@ -964,6 +1359,12 @@ document.addEventListener('DOMContentLoaded', () => {
         achievements: [...(player.achievements || [])]
       }));
       players.sort((first, second) =>
+        Number(Boolean(second.highlighted)) -
+          Number(Boolean(first.highlighted)) ||
+        (first.highlighted && second.highlighted
+          ? (first.highlightOrder ?? Number.MAX_SAFE_INTEGER) -
+            (second.highlightOrder ?? Number.MAX_SAFE_INTEGER)
+          : 0) ||
         first.name.localeCompare(second.name, undefined, {
           sensitivity: 'base'
         })
@@ -979,6 +1380,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const search = document.createElement('input');
       search.className = 'directory-search';
       search.type = 'search';
+      search.id = 'people-search';
+      search.name = 'people-search';
       search.placeholder = 'Search people…';
       search.setAttribute('aria-label', 'Search people');
 
@@ -1129,6 +1532,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const search = document.createElement('input');
         search.className = 'directory-search';
         search.type = 'search';
+        search.id = 'people-fallback-search';
+        search.name = 'people-fallback-search';
         search.placeholder = 'Search people…';
         search.setAttribute('aria-label', 'Search people');
         const achievementFilter = createMultiFilter('Badges', [
@@ -1240,7 +1645,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         peoplePanel.textContent = 'Player data could not be loaded.';
       }
-      console.error(error);
+      console.warn('Using the embedded player cards.', error);
     }
   };
 
