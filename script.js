@@ -980,21 +980,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const maintenanceDismissButton =
     maintenanceModal?.querySelector('.maintenance-modal-dismiss');
   const maintenanceStorageKey = 'maintenance-notice-dismissed-date';
-  const localDateStamp = () => {
-    const date = new Date();
-    return [
-      date.getFullYear(),
-      String(date.getMonth() + 1).padStart(2, '0'),
-      String(date.getDate()).padStart(2, '0')
-    ].join('-');
-  };
 
   const closeMaintenanceModal = () => {
     if (!maintenanceModal || maintenanceModal.style.display === 'none') return;
     maintenanceModal.style.display = 'none';
     maintenanceModal.setAttribute('aria-hidden', 'true');
     try {
-      localStorage.setItem(maintenanceStorageKey, localDateStamp());
+      localStorage.setItem(maintenanceStorageKey, 'dismissed');
     } catch (error) {
       // The notice still closes when storage is unavailable.
     }
@@ -1005,14 +997,17 @@ document.addEventListener('DOMContentLoaded', () => {
   maintenanceModal?.addEventListener('click', (event) => {
     if (event.target === maintenanceModal) closeMaintenanceModal();
   });
-  let maintenanceDismissedToday = false;
+  let maintenanceDismissed = false;
   try {
-    maintenanceDismissedToday =
-      localStorage.getItem(maintenanceStorageKey) === localDateStamp();
+    // Any existing value counts, including dates stored by the previous
+    // once-per-day implementation.
+    maintenanceDismissed = Boolean(
+      localStorage.getItem(maintenanceStorageKey)
+    );
   } catch (error) {
     // Show the notice normally when storage is unavailable.
   }
-  if (maintenanceModal && !maintenanceDismissedToday) {
+  if (maintenanceModal && !maintenanceDismissed) {
     maintenanceModal.style.display = 'flex';
     maintenanceModal.setAttribute('aria-hidden', 'false');
     maintenanceDismissButton?.focus();
