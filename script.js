@@ -1,4 +1,157 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const konamiSequence = [
+    'ArrowUp',
+    'ArrowUp',
+    'ArrowDown',
+    'ArrowDown',
+    'ArrowLeft',
+    'ArrowRight',
+    'ArrowLeft',
+    'ArrowRight',
+    'b',
+    'a'
+  ];
+  let konamiPosition = 0;
+  let buranAudioContext;
+  const buranClearSound = new Audio('assets/music/tetra-clear.mp3');
+  buranClearSound.preload = 'auto';
+  buranClearSound.volume = 0.72;
+
+  const playBuranRocketSound = () => {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    buranAudioContext ||= new AudioContext();
+    const context = buranAudioContext;
+    const duration = 4.25;
+    const buffer = context.createBuffer(
+      1,
+      Math.ceil(context.sampleRate * duration),
+      context.sampleRate
+    );
+    const noise = buffer.getChannelData(0);
+    let previous = 0;
+    for (let index = 0; index < noise.length; index += 1) {
+      const white = Math.random() * 2 - 1;
+      previous = previous * 0.96 + white * 0.04;
+      noise[index] = previous * 2.4;
+    }
+
+    const source = context.createBufferSource();
+    const filter = context.createBiquadFilter();
+    const gain = context.createGain();
+    source.buffer = buffer;
+    filter.type = 'lowpass';
+    filter.frequency.value = 850;
+    filter.Q.value = 0.7;
+    gain.gain.setValueAtTime(0.0001, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.1, context.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.1, context.currentTime + duration - 0.45);
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      context.currentTime + duration
+    );
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(context.destination);
+    context.resume().then(() => source.start());
+  };
+
+  const showBuranSheesh = () => {
+    const sheesh = document.createElement('div');
+    sheesh.className = 'buran-sheesh';
+    sheesh.textContent = 'Sheesh!';
+    sheesh.setAttribute('aria-hidden', 'true');
+    sheesh.addEventListener('animationend', () => sheesh.remove(), {
+      once: true
+    });
+    document.body.append(sheesh);
+  };
+
+  document.addEventListener('keydown', (event) => {
+    const key = event.key.length === 1 ? event.key.toLocaleLowerCase() : event.key;
+    if (key === konamiSequence[konamiPosition]) {
+      if (
+        konamiPosition >= 1 &&
+        key.startsWith('Arrow')
+      ) {
+        event.preventDefault();
+      }
+      konamiPosition += 1;
+      if (konamiPosition < konamiSequence.length) return;
+
+      konamiPosition = 0;
+      const buran = document.createElement('div');
+      buran.className = 'buran-easter-egg';
+      buran.setAttribute('aria-hidden', 'true');
+      const shuttle = document.createElement('img');
+      shuttle.src = 'assets/images/buran.png';
+      shuttle.alt = '';
+      const thruster = document.createElement('span');
+      thruster.className = 'buran-thruster';
+      ['left', 'middle', 'right'].forEach((position) => {
+        const flame = document.createElement('span');
+        flame.className = `buran-flame buran-flame--${position}`;
+        thruster.append(flame);
+      });
+      buran.append(shuttle, thruster);
+
+      const portrait = document.getElementById('intro-portrait');
+      const portraitRect = portrait?.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const baseHeight = Math.min(window.innerHeight * 0.3, 300);
+      const shuttleWidth = baseHeight * (229 / 460);
+      const margin = 16;
+      const portraitIsVisible =
+        portraitRect &&
+        portraitRect.bottom > 0 &&
+        portraitRect.top < window.innerHeight;
+      const leftSpace = portraitIsVisible
+        ? Math.max(0, portraitRect.left - margin)
+        : viewportWidth;
+      const rightSpace = portraitIsVisible
+        ? Math.max(0, viewportWidth - portraitRect.right - margin)
+        : viewportWidth;
+      const useLeftLane = leftSpace >= rightSpace;
+      const laneWidth = useLeftLane ? leftSpace : rightSpace;
+
+      if (portraitIsVisible && laneWidth >= shuttleWidth) {
+        const laneStart = useLeftLane
+          ? margin
+          : portraitRect.right + margin;
+        const laneEnd = useLeftLane
+          ? portraitRect.left - margin
+          : viewportWidth - margin;
+        const halfWidth = shuttleWidth / 2;
+        const minCenter = laneStart + halfWidth;
+        const maxCenter = laneEnd - halfWidth;
+        const center =
+          minCenter + Math.random() * Math.max(0, maxCenter - minCenter);
+        buran.style.setProperty('--buran-left', `${center}px`);
+      } else {
+        buran.style.setProperty(
+          '--buran-left',
+          `${useLeftLane ? margin + shuttleWidth / 2 : viewportWidth - margin - shuttleWidth / 2}px`
+        );
+        portrait?.classList.add('is-buran-overpass');
+      }
+      buran.style.setProperty('--buran-height', `${baseHeight}px`);
+      buran.style.setProperty('--buran-width', `${shuttleWidth}px`);
+      buran.addEventListener('animationend', (animationEvent) => {
+        if (animationEvent.target !== buran) return;
+        portrait?.classList.remove('is-buran-overpass');
+        buran.remove();
+        buranClearSound.currentTime = 0;
+        buranClearSound.play().catch(() => {});
+        showBuranSheesh();
+      });
+      document.body.append(buran);
+      playBuranRocketSound();
+      return;
+    }
+
+    konamiPosition = key === konamiSequence[0] ? 1 : 0;
+  });
+
   document
     .querySelectorAll('a[href^="apps/"], a[href^="games/chris-and-triss/"]')
     .forEach((link) => {

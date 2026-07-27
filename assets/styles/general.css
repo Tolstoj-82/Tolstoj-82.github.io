@@ -8,6 +8,14 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: "GB Pixel";
+    src: url("../../apps/live/refactored/font/GB.woff") format("woff");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
 .open-sans {
     font-family: "Outfit", sans-serif;
     font-optical-sizing: auto;
@@ -221,6 +229,153 @@ h2 {
     column-gap: 14px;
     row-gap: 34px;
     padding-bottom: 34px;
+}
+
+.buran-easter-egg {
+    position: fixed;
+    z-index: 9998;
+    bottom: -55vh;
+    left: var(--buran-left, 50%);
+    width: var(--buran-width, 150px);
+    height: var(--buran-height, min(30vh, 300px));
+    pointer-events: none;
+    transform: translateX(-50%);
+    animation: buran-rise 4.25s linear forwards;
+}
+
+.buran-easter-egg > img {
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+}
+
+.buran-thruster {
+    position: absolute;
+    z-index: 1;
+    top: 96%;
+    left: 50%;
+    display: flex;
+    width: 72%;
+    height: 32%;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 1%;
+    transform: translateX(-50%);
+}
+
+.buran-flame {
+    display: block;
+    width: 32%;
+    height: 88%;
+    background: linear-gradient(
+        to bottom,
+        #fff5a8 0 18%,
+        #ffb900 18% 48%,
+        #ff6a00 48% 74%,
+        #b2054c 74% 100%
+    );
+    clip-path: polygon(16% 0, 84% 0, 100% 34%, 50% 100%, 0 34%);
+    transform-origin: 50% 0;
+    animation: buran-thruster-flicker 90ms steps(2, end) infinite alternate;
+}
+
+.buran-sheesh {
+    position: fixed;
+    z-index: 10000;
+    top: 46%;
+    left: 50%;
+    color: #e0f8d0;
+    font: 400 clamp(2.5rem, 10vw, 6.2rem)/1 "GB Pixel", monospace;
+    letter-spacing: 0.055em;
+    pointer-events: none;
+    text-shadow:
+        3px 0 0 #88c070,
+        0 3px 0 #88c070,
+        5px 5px 0 #346856,
+        8px 8px 0 #081820;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-7deg) scale(0.2);
+    animation: buran-sheesh 1.8s steps(2, end) forwards;
+}
+
+.buran-flame--middle {
+    position: relative;
+    top: 8%;
+    height: 126%;
+    animation-delay: -45ms;
+}
+
+.buran-flame--right {
+    animation-delay: -70ms;
+}
+
+.intro-portrait.is-buran-overpass {
+    z-index: 9999;
+}
+
+@keyframes buran-rise {
+    from {
+        transform: translate(-50%, 0);
+    }
+
+    to {
+        transform: translate(-50%, -175vh);
+    }
+}
+
+@keyframes buran-thruster-flicker {
+    from {
+        transform: scaleX(1.16) scaleY(0.88);
+    }
+
+    to {
+        transform: scaleX(1.42) scaleY(1.12);
+    }
+}
+
+@keyframes buran-sheesh {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 15%) rotate(-10deg) scale(0.2);
+    }
+
+    16% {
+        opacity: 1;
+        transform: translate(-50%, -58%) rotate(5deg) scale(1.24);
+    }
+
+    28% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(-2deg) scale(0.96);
+    }
+
+    40% {
+        transform: translate(-53%, -52%) rotate(-2deg) scale(1.04);
+    }
+
+    48% {
+        transform: translate(-47%, -48%) rotate(2deg) scale(1);
+    }
+
+    58% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(0) scale(1.04);
+    }
+
+    76% {
+        opacity: 1;
+        letter-spacing: 0.055em;
+        transform: translate(-50%, -55%) rotate(0) scale(1.04);
+    }
+
+    100% {
+        opacity: 0;
+        letter-spacing: 0.18em;
+        transform: translate(-50%, -115%) rotate(5deg) scale(1.28);
+    }
 }
 
 .people-rankings-link {
