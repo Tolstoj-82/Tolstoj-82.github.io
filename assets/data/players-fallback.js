@@ -67,7 +67,9 @@ window.PLAYER_DATA = {
       "name": "-JJ",
       "highlighted": true,
       "highlightOrder": 4,
-      "aliases": ["JJ"],
+      "aliases": [
+        "JJ"
+      ],
       "country": "fi",
       "summary": "Two-player link protocol reverse-engineering collaborator.",
       "details": "-JJ, also known as JJ, collaborated on reverse engineering the Game Boy Tetris two-player link protocol.",
@@ -144,7 +146,9 @@ window.PLAYER_DATA = {
     {
       "id": "kerstin",
       "name": "Kerstin",
-      "aliases": ["Nitsrek1985"],
+      "aliases": [
+        "Nitsrek1985"
+      ],
       "country": "de",
       "summary": "More information coming soon.",
       "details": "Kerstin is also known as Nitsrek1985. More information will be added soon."
@@ -159,7 +163,9 @@ window.PLAYER_DATA = {
     {
       "id": "nells",
       "name": "Nells",
-      "aliases": ["Nellstris"],
+      "aliases": [
+        "Nellstris"
+      ],
       "country": "ca",
       "summary": "More information coming soon.",
       "details": "Nells is also known as Nellstris. More information will be added soon."
@@ -274,7 +280,10 @@ window.PLAYER_DATA = {
     {
       "id": "jani",
       "name": "Jani Janutzka",
-      "aliases": ["Jani", "janutzska"],
+      "aliases": [
+        "Jani",
+        "janutzska"
+      ],
       "country": "fi",
       "summary": "CTEC Game Boy Tetris champion and 2016 runner-up.",
       "details": "Jani Janutzka finished second in the Game Boy Tetris tournament at CTEC 2016 and won the championship in 2018.",
@@ -353,7 +362,9 @@ window.PLAYER_DATA = {
     {
       "id": "alex-h",
       "name": "ALEX_H",
-      "aliases": ["Alex H"],
+      "aliases": [
+        "Alex H"
+      ],
       "country": "gb",
       "summary": "Three-time CTEC Game Boy champion and 2024 runner-up.",
       "details": "ALEX_H won the Game Boy Tetris championship at CTEC in 2019, 2022, and 2023, then finished second in 2024.",
@@ -595,6 +606,9 @@ window.PLAYER_DATA = {
     {
       "id": "kristians-romanovskis",
       "name": "Kristiāns Romanovskis",
+      "aliases": [
+        "Kristiāns"
+      ],
       "country": "lv",
       "summary": "More information coming soon.",
       "details": "More information about Kristiāns Romanovskis will be added soon."
@@ -635,7 +649,10 @@ window.PLAYER_DATA = {
     {
       "id": "maiwingkos",
       "name": "Wing",
-      "aliases": ["MaiWingKos", "Maiwingkos"],
+      "aliases": [
+        "MaiWingKos",
+        "Maiwingkos"
+      ],
       "country": "be",
       "summary": "CTEC Game Boy 2023 runner-up.",
       "details": "Wing, also known as MaiWingKos, finished second in the Game Boy tournament at CTEC 2023.",
@@ -1693,8 +1710,302 @@ window.PLAYER_DATA = {
       "country": "unknown",
       "summary": "More information coming soon.",
       "details": "More information about Zircon will be added soon."
+    },
+    {
+      "id": "adam-cornelius",
+      "name": "Adam Cornelius",
+      "country": "us",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Adam Cornelius competed in the Game Boy tournament at CTEC 2015."
+    },
+    {
+      "id": "aleksi-e",
+      "name": "Aleksi E",
+      "country": "fi",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Aleksi E competed in the Game Boy tournament at CTEC 2016."
+    },
+    {
+      "id": "alex-telon",
+      "name": "Alex Telon",
+      "aliases": [
+        "The Voice of CTEC"
+      ],
+      "country": "se",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Alex Telon, also known as The Voice of CTEC, competed in the Game Boy tournament at CTEC 2015."
+    },
+    {
+      "id": "bobby",
+      "name": "Bobby",
+      "country": "dk",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Bobby competed in the Game Boy tournament at CTEC 2017."
+    },
+    {
+      "id": "cgo",
+      "name": "CGO",
+      "country": "de",
+      "summary": "CTEC Game Boy participant.",
+      "details": "CGO participated in the Game Boy tournament at CTEC 2023."
+    },
+    {
+      "id": "emi",
+      "name": "Emi",
+      "country": "dk",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Emi participated in the Game Boy tournament at CTEC 2019."
+    },
+    {
+      "id": "fredagsvik",
+      "name": "Fredagsvik",
+      "country": "no",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Fredagsvik competed in the Game Boy tournaments at CTEC 2019 and 2022."
+    },
+    {
+      "id": "iivari",
+      "name": "Iivari",
+      "country": "fi",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Iivari participated in the Game Boy tournament at CTEC 2023."
+    },
+    {
+      "id": "jakub",
+      "name": "Jakub",
+      "country": "de",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Jakub participated in the Game Boy tournament at CTEC 2022."
+    },
+    {
+      "id": "jayp33",
+      "name": "Jayp33",
+      "country": "de",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Jayp33 participated in the Game Boy tournament at CTEC 2022."
+    },
+    {
+      "id": "jens",
+      "name": "Jens",
+      "country": "dk",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Jens competed in the Game Boy tournament at CTEC 2017."
+    },
+    {
+      "id": "jeremy",
+      "name": "Jeremy",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Jeremy competed in the Game Boy tournament at CTEC 2019."
+    },
+    {
+      "id": "kenneth-the-conqueror-iii",
+      "name": "KENNETHTHECONQUERORIII",
+      "country": "dk",
+      "summary": "CTEC Game Boy participant.",
+      "details": "KENNETHTHECONQUERORIII participated in the Game Boy tournament at CTEC 2022."
+    },
+    {
+      "id": "las",
+      "name": "LAS",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "LAS competed in the Game Boy tournament at CTEC 2019."
+    },
+    {
+      "id": "lasse",
+      "name": "Lasse",
+      "country": "dk",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Lasse competed in the Game Boy tournament at CTEC 2018."
+    },
+    {
+      "id": "magnus",
+      "name": "Magnus",
+      "country": "dk",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Magnus competed in the Game Boy tournament at CTEC 2019."
+    },
+    {
+      "id": "martin",
+      "name": "Martin",
+      "country": "gb",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Martin competed in the Game Boy tournament at CTEC 2018."
+    },
+    {
+      "id": "matisyahu",
+      "name": "Matisyahu",
+      "country": "dk",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Matisyahu competed in the Game Boy tournaments at CTEC 2017, 2018, and 2019."
+    },
+    {
+      "id": "michael",
+      "name": "Michael",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Michael participated in the Game Boy tournament at CTEC 2019."
+    },
+    {
+      "id": "nic",
+      "name": "Nic",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Nic participated in the Game Boy tournament at CTEC 2019."
+    },
+    {
+      "id": "ole",
+      "name": "Ole",
+      "country": "dk",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Ole competed in the Game Boy tournament at CTEC 2017."
+    },
+    {
+      "id": "pietro",
+      "name": "Pietro",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Pietro competed in the Game Boy tournament at CTEC 2019."
+    },
+    {
+      "id": "queen-delirious",
+      "name": "QUEENDELIRIOUS",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "QUEENDELIRIOUS participated in the Game Boy tournament at CTEC 2022."
+    },
+    {
+      "id": "ronnie",
+      "name": "Ronnie",
+      "country": "se",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Ronnie competed in the Game Boy tournament at CTEC 2019."
+    },
+    {
+      "id": "santtu-deewee",
+      "name": "Santtu",
+      "aliases": [
+        "Deewee",
+        "Deewee7"
+      ],
+      "country": "fi",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Santtu, also known as Deewee, participated in the Game Boy tournament at CTEC 2022."
+    },
+    {
+      "id": "sascha",
+      "name": "Sascha",
+      "country": "dk",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Sascha competed in the Game Boy tournament at CTEC 2018."
+    },
+    {
+      "id": "scary-nobody",
+      "name": "SCARYNOBODY",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "SCARYNOBODY participated in the Game Boy tournament at CTEC 2022."
+    },
+    {
+      "id": "schwix",
+      "name": "Schwix",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Schwix participated in the Game Boy tournament at CTEC 2019."
+    },
+    {
+      "id": "sebastian",
+      "name": "Sebastian",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Sebastian competed in the Game Boy tournament at CTEC 2018."
+    },
+    {
+      "id": "simon-eske",
+      "name": "Simon / Eske",
+      "aliases": [
+        "Simon",
+        "Eske",
+        "SIMONESKE"
+      ],
+      "country": "dk",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Simon / Eske competed in the Game Boy tournaments at CTEC 2017, 2018, and 2022."
+    },
+    {
+      "id": "sumez",
+      "name": "Sumez",
+      "country": "dk",
+      "summary": "CTEC Game Boy medalist.",
+      "details": "Sumez placed in the Game Boy tournament at CTEC 2018.",
+      "achievements": [
+        {
+          "type": "bronze",
+          "event": "CTEC 2018"
+        }
+      ]
+    },
+    {
+      "id": "sv",
+      "name": "SV",
+      "country": "gb",
+      "secondaryCountry": "se",
+      "summary": "CTEC Game Boy participant.",
+      "details": "SV competed in the Game Boy tournament at CTEC 2022."
+    },
+    {
+      "id": "thomas",
+      "name": "Thomas",
+      "country": "de",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Thomas competed in the Game Boy tournament at CTEC 2018."
+    },
+    {
+      "id": "thomas-bovith",
+      "name": "Thomas Bovith",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Thomas Bovith competed in the Game Boy tournament at CTEC 2018."
+    },
+    {
+      "id": "thorbjorn",
+      "name": "Thorbjörn",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Thorbjörn competed in the Game Boy tournament at CTEC 2018."
+    },
+    {
+      "id": "thrashberry",
+      "name": "THRASHBERRY",
+      "country": "dk",
+      "summary": "CTEC Game Boy participant.",
+      "details": "THRASHBERRY participated in the Game Boy tournament at CTEC 2022."
+    },
+    {
+      "id": "tim",
+      "name": "Tim",
+      "aliases": [
+        "666_TIM"
+      ],
+      "country": "gb",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Tim participated in the Game Boy tournament at CTEC 2019."
+    },
+    {
+      "id": "uli-horner",
+      "name": "Uli Horner",
+      "country": "de",
+      "secondaryCountry": "gb",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Uli Horner competed in the Game Boy tournament at CTEC 2018."
+    },
+    {
+      "id": "victor",
+      "name": "Victor",
+      "country": "unknown",
+      "summary": "CTEC Game Boy participant.",
+      "details": "Victor competed in the Game Boy tournament at CTEC 2018."
     }
   ]
-}
-;
-
+};

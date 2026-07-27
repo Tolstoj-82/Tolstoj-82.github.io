@@ -744,6 +744,34 @@ h2 {
     overflow-y: auto;
 }
 
+#personModal {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    max-width: none;
+}
+
+#personModal .person-modal-content {
+    overflow: hidden auto;
+}
+
+#personModal .close {
+    top: 16px;
+    right: 18px;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: transparent;
+    color: #fff;
+    line-height: 1;
+}
+
+#personModal .close:hover,
+#personModal .close:focus-visible {
+    background: transparent;
+    color: #fff;
+}
+
 .person-modal-content > img {
     width: 100%;
     max-width: none;
@@ -759,6 +787,7 @@ h2 {
 }
 
 .person-modal-copy h2 {
+    width: calc(100% + 84px);
     margin: 0 -42px 28px;
     padding: 24px 64px 20px 28px;
     border-radius: 0 0 0 12px;

@@ -12,12 +12,47 @@
     <link rel="stylesheet" href="../tetris-collection/style.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&display=swap');
+
+        .youtube-link-card {
+            display: block;
+            width: min(400px, 100%);
+            overflow: hidden;
+            border: 2px solid #215e99;
+            border-radius: 8px;
+            background: #fff;
+            color: #215e99;
+            text-decoration: none;
+        }
+
+        .youtube-link-card img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            margin: 0;
+            border: 0;
+            border-radius: 0;
+            object-fit: cover;
+        }
+
+        .youtube-link-card span {
+            display: block;
+            padding: 12px 16px;
+            font-weight: 700;
+            text-align: center;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .youtube-link-card:hover span,
+        .youtube-link-card:focus-visible span {
+            background: #215e99;
+            color: #fff;
+        }
     </style>
 </head>
 <body class="menu-open">
     <div class="content">
         <header>
-            <a class="article-back-button" href="../../index.html#articles-section" aria-label="Back to all articles">← All articles</a>
+            <a class="article-back-button" href="../../index.html?section=articles" aria-label="Back to all articles">← All articles</a>
             <h1 class="article-title">New to GB Tetris?</h1>
             <button
                 class="menu-btn"
@@ -41,7 +76,19 @@
             <main>
                 <h2>What Version of Tetris for the Game Boy?</h2>
                 <p>Watch my YT Video first.</p>
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/R3dNYo9U11c" title="GAME BOY TETRIS • Part 1 • The Early Years" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <a
+                    class="youtube-link-card"
+                    href="https://www.youtube.com/watch?v=R3dNYo9U11c"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <img
+                        src="https://i.ytimg.com/vi/R3dNYo9U11c/hqdefault.jpg"
+                        alt="GAME BOY TETRIS Part 1: The Early Years"
+                        loading="lazy"
+                    />
+                    <span>Watch on YouTube ↗</span>
+                </a>
                 <h2>Differences between GB Tetris and NES Tetris</h2>       
     </main>
     </div>

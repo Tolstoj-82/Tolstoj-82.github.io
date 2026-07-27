@@ -1,4 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
+  if (new URLSearchParams(location.search).get('section') === 'articles') {
+    window.addEventListener('load', () => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          document.getElementById('articles-section')?.scrollIntoView({
+            block: 'start'
+          });
+        });
+      });
+    });
+  }
+
+  if (location.protocol === 'file:') {
+    document
+      .querySelectorAll('a[href="#top"], a.site-footer-logo[href="index.html"]')
+      .forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          document.getElementById('top')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        });
+      });
+  }
+
   const konamiSequence = [
     'ArrowUp',
     'ArrowUp',
@@ -14,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let konamiPosition = 0;
   let buranAudioContext;
   const buranClearSound = new Audio('assets/music/tetra-clear.mp3');
-  buranClearSound.preload = 'auto';
+  buranClearSound.preload = 'none';
   buranClearSound.volume = 0.72;
 
   const playBuranRocketSound = () => {
@@ -275,8 +301,9 @@ document.addEventListener('DOMContentLoaded', () => {
     introPortrait.classList.add('is-resetting-logo');
     introPortrait.classList.remove('is-rotated');
     introRotateButton.setAttribute('aria-pressed', 'false');
-    void introPortrait.offsetWidth;
-    introPortrait.classList.remove('is-resetting-logo');
+    requestAnimationFrame(() => {
+      introPortrait.classList.remove('is-resetting-logo');
+    });
     introPortrait.classList.add('is-intro-overlay');
     introRotateButton.disabled = true;
     updateIntroLetterCues();
@@ -315,26 +342,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
       introAnalysisAvailable = false;
       console.warn('Portrait audio analysis is unavailable.', error);
-    }
-  };
-
-  const attachIntroLocalAnalysis = () => {
-    if (
-      introAnalysisAvailable ||
-      location.protocol !== 'file:' ||
-      !introAudioContext ||
-      !introAnalyser
-    ) return;
-    const captureStream = introAudio.captureStream || introAudio.mozCaptureStream;
-    if (!captureStream) return;
-    try {
-      const stream = captureStream.call(introAudio);
-      if (!stream.getAudioTracks().length) return;
-      introAudioSource = introAudioContext.createMediaStreamSource(stream);
-      introAudioSource.connect(introAnalyser);
-      introAnalysisAvailable = true;
-    } catch (error) {
-      console.warn('Live portrait audio analysis is unavailable.', error);
     }
   };
 
@@ -458,7 +465,6 @@ document.addEventListener('DOMContentLoaded', () => {
       await showIntroSingers();
       introAudio.currentTime = 0;
       introAudio.volume = 1;
-      attachIntroLocalAnalysis();
       startIntroLogoSequence();
       if (!introAnimationFrame) animateIntroSingers();
     } catch {
@@ -615,6 +621,19 @@ document.addEventListener('DOMContentLoaded', () => {
     divider.setAttribute('aria-hidden', 'true');
     return divider;
   };
+  const getDirectoryFirstRowSize = () => {
+    if (window.innerWidth <= 480) return 2;
+    if (window.innerWidth <= 700) return 3;
+    if (window.innerWidth <= 900) return 4;
+    return 5;
+  };
+  const getStandardGridFirstRowSize = () => {
+    const availableWidth = Math.max(
+      0,
+      Math.min(1000, window.innerWidth - 40)
+    );
+    return Math.max(1, Math.floor((availableWidth + 20) / 270));
+  };
 
   document
     .querySelectorAll('.grid.accordion-panel')
@@ -629,24 +648,21 @@ document.addEventListener('DOMContentLoaded', () => {
     showMoreButton.setAttribute('aria-expanded', 'false');
     panel.append(showMoreButton);
 
+    let collapseFrame;
     const collapseToFirstRow = () => {
-      items.forEach((item) => {
-        item.hidden = false;
+      cancelAnimationFrame(collapseFrame);
+      collapseFrame = requestAnimationFrame(() => {
+        const firstRowSize = getStandardGridFirstRowSize();
+        const hasMore = firstRowSize < items.length;
+
+        items.forEach((item, index) => {
+          item.hidden = hasMore && index >= firstRowSize;
+        });
+
+        showMoreButton.hidden = !hasMore;
+        showMoreButton.textContent = 'Show all';
+        showMoreButton.setAttribute('aria-expanded', 'false');
       });
-
-      const firstTop = items[0].offsetTop;
-      const firstRowItems = items.filter(
-        (item) => Math.abs(item.offsetTop - firstTop) < 2
-      );
-      const hasMore = firstRowItems.length < items.length;
-
-      items.forEach((item, index) => {
-        item.hidden = hasMore && index >= firstRowItems.length;
-      });
-
-      showMoreButton.hidden = !hasMore;
-      showMoreButton.textContent = 'Show all';
-      showMoreButton.setAttribute('aria-expanded', 'false');
     };
 
     showMoreButton.addEventListener('click', () => {
@@ -800,10 +816,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const setupGamesDirectory = (entries) => {
     if (!gamesPanel) return;
-    const firstRowSize = Math.max(
-      1,
-      getComputedStyle(gamesPanel).gridTemplateColumns.split(' ').length
-    );
+    const firstRowSize = getDirectoryFirstRowSize();
     const controls = document.createElement('div');
     controls.className = 'directory-controls';
     const search = document.createElement('input');
@@ -1489,7 +1502,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const playerData = location.protocol === 'file:'
         ? window.PLAYER_DATA
-        : await fetch('assets/data/players.json?v=20260727-4')
+        : await fetch('assets/data/players.json?v=20260727-5')
             .then((response) => {
               if (!response.ok) {
                 throw new Error(`Player data returned ${response.status}`);
@@ -1523,10 +1536,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       );
       if (peopleCount) peopleCount.textContent = `(${players.length})`;
-      const firstRowSize = Math.max(
-        1,
-        getComputedStyle(peoplePanel).gridTemplateColumns.split(' ').length
-      );
+      const firstRowSize = getDirectoryFirstRowSize();
       const controls = document.createElement('div');
       controls.className = 'directory-controls directory-controls--people';
 
@@ -1660,10 +1670,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const fallback = document.getElementById('people-static-fallback');
       if (fallback) {
         const cards = Array.from(fallback.querySelectorAll('.person-card'));
-        const firstRowSize = Math.max(
-          1,
-          getComputedStyle(peoplePanel).gridTemplateColumns.split(' ').length
-        );
+        const firstRowSize = getDirectoryFirstRowSize();
         const clonedCards = cards.map((card) => {
           const clone = card.cloneNode(true);
           clone.querySelectorAll('img').forEach((image) => {
