@@ -1100,9 +1100,11 @@
         });
       });
 
-      document.querySelectorAll('.show-all').forEach(button => {
+      document
+        .querySelectorAll('.leaderboard-category .show-all')
+        .forEach(button => {
         button.addEventListener('click', () => {
-          const card = button.closest('.card');
+          const card = button.closest('.leaderboard-category');
           if (!card) return;
 
           const expanded = button.getAttribute('aria-expanded') === 'true';
