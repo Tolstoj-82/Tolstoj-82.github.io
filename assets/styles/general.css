@@ -756,9 +756,10 @@ h2 {
 }
 
 #personModal .close {
-    top: 16px;
-    right: 18px;
-    width: auto;
+    position: static;
+    flex: 0 0 58px;
+    align-self: stretch;
+    width: 58px;
     height: auto;
     border-radius: 0;
     background: transparent;
@@ -786,14 +787,37 @@ h2 {
     padding: 0 42px 42px;
 }
 
+#personModal .person-modal-copy {
+    padding: 0 0 42px;
+}
+
+.person-modal-header {
+    display: flex;
+    width: 100%;
+    margin: 0 0 28px;
+    align-items: stretch;
+    overflow: hidden;
+    background: #215e99;
+    border-radius: 0 0 0 12px;
+}
+
 .person-modal-copy h2 {
-    width: calc(100% + 84px);
+    width: auto;
     margin: 0 -42px 28px;
     padding: 24px 64px 20px 28px;
     border-radius: 0 0 0 12px;
 }
 
-.person-modal-copy p {
+.person-modal-copy .person-modal-header h2 {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 24px 12px 20px 28px;
+    border-radius: 0;
+}
+
+#personModal .person-modal-copy p {
+    margin-right: 42px;
+    margin-left: 42px;
     line-height: 1.65;
 }
 
@@ -817,13 +841,40 @@ h2 {
 }
 
 .person-modal-achievements {
-    margin: 20px 0 0;
+    margin: 20px 42px 0;
     padding-left: 1.25rem;
     line-height: 1.65;
 }
 
 .person-modal-achievements[hidden] {
     display: none;
+}
+
+@media (min-width: 621px) {
+    #personModal .person-modal-content {
+        --person-modal-header-height: 73px;
+    }
+
+    #personModal .person-modal-header {
+        position: absolute;
+        z-index: 3;
+        top: 0;
+        right: 0;
+        left: 0;
+        min-height: var(--person-modal-header-height);
+        margin: 0;
+        border-radius: 8px 8px 0 0;
+    }
+
+    #personModal .person-modal-content > img {
+        align-self: start;
+        height: auto;
+        margin-top: var(--person-modal-header-height);
+    }
+
+    #personModal .person-modal-copy {
+        padding-top: var(--person-modal-header-height);
+    }
 }
 
 .download-unavailable {
@@ -853,12 +904,22 @@ h2 {
         display: contents;
     }
 
-    .person-modal-copy h2 {
+    .person-modal-header {
         order: 1;
         width: 100%;
         margin: 0;
+        border-radius: 0;
+    }
+
+    .person-modal-copy h2 {
+        width: auto;
+        margin: 0;
         padding: 20px 56px 18px 24px;
         border-radius: 0;
+    }
+
+    .person-modal-copy .person-modal-header h2 {
+        padding-right: 12px;
     }
 
     .person-modal-copy p {
