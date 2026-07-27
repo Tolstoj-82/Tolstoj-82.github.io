@@ -1,3 +1,11 @@
+@font-face {
+    font-family: 'Press Start 2P';
+    src: url('refactored/font/GB.woff') format('woff');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
 body {
     margin: 0;
     display: flex;
@@ -6,7 +14,7 @@ body {
     height: 100vh;
     padding: 20px;
     box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .container {

@@ -1,4 +1,20 @@
 
+@font-face {
+  font-family: 'Outfit';
+  src: url('../../../apps/trep/fonts/Outfit-Variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Arvo';
+  src: local('Georgia');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 body {
     font-family: 'Outfit', sans-serif;
 

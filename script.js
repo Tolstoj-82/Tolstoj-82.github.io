@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     'a'
   ];
   let konamiPosition = 0;
+  const hadookenSequence = 'hadooken';
+  let hadookenBuffer = '';
   let buranAudioContext;
   const buranClearSound = new Audio('assets/music/tetra-clear.mp3');
   buranClearSound.preload = 'none';
@@ -95,6 +97,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('keydown', (event) => {
     const key = event.key.length === 1 ? event.key.toLocaleLowerCase() : event.key;
+    if (/^[a-z]$/.test(key)) {
+      hadookenBuffer = `${hadookenBuffer}${key}`.slice(
+        -hadookenSequence.length
+      );
+      if (hadookenBuffer === hadookenSequence) {
+        document.body.classList.toggle('hadooken-mode');
+        hadookenBuffer = '';
+      }
+    } else if (!key.startsWith('Arrow')) {
+      hadookenBuffer = '';
+    }
+
     if (key === konamiSequence[konamiPosition]) {
       if (
         konamiPosition >= 1 &&

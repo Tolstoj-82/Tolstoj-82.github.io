@@ -1,10 +1,16 @@
-@import url("https://fonts.googleapis.com/css2?family=Arvo&display=swap");
-
 @font-face {
     font-family: "Outfit";
     src: url("../../apps/trep/fonts/Outfit-Variable.ttf") format("truetype");
     font-style: normal;
     font-weight: 100 900;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Arvo";
+    src: local("Georgia");
+    font-style: normal;
+    font-weight: 400 700;
     font-display: swap;
 }
 
@@ -64,6 +70,68 @@ body::before {
     background-size: 115% 115%, 125% 125%, 120% 120%, 100% 100%;
     opacity: 0.92;
     animation: ambient-gradient 24s ease-in-out infinite alternate;
+}
+
+body.hadooken-mode,
+body.hadooken-mode * {
+    font-family: "Comic Sans MS", "Comic Sans", cursive !important;
+}
+
+body.hadooken-mode {
+    background: #ff00c8;
+    color: #132bff;
+}
+
+body.hadooken-mode::before {
+    background: repeating-linear-gradient(
+        127deg,
+        #ff00c8 0 54px,
+        #b6ff00 54px 108px,
+        #00eaff 108px 162px,
+        #ff7a00 162px 216px
+    );
+    opacity: 1;
+    animation: none;
+}
+
+body.hadooken-mode header,
+body.hadooken-mode .menu-container,
+body.hadooken-mode .site-footer {
+    background: #ff6a00 !important;
+    color: #3d006b !important;
+}
+
+body.hadooken-mode h2,
+body.hadooken-mode .section-accordion {
+    border-color: #00ffff !important;
+    background: #7d00ff !important;
+    color: #fff600 !important;
+}
+
+body.hadooken-mode .accordion-panel,
+body.hadooken-mode .grid-item,
+body.hadooken-mode .person-card,
+body.hadooken-mode .remark,
+body.hadooken-mode .modal-content {
+    border-color: #ff1493 !important;
+    background: #8cff00 !important;
+    color: #3d006b !important;
+}
+
+body.hadooken-mode a {
+    color: #d90000;
+}
+
+body.hadooken-mode button,
+body.hadooken-mode .button {
+    border-color: #001eff !important;
+    background-color: #fff600 !important;
+    color: #9d00c8 !important;
+}
+
+body.hadooken-mode .intro-rotate-button {
+    border: 0 !important;
+    background: transparent !important;
 }
 
 .content {
