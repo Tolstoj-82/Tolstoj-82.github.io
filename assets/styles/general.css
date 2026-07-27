@@ -8,9 +8,17 @@
 
 @font-face {
     font-family: "Arvo";
-    src: local("Georgia");
+    src: url("../fonts/Arvo-Regular.ttf") format("truetype");
     font-style: normal;
-    font-weight: 400 700;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Arvo";
+    src: url("../fonts/Arvo-Bold.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 700;
     font-display: swap;
 }
 
