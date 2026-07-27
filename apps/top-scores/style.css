@@ -1183,10 +1183,11 @@ thead th {
   .standings-table tbody td:nth-child(3),
   .standings-table tbody td:nth-child(4),
   .standings-table tbody td:nth-child(5) {
-    position: relative;
+    display: flex;
     grid-row: 2;
-    padding-top: 24px;
-    text-align: center;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
   }
 
   .standings-table tbody td:nth-child(3) {
@@ -1204,10 +1205,7 @@ thead th {
   .standings-table tbody td:nth-child(3)::before,
   .standings-table tbody td:nth-child(4)::before,
   .standings-table tbody td:nth-child(5)::before {
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
+    position: static;
     font-size: 16px;
   }
 
@@ -1299,10 +1297,6 @@ thead th {
   .leaderboard-category td.date {
     grid-column: 3;
     font-size: 0.75rem;
-  }
-
-  .leaderboard-category .info-tip {
-    display: none;
   }
 
   .leaderboard-category td.proof-cell {

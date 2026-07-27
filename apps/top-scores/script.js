@@ -1278,11 +1278,7 @@
       const secondaryMetric = formatSecondaryMetric(row, category);
 
       const link = safeUrl(row.proofLink);
-      const rowInformation = [
-        row.style ? `Playstyle: ${row.style}` : 'Playstyle: Not specified',
-        row.platform ? `Platform: ${row.platform}` : 'Platform: Not specified',
-        row.notes ? `Notes: ${row.notes}` : ''
-      ].filter(Boolean).join('\n');
+      const rowInformation = row.notes || 'No additional notes.';
 
       return `
         <tr data-rank="${rank}" data-player="${escapeAttribute(row.name)}">
@@ -1294,7 +1290,7 @@
               <button
                 class="info-tip"
                 type="button"
-                aria-label="Show playstyle and platform for ${escapeHtml(row.name)}"
+                aria-label="Show notes for ${escapeHtml(row.name)}"
                 data-note="${escapeAttribute(rowInformation)}"
               >i</button>
             </span>
