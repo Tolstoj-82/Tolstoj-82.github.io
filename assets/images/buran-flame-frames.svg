@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="27" height="21" viewBox="0 0 27 21" shape-rendering="crispEdges">
+  <defs>
+    <linearGradient id="flame-long" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="18%" stop-color="#fff5a8"/>
+      <stop offset="48%" stop-color="#ffb900"/>
+      <stop offset="74%" stop-color="#ff6a00"/>
+      <stop offset="100%" stop-color="#b2054c"/>
+    </linearGradient>
+    <linearGradient id="flame-medium" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="18%" stop-color="#fff5a8"/>
+      <stop offset="48%" stop-color="#ffb900"/>
+      <stop offset="74%" stop-color="#ff6a00"/>
+      <stop offset="100%" stop-color="#b2054c"/>
+    </linearGradient>
+    <linearGradient id="flame-short" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="18%" stop-color="#fff5a8"/>
+      <stop offset="48%" stop-color="#ffb900"/>
+      <stop offset="74%" stop-color="#ff6a00"/>
+      <stop offset="100%" stop-color="#b2054c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Frame 1: long, irregular pixel flame. -->
+  <path fill="url(#flame-long)" d="M2 0h4v1h1v1h1v7H7v5H6v4H5v2H4v1H3v-2H2v-3H1v-5H0V3h1V1h1z"/>
+  <path fill="#fff5a8" d="M3 2h2v1h1v8H5v5H4v-3H3V9H2V3h1z"/>
+
+  <!-- Frame 2: compact bulb-shaped flame. -->
+  <path fill="url(#flame-medium)" d="M11 1h1V0h4v1h1v1h1v6h-1v4h-1v2h-1v2h-1v-3h-1v-2h-1V8h-1V3h1V2h-1z"/>
+  <path fill="#fff5a8" d="M13 2h2v1h1v5h-1v4h-1V9h-1V7h-1V3h1z"/>
+
+  <!-- Frame 3: the small U-shaped final flare. -->
+  <path fill="url(#flame-short)" d="M20 1h1v4h1v1h1v1h2V6h1V1h1v5h-1v2h-1v1h-2V8h-1V7h-1V6h-1z"/>
+</svg>

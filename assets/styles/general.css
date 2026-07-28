@@ -92,14 +92,77 @@ body.hadooken-mode {
 
 body.hadooken-mode::before {
     background: repeating-linear-gradient(
-        127deg,
+        45deg,
         #ff00c8 0 54px,
         #b6ff00 54px 108px,
         #00eaff 108px 162px,
         #ff7a00 162px 216px
     );
+    background-size: 306px 306px;
     opacity: 1;
-    animation: none;
+    will-change: transform;
+    animation: hadooken-background-slide 4s linear infinite;
+}
+
+body.hadooken-mode .page-content {
+    border-right: 8px solid #fff600;
+    border-left: 8px solid #fff600;
+    background: #00eaff;
+    box-shadow:
+        12px 0 0 #ff00c8,
+        -12px 0 0 #7d00ff;
+}
+
+body.hadooken-mode .intro-portrait {
+    border: 5px solid #fff600;
+    background: #ff00c8;
+    box-shadow:
+        7px 8px 0 #7d00ff,
+        -4px -3px 0 #8cff00;
+}
+
+body.hadooken-mode .intro-portrait-photo {
+    content: url("../images/tolstoj-hadooken.png");
+}
+
+body.hadooken-mode img:not(.intro-portrait-photo) {
+    filter: invert(1) hue-rotate(128deg) saturate(1.75) contrast(1.12) !important;
+    opacity: 0.92;
+    -webkit-mask-image: linear-gradient(
+        121deg,
+        rgb(0 0 0 / 100%) 0 24%,
+        rgb(0 0 0 / 48%) 39%,
+        rgb(0 0 0 / 86%) 57%,
+        rgb(0 0 0 / 34%) 76%,
+        rgb(0 0 0 / 96%) 100%
+    );
+    mask-image: linear-gradient(
+        121deg,
+        rgb(0 0 0 / 100%) 0 24%,
+        rgb(0 0 0 / 48%) 39%,
+        rgb(0 0 0 / 86%) 57%,
+        rgb(0 0 0 / 34%) 76%,
+        rgb(0 0 0 / 96%) 100%
+    );
+}
+
+body.hadooken-mode .intro-portrait img {
+    filter: none !important;
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+body.hadooken-mode .intro-portrait-photo {
+    opacity: 1;
+}
+
+body.hadooken-mode .intro-rotation-background,
+body.hadooken-mode .intro-rotation-foreground,
+body.hadooken-mode .intro-letter-overlays,
+body.hadooken-mode .intro-rotate-button,
+body.hadooken-mode .intro-audio-button,
+body.hadooken-mode .intro-quartet {
+    display: none !important;
 }
 
 body.hadooken-mode header,
@@ -307,6 +370,16 @@ h2 {
     padding-bottom: 34px;
 }
 
+@keyframes hadooken-background-slide {
+    from {
+        transform: translate3d(0, 0, 0);
+    }
+
+    to {
+        transform: translate3d(306px, 0, 0);
+    }
+}
+
 .buran-easter-egg {
     position: fixed;
     z-index: 9998;
@@ -325,6 +398,12 @@ h2 {
     display: block;
     width: 100%;
     height: 100%;
+    filter:
+        drop-shadow(1px 0 0 rgb(255 255 255 / 72%))
+        drop-shadow(-1px 0 0 rgb(255 255 255 / 72%))
+        drop-shadow(0 1px 0 rgb(255 255 255 / 72%))
+        drop-shadow(0 -1px 0 rgb(255 255 255 / 72%))
+        drop-shadow(3px 4px 0 rgb(8 24 32 / 30%));
     image-rendering: pixelated;
 }
 
@@ -342,20 +421,25 @@ h2 {
     transform: translateX(-50%);
 }
 
+.buran-easter-egg--single-engine .buran-thruster {
+    top: 100%;
+    width: var(--buran-single-flame-width, 34px);
+    height: var(--buran-single-flame-height, 96px);
+}
+
 .buran-flame {
     display: block;
     width: 32%;
     height: 88%;
-    background: linear-gradient(
-        to bottom,
-        #fff5a8 0 18%,
-        #ffb900 18% 48%,
-        #ff6a00 48% 74%,
-        #b2054c 74% 100%
-    );
-    clip-path: polygon(16% 0, 84% 0, 100% 34%, 50% 100%, 0 34%);
+    background: url("../images/buran-flame-frames.svg") 0 0 / 300% 100% no-repeat;
+    image-rendering: pixelated;
+    transform: scale(1.14);
     transform-origin: 50% 0;
-    animation: buran-thruster-flicker 90ms steps(2, end) infinite alternate;
+    animation: buran-thruster-cycle 240ms linear infinite;
+}
+
+.buran-flame--single {
+    width: 100%;
 }
 
 .buran-sheesh {
@@ -381,11 +465,6 @@ h2 {
     position: relative;
     top: 8%;
     height: 126%;
-    animation-delay: -45ms;
-}
-
-.buran-flame--right {
-    animation-delay: -70ms;
 }
 
 .intro-portrait.is-buran-overpass {
@@ -402,13 +481,20 @@ h2 {
     }
 }
 
-@keyframes buran-thruster-flicker {
-    from {
-        transform: scaleX(1.16) scaleY(0.88);
+@keyframes buran-thruster-cycle {
+    0%,
+    33.332% {
+        background-position: 0 0;
     }
 
-    to {
-        transform: scaleX(1.42) scaleY(1.12);
+    33.333%,
+    66.665% {
+        background-position: 50% 0;
+    }
+
+    66.666%,
+    100% {
+        background-position: 100% 0;
     }
 }
 

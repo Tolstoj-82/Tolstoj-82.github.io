@@ -38,7 +38,10 @@ document.addEventListener("DOMContentLoaded", () => {
     "a",
   ];
   let konamiPosition = 0;
-  const hadookenSequence = "hadooken";
+  const hadoukenSequences = ["hadouken", "hadooken"];
+  const hadoukenSequenceLength = Math.max(
+    ...hadoukenSequences.map((sequence) => sequence.length),
+  );
   let hadookenBuffer = "";
   let buranAudioContext;
   const buranClearSound = new Audio("assets/music/tetra-clear.mp3");
@@ -84,10 +87,53 @@ document.addEventListener("DOMContentLoaded", () => {
     context.resume().then(() => source.start());
   };
 
-  const showBuranSheesh = () => {
+  const buranMessages = [
+    "BOOM!",
+    "Tris... Tris... Tris!",
+    "Sheesh!",
+    "Awesome!",
+  ];
+  const buranRockets = [
+    {
+      name: "Shuttle",
+      src: "assets/images/buran.png",
+      width: 229,
+      height: 460,
+      logicalHeight: 66,
+      flames: ["left", "middle", "right"],
+    },
+    {
+      name: "Soyuz",
+      src: "assets/images/soyuz.png",
+      width: 96,
+      height: 335,
+      logicalHeight: 56,
+      flames: ["single"],
+    },
+    {
+      name: "Titan II GLV",
+      src: "assets/images/titan-ii-glv.png",
+      width: 48,
+      height: 228,
+      logicalHeight: 38,
+      flames: ["single"],
+    },
+    {
+      name: "Missile",
+      src: "assets/images/missile.png",
+      width: 60,
+      height: 167,
+      logicalHeight: 28,
+      flames: ["single"],
+    },
+  ];
+  const pickRandom = (items) =>
+    items[Math.floor(Math.random() * items.length)];
+
+  const showBuranMessage = () => {
     const sheesh = document.createElement("div");
     sheesh.className = "buran-sheesh";
-    sheesh.textContent = "Sheesh!";
+    sheesh.textContent = pickRandom(buranMessages);
     sheesh.setAttribute("aria-hidden", "true");
     sheesh.addEventListener("animationend", () => sheesh.remove(), {
       once: true,
@@ -100,9 +146,9 @@ document.addEventListener("DOMContentLoaded", () => {
       event.key.length === 1 ? event.key.toLocaleLowerCase() : event.key;
     if (/^[a-z]$/.test(key)) {
       hadookenBuffer = `${hadookenBuffer}${key}`.slice(
-        -hadookenSequence.length,
+        -hadoukenSequenceLength,
       );
-      if (hadookenBuffer === hadookenSequence) {
+      if (hadoukenSequences.includes(hadookenBuffer)) {
         document.body.classList.toggle("hadooken-mode");
         hadookenBuffer = "";
       }
@@ -118,15 +164,21 @@ document.addEventListener("DOMContentLoaded", () => {
       if (konamiPosition < konamiSequence.length) return;
 
       konamiPosition = 0;
+      const rocket = pickRandom(buranRockets);
+      const useSingleEngineRocket = rocket.flames.length === 1;
       const buran = document.createElement("div");
       buran.className = "buran-easter-egg";
+      buran.dataset.rocket = rocket.name;
+      if (useSingleEngineRocket) {
+        buran.classList.add("buran-easter-egg--single-engine");
+      }
       buran.setAttribute("aria-hidden", "true");
       const shuttle = document.createElement("img");
-      shuttle.src = "assets/images/buran.png";
+      shuttle.src = rocket.src;
       shuttle.alt = "";
       const thruster = document.createElement("span");
       thruster.className = "buran-thruster";
-      ["left", "middle", "right"].forEach((position) => {
+      rocket.flames.forEach((position) => {
         const flame = document.createElement("span");
         flame.className = `buran-flame buran-flame--${position}`;
         thruster.append(flame);
@@ -137,7 +189,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const portraitRect = portrait?.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const baseHeight = Math.min(window.innerHeight * 0.3, 300);
-      const shuttleWidth = baseHeight * (229 / 460);
+      const pixelSize = baseHeight / buranRockets[0].logicalHeight;
+      const rocketHeight = useSingleEngineRocket
+        ? rocket.logicalHeight * pixelSize
+        : baseHeight;
+      const shuttleWidth = rocketHeight * (rocket.width / rocket.height);
+      if (useSingleEngineRocket) {
+        const buranWidthAtThisScale =
+          baseHeight * (
+            buranRockets[0].width / buranRockets[0].height
+          );
+        buran.style.setProperty(
+          "--buran-single-flame-width",
+          `${buranWidthAtThisScale * 0.72 * 0.32}px`,
+        );
+        buran.style.setProperty(
+          "--buran-single-flame-height",
+          `${baseHeight * 0.32}px`,
+        );
+      }
       const margin = 16;
       const portraitIsVisible =
         portraitRect &&
@@ -170,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
         portrait?.classList.add("is-buran-overpass");
       }
-      buran.style.setProperty("--buran-height", `${baseHeight}px`);
+      buran.style.setProperty("--buran-height", `${rocketHeight}px`);
       buran.style.setProperty("--buran-width", `${shuttleWidth}px`);
       buran.addEventListener("animationend", (animationEvent) => {
         if (animationEvent.target !== buran) return;
@@ -178,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
         buran.remove();
         buranClearSound.currentTime = 0;
         buranClearSound.play().catch(() => {});
-        showBuranSheesh();
+        showBuranMessage();
       });
       document.body.append(buran);
       playBuranRocketSound();
