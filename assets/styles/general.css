@@ -431,7 +431,7 @@ h2 {
     display: block;
     width: 32%;
     height: 88%;
-    background: url("../images/buran-flame-frames.svg") 0 0 / 300% 100% no-repeat;
+    background: url("../images/flame1.png") 0 0 / 100% 100% no-repeat;
     image-rendering: pixelated;
     transform: scale(1.14);
     transform-origin: 50% 0;
@@ -484,17 +484,17 @@ h2 {
 @keyframes buran-thruster-cycle {
     0%,
     33.332% {
-        background-position: 0 0;
+        background-image: url("../images/flame1.png");
     }
 
     33.333%,
     66.665% {
-        background-position: 50% 0;
+        background-image: url("../images/flame2.png");
     }
 
     66.666%,
     100% {
-        background-position: 100% 0;
+        background-image: url("../images/flame3.png");
     }
 }
 

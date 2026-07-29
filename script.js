@@ -43,6 +43,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ...hadoukenSequences.map((sequence) => sequence.length),
   );
   let hadookenBuffer = "";
+  const rocketFestivalSequence = "rocketfest";
+  let rocketFestivalBuffer = "";
   let buranAudioContext;
   const buranClearSound = new Audio("assets/music/tetra-clear.mp3");
   buranClearSound.preload = "none";
@@ -129,6 +131,14 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
   const pickRandom = (items) =>
     items[Math.floor(Math.random() * items.length)];
+  const shuffled = (items) => {
+    const result = [...items];
+    for (let index = result.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+    }
+    return result;
+  };
 
   const showBuranMessage = () => {
     const sheesh = document.createElement("div");
@@ -141,6 +151,148 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.append(sheesh);
   };
 
+  const getRocketMetrics = (rocket, scale = 1) => {
+    const baseHeight = Math.min(window.innerHeight * 0.3, 300) * scale;
+    const pixelSize = baseHeight / buranRockets[0].logicalHeight;
+    const rocketHeight =
+      rocket.flames.length === 1
+        ? rocket.logicalHeight * pixelSize
+        : baseHeight;
+
+    return {
+      baseHeight,
+      rocketHeight,
+      shuttleWidth: rocketHeight * (rocket.width / rocket.height),
+    };
+  };
+
+  const launchRocket = (
+    rocket = pickRandom(buranRockets),
+    center = null,
+    scale = 1,
+    showCompletionMessage = true,
+    playLaunchSound = true,
+    playCompletionSound = true,
+  ) => {
+    const useSingleEngineRocket = rocket.flames.length === 1;
+    const buran = document.createElement("div");
+    buran.className = "buran-easter-egg";
+    buran.dataset.rocket = rocket.name;
+    if (useSingleEngineRocket) {
+      buran.classList.add("buran-easter-egg--single-engine");
+    }
+    buran.setAttribute("aria-hidden", "true");
+    const shuttle = document.createElement("img");
+    shuttle.src = rocket.src;
+    shuttle.alt = "";
+    const thruster = document.createElement("span");
+    thruster.className = "buran-thruster";
+    rocket.flames.forEach((position) => {
+      const flame = document.createElement("span");
+      flame.className = `buran-flame buran-flame--${position}`;
+      thruster.append(flame);
+    });
+    buran.append(shuttle, thruster);
+
+    const { baseHeight, rocketHeight, shuttleWidth } = getRocketMetrics(
+      rocket,
+      scale,
+    );
+    if (useSingleEngineRocket) {
+      const buranWidthAtThisScale =
+        baseHeight * (buranRockets[0].width / buranRockets[0].height);
+      buran.style.setProperty(
+        "--buran-single-flame-width",
+        `${buranWidthAtThisScale * 0.72 * 0.32}px`,
+      );
+      buran.style.setProperty(
+        "--buran-single-flame-height",
+        `${baseHeight * 0.32}px`,
+      );
+    }
+
+    const margin = 16;
+    const halfWidth = shuttleWidth / 2;
+    const minCenter = margin + halfWidth;
+    const maxCenter = Math.max(
+      minCenter,
+      window.innerWidth - margin - halfWidth,
+    );
+    const launchCenter =
+      center ?? minCenter + Math.random() * (maxCenter - minCenter);
+    buran.style.setProperty("--buran-left", `${launchCenter}px`);
+    buran.style.setProperty("--buran-height", `${rocketHeight}px`);
+    buran.style.setProperty("--buran-width", `${shuttleWidth}px`);
+    buran.addEventListener("animationend", (animationEvent) => {
+      if (animationEvent.target !== buran) return;
+      buran.remove();
+      if (playCompletionSound) {
+        buranClearSound.currentTime = 0;
+        buranClearSound.play().catch(() => {});
+      }
+      if (showCompletionMessage) {
+        showBuranMessage();
+      }
+    });
+    document.body.append(buran);
+    if (playLaunchSound) {
+      playBuranRocketSound();
+    }
+  };
+
+  const launchRocketFestival = () => {
+    const rockets = shuffled(buranRockets);
+    const margin = 16;
+    const minimumGap = 12;
+    const availableWidth = Math.max(1, window.innerWidth - margin * 2);
+    const naturalWidths = rockets.map(
+      (rocket) => getRocketMetrics(rocket).shuttleWidth,
+    );
+    const naturalRocketWidth = naturalWidths.reduce(
+      (total, width) => total + width,
+      0,
+    );
+    const festivalScale = Math.min(
+      1,
+      (availableWidth - minimumGap * (rockets.length - 1)) /
+        naturalRocketWidth,
+    );
+    const safeScale = Math.max(0.2, festivalScale);
+    const widths = rockets.map(
+      (rocket) => getRocketMetrics(rocket, safeScale).shuttleWidth,
+    );
+    const rocketWidth = widths.reduce((total, width) => total + width, 0);
+    const gap = Math.max(
+      2,
+      (availableWidth - rocketWidth) / (rockets.length + 1),
+    );
+    let cursor = margin + gap;
+    let delay = 0;
+
+    rockets.forEach((rocket, index) => {
+      const center = cursor + widths[index] / 2;
+      const showCompletionMessage = index === rockets.length - 1;
+      const playLaunchSound = index === 0;
+      const playCompletionSound = index === rockets.length - 1;
+      window.setTimeout(
+        () =>
+          launchRocket(
+            rocket,
+            center,
+            safeScale,
+            showCompletionMessage,
+            playLaunchSound,
+            playCompletionSound,
+          ),
+        delay,
+      );
+      cursor += widths[index] + gap;
+      delay += 90 + Math.random() * 130;
+    });
+  };
+
+  document.addEventListener("rocketfestival", launchRocketFestival);
+
   document.addEventListener("keydown", (event) => {
     const key =
       event.key.length === 1 ? event.key.toLocaleLowerCase() : event.key;
@@ -148,12 +300,20 @@ document.addEventListener("DOMContentLoaded", () => {
       hadookenBuffer = `${hadookenBuffer}${key}`.slice(
         -hadoukenSequenceLength,
       );
+      rocketFestivalBuffer = `${rocketFestivalBuffer}${key}`.slice(
+        -rocketFestivalSequence.length,
+      );
       if (hadoukenSequences.includes(hadookenBuffer)) {
         document.body.classList.toggle("hadooken-mode");
         hadookenBuffer = "";
       }
+      if (rocketFestivalBuffer === rocketFestivalSequence) {
+        document.dispatchEvent(new Event("rocketfestival"));
+        rocketFestivalBuffer = "";
+      }
     } else if (!key.startsWith("Arrow")) {
       hadookenBuffer = "";
+      rocketFestivalBuffer = "";
     }
 
     if (key === konamiSequence[konamiPosition]) {
@@ -164,94 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (konamiPosition < konamiSequence.length) return;
 
       konamiPosition = 0;
-      const rocket = pickRandom(buranRockets);
-      const useSingleEngineRocket = rocket.flames.length === 1;
-      const buran = document.createElement("div");
-      buran.className = "buran-easter-egg";
-      buran.dataset.rocket = rocket.name;
-      if (useSingleEngineRocket) {
-        buran.classList.add("buran-easter-egg--single-engine");
-      }
-      buran.setAttribute("aria-hidden", "true");
-      const shuttle = document.createElement("img");
-      shuttle.src = rocket.src;
-      shuttle.alt = "";
-      const thruster = document.createElement("span");
-      thruster.className = "buran-thruster";
-      rocket.flames.forEach((position) => {
-        const flame = document.createElement("span");
-        flame.className = `buran-flame buran-flame--${position}`;
-        thruster.append(flame);
-      });
-      buran.append(shuttle, thruster);
-
-      const portrait = document.getElementById("intro-portrait");
-      const portraitRect = portrait?.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const baseHeight = Math.min(window.innerHeight * 0.3, 300);
-      const pixelSize = baseHeight / buranRockets[0].logicalHeight;
-      const rocketHeight = useSingleEngineRocket
-        ? rocket.logicalHeight * pixelSize
-        : baseHeight;
-      const shuttleWidth = rocketHeight * (rocket.width / rocket.height);
-      if (useSingleEngineRocket) {
-        const buranWidthAtThisScale =
-          baseHeight * (
-            buranRockets[0].width / buranRockets[0].height
-          );
-        buran.style.setProperty(
-          "--buran-single-flame-width",
-          `${buranWidthAtThisScale * 0.72 * 0.32}px`,
-        );
-        buran.style.setProperty(
-          "--buran-single-flame-height",
-          `${baseHeight * 0.32}px`,
-        );
-      }
-      const margin = 16;
-      const portraitIsVisible =
-        portraitRect &&
-        portraitRect.bottom > 0 &&
-        portraitRect.top < window.innerHeight;
-      const leftSpace = portraitIsVisible
-        ? Math.max(0, portraitRect.left - margin)
-        : viewportWidth;
-      const rightSpace = portraitIsVisible
-        ? Math.max(0, viewportWidth - portraitRect.right - margin)
-        : viewportWidth;
-      const useLeftLane = leftSpace >= rightSpace;
-      const laneWidth = useLeftLane ? leftSpace : rightSpace;
-
-      if (portraitIsVisible && laneWidth >= shuttleWidth) {
-        const laneStart = useLeftLane ? margin : portraitRect.right + margin;
-        const laneEnd = useLeftLane
-          ? portraitRect.left - margin
-          : viewportWidth - margin;
-        const halfWidth = shuttleWidth / 2;
-        const minCenter = laneStart + halfWidth;
-        const maxCenter = laneEnd - halfWidth;
-        const center =
-          minCenter + Math.random() * Math.max(0, maxCenter - minCenter);
-        buran.style.setProperty("--buran-left", `${center}px`);
-      } else {
-        buran.style.setProperty(
-          "--buran-left",
-          `${useLeftLane ? margin + shuttleWidth / 2 : viewportWidth - margin - shuttleWidth / 2}px`,
-        );
-        portrait?.classList.add("is-buran-overpass");
-      }
-      buran.style.setProperty("--buran-height", `${rocketHeight}px`);
-      buran.style.setProperty("--buran-width", `${shuttleWidth}px`);
-      buran.addEventListener("animationend", (animationEvent) => {
-        if (animationEvent.target !== buran) return;
-        portrait?.classList.remove("is-buran-overpass");
-        buran.remove();
-        buranClearSound.currentTime = 0;
-        buranClearSound.play().catch(() => {});
-        showBuranMessage();
-      });
-      document.body.append(buran);
-      playBuranRocketSound();
+      launchRocket();
       return;
     }
 
