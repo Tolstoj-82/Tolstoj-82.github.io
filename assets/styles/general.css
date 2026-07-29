@@ -156,6 +156,28 @@ body.hadooken-mode .intro-portrait-photo {
     opacity: 1;
 }
 
+body.hadooken-mode img.hadooken-event-photo {
+    filter: contrast(4.6) saturate(1.8) brightness(0.82) !important;
+    opacity: 1;
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+body.hadooken-mode .hadooken-event-photo-wrap::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    pointer-events: none;
+    background: radial-gradient(
+        circle at 45% 42%,
+        #8cff00 0%,
+        #764020 52%,
+        #ff00c8 100%
+    );
+    mix-blend-mode: hard-light;
+    opacity: 0.32;
+}
+
 body.hadooken-mode .intro-rotation-background,
 body.hadooken-mode .intro-rotation-foreground,
 body.hadooken-mode .intro-letter-overlays,
@@ -189,15 +211,61 @@ body.hadooken-mode .modal-content {
     color: #3d006b !important;
 }
 
+body.hadooken-mode .grid-item,
+body.hadooken-mode .person-card {
+    animation: hadooken-card-wiggle 1.15s ease-in-out infinite;
+}
+
+body.hadooken-mode h1,
+body.hadooken-mode h2,
+body.hadooken-mode h3 {
+    animation: hadooken-title-blink 720ms steps(1, end) infinite;
+}
+
 body.hadooken-mode a {
     color: #d90000;
 }
 
-body.hadooken-mode button,
+body.hadooken-mode button:not(.section-accordion),
 body.hadooken-mode .button {
     border-color: #001eff !important;
     background-color: #fff600 !important;
     color: #9d00c8 !important;
+    animation: hadooken-button-pulse 680ms ease-in-out infinite;
+}
+
+body.hadooken-mode .person-card {
+    animation:
+        hadooken-card-wiggle 1.15s ease-in-out infinite,
+        hadooken-button-pulse 680ms ease-in-out infinite;
+}
+
+body.hadooken-mode .grid-item:nth-child(even) {
+    animation-delay: -0.38s;
+}
+
+body.hadooken-mode .grid-item:nth-child(3n) {
+    animation-delay: -0.76s;
+}
+
+body.hadooken-mode .person-card:nth-child(even) {
+    animation-delay: -0.38s, -0.19s;
+}
+
+body.hadooken-mode .person-card:nth-child(3n) {
+    animation-delay: -0.76s, -0.51s;
+}
+
+body.hadooken-mode #external-links-panel > a {
+    animation: hadooken-external-link-wave 2.4s ease-in-out infinite;
+}
+
+body.hadooken-mode #external-links-panel > a:nth-child(even) {
+    animation-delay: -1.2s;
+}
+
+body.hadooken-mode #external-links-panel > a:nth-child(3n) {
+    animation-delay: -1.8s;
 }
 
 body.hadooken-mode .intro-rotate-button {
@@ -377,6 +445,57 @@ h2 {
 
     to {
         transform: translate3d(306px, 0, 0);
+    }
+}
+
+@keyframes hadooken-card-wiggle {
+    0%,
+    100% {
+        rotate: -1.5deg;
+    }
+
+    50% {
+        rotate: 1.5deg;
+    }
+}
+
+@keyframes hadooken-title-blink {
+    0%,
+    54% {
+        opacity: 1;
+    }
+
+    55%,
+    100% {
+        opacity: 0.18;
+    }
+}
+
+@keyframes hadooken-button-pulse {
+    0%,
+    100% {
+        scale: 0.96;
+    }
+
+    50% {
+        scale: 1.06;
+    }
+}
+
+@keyframes hadooken-external-link-wave {
+    0%,
+    100% {
+        translate: 0 0;
+        box-shadow:
+            3px 3px 0 #ff1493,
+            -2px -2px 0 #00eaff;
+    }
+
+    50% {
+        translate: 0 -3px;
+        box-shadow:
+            -3px 5px 0 #7d00ff,
+            2px -2px 0 #fff600;
     }
 }
 
@@ -1837,6 +1956,18 @@ img.fullwidth {
     width: 100%; 
     height: auto;
     margin: auto;
+}
+
+.hadooken-event-photo-wrap {
+    position: relative;
+    display: block;
+    max-width: 1000px;
+    margin: auto;
+    overflow: hidden;
+}
+
+.hadooken-event-photo-wrap img {
+    display: block;
 }
 
 hr {
