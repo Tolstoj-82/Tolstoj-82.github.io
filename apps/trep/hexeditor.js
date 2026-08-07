@@ -21,8 +21,9 @@ const dirtyBGMapPreviews = new Set();
 let pendingHeaderCell = null;
 let pendingBGMapBinImport = null;
 let headerAddressesEnabled = false;
-let linkerModeActive = false;
-let linkerGGWarningShown = false;
+let gameGenieWarningActive = false;
+const originalTetrisSha256 = "0D6535AEF23969C7E5AF2B077ACADDB4A445B3D0DF7BF34C8ACEF07B51B015C3";
+const nonOriginalRomWarningStorageKey = "trep-hide-non-original-rom-warning";
 const protectedRomAddresses = new Set(["01FD", "01FE", "01FF"]);
 let defaultTileAddresses = null;
 let defaultBGMapAddresses = null;
@@ -119,11 +120,22 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById("closeBGMapButton").addEventListener("click", closeBGModal);
   initializeHeaderEditors();
   initializeHeaderAddressDialog();
+  const nonOriginalRomDialog = document.getElementById("nonOriginalRomDialog");
+  document.getElementById("closeNonOriginalRomDialog").addEventListener("click", () => nonOriginalRomDialog.close());
+  nonOriginalRomDialog.addEventListener("close", () => {
+    if (document.getElementById("hideNonOriginalRomWarning").checked) {
+      localStorage.setItem(nonOriginalRomWarningStorageKey, "1");
+    }
+  });
   initializeToastCloseButtons();
   initializeBGMapList();
   initializeBGMapBinImportDialog();
-  document.getElementById("closeLinkerGGWarning").addEventListener("click", () => {
-    document.getElementById("linkerGGWarningDialog").close();
+  document.getElementById("toggleGGCodes").addEventListener("click", event => {
+    const content = document.getElementById("ggCodesContent");
+    content.hidden = false;
+    event.currentTarget.setAttribute("aria-expanded", "true");
+    event.currentTarget.hidden = true;
+    document.getElementById("ggCodesInlineWarning").hidden = true;
   });
 
   e_applyCode.setAttribute("title", disabledButtonText);
@@ -509,6 +521,16 @@ function renderBGMapPreview(name) {
 
 function refreshBGMapPreviews() {
   for (const name of Object.keys(bgMaps)) renderBGMapPreview(name);
+}
+
+async function isVerifiedOriginalTetrisRom(file) {
+  if (file.size !== 32768) return false;
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (bytes[0x014D] !== 0x0A || bytes[0x014E] !== 0x16 || bytes[0x014F] !== 0xBF) return false;
+  if (!globalThis.crypto?.subtle) return false;
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", bytes);
+  const sha256 = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("").toUpperCase();
+  return sha256 === originalTetrisSha256;
 }
 
 function rgbdsRomOffset(bank, address) {
@@ -1022,10 +1044,21 @@ async function validateFile(event) {
 
   const symFile = selectedFiles.find(candidate => candidate.name.toLowerCase().endsWith(".sym"));
   const mapFile = selectedFiles.find(candidate => candidate.name.toLowerCase().endsWith(".map"));
-  linkerModeActive = Boolean(symFile && mapFile);
+  const isVerifiedOriginalRom = await isVerifiedOriginalTetrisRom(file);
+  gameGenieWarningActive = !isVerifiedOriginalRom;
+  const showAddressCompatibilityWarning = !isVerifiedOriginalRom
+    && !symFile
+    && !mapFile
+    && localStorage.getItem(nonOriginalRomWarningStorageKey) !== "1";
   const ggTab = document.querySelector('.tab[data-tab="tab1"]');
-  ggTab?.classList.toggle("linker-caution", linkerModeActive);
-  if (ggTab) ggTab.title = linkerModeActive ? "Game Genie addresses may not match this linked ROM" : "";
+  ggTab?.classList.toggle("linker-caution", gameGenieWarningActive);
+  if (ggTab) ggTab.title = gameGenieWarningActive ? "Game Genie addresses may not match this ROM" : "";
+  const ggContent = document.getElementById("ggCodesContent");
+  const ggButton = document.getElementById("toggleGGCodes");
+  ggContent.hidden = gameGenieWarningActive;
+  ggButton.hidden = !gameGenieWarningActive;
+  ggButton.setAttribute("aria-expanded", String(!gameGenieWarningActive));
+  document.getElementById("ggCodesInlineWarning").hidden = !gameGenieWarningActive;
   let resolvedLinkerAddresses = 0;
   let loadedLinkerSymbols = null;
   if (symFile || mapFile) {
@@ -1082,13 +1115,22 @@ async function validateFile(event) {
       if (symFile || mapFile) {
         addToLog(`${resolvedLinkerAddresses} tile/BG-map addresses resolved from RGBDS linker files`);
       }
-      if (symFile && mapFile) {
+      if (!isVerifiedOriginalRom) {
         document.querySelector('.tab[data-tab="tab2"]')?.click();
       }
       document.dispatchEvent(new CustomEvent("trepromloaded", { detail: {
         bytes: new Uint8Array(fileData),
         symbols: loadedLinkerSymbols ? Array.from(loadedLinkerSymbols) : []
       } }));
+      if (showAddressCompatibilityWarning) {
+        setTimeout(() => {
+          const dialog = document.getElementById("nonOriginalRomDialog");
+          if (!dialog.open) {
+            document.getElementById("hideNonOriginalRomWarning").checked = false;
+            dialog.showModal();
+          }
+        }, 1100);
+      }
     };
 
     reader.readAsArrayBuffer(file);
@@ -1668,11 +1710,6 @@ function openTab(event, tabName) {
 
   const sharedPalette = document.getElementById("sharedPalette");
   sharedPalette.hidden = tabName === "tab1" || tabName === "tab4";
-  if (tabName === "tab1" && linkerModeActive && !linkerGGWarningShown) {
-    linkerGGWarningShown = true;
-    const warningDialog = document.getElementById("linkerGGWarningDialog");
-    if (!warningDialog.open) warningDialog.showModal();
-  }
   if (tabName === "tab2") refreshDirtyBGMapPreviews();
 }
 

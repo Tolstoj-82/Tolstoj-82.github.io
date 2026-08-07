@@ -1614,6 +1614,21 @@ button.bg-map-entry:hover .bg-map-preview {
   color:#FFF
 }
 
+.gg-codes-toggle { margin-bottom:14px }
+
+.gg-codes-inline-warning {
+  max-width:560px;
+  margin:0 0 10px !important;
+  padding:8px 10px;
+  border-left:3px solid #B7791F;
+  background:#FFF7E6;
+  color:#654813;
+  font-size:.88rem;
+  line-height:1.4
+}
+
+.gg-codes-inline-warning[hidden] { display:none }
+
 .BG-vram-column {
   width:min-content
 }
@@ -1835,6 +1850,16 @@ li.BG-stack {
 .confirmation-dialog p {
   margin:12px 0 20px
 }
+
+.confirmation-option {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:0 0 20px;
+  cursor:pointer
+}
+
+.confirmation-option input { margin:0 }
 
 .tile-set-actions {
   display:flex;

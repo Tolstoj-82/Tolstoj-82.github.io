@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TREP - Tolstoj's ROM Editor Plus</title>
-    <link rel="stylesheet" href="style.css?v=20260807-10">
+    <link rel="stylesheet" href="style.css?v=20260807-14">
     <link rel="stylesheet" href="../../assets/styles/mobile-app-warning.css?v=20260727-1">
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
@@ -199,6 +199,9 @@
               <div class="content-container">
                 <div id="tab1" class="tab-content" style="display: block;">
                   <h2>Game Genie codes</h2>
+                  <p id="ggCodesInlineWarning" class="gg-codes-inline-warning" hidden>This ROM differs from the verified original Game Boy Tetris ROM. The codes below were created for the original and may have no effect or modify the wrong part of this ROM.</p>
+                  <button id="toggleGGCodes" class="gg-codes-toggle" type="button" aria-expanded="false" aria-controls="ggCodesContent">Show codes anyway</button>
+                  <div id="ggCodesContent" hidden>
                   <div class="toggle-switch">
                     <input type="checkbox" id="autoApplyToggle">
                     <label for="autoApplyToggle"></label>
@@ -526,6 +529,7 @@
                       </td>
                     </tr>
                   </table>
+                  </div>
                 </div>
             
                 <div id="tab2" class="tab-content" style="display: none;">
@@ -651,20 +655,25 @@
         <pre id="assemblyCodeOutput" class="assembly-code-output" tabindex="0"></pre>
       </dialog>
 
-      <dialog id="linkerGGWarningDialog" class="confirmation-dialog">
-        <b>Game Genie addresses may be incorrect</b>
-        <p>The built-in Game Genie codes are specific to the standard Game Boy Tetris ROM. Because this ROM was opened with linker files, its code and data may have moved and the listed addresses are very likely not correct.</p>
-        <div class="button-group">
-          <button id="closeLinkerGGWarning" type="button">Understood</button>
-        </div>
-      </dialog>
-
       <dialog id="enableHeaderDialog" class="confirmation-dialog">
         <b>Enable header addresses?</b>
         <p>Editing header bytes directly can affect how the ROM is identified and loaded.</p>
         <div class="button-group">
           <button id="enableHeaderAddresses" type="button">Enable</button>
           <button id="cancelHeaderAddresses" class="secondary" type="button">Cancel</button>
+        </div>
+      </dialog>
+
+      <dialog id="nonOriginalRomDialog" class="confirmation-dialog">
+        <b>Address compatibility warning</b>
+        <p>This is not the verified original Game Boy Tetris ROM. Without matching <strong>.sym</strong> or <strong>.map</strong> data, TREP uses the original ROM's built-in addresses. Editing will only work correctly if the relevant data is still stored at those same addresses.</p>
+        <p>Loading matching <strong>.sym</strong> and <strong>.map</strong> files is recommended.</p>
+        <label class="confirmation-option">
+          <input id="hideNonOriginalRomWarning" type="checkbox">
+          <span>Don't show this warning again</span>
+        </label>
+        <div class="button-group">
+          <button id="closeNonOriginalRomDialog" type="button">Understood</button>
         </div>
       </dialog>
 
@@ -722,7 +731,7 @@
 
     <!-- JAVA SCRIPT FILES -->
     <!-- OLD -->
-    <script src="hexeditor.js?v=20260807-11"></script>
+    <script src="hexeditor.js?v=20260807-19"></script>
     <script src="tileEditor.js?v=20260807-1"></script>    
     <script src="gamegenie.js"></script>
     <script src="lookup.js"></script>
