@@ -17,10 +17,43 @@ let autoApply = false;
 let tileDataReady = Promise.resolve();
 let activeBGMapName = "";
 let bgPreviewRefreshFrame = null;
+const dirtyBGMapPreviews = new Set();
 let pendingHeaderCell = null;
 let pendingBGMapBinImport = null;
 let headerAddressesEnabled = false;
 const protectedRomAddresses = new Set(["01FD", "01FE", "01FF"]);
+let defaultTileAddresses = null;
+let defaultBGMapAddresses = null;
+let defaultTileDefinitions = null;
+let defaultBGMapDefinitions = null;
+let defaultVramDefinitions = null;
+
+const linkerTileSymbols = {
+  "ABC": ["Gfx_Ascii", 0],
+  "Game Play": ["Gfx_MenuScreens", 0],
+  "Start Screen": ["Gfx_TitleScreen", 0],
+  "Partial": ["Gfx_TitleScreen", 0],
+  "Celebration": ["Gfx_RocketScene", 0x168]
+};
+
+const linkerBGMapSymbols = {
+  "Copyright Screen": ["Layout_TitleScreen", 0],
+  "Title Screen": ["Layout_GameMusicTypeScreen", 0],
+  "Music Type": ["Layout_ATypeSelectionScreen", 0],
+  "A-Type Select": ["Layout_BTypeSelectionScreen", 0],
+  "B-Type Select": ["GameScreenLayout_Dancers", 0],
+  "A-Playfield": ["Layout_ATypeInGame", 0],
+  "B-Playfield": ["Layout_BTypeInGame", 0],
+  "Mario & Luigi": ["Layout_2PlayerInGame", 0],
+  "2P-Playfield": ["Layout_MarioScore", 0],
+  "Celebration": ["Layout_MarioLuigiScreen", 0x63],
+  "Score Counter": ["GameScreenLayout_ScoreTotals", 0],
+  "Mario Score": ["Layout_MarioScore", 0x168],
+  "Luigi Score": ["Layout_BricksAndLuigiScore", 0x168],
+  "Platform": ["Layout_RocketScene", 0x168],
+  "Pause": ["GameInnerScreenLayout_Pause", 0],
+  "Game Over": ["GameInnerScreenLayout_GameOver", 0]
+};
 
 function isProtectedRomAddress(address) {
   return protectedRomAddresses.has(String(address).trim().toUpperCase().padStart(4, "0"));
@@ -320,13 +353,13 @@ function initializeRomDropZone() {
     dragDepth = 0;
     dropZone.classList.remove("drag-over");
 
-    const file = event.dataTransfer.files[0];
-    if (!file) {
+    const files = Array.from(event.dataTransfer.files);
+    if (!files.length) {
       return;
     }
 
     const transfer = new DataTransfer();
-    transfer.items.add(file);
+    files.forEach(file => transfer.items.add(file));
     input.files = transfer.files;
     input.dispatchEvent(new Event("change", { bubbles: true }));
   });
@@ -375,6 +408,7 @@ function requestHeaderAddressAccess(cell) {
 // Background-map previews and selection list
 function initializeBGMapList() {
   const list = document.getElementById("bgMapList");
+  list.replaceChildren();
 
   for (const [name, mapInfo] of Object.entries(bgMaps)) {
     const item = document.createElement("section");
@@ -470,6 +504,190 @@ function renderBGMapPreview(name) {
 
 function refreshBGMapPreviews() {
   for (const name of Object.keys(bgMaps)) renderBGMapPreview(name);
+}
+
+function rgbdsRomOffset(bank, address) {
+  if (bank === 0) return address < 0x4000 ? address : null;
+  if (address < 0x4000 || address > 0x7FFF) return null;
+  return bank * 0x4000 + address - 0x4000;
+}
+
+function findLinkerRomMismatch(symbols, romSize) {
+  const outside = Array.from(symbols, ([name, offset]) => ({ name, offset }))
+    .filter(symbol => !symbol.name.endsWith(".end") && symbol.offset >= romSize)
+    .sort((a, b) => a.offset - b.offset);
+  return outside[0] || null;
+}
+
+function parseRgbdsSymbols(symText = "", mapText = "") {
+  const symbols = new Map();
+  for (const line of symText.split(/\r?\n/)) {
+    const match = line.match(/^\s*([0-9A-Fa-f]+):([0-9A-Fa-f]{4})\s+([^;\s]+)/);
+    if (!match) continue;
+    const offset = rgbdsRomOffset(parseInt(match[1], 16), parseInt(match[2], 16));
+    if (offset !== null && !symbols.has(match[3])) symbols.set(match[3], offset);
+  }
+
+  let mapBank = null;
+  for (const line of mapText.split(/\r?\n/)) {
+    const bankMatch = line.match(/^ROM(?:0|X) bank #(\d+):/i);
+    if (bankMatch) mapBank = Number(bankMatch[1]);
+    const labelMatch = line.match(/^\s*\$([0-9A-Fa-f]{4})\s*=\s*([^\s]+)/);
+    if (!labelMatch || mapBank === null || symbols.has(labelMatch[2])) continue;
+    const offset = rgbdsRomOffset(mapBank, parseInt(labelMatch[1], 16));
+    if (offset !== null) symbols.set(labelMatch[2], offset);
+  }
+  return symbols;
+}
+
+function applyLinkerAddressSettings(symbols) {
+  if (!defaultTileAddresses) {
+    defaultTileAddresses = Object.fromEntries(Object.entries(tileAddressesInROM).map(([name, data]) => [name, data[0]]));
+    defaultBGMapAddresses = Object.fromEntries(Object.entries(bgMaps).map(([name, data]) => [name, data[0]]));
+    defaultTileDefinitions = Object.fromEntries(Object.entries(tileAddressesInROM).map(([name, data]) => [name, [...data]]));
+    defaultBGMapDefinitions = Object.fromEntries(Object.entries(bgMaps).map(([name, data]) => [name, [...data]]));
+    defaultVramDefinitions = Object.fromEntries(Object.entries(vRamTileSets).map(([name, sets]) => [
+      name,
+      sets.map(set => Object.entries(tileAddressesInROM).find(([, definition]) => definition === set)?.[0])
+    ]));
+  }
+  restoreDefinitionObject(tileAddressesInROM, defaultTileDefinitions);
+  restoreDefinitionObject(bgMaps, defaultBGMapDefinitions);
+  restoreVramDefinitions();
+
+  if (symbols.size) return buildLinkerSidebarDefinitions(symbols);
+
+  let resolved = 0;
+  for (const [name, [symbol, delta]] of Object.entries(linkerTileSymbols)) {
+    if (!symbols.has(symbol) || !tileAddressesInROM[name]) continue;
+    tileAddressesInROM[name][0] = (symbols.get(symbol) + delta).toString(16).toUpperCase().padStart(4, "0");
+    resolved++;
+  }
+  for (const [name, [symbol, delta]] of Object.entries(linkerBGMapSymbols)) {
+    if (!symbols.has(symbol) || !bgMaps[name]) continue;
+    bgMaps[name][0] = (symbols.get(symbol) + delta).toString(16).toUpperCase().padStart(4, "0");
+    resolved++;
+  }
+  initializeBGMapList();
+  return resolved;
+}
+
+function restoreDefinitionObject(target, defaults, nested = false) {
+  Object.keys(target).forEach(key => delete target[key]);
+  Object.entries(defaults).forEach(([key, value]) => {
+    target[key] = nested ? value.map(item => [...item]) : [...value];
+  });
+}
+
+function restoreVramDefinitions() {
+  Object.keys(vRamTileSets).forEach(key => delete vRamTileSets[key]);
+  Object.entries(defaultVramDefinitions).forEach(([setName, groupNames]) => {
+    vRamTileSets[setName] = groupNames.map(name => tileAddressesInROM[name]).filter(Boolean);
+  });
+}
+
+function linkerDisplayName(symbol) {
+  return symbol
+    .replace(/^(?:Gfx_|Layout_|GameScreenLayout_|GameInnerScreenLayout_)/, "")
+    .replace(/_/g, " ")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .trim();
+}
+
+function inferLayoutDimensions(symbol, byteLength) {
+  const explicit = {
+    GameInnerScreenLayout_Pause: [8, 10],
+    GameScreenLayout_ScoreTotals: [10, 18],
+    GameInnerScreenLayout_GameOver: [8, 6]
+  };
+  if (explicit[symbol]) return explicit[symbol];
+  const normalized = [byteLength, byteLength - 1].find(length => [360, 180, 120, 80, 48].includes(length));
+  if (normalized === 360) return [20, 18];
+  if (normalized === 180) return [10, 18];
+  if (normalized === 120) return [20, 6];
+  if (normalized === 80) return [20, 4];
+  if (normalized === 48) return [8, 6];
+  return null;
+}
+
+function buildLinkerSidebarDefinitions(symbols) {
+  Object.keys(tileAddressesInROM).forEach(key => delete tileAddressesInROM[key]);
+  Object.keys(bgMaps).forEach(key => delete bgMaps[key]);
+  Object.keys(vRamTileSets).forEach(key => delete vRamTileSets[key]);
+
+  const gfxGroups = [];
+  for (const [symbol, start] of symbols) {
+    if (!/^Gfx_[^.]+$/.test(symbol) || !symbols.has(`${symbol}.end`)) continue;
+    const end = symbols.get(`${symbol}.end`);
+    const bpp = /ascii/i.test(symbol) ? 1 : 2;
+    const tileCount = Math.floor((end - start) / (bpp === 1 ? 8 : 16));
+    if (tileCount < 1) continue;
+    const name = linkerDisplayName(symbol);
+    tileAddressesInROM[name] = [start.toString(16).toUpperCase().padStart(4, "0"), tileCount, bpp, true];
+    gfxGroups.push({ symbol, name, start, end, definition: tileAddressesInROM[name] });
+  }
+  gfxGroups.sort((a, b) => a.start - b.start);
+  const asciiGroup = gfxGroups.find(group => /ascii/i.test(group.symbol));
+  const titleGroup = gfxGroups.find(group => /title/i.test(group.symbol));
+  const menuGroup = gfxGroups.find(group => /menu/i.test(group.symbol));
+  const rocketGroup = gfxGroups.find(group => /rocket/i.test(group.symbol));
+  gfxGroups.forEach(group => {
+    const setName = `${group.name}-Set`;
+    vRamTileSets[setName] = [group.definition];
+    group.setName = setName;
+  });
+  if (asciiGroup && titleGroup) {
+    vRamTileSets[titleGroup.setName] = [asciiGroup.definition, titleGroup.definition];
+  }
+  if (asciiGroup && titleGroup && menuGroup) {
+    const prefixName = `${titleGroup.name} Menu Prefix`;
+    const prefixTiles = Math.min(9, titleGroup.definition[1]);
+    tileAddressesInROM[prefixName] = [titleGroup.definition[0], prefixTiles, titleGroup.definition[2], false];
+    vRamTileSets[menuGroup.setName] = [asciiGroup.definition, tileAddressesInROM[prefixName], menuGroup.definition];
+  }
+  if (rocketGroup) vRamTileSets[rocketGroup.setName] = [rocketGroup.definition];
+
+  const layoutPattern = /^(?:Layout_|GameScreenLayout_|GameInnerScreenLayout_)[^.]+$/;
+  const layouts = Array.from(symbols, ([symbol, start]) => ({ symbol, start }))
+    .filter(item => layoutPattern.test(item.symbol))
+    .sort((a, b) => a.start - b.start);
+  const boundaries = [...layouts, ...gfxGroups.map(group => ({ symbol: group.symbol, start: group.start }))]
+    .sort((a, b) => a.start - b.start);
+  layouts.forEach(layout => {
+    const next = boundaries.find(boundary => boundary.start > layout.start);
+    if (!next) return;
+    const dimensions = inferLayoutDimensions(layout.symbol, next.start - layout.start);
+    if (!dimensions) return;
+    const preferredGroup = /^Layout_TitleScreen$/i.test(layout.symbol)
+      ? titleGroup
+      : /mario score|luigi score|bricks|rocket/i.test(linkerDisplayName(layout.symbol))
+        ? rocketGroup
+        : menuGroup || gfxGroups[0];
+    if (!preferredGroup) return;
+    const name = linkerDisplayName(layout.symbol);
+    bgMaps[name] = [layout.start.toString(16).toUpperCase().padStart(4, "0"), dimensions[0], dimensions[1], preferredGroup.setName, `${name.replace(/\s+/g, "_")}.bin`];
+  });
+  initializeBGMapList();
+  return gfxGroups.length + Object.keys(bgMaps).length;
+}
+
+function markBGMapPreviewsForTileAddresses(addresses) {
+  const numericAddresses = addresses.map(address => parseInt(address, 16));
+  for (const [mapName, mapInfo] of Object.entries(bgMaps)) {
+    const tileSets = vRamTileSets[mapInfo[3]] || [];
+    const isAffected = tileSets.some(([start, count, bitsPerPixel]) => {
+      const first = parseInt(start, 16);
+      const bytesPerTile = Number(bitsPerPixel) === 1 ? 8 : 16;
+      const end = first + Number(count) * bytesPerTile;
+      return numericAddresses.some(address => address >= first && address < end);
+    });
+    if (isAffected) dirtyBGMapPreviews.add(mapName);
+  }
+}
+
+function refreshDirtyBGMapPreviews() {
+  for (const name of dirtyBGMapPreviews) renderBGMapPreview(name);
+  dirtyBGMapPreviews.clear();
 }
 
 function scheduleBGMapPreviewRefresh() {
@@ -768,23 +986,16 @@ function validateGameTitle(event) {
 
 //------------------------------------------------------------------------------------------
 // Loads a ROM file
-function validateFile(event) {
+async function validateFile(event) {
 
   const maxFileSize = 3000; // files can't be bigger than that
 
-  let file = event.target.files[0];
+  const selectedFiles = Array.from(event.target.files);
+  let file = selectedFiles.find(candidate => candidate.name.toLowerCase().endsWith(".gb"));
 
   // Check if a file is selected
   if (!file) {
     alert('Please select a file.');
-    return false;
-  }
-
-  // Check the file extension
-  let fileExtension = file.name.split('.').pop().toLowerCase();
-  if (fileExtension !== 'gb') {
-    alert('Only .gb files are allowed.');
-    hideLoadingAnimation();
     return false;
   }
 
@@ -803,6 +1014,29 @@ function validateFile(event) {
 
   // Show loading animation
   showLoadingAnimation();
+
+  const symFile = selectedFiles.find(candidate => candidate.name.toLowerCase().endsWith(".sym"));
+  const mapFile = selectedFiles.find(candidate => candidate.name.toLowerCase().endsWith(".map"));
+  let resolvedLinkerAddresses = 0;
+  let loadedLinkerSymbols = null;
+  if (symFile || mapFile) {
+    const [symText, mapText] = await Promise.all([
+      symFile ? symFile.text() : "",
+      mapFile ? mapFile.text() : ""
+    ]);
+    const linkerSymbols = parseRgbdsSymbols(symText, mapText);
+    loadedLinkerSymbols = linkerSymbols;
+    const mismatch = findLinkerRomMismatch(linkerSymbols, file.size);
+    if (mismatch) {
+      hideLoadingAnimation();
+      document.getElementById("wrapper2").style.display = "block";
+      alert(`These linker files do not fit the selected ROM. Symbol "${mismatch.name}" resolves to ROM offset $${mismatch.offset.toString(16).toUpperCase()}, outside the ${file.size}-byte GB file. Select linker files produced by the same build.`);
+      return false;
+    }
+    resolvedLinkerAddresses = applyLinkerAddressSettings(linkerSymbols);
+  } else {
+    applyLinkerAddressSettings(new Map());
+  }
 
   // Read the file data
   let reader = new FileReader();
@@ -836,6 +1070,13 @@ function validateFile(event) {
       // change the view wrapper = content / wrapper 2 = chose file
       document.getElementById('wrapper').style.display = 'block';
       document.getElementById('wrapper2').style.display = 'none';
+      if (symFile || mapFile) {
+        addToLog(`${resolvedLinkerAddresses} tile/BG-map addresses resolved from RGBDS linker files`);
+      }
+      document.dispatchEvent(new CustomEvent("trepromloaded", { detail: {
+        bytes: new Uint8Array(fileData),
+        symbols: loadedLinkerSymbols ? Array.from(loadedLinkerSymbols) : []
+      } }));
     };
 
     reader.readAsArrayBuffer(file);
@@ -1141,6 +1382,7 @@ function validateFile(event) {
   
     return returnValue;
   }
+  window.scrollToAddress = scrollToAddress;
   
   
 //------------------------------------------------------------------------------------------
@@ -1346,6 +1588,7 @@ async function getBGMap(id, bgMap) {
 
   await tileDataReady;
   activeBGMapName = bgMap;
+  document.dispatchEvent(new Event("bgmaploaded"));
   document.querySelectorAll(".bg-map-entry").forEach(entry => {
     entry.classList.toggle("active", entry.dataset.bgMapName === bgMap);
   });
@@ -1412,7 +1655,8 @@ function openTab(event, tabName) {
   });
 
   const sharedPalette = document.getElementById("sharedPalette");
-  sharedPalette.hidden = tabName === "tab1";
+  sharedPalette.hidden = tabName === "tab1" || tabName === "tab4";
+  if (tabName === "tab2") refreshDirtyBGMapPreviews();
 }
 
 

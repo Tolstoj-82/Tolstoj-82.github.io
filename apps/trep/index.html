@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TREP - Tolstoj's ROM Editor Plus</title>
-    <link rel="stylesheet" href="style.css?v=20260725-1">
+    <link rel="stylesheet" href="style.css?v=20260807-9">
     <link rel="stylesheet" href="../../assets/styles/mobile-app-warning.css?v=20260727-1">
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
@@ -13,15 +13,16 @@
   <body data-mobile-warning-app="TREP">
     <div class="container">
       <header class="site-header-bar">
-        <span>TREP v 1.0 <span class="site-header-meta">2023–2026 Tolstoj</span></span>
+        <span>TREP v 1.1 <span class="site-header-meta">2023–2026 Tolstoj</span></span>
       </header>
       <div id="wrapper2" style="text-align: center;">
-        <h1>TREP v 1.0</h1>
+        <h1>TREP v 1.1</h1>
         <h2>Henlo friens!</h2>
         <label class="custom-file-input">
-          <input type="file" id="romFileInput">
+          <input type="file" id="romFileInput" accept=".gb,.sym,.map" multiple>
         </label>
-        <div class="build-info">Build: 24 July 2026</div>
+        <p class="rom-settings-help">Choose a <b>.gb</b> alone for standard settings, or select its companion <b>.sym</b> and <b>.map</b> files at the same time to resolve relocated addresses.</p>
+        <div class="build-info">Build: 7 August 2026</div>
       </div>
 
       <div id="loadingAnimation" style="display: none; text-align: center;">
@@ -180,6 +181,7 @@
                   <div class="tab active" data-tab="tab1">GG Codes</div>
                   <div class="tab" data-tab="tab2">BG Maps</div>
                   <div class="tab" data-tab="tab3">Edit Tiles</div>
+                  <div class="tab" id="codeTabButton" data-tab="tab4" hidden>Code</div>
                 </div>
               </div>
 
@@ -538,6 +540,14 @@
                     <div id="tileContainer"></div>
                   </p>
                 </div>
+                <div id="tab4" class="tab-content" style="display:none">
+                  <div class="code-browser-header">
+                    <h2>ROM Code (Experimental)</h2>
+                    <p class="code-browser-note">Disassembled routines discovered from the selected linker symbols.</p>
+                    <input id="codeSymbolFilter" type="search" placeholder="Filter routines…" aria-label="Filter ROM routines">
+                  </div>
+                  <div id="codeSymbolList" class="code-symbol-list"></div>
+                </div>
               </div>
               
 
@@ -612,12 +622,34 @@
             <p class="BG-vram-help">
               <b>Shortcuts:</b> <kbd>0</kbd>–<kbd>9</kbd> /
               <kbd>A</kbd>–<kbd>Z</kbd> select tiles 00–23.
-              <kbd>Shift</kbd> places consecutive tiles, including across a
-              multi-selection.
+              <button id="openBGShortcutHelp" class="info-tooltip shortcut-help-button secondary" type="button" aria-label="Show all BG map shortcuts">i</button>
             </p>
           </div>
         </div>
       </div>
+
+      <dialog id="bgShortcutHelpDialog" class="confirmation-dialog">
+        <b>BG map shortcuts</b>
+        <p><kbd>0</kbd>–<kbd>9</kbd> / <kbd>A</kbd>–<kbd>Z</kbd> select tiles 00–23.</p>
+        <p><kbd>Shift</kbd> places consecutive tiles, including across a multi-selection.</p>
+        <p>Hold <kbd>Ctrl</kbd> while dragging on the map or right-hand tileset to copy a rectangular selection. Keep holding <kbd>Ctrl</kbd> and click the map to place it; release <kbd>Ctrl</kbd> to cancel.</p>
+        <p><kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes the last placement or paint operation.</p>
+        <div class="button-group">
+          <button id="closeBGShortcutHelp" type="button">Close</button>
+        </div>
+      </dialog>
+
+      <dialog id="assemblyCodeDialog" class="assembly-code-dialog">
+        <div id="assemblyResizeHandle" class="assembly-resize-handle" aria-hidden="true"></div>
+        <div class="assembly-dialog-header">
+          <div>
+            <b id="assemblyCodeTitle">Assembly</b>
+            <span id="assemblyCodeAddress" class="assembly-code-address"></span>
+          </div>
+          <button id="closeAssemblyCode" class="modal-close-button" type="button" aria-label="Close assembly code">&times;</button>
+        </div>
+        <pre id="assemblyCodeOutput" class="assembly-code-output" tabindex="0"></pre>
+      </dialog>
 
       <dialog id="enableHeaderDialog" class="confirmation-dialog">
         <b>Enable header addresses?</b>
@@ -682,12 +714,13 @@
 
     <!-- JAVA SCRIPT FILES -->
     <!-- OLD -->
-    <script src="hexeditor.js?v=20260726-1"></script>
-    <script src="tileEditor.js?v=20260726-4"></script>    
+    <script src="hexeditor.js?v=20260807-7"></script>
+    <script src="tileEditor.js?v=20260807-1"></script>    
     <script src="gamegenie.js"></script>
     <script src="lookup.js"></script>
     <script src="modal.js"></script>
-    <script src="backgroundEditor.js?v=20260726-2"></script>
+    <script src="backgroundEditor.js?v=20260807-3"></script>
+    <script src="codeBrowser.js?v=20260807-7"></script>
 
     <!-- NEW -->
 

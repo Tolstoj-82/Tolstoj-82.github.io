@@ -866,7 +866,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const resultCount = document.createElement("span");
       resultCount.className = "directory-result-count";
       resultCount.setAttribute("aria-live", "polite");
-      controls.append(search, resultCount, createDirectoryDivider());
+      controls.append(search);
+      if (panel.id === "projects-panel") {
+        controls.classList.add("directory-controls--tools");
+        const abbreviationNote = document.createElement("span");
+        abbreviationNote.className = "directory-abbreviation-note";
+        const infoIcon = document.createElement("span");
+        infoIcon.className = "directory-info-icon";
+        infoIcon.setAttribute("aria-hidden", "true");
+        infoIcon.textContent = "i";
+        abbreviationNote.append(infoIcon, "GBI = GB Interceptor");
+        controls.append(abbreviationNote);
+      }
+      controls.append(resultCount, createDirectoryDivider());
       panel.prepend(controls);
 
       search.addEventListener("input", () => {

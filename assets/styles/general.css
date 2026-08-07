@@ -2263,6 +2263,40 @@ a.site-footer-button:hover {
     grid-template-columns: minmax(220px, 420px) repeat(2, minmax(160px, 220px));
 }
 
+.directory-controls--tools {
+    grid-template-columns: minmax(220px, 420px) max-content;
+}
+
+.directory-abbreviation-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    width: fit-content;
+    padding: 7px 10px;
+    border: 1px solid #9ac9e8;
+    border-radius: 6px;
+    background: #e7f5ff;
+    color: #174f78;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.directory-info-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    border-radius: 50%;
+    background: #007DCC;
+    color: #fff;
+    font-family: Georgia, serif;
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
 .people-grid > .directory-controls {
     margin-bottom: -20px;
 }
@@ -2538,6 +2572,10 @@ a.site-footer-button:hover {
 
     .directory-controls {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .directory-abbreviation-note {
+        white-space: normal;
     }
 }
 

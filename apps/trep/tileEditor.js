@@ -134,6 +134,10 @@ function getTileData(startAddress, nTiles, bitsPerPixel, tilesetTitle) {
   // Prepare the PNG transfer buttons for placement below the tiles.
   let nCols = getTileSetProperty(tilesetTitle, "width");
   let thisSetName = getTileSetProperty(tilesetTitle, "name");
+  if (!Number.isFinite(Number(nCols))) nCols = Math.min(16, nTiles);
+  if (thisSetName === "Tile set not found!") {
+    thisSetName = tilesetTitle.replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "").toLowerCase();
+  }
   const transferPngHTML = `<div class="tile-set-transfer-actions"><button class="upload-tile-set-button" data-addresses="${addresses}" data-tile-count="${nTiles}" data-set-name="${thisSetName}" data-set-title="${tilesetTitle}" data-bpp="${bitsPerPixel}" data-column-count="${nCols}">⇧ Upload a .png</button><button class="secondary save-tile-set-button" data-addresses="${addresses}" data-tile-count="${nTiles}" data-set-name="${thisSetName}" data-column-count="${nCols}">⇩ Download as "${thisSetName}.png"</button></div>`;
 
   displayTiles(pixelData, addresses, bitsPerPixel, tilesetTitle, tileContainer);
@@ -943,7 +947,7 @@ async function replaceImportedTiles(replacements, isEntireSet, wasTruncated = fa
     const undoActions = replacements.map(({ target, pixels }) => replaceOneImportedTile(target, pixels));
     lastTileImportUndo = { actions: undoActions, setTitle: tileImportState.setTitle };
     updateChecksums(false);
-    scheduleBGMapPreviewRefresh();
+    markBGMapPreviewsForTileAddresses(undoActions.map(action => action.address));
 
     const toast = document.getElementById("tileImportUndo");
     const replacementMessage = undoActions.length === 1
@@ -1048,7 +1052,7 @@ function undoLastTileImport() {
     });
   }
   updateChecksums(false);
-  scheduleBGMapPreviewRefresh();
+  markBGMapPreviewsForTileAddresses(lastTileImportUndo.actions.map(action => action.address));
   addToLog(`PNG tile replacement in "${lastTileImportUndo.setTitle}" was undone`);
   lastTileImportUndo = null;
   if (currentToast === document.getElementById("tileImportUndo")) dismissCurrentToast();
@@ -1472,6 +1476,7 @@ function saveTilesAfterDrawing(){
   let modifiedTile;
   let thisTileStartAddress;
   let bitsPerPixels;
+  const editedTileAddresses = [];
 
   for(let i = 0; i<tilesArray.length; i++){
     // only procede if there is a tile and this tile is the first clone
@@ -1480,6 +1485,7 @@ function saveTilesAfterDrawing(){
 
       // Remove "tileaddr-" and "-clone" from the ID to get the tile address
       thisTileStartAddress = modifiedTile.id.replace("tileaddr-", "").replace("-clone1", "");
+      editedTileAddresses.push(thisTileStartAddress);
       bitsPerPixels = parseInt(modifiedTile.getAttribute("data-bpp"));
 
       // Remove the "big" and "-clone"
@@ -1572,6 +1578,7 @@ function saveTilesAfterDrawing(){
       addToLog("Tile starting at address $" + startAddress + " was overwritten");
     }
   }
+  markBGMapPreviewsForTileAddresses(editedTileAddresses);
 }
 
 //------------------------------------------------------------------------------------------

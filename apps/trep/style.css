@@ -123,6 +123,170 @@ a:hover {
   margin-top:20px
 }
 
+.rom-settings-help {
+  max-width:520px;
+  margin:14px auto 0;
+  color:#555;
+  font-size:.9rem;
+  line-height:1.4
+}
+
+.tab-content#tab4 { padding-top:0 }
+
+.code-browser-header {
+  position:sticky;
+  top:0;
+  z-index:5;
+  margin:0 -20px 12px;
+  padding:20px 20px 12px;
+  background:#FAFAFA;
+  box-shadow:0 1px 0 rgba(0,0,0,.08)
+}
+
+.code-browser-header h2 { margin-bottom:5px }
+
+.code-browser-note {
+  margin-bottom:14px !important;
+  color:#555
+}
+
+#codeSymbolFilter {
+  box-sizing:border-box;
+  width:100%;
+  margin-bottom:0
+}
+
+.code-symbol-list {
+  display:grid;
+  gap:6px
+}
+
+.code-symbol-entry {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:3px;
+  box-sizing:border-box;
+  max-width:100%;
+  width:100%;
+  padding:8px 10px;
+  border:1px solid #CCC;
+  border-radius:5px;
+  background:#FFF;
+  color:#222;
+  font-family:monospace;
+  text-align:left
+}
+
+.code-symbol-entry > span {
+  display:block;
+  width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+
+.code-symbol-entry small {
+  display:block;
+  color:#777;
+  font-size:.75rem;
+  line-height:1.2
+}
+
+.assembly-code-dialog {
+  --assembly-panel-width:var(--trep-sidebar-width);
+  position:fixed;
+  inset:0 0 0 auto;
+  width:min(var(--assembly-panel-width),calc(100vw - 24px));
+  max-width:none;
+  height:100vh;
+  max-height:none;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  border:1px solid #777;
+  border-radius:8px;
+  overflow:visible;
+  z-index:1200;
+  box-shadow:-10px 0 28px rgba(0,0,0,.3)
+}
+
+.assembly-resize-handle {
+  position:absolute;
+  z-index:3;
+  top:0;
+  bottom:0;
+  left:-7px;
+  width:14px;
+  cursor:ew-resize;
+  touch-action:none
+}
+
+.assembly-resize-handle::after {
+  content:"";
+  position:absolute;
+  top:50%;
+  left:4px;
+  width:5px;
+  height:54px;
+  border-radius:4px;
+  background:#09C;
+  transform:translateY(-50%)
+}
+
+.assembly-code-dialog.resizing { user-select:none }
+
+.assembly-dialog-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:12px 16px;
+  background:#252A31;
+  color:#FFF
+}
+
+.assembly-code-address {
+  margin-left:10px;
+  color:#AAB7C4;
+  font-family:monospace
+}
+
+.assembly-code-output {
+  box-sizing:border-box;
+  height:calc(100% - 49px);
+  margin:0;
+  padding:16px;
+  overflow:auto;
+  background:#101418;
+  color:#D7DEE7;
+  font:14px/1.3 Consolas,'Courier New',monospace;
+  font-variant-ligatures:none;
+  tab-size:2
+}
+
+.assembly-code-output,
+.assembly-code-output * {
+  font-family:Consolas,'Courier New',monospace !important
+}
+
+.asm-line {
+  display:block;
+  min-width:max-content;
+  border-radius:3px;
+  cursor:pointer
+}
+
+.asm-line:hover { background:rgba(130,170,255,.12) }
+
+
+.asm-label { display:block;color:#7FDBCA;font-weight:700 }
+.asm-address { color:#667788 }
+.asm-mnemonic { color:#82AAFF;font-weight:700 }
+.asm-register { color:#F78C6C }
+.asm-number { color:#C3E88D }
+.asm-comment { color:#718096;font-style:italic }
+
 .table-wrapper {
   width:100%;
   height:200px;
@@ -1437,6 +1601,8 @@ button.bg-map-entry:hover .bg-map-preview {
   cursor:pointer
 }
 
+.tab[hidden] { display:none }
+
 .BG-vram-column {
   width:min-content
 }
@@ -1469,6 +1635,22 @@ button.bg-map-entry:hover .bg-map-preview {
   color:#000;
   font:inherit;
   text-align:center
+}
+
+.shortcut-help-button.secondary {
+  margin-left:5px;
+  padding:0;
+  vertical-align:middle
+}
+
+#bgShortcutHelpDialog kbd {
+  display:inline-block;
+  padding:1px 4px;
+  border:1px solid #AAA;
+  border-bottom-width:2px;
+  border-radius:3px;
+  background:#FFF;
+  font:inherit
 }
 
 .BG-map-footer {
@@ -2097,6 +2279,50 @@ div.pixel.cole {
   filter: invert(0%);
   transition:box-shadow .3s ease,filter .3s ease;
   animation:blinkAnimation .5s infinite alternate
+}
+
+#selectable li.copy-target::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+  box-sizing:border-box;
+  border:2px solid #09C
+}
+
+#selectable li.copy-target::after { border-style:dashed }
+
+#BG-vramgrid .BG-cell.copy-selecting::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+  box-sizing:border-box;
+  background:rgba(0,153,204,.2)
+}
+
+.bg-copy-source-outline {
+  position:fixed;
+  z-index:1002;
+  pointer-events:none;
+  box-sizing:border-box;
+  border:2px solid #09C
+}
+
+.bg-copy-overlay {
+  position:fixed;
+  z-index:1001;
+  pointer-events:none;
+  opacity:.55
+}
+
+.bg-copy-overlay img {
+  position:absolute;
+  width:32px;
+  height:32px;
+  image-rendering:pixelated
 }
 
 @keyframes blinkAnimation {

@@ -79,11 +79,166 @@ function addMatrix(cols, rows) {
 // Given the user selection, add tiles to the playfield.
 document.addEventListener("DOMContentLoaded", () => {
   const selectable = document.getElementById("selectable");
+  const vramGrid = document.getElementById("BG-vramgrid");
   const backgroundMapContainer = document.querySelector(".BG-container");
   const borderToggle = document.getElementById("bgTileBorders");
   let selectionStart = null;
+  let selectionStartedWithCtrl = false;
   let selectionMarquee = null;
+  let copiedSelection = null;
+  let copyOverlay = null;
+  let copySourceOutline = null;
   let highlightedVramImage = null;
+  let vramSelectionStart = null;
+  let vramSelectionMarquee = null;
+  const placementUndoStack = [];
+
+  function clearCopySelection() {
+    copiedSelection = null;
+    selectable.querySelectorAll(".copy-source, .copy-target").forEach(item => item.classList.remove("copy-source", "copy-target"));
+    copyOverlay?.remove();
+    copyOverlay = null;
+    copySourceOutline?.remove();
+    copySourceOutline = null;
+  }
+
+  function getMapCell(event) {
+    return document.elementFromPoint(event.clientX, event.clientY)?.closest("#selectable > li") || null;
+  }
+
+  function showCopyTarget(event) {
+    if (!copiedSelection || !event.ctrlKey) return;
+    const target = getMapCell(event);
+    if (!target) return;
+    const items = Array.from(selectable.children);
+    const columns = Math.round(selectable.getBoundingClientRect().width / 32);
+    const targetIndex = items.indexOf(target);
+    const targetColumn = targetIndex % columns;
+    const targetRow = Math.floor(targetIndex / columns);
+    selectable.querySelectorAll(".copy-target").forEach(item => item.classList.remove("copy-target"));
+    copiedSelection.targets = copiedSelection.tiles.map(tile => {
+      const column = targetColumn + tile.column;
+      const row = targetRow + tile.row;
+      return column >= 0 && column < columns ? items[row * columns + column] : null;
+    });
+    copiedSelection.targets.forEach(item => item?.classList.add("copy-target"));
+    const rect = target.getBoundingClientRect();
+    copyOverlay.style.left = `${rect.left}px`;
+    copyOverlay.style.top = `${rect.top}px`;
+  }
+
+  function beginCopyPlacement(selectedItems, sourceColumns = null) {
+    const source = selectedItems[0].parentElement;
+    const items = Array.from(source.children);
+    const columns = sourceColumns || Math.round(source.getBoundingClientRect().width / 32);
+    const indexes = selectedItems.map(item => items.indexOf(item));
+    const minColumn = Math.min(...indexes.map(index => index % columns));
+    const minRow = Math.min(...indexes.map(index => Math.floor(index / columns)));
+    const maxColumn = Math.max(...indexes.map(index => index % columns));
+    const maxRow = Math.max(...indexes.map(index => Math.floor(index / columns)));
+    copiedSelection = {
+      tiles: selectedItems.map(item => {
+        const index = items.indexOf(item);
+        const image = item.querySelector("img");
+        return { column: index % columns - minColumn, row: Math.floor(index / columns) - minRow, tileId: image.dataset.tileId || item.id, src: image.src };
+      }),
+      targets: []
+    };
+    const sourceLeft = Math.min(...selectedItems.map(item => item.getBoundingClientRect().left));
+    const sourceTop = Math.min(...selectedItems.map(item => item.getBoundingClientRect().top));
+    const sourceRight = Math.max(...selectedItems.map(item => item.getBoundingClientRect().right));
+    const sourceBottom = Math.max(...selectedItems.map(item => item.getBoundingClientRect().bottom));
+    copySourceOutline = document.createElement("div");
+    copySourceOutline.className = "bg-copy-source-outline";
+    copySourceOutline.style.left = `${sourceLeft}px`;
+    copySourceOutline.style.top = `${sourceTop}px`;
+    copySourceOutline.style.width = `${sourceRight - sourceLeft}px`;
+    copySourceOutline.style.height = `${sourceBottom - sourceTop}px`;
+    document.body.appendChild(copySourceOutline);
+    copyOverlay = document.createElement("div");
+    copyOverlay.className = "bg-copy-overlay";
+    copyOverlay.style.width = `${(maxColumn - minColumn + 1) * 32}px`;
+    copyOverlay.style.height = `${(maxRow - minRow + 1) * 32}px`;
+    copiedSelection.tiles.forEach(tile => {
+      const image = document.createElement("img");
+      image.src = tile.src;
+      image.style.left = `${tile.column * 32}px`;
+      image.style.top = `${tile.row * 32}px`;
+      copyOverlay.appendChild(image);
+    });
+    document.body.appendChild(copyOverlay);
+  }
+
+  function placeCopiedSelection() {
+    if (!copiedSelection || copiedSelection.targets.some(target => !target)) return;
+    const undoChanges = copiedSelection.targets.map(item => {
+      const image = item.querySelector("img");
+      return { item, src: image.src, tileId: image.dataset.tileId };
+    });
+    copiedSelection.tiles.forEach((tile, index) => {
+      const item = copiedSelection.targets[index];
+      const image = item.querySelector("img");
+      image.src = tile.src;
+      image.dataset.tileId = tile.tileId;
+      const label = item.querySelector(".BGtileID");
+      if (label) label.textContent = tile.tileId;
+    });
+    placementUndoStack.push(undoChanges);
+    clearCopySelection();
+  }
+
+  function undoLastPlacement() {
+    const changes = placementUndoStack.pop();
+    if (!changes) return;
+    changes.forEach(({ item, src, tileId }) => {
+      const image = item.querySelector("img");
+      image.src = src;
+      image.dataset.tileId = tileId;
+      const label = item.querySelector(".BGtileID");
+      if (label) label.textContent = tileId;
+    });
+  }
+
+  function updateVramSelection(event) {
+    if (!vramSelectionStart) return;
+    const rect = {
+      left: Math.min(vramSelectionStart.x, event.clientX), right: Math.max(vramSelectionStart.x, event.clientX),
+      top: Math.min(vramSelectionStart.y, event.clientY), bottom: Math.max(vramSelectionStart.y, event.clientY)
+    };
+    vramGrid.querySelectorAll(".BG-cell").forEach(cell => {
+      const bounds = cell.getBoundingClientRect();
+      cell.classList.toggle("copy-selecting", bounds.right >= rect.left && bounds.left <= rect.right
+        && bounds.bottom >= rect.top && bounds.top <= rect.bottom);
+    });
+    vramSelectionMarquee.style.left = `${rect.left}px`;
+    vramSelectionMarquee.style.top = `${rect.top}px`;
+    vramSelectionMarquee.style.width = `${rect.right - rect.left}px`;
+    vramSelectionMarquee.style.height = `${rect.bottom - rect.top}px`;
+  }
+
+  vramGrid.addEventListener("pointerdown", event => {
+    if (!event.ctrlKey || !event.target.closest(".BG-cell")) return;
+    event.preventDefault();
+    clearCopySelection();
+    vramGrid.setPointerCapture(event.pointerId);
+    vramSelectionStart = { x: event.clientX, y: event.clientY };
+    vramGrid.querySelectorAll(".copy-selecting").forEach(cell => cell.classList.remove("copy-selecting"));
+    vramSelectionMarquee = document.createElement("div");
+    vramSelectionMarquee.className = "selection-marquee";
+    document.body.appendChild(vramSelectionMarquee);
+    updateVramSelection(event);
+  });
+  vramGrid.addEventListener("pointermove", updateVramSelection);
+  vramGrid.addEventListener("pointerup", event => {
+    if (!vramSelectionStart) return;
+    const selectedCells = Array.from(vramGrid.querySelectorAll(".BG-cell.copy-selecting"));
+    if (event.ctrlKey && selectedCells.length) beginCopyPlacement(selectedCells, 16);
+    selectedCells.forEach(cell => cell.classList.remove("copy-selecting"));
+    vramGrid.releasePointerCapture(event.pointerId);
+    vramSelectionMarquee.remove();
+    vramSelectionMarquee = null;
+    vramSelectionStart = null;
+  });
 
   function clearVramTileHighlight() {
     if (highlightedVramImage) {
@@ -163,8 +318,14 @@ document.addEventListener("DOMContentLoaded", () => {
   selectable.addEventListener("pointerdown", event => {
     if (!event.target.closest("li")) return;
     event.preventDefault();
+    if (copiedSelection) {
+      if (event.ctrlKey) placeCopiedSelection();
+      else clearCopySelection();
+      return;
+    }
     selectable.setPointerCapture(event.pointerId);
     selectionStart = { x: event.clientX, y: event.clientY };
+    selectionStartedWithCtrl = event.ctrlKey;
     selectable.querySelectorAll(".ui-selecting").forEach(item => item.classList.remove("ui-selecting"));
     selectionMarquee = document.createElement("div");
     selectionMarquee.className = "selection-marquee";
@@ -173,30 +334,44 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   selectable.addEventListener("pointermove", updateSelection);
+  selectable.addEventListener("pointermove", showCopyTarget);
   selectable.addEventListener("pointerup", event => {
     if (!selectionStart) return;
 
     const selectedItems = Array.from(selectable.querySelectorAll(".ui-selecting"));
-    const sourceCells = event.shiftKey
+    const copyWasCancelled = selectionStartedWithCtrl && !event.ctrlKey;
+    const isCopyGesture = selectionStartedWithCtrl && event.ctrlKey;
+    const sourceCells = event.shiftKey && !isCopyGesture
       ? getSequentialBGVramCells(currentMino.toUpperCase(), selectedItems.length)
       : [];
-    selectedItems.forEach((item, index) => {
-      const tileId = event.shiftKey
-        ? sourceCells[index]?.id
-        : currentMino.toUpperCase();
-      const imageSource = tileId
-        ? localStorage.getItem("tileImage-" + tileId)
-        : null;
-      if (imageSource) {
-        const image = item.querySelector("img");
-        image.src = imageSource;
-        image.dataset.tileId = tileId;
+    if (copyWasCancelled) {
+      // Releasing Ctrl before placement makes the complete gesture a no-op.
+    } else if (isCopyGesture && selectedItems.length) {
+      beginCopyPlacement(selectedItems);
+      showCopyTarget(event);
+    } else {
+      const undoChanges = [];
+      selectedItems.forEach((item, index) => {
+        const tileId = event.shiftKey
+          ? sourceCells[index]?.id
+          : currentMino.toUpperCase();
+        const imageSource = tileId
+          ? localStorage.getItem("tileImage-" + tileId)
+          : null;
+        if (imageSource) {
+          const image = item.querySelector("img");
+          undoChanges.push({ item, src: image.src, tileId: image.dataset.tileId });
+          image.src = imageSource;
+          image.dataset.tileId = tileId;
 
-        const tileIdElement = item.querySelector(".BGtileID");
-        if (tileIdElement) tileIdElement.textContent = tileId;
-      }
-      item.classList.remove("ui-selecting");
-    });
+          const tileIdElement = item.querySelector(".BGtileID");
+          if (tileIdElement) tileIdElement.textContent = tileId;
+        }
+        item.classList.remove("ui-selecting");
+      });
+      if (undoChanges.length) placementUndoStack.push(undoChanges);
+    }
+    selectedItems.forEach(item => item.classList.remove("ui-selecting"));
     if (event.shiftKey && sourceCells.length) {
       const nextCell = getSequentialBGVramCells(
         sourceCells[sourceCells.length - 1].id,
@@ -209,7 +384,28 @@ document.addEventListener("DOMContentLoaded", () => {
     selectionMarquee.remove();
     selectionMarquee = null;
     selectionStart = null;
+    selectionStartedWithCtrl = false;
   });
+  document.addEventListener("keyup", event => {
+    if (event.key === "Control") clearCopySelection();
+  });
+  document.addEventListener("keydown", event => {
+    const modal = document.getElementById("BG-myModal");
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z"
+      && modal.style.display !== "none" && placementUndoStack.length) {
+      event.preventDefault();
+      clearCopySelection();
+      undoLastPlacement();
+    }
+  });
+  document.addEventListener("bgmaploaded", () => {
+    placementUndoStack.length = 0;
+    clearCopySelection();
+  });
+  const shortcutDialog = document.getElementById("bgShortcutHelpDialog");
+  document.getElementById("openBGShortcutHelp")?.addEventListener("click", () => shortcutDialog.showModal());
+  document.getElementById("closeBGShortcutHelp")?.addEventListener("click", () => shortcutDialog.close());
+  window.addEventListener("blur", clearCopySelection);
 });
 
 //------------------------------------------------------------------------------------------
