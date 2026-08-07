@@ -1098,7 +1098,7 @@ function renderRankingsToc(categories) {
   const toc = document.getElementById("rankings-toc");
   if (!toc) return;
 
-  toc.innerHTML = GROUPS.map((group, groupIndex) => {
+  toc.innerHTML = GROUPS.map((group) => {
     const groupCategories = categories
       .map((category, categoryIndex) => ({ category, categoryIndex }))
       .filter(({ category }) => group.sheets.includes(category.sheetName));
@@ -1106,15 +1106,14 @@ function renderRankingsToc(categories) {
     return `
           <li class="article-toc-item article-toc-item--h2">
             <a class="article-toc-link" href="#${group.id}">
-              ${groupIndex + 1}. ${escapeHtml(group.title)}
+              ${escapeHtml(group.title)}
             </a>
           </li>
           ${groupCategories
             .map(
-              ({ category, categoryIndex }, innerIndex) => `
+              ({ category, categoryIndex }) => `
             <li class="article-toc-item article-toc-item--h3">
               <a class="article-toc-link" href="#category-${categoryIndex}">
-                ${groupIndex + 1}.${innerIndex + 1}
                 ${escapeHtml(category.category)}
               </a>
             </li>
