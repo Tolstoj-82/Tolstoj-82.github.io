@@ -21,6 +21,8 @@ const dirtyBGMapPreviews = new Set();
 let pendingHeaderCell = null;
 let pendingBGMapBinImport = null;
 let headerAddressesEnabled = false;
+let linkerModeActive = false;
+let linkerGGWarningShown = false;
 const protectedRomAddresses = new Set(["01FD", "01FE", "01FF"]);
 let defaultTileAddresses = null;
 let defaultBGMapAddresses = null;
@@ -120,6 +122,9 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeToastCloseButtons();
   initializeBGMapList();
   initializeBGMapBinImportDialog();
+  document.getElementById("closeLinkerGGWarning").addEventListener("click", () => {
+    document.getElementById("linkerGGWarningDialog").close();
+  });
 
   e_applyCode.setAttribute("title", disabledButtonText);
 
@@ -1017,6 +1022,10 @@ async function validateFile(event) {
 
   const symFile = selectedFiles.find(candidate => candidate.name.toLowerCase().endsWith(".sym"));
   const mapFile = selectedFiles.find(candidate => candidate.name.toLowerCase().endsWith(".map"));
+  linkerModeActive = Boolean(symFile && mapFile);
+  const ggTab = document.querySelector('.tab[data-tab="tab1"]');
+  ggTab?.classList.toggle("linker-caution", linkerModeActive);
+  if (ggTab) ggTab.title = linkerModeActive ? "Game Genie addresses may not match this linked ROM" : "";
   let resolvedLinkerAddresses = 0;
   let loadedLinkerSymbols = null;
   if (symFile || mapFile) {
@@ -1072,6 +1081,9 @@ async function validateFile(event) {
       document.getElementById('wrapper2').style.display = 'none';
       if (symFile || mapFile) {
         addToLog(`${resolvedLinkerAddresses} tile/BG-map addresses resolved from RGBDS linker files`);
+      }
+      if (symFile && mapFile) {
+        document.querySelector('.tab[data-tab="tab2"]')?.click();
       }
       document.dispatchEvent(new CustomEvent("trepromloaded", { detail: {
         bytes: new Uint8Array(fileData),
@@ -1656,6 +1668,11 @@ function openTab(event, tabName) {
 
   const sharedPalette = document.getElementById("sharedPalette");
   sharedPalette.hidden = tabName === "tab1" || tabName === "tab4";
+  if (tabName === "tab1" && linkerModeActive && !linkerGGWarningShown) {
+    linkerGGWarningShown = true;
+    const warningDialog = document.getElementById("linkerGGWarningDialog");
+    if (!warningDialog.open) warningDialog.showModal();
+  }
   if (tabName === "tab2") refreshDirtyBGMapPreviews();
 }
 

@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TREP - Tolstoj's ROM Editor Plus</title>
-    <link rel="stylesheet" href="style.css?v=20260807-9">
+    <link rel="stylesheet" href="style.css?v=20260807-10">
     <link rel="stylesheet" href="../../assets/styles/mobile-app-warning.css?v=20260727-1">
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
@@ -651,6 +651,14 @@
         <pre id="assemblyCodeOutput" class="assembly-code-output" tabindex="0"></pre>
       </dialog>
 
+      <dialog id="linkerGGWarningDialog" class="confirmation-dialog">
+        <b>Game Genie addresses may be incorrect</b>
+        <p>The built-in Game Genie codes are specific to the standard Game Boy Tetris ROM. Because this ROM was opened with linker files, its code and data may have moved and the listed addresses are very likely not correct.</p>
+        <div class="button-group">
+          <button id="closeLinkerGGWarning" type="button">Understood</button>
+        </div>
+      </dialog>
+
       <dialog id="enableHeaderDialog" class="confirmation-dialog">
         <b>Enable header addresses?</b>
         <p>Editing header bytes directly can affect how the ROM is identified and loaded.</p>
@@ -714,7 +722,7 @@
 
     <!-- JAVA SCRIPT FILES -->
     <!-- OLD -->
-    <script src="hexeditor.js?v=20260807-7"></script>
+    <script src="hexeditor.js?v=20260807-11"></script>
     <script src="tileEditor.js?v=20260807-1"></script>    
     <script src="gamegenie.js"></script>
     <script src="lookup.js"></script>

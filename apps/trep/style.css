@@ -1603,6 +1603,17 @@ button.bg-map-entry:hover .bg-map-preview {
 
 .tab[hidden] { display:none }
 
+.tab.linker-caution {
+  background:#B7791F;
+  color:#FFF
+}
+
+.tab.linker-caution:hover,
+.tab.linker-caution.active {
+  background:#966515;
+  color:#FFF
+}
+
 .BG-vram-column {
   width:min-content
 }
