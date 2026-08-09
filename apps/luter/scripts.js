@@ -25,6 +25,17 @@ let overlayOpacity = 0;
 let gridFileHandle;
 let gridFileName;
 let gridSaveInProgress = false;
+const defaultPaletteName = 'CTWC UK 2024 (Lucy)';
+
+function findPaletteName(requestedName) {
+    if (!requestedName) return null;
+    const normalizedName = requestedName.trim().toLocaleLowerCase();
+    for (const palettes of Object.values(paletteLookup)) {
+        const match = Object.keys(palettes).find(name => name.toLocaleLowerCase() === normalizedName);
+        if (match) return match;
+    }
+    return null;
+}
 
 function updatePaletteSelect() {
     paletteSelect.replaceChildren();
@@ -34,7 +45,11 @@ function updatePaletteSelect() {
         for (const paletteName of Object.keys(palettes)) optgroup.append(new Option(paletteName, paletteName));
         paletteSelect.append(optgroup);
     }
-    if (paletteSelect.value) applyPalette(paletteSelect.value);
+    const parameters = new URLSearchParams(window.location.search);
+    const requestedPalette = findPaletteName(parameters.get('lut') || parameters.get('palette'));
+    const initialPalette = requestedPalette || findPaletteName(defaultPaletteName) || paletteSelect.value;
+    paletteSelect.value = initialPalette;
+    applyPalette(initialPalette);
 }
 
 function applyPalette(paletteName) {
@@ -207,7 +222,13 @@ transparencySlider.addEventListener('input', () => {
     drawPlayfield();
 });
 overlayColorBase.addEventListener('input', loadOverlayImage);
-paletteSelect.addEventListener('change', event => applyPalette(event.target.value));
+paletteSelect.addEventListener('change', event => {
+    applyPalette(event.target.value);
+    const url = new URL(window.location.href);
+    url.searchParams.set('lut', event.target.value);
+    url.searchParams.delete('palette');
+    window.history.replaceState(null, '', url);
+});
 document.getElementById('download-btn').addEventListener('click', downloadImage);
 document.getElementById('downloadGridBtn').addEventListener('click', saveGrid);
 

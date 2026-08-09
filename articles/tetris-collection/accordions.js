@@ -44,6 +44,7 @@ function initializeArticleAccordions() {
   const headings = Array.from(main.querySelectorAll("h2")).filter(
     (heading) => !heading.closest(".article-accordion")
   );
+  const showHeadingNumbers = !document.body.classList.contains("theme-game");
   const accordionItems = [];
 
   headings.forEach((heading, index) => {
@@ -72,7 +73,7 @@ function initializeArticleAccordions() {
     headingNumber.className = "article-heading-number";
     headingNumber.setAttribute("aria-hidden", "true");
     headingNumber.textContent = `${sectionNumber}.`;
-    headingLabel.appendChild(headingNumber);
+    if (showHeadingNumbers) headingLabel.appendChild(headingNumber);
 
     while (heading.firstChild) {
       headingLabel.appendChild(heading.firstChild);
@@ -204,7 +205,7 @@ function initializeArticleAccordions() {
   accordionItems.forEach((item) => {
     addTocEntry(
       item.section,
-      `${item.sectionNumber}. ${item.title}`,
+      showHeadingNumbers ? `${item.sectionNumber}. ${item.title}` : item.title,
       2,
       item
     );
@@ -217,9 +218,14 @@ function initializeArticleAccordions() {
       headingNumber.className = "article-heading-number";
       headingNumber.setAttribute("aria-hidden", "true");
       headingNumber.textContent = subsectionNumber;
-      subheading.prepend(headingNumber);
+      if (showHeadingNumbers) subheading.prepend(headingNumber);
       subheading.id = subheading.id || makeId(title);
-      addTocEntry(subheading, `${subsectionNumber} ${title}`, 3, item);
+      addTocEntry(
+        subheading,
+        showHeadingNumbers ? `${subsectionNumber} ${title}` : title,
+        3,
+        item
+      );
     });
   });
 
@@ -255,11 +261,19 @@ function initializeArticleAccordions() {
     if (visibleEntries.length === 0) return;
 
     let current = visibleEntries[0];
-    visibleEntries.forEach((entry) => {
-      if (entry.target.getBoundingClientRect().top <= 110) {
-        current = entry;
-      }
-    });
+    const atPageBottom =
+      window.innerHeight + window.scrollY >=
+      document.documentElement.scrollHeight - 2;
+
+    if (atPageBottom) {
+      current = visibleEntries[visibleEntries.length - 1];
+    } else {
+      visibleEntries.forEach((entry) => {
+        if (entry.target.getBoundingClientRect().top <= 110) {
+          current = entry;
+        }
+      });
+    }
     setCurrentEntry(current.link);
   }
 

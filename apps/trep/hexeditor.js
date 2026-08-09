@@ -30,6 +30,7 @@ let defaultBGMapAddresses = null;
 let defaultTileDefinitions = null;
 let defaultBGMapDefinitions = null;
 let defaultVramDefinitions = null;
+const stagedRomFiles = new Map();
 
 const linkerTileSymbols = {
   "ABC": ["Gfx_Ascii", 0],
@@ -90,7 +91,13 @@ document.addEventListener('DOMContentLoaded', function() {
   e_applyCode = document.getElementById("applyCode");
   e_searchInput = document.getElementById("searchInput");
 
-  document.getElementById("romFileInput").addEventListener("change", validateFile);
+  document.getElementById("romFileInput").addEventListener("change", event => {
+    stageRomFiles(Array.from(event.target.files));
+    event.target.value = "";
+  });
+  document.getElementById("continueWithRomFiles").addEventListener("click", () => {
+    validateFile(getEnabledStagedRomFiles());
+  });
   initializeRomDropZone();
   e_applyCode.addEventListener("click", () => applyCode(true));
   document.getElementById("searchSequenceButton").addEventListener("click", searchSequenceInCode);
@@ -342,7 +349,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeRomDropZone() {
-  const input = document.getElementById("romFileInput");
   const dropZone = document.getElementById("wrapper2");
   let dragDepth = 0;
 
@@ -375,11 +381,102 @@ function initializeRomDropZone() {
       return;
     }
 
-    const transfer = new DataTransfer();
-    files.forEach(file => transfer.items.add(file));
-    input.files = transfer.files;
-    input.dispatchEvent(new Event("change", { bubbles: true }));
+    stageRomFiles(files);
   });
+}
+
+function romFileType(filename) {
+  const lower = filename.toLowerCase();
+  if (lower.endsWith(".trep.json")) return ".trep.json";
+  if (lower.endsWith(".gb")) return ".gb";
+  if (lower.endsWith(".sym")) return ".sym";
+  if (lower.endsWith(".map")) return ".map";
+  return null;
+}
+
+function formatRomFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function getEnabledStagedRomFiles() {
+  return Array.from(stagedRomFiles.values())
+    .map(entry => entry.file);
+}
+
+function validateStagedRomCombination(files = getEnabledStagedRomFiles()) {
+  const counts = { ".gb": 0, ".sym": 0, ".map": 0, ".trep.json": 0 };
+  files.forEach(file => counts[romFileType(file.name)]++);
+  const hasOneEach = Object.values(counts).every(count => count <= 1);
+  const valid = hasOneEach && counts[".gb"] === 1 && (
+    files.length === 1
+    || (files.length === 3 && counts[".sym"] === 1 && counts[".map"] === 1)
+    || (files.length === 4 && counts[".sym"] === 1 && counts[".map"] === 1 && counts[".trep.json"] === 1)
+  );
+  let message = "Add a .gb file to continue.";
+  if (valid && files.length === 1) message = "Ready: ROM only.";
+  else if (valid && files.length === 3) message = "Ready: ROM with RGBDS linker files.";
+  else if (valid && files.length === 4) message = "Ready: ROM with linker files and TREP metadata.";
+  else if (counts[".gb"] > 1 || counts[".sym"] > 1 || counts[".map"] > 1 || counts[".trep.json"] > 1) {
+    message = "Select only one file of each type.";
+  } else if (counts[".gb"] === 1) {
+    message = "Use the ROM alone, add both .sym and .map, or add all companion files.";
+  }
+  return { valid, message };
+}
+
+function renderStagedRomFiles() {
+  const staging = document.getElementById("romFileStaging");
+  const body = document.getElementById("romFileTableBody");
+  const status = document.getElementById("romFileStatus");
+  const continueButton = document.getElementById("continueWithRomFiles");
+  body.replaceChildren();
+  const entries = Array.from(stagedRomFiles.values());
+  staging.hidden = entries.length === 0;
+  const slots = [
+    { type: ".gb", label: "ROM file" },
+    { type: ".map", label: "Linker map" },
+    { type: ".sym", label: "Symbol file" },
+    { type: ".trep.json", label: "TREP metadata" },
+  ];
+  slots.forEach(slot => {
+    const entry = entries.find(candidate => candidate.type === slot.type);
+    const row = document.createElement("tr");
+    row.classList.toggle("is-missing", !entry);
+    const nameCell = document.createElement("td");
+    nameCell.textContent = entry?.file.name || slot.label;
+    const typeCell = document.createElement("td");
+    typeCell.textContent = slot.type;
+    const sizeCell = document.createElement("td");
+    sizeCell.textContent = entry ? formatRomFileSize(entry.file.size) : "—";
+    const readyCell = document.createElement("td");
+    readyCell.className = "rom-file-ready";
+    readyCell.textContent = entry ? "✓" : "";
+    readyCell.setAttribute("aria-label", entry ? "File added" : "File missing");
+    row.append(nameCell, typeCell, sizeCell, readyCell);
+    body.append(row);
+  });
+  updateStagedRomFileValidity();
+
+  function updateStagedRomFileValidity() {
+    const result = validateStagedRomCombination();
+    continueButton.disabled = !result.valid;
+    status.textContent = result.message;
+    status.classList.toggle("is-valid", result.valid);
+  }
+}
+
+function stageRomFiles(files) {
+  files.forEach(file => {
+    const type = romFileType(file.name);
+    if (!type) return;
+    for (const [key, entry] of stagedRomFiles) {
+      if (entry.type === type) stagedRomFiles.delete(key);
+    }
+    stagedRomFiles.set(file.name.toLowerCase(), { file, type });
+  });
+  renderStagedRomFiles();
 }
 
 function initializeHeaderAddressDialog() {
@@ -565,6 +662,54 @@ function parseRgbdsSymbols(symText = "", mapText = "") {
     if (offset !== null) symbols.set(labelMatch[2], offset);
   }
   return symbols;
+}
+
+function parseTrepMetadata(text = "") {
+  const metadata = JSON.parse(text);
+  if (metadata?.format !== "trep-metadata" || metadata?.version !== 1) {
+    throw new Error('The metadata file must use format "trep-metadata" and version 1.');
+  }
+  if (!Array.isArray(metadata.backgroundMaps)) {
+    throw new Error("The metadata file must contain a backgroundMaps array.");
+  }
+  return metadata;
+}
+
+function metadataRomOffset(value, symbols) {
+  if (typeof value === "number" && Number.isInteger(value) && value >= 0) return value;
+  if (typeof value === "string") {
+    if (symbols.has(value)) return symbols.get(value);
+    if (/^0x[0-9a-f]+$/i.test(value)) return parseInt(value.slice(2), 16);
+    if (/^[0-9a-f]+$/i.test(value)) return parseInt(value, 16);
+  }
+  return null;
+}
+
+function applyTrepMetadata(metadata, symbols, romSize) {
+  let resolved = 0;
+  for (const definition of metadata.backgroundMaps) {
+    const name = String(definition.name || "").trim();
+    const start = metadataRomOffset(definition.symbol, symbols)
+      ?? metadataRomOffset(definition.start, symbols);
+    const width = Number(definition.width);
+    const height = Number(definition.height);
+    const tileSet = String(definition.tileSet || "").trim();
+    if (!name || start === null || !Number.isInteger(width) || width < 1
+      || !Number.isInteger(height) || height < 1 || !tileSet) {
+      throw new Error(`Invalid background-map definition${name ? ` for "${name}"` : ""}.`);
+    }
+    if (start + width * height > romSize) {
+      throw new Error(`Background map "${name}" lies outside the selected ROM.`);
+    }
+    if (!vRamTileSets[tileSet]) {
+      throw new Error(`Background map "${name}" refers to unknown tile set "${tileSet}".`);
+    }
+    const filename = String(definition.filename || `${name.replace(/\s+/g, "_")}.bin`);
+    bgMaps[name] = [start.toString(16).toUpperCase().padStart(4, "0"), width, height, tileSet, filename];
+    resolved++;
+  }
+  initializeBGMapList();
+  return resolved;
 }
 
 function applyLinkerAddressSettings(symbols) {
@@ -1013,11 +1158,10 @@ function validateGameTitle(event) {
 
 //------------------------------------------------------------------------------------------
 // Loads a ROM file
-async function validateFile(event) {
+async function validateFile(selectedFiles) {
 
   const maxFileSize = 3000; // files can't be bigger than that
 
-  const selectedFiles = Array.from(event.target.files);
   let file = selectedFiles.find(candidate => candidate.name.toLowerCase().endsWith(".gb"));
 
   // Check if a file is selected
@@ -1044,11 +1188,13 @@ async function validateFile(event) {
 
   const symFile = selectedFiles.find(candidate => candidate.name.toLowerCase().endsWith(".sym"));
   const mapFile = selectedFiles.find(candidate => candidate.name.toLowerCase().endsWith(".map"));
+  const metadataFile = selectedFiles.find(candidate => candidate.name.toLowerCase().endsWith(".trep.json"));
   const isVerifiedOriginalRom = await isVerifiedOriginalTetrisRom(file);
   gameGenieWarningActive = !isVerifiedOriginalRom;
   const showAddressCompatibilityWarning = !isVerifiedOriginalRom
     && !symFile
     && !mapFile
+    && !metadataFile
     && localStorage.getItem(nonOriginalRomWarningStorageKey) !== "1";
   const ggTab = document.querySelector('.tab[data-tab="tab1"]');
   ggTab?.classList.toggle("linker-caution", gameGenieWarningActive);
@@ -1060,6 +1206,7 @@ async function validateFile(event) {
   ggButton.setAttribute("aria-expanded", String(!gameGenieWarningActive));
   document.getElementById("ggCodesInlineWarning").hidden = !gameGenieWarningActive;
   let resolvedLinkerAddresses = 0;
+  let resolvedMetadataMaps = 0;
   let loadedLinkerSymbols = null;
   if (symFile || mapFile) {
     const [symText, mapText] = await Promise.all([
@@ -1078,6 +1225,17 @@ async function validateFile(event) {
     resolvedLinkerAddresses = applyLinkerAddressSettings(linkerSymbols);
   } else {
     applyLinkerAddressSettings(new Map());
+  }
+  if (metadataFile) {
+    try {
+      const metadata = parseTrepMetadata(await metadataFile.text());
+      resolvedMetadataMaps = applyTrepMetadata(metadata, loadedLinkerSymbols || new Map(), file.size);
+    } catch (error) {
+      hideLoadingAnimation();
+      document.getElementById("wrapper2").style.display = "block";
+      alert(`TREP metadata could not be loaded: ${error.message}`);
+      return false;
+    }
   }
 
   // Read the file data
@@ -1114,6 +1272,9 @@ async function validateFile(event) {
       document.getElementById('wrapper2').style.display = 'none';
       if (symFile || mapFile) {
         addToLog(`${resolvedLinkerAddresses} tile/BG-map addresses resolved from RGBDS linker files`);
+      }
+      if (metadataFile) {
+        addToLog(`${resolvedMetadataMaps} BG maps loaded from ${metadataFile.name}`);
       }
       if (!isVerifiedOriginalRom) {
         document.querySelector('.tab[data-tab="tab2"]')?.click();

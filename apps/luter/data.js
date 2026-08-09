@@ -1,5 +1,6 @@
 const paletteLookup = {
     "User Palettes": {
+        "DM i Tetris": ["000000", "C60C20", "FFA573", "FFFFFF"],
         "CTWC UK 2024 (Lucy)": ["18482B", "668235", "BDCF59", "DFEDA2"],
         "Realistic GB (Tolstoj)": ["0E0F02", "203828", "415625", "696C04"],
         "Bright Super GB (Alecat)": ["0D0100", "CE3B05", "F8C65F", "FFFFFF"],

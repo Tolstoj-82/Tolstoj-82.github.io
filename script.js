@@ -703,7 +703,7 @@ document.addEventListener("DOMContentLoaded", () => {
     image.addEventListener("click", () => {
       if (!modal || !modalImage) return;
       lastFocusedElement = document.activeElement;
-      modalImage.src = image.src;
+      modalImage.src = image.dataset.modalSrc || image.src;
       modal.style.display = "flex";
       modal.setAttribute("aria-hidden", "false");
       modalCloseButton?.focus();
@@ -785,7 +785,41 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   document.querySelectorAll(".grid.accordion-panel").forEach((panel) => {
-    const items = Array.from(panel.children);
+    let items = Array.from(panel.children);
+
+    if (panel.id === "articles-panel") {
+      items.forEach((item, index) => {
+        item.dataset.articleOrder = String(index);
+        const articleLink = item.querySelector("[data-article-date]");
+
+        if (item.dataset.vip === "true" || articleLink?.dataset.vip === "true") {
+          const labels = item.querySelector(".card-labels");
+          if (labels && !labels.querySelector(".article-vip")) {
+            const vipLabel = document.createElement("span");
+            vipLabel.className = "card-label article-vip";
+            vipLabel.textContent = "VIP";
+            labels.prepend(vipLabel);
+          }
+        }
+      });
+
+      items.sort((a, b) => {
+        const aLink = a.querySelector("[data-article-date]");
+        const bLink = b.querySelector("[data-article-date]");
+        const aIsVip = a.dataset.vip === "true" || aLink?.dataset.vip === "true";
+        const bIsVip = b.dataset.vip === "true" || bLink?.dataset.vip === "true";
+        const vipDifference = Number(bIsVip) - Number(aIsVip);
+        if (vipDifference) return vipDifference;
+
+        const dateDifference = Date.parse(bLink?.dataset.articleDate || 0) - Date.parse(aLink?.dataset.articleDate || 0);
+        if (dateDifference) return dateDifference;
+
+        return Number(a.dataset.articleOrder) - Number(b.dataset.articleOrder);
+      });
+
+      panel.append(...items);
+    }
+
     if (items.length < 2) return;
 
     const showMoreButton = document.createElement("button");
@@ -932,18 +966,45 @@ document.addEventListener("DOMContentLoaded", () => {
   const gameModalImage = document.getElementById("gameModalImage");
   const gameModalTitle = document.getElementById("gameModalTitle");
   const gameModalDescription = document.getElementById("gameModalDescription");
+  const gameModalDetails = document.getElementById("gameModalDetails");
   const gameModalDownload = document.getElementById("gameModalDownload");
   const gameModalUnavailable = document.getElementById("gameModalUnavailable");
   let lastGameTrigger = null;
 
+  const gameDetails = {
+    "dm-i-tetris": {
+      context:
+        "Created for qualification at the 2025 Danish championship, this project grew from a focused event tool into a streamlined and reusable Game Boy Tetris codebase with custom presentation, end screens, animation, and music.",
+      features: [
+        "Selectable qualification time from one to nine minutes.",
+        "Selectable starting level and a Heart Mode toggle.",
+        "Countdown timer with warning beeps during the final five seconds.",
+        "Pausing and the next-piece toggle are disabled for consistent qualification runs.",
+        "A unified leaderboard replaces the separate tables for each starting level.",
+        "Custom Good Game and animated Success screens with score-dependent performers.",
+        "The Danish national anthem plays after a successful run scoring at least 100,000 points.",
+      ],
+      downloads: [
+        ["BPS patch", "games/DM_i_Tetris/DM_i_Tetris.bps"],
+        ["SYM symbols", "games/DM_i_Tetris/DM_i_Tetris.sym"],
+        ["MAP file", "games/DM_i_Tetris/DM_i_Tetris.map"],
+      ],
+      article: "articles/danish-championship-2025/index.html",
+    },
+  };
+
   const createGameCard = (entry) => {
-    const card = document.createElement("button");
+    const card = document.createElement(entry.link ? "a" : "button");
     card.className = "person-card game-directory-card";
-    card.type = "button";
+    if (entry.link) card.href = entry.link;
+    else card.type = "button";
     card.dataset.gameName = entry.name;
     card.dataset.gameImage = entry.image;
     card.dataset.gameDescription = entry.description;
     card.dataset.gameLink = entry.link || "";
+    card.dataset.gameActionLabel = entry.actionLabel || "Download";
+    card.dataset.gameDownload = String(entry.download !== false);
+    card.dataset.gameDetailsKey = entry.detailsKey || "";
 
     const media = document.createElement("span");
     media.className = "person-photo-wrap";
@@ -1042,6 +1103,9 @@ document.addEventListener("DOMContentLoaded", () => {
         name: card.dataset.gameName,
         description: card.dataset.gameDescription,
         link: card.dataset.gameLink || null,
+        actionLabel: card.dataset.gameActionLabel || "Download",
+        download: card.dataset.gameDownload !== "false",
+        detailsKey: card.dataset.gameDetailsKey || null,
       }));
       if (entries.length) setupGamesDirectory(entries);
       else gamesPanel.textContent = "Game and patch data could not be loaded.";
@@ -1053,7 +1117,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const response = await fetch("assets/data/games-patches.json");
+      const response = await fetch("assets/data/games-patches.json?v=20260808-2");
       if (!response.ok) {
         throw new Error(`Game data returned ${response.status}`);
       }
@@ -1074,12 +1138,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   gamesPanel?.addEventListener("click", (event) => {
     const card = event.target.closest(".game-directory-card");
+    if (card?.matches("a[href]")) return;
     if (
       !card ||
       !gameModal ||
       !gameModalImage ||
       !gameModalTitle ||
       !gameModalDescription ||
+      !gameModalDetails ||
       !gameModalDownload ||
       !gameModalUnavailable
     )
@@ -1089,11 +1155,92 @@ document.addEventListener("DOMContentLoaded", () => {
     gameModalImage.alt = card.dataset.gameName;
     gameModalTitle.textContent = card.dataset.gameName;
     gameModalDescription.textContent = card.dataset.gameDescription;
+    gameModalDetails.replaceChildren();
+    const details = gameDetails[card.dataset.gameDetailsKey];
+    gameModalDetails.hidden = !details;
+
+    if (details) {
+      const context = document.createElement("p");
+      context.textContent = details.context;
+
+      const featureHeading = document.createElement("h3");
+      featureHeading.textContent = "Features";
+      const features = document.createElement("ul");
+      details.features.forEach((feature) => {
+        const item = document.createElement("li");
+        item.textContent = feature;
+        features.append(item);
+      });
+
+      const downloadHeading = document.createElement("h3");
+      downloadHeading.textContent = "Downloads";
+      const legalNote = document.createElement("p");
+      legalNote.textContent =
+        "The patch does not contain the original game. Supply your own legally obtained Game Boy Tetris ROM.";
+      const downloads = document.createElement("div");
+      downloads.className = "game-modal-downloads";
+      details.downloads.forEach(([label, href]) => {
+        const link = document.createElement("a");
+        link.className = "button secondary";
+        link.href = href;
+        link.download = "";
+        link.textContent = label;
+        downloads.append(link);
+      });
+
+      const patchHeading = document.createElement("h3");
+      patchHeading.textContent = "How to apply the BPS patch";
+      const steps = document.createElement("ol");
+      [
+        "Download the BPS patch above.",
+        "Open Marc Robledo’s Rom Patcher JS.",
+        "Choose your original Game Boy Tetris ROM under ROM file.",
+        "Choose DM_i_Tetris.bps under Patch file.",
+        "Select Apply patch and save the newly patched ROM.",
+      ].forEach((step) => {
+        const item = document.createElement("li");
+        item.textContent = step;
+        steps.append(item);
+      });
+
+      const links = document.createElement("p");
+      links.className = "game-modal-links";
+      const patcher = document.createElement("a");
+      patcher.href = "https://www.marcrobledo.com/RomPatcher.js/";
+      patcher.target = "_blank";
+      patcher.rel = "noopener noreferrer";
+      patcher.textContent = "Open Rom Patcher JS ↗";
+      const article = document.createElement("a");
+      article.href = details.article;
+      article.textContent = "Read the development article";
+      links.append(patcher, article);
+
+      gameModalDetails.append(
+        context,
+        featureHeading,
+        features,
+        downloadHeading,
+        legalNote,
+        downloads,
+        patchHeading,
+        steps,
+        links,
+      );
+    }
     const hasDownload = Boolean(card.dataset.gameLink);
     gameModalDownload.hidden = !hasDownload;
-    gameModalUnavailable.hidden = hasDownload;
-    if (hasDownload) gameModalDownload.href = card.dataset.gameLink;
-    else gameModalDownload.removeAttribute("href");
+    gameModalUnavailable.hidden = hasDownload || Boolean(details);
+    if (hasDownload) {
+      gameModalDownload.href = card.dataset.gameLink;
+      gameModalDownload.textContent = card.dataset.gameActionLabel || "Download";
+      gameModalDownload.toggleAttribute(
+        "download",
+        card.dataset.gameDownload !== "false",
+      );
+    } else {
+      gameModalDownload.removeAttribute("href");
+      gameModalDownload.removeAttribute("download");
+    }
     gameModal.style.display = "flex";
     gameModal.setAttribute("aria-hidden", "false");
     gameModalCloseButton?.focus();
@@ -1978,10 +2125,6 @@ document.addEventListener("DOMContentLoaded", () => {
   modal?.addEventListener("click", (event) => {
     if (event.target === modal) closeModal();
   });
-  modalImage?.addEventListener("click", () => {
-    if (modalImage.src) window.open(modalImage.src, "_blank", "noopener");
-  });
-
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
     closeModal();

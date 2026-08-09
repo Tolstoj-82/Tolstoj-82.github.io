@@ -1107,6 +1107,36 @@ h2 {
     flex-direction: column;
 }
 
+.game-modal-content:has(.game-modal-details:not([hidden])) {
+    width: min(1040px, calc(100vw - 32px));
+    grid-template-columns: minmax(220px, 320px) 1fr;
+}
+
+.game-modal-details {
+    line-height: 1.55;
+}
+
+.game-modal-details h3 {
+    margin: 24px 0 8px;
+}
+
+.game-modal-details ul,
+.game-modal-details ol {
+    padding-left: 1.35rem;
+}
+
+.game-modal-downloads,
+.game-modal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.game-modal-links a + a {
+    padding-left: 10px;
+    border-left: 1px solid #b8c5d1;
+}
+
 .game-modal-copy .game-modal-action,
 .game-modal-copy .download-unavailable {
     margin-top: auto;

@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TREP - Tolstoj's ROM Editor Plus</title>
-    <link rel="stylesheet" href="style.css?v=20260807-14">
+    <link rel="stylesheet" href="style.css?v=20260809-16">
     <link rel="stylesheet" href="../../assets/styles/mobile-app-warning.css?v=20260727-1">
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
@@ -13,16 +13,24 @@
   <body data-mobile-warning-app="TREP">
     <div class="container">
       <header class="site-header-bar">
-        <span>TREP v 1.1 <span class="site-header-meta">2023–2026 Tolstoj</span></span>
+        <span>TREP v 1.2 <span class="site-header-meta">2023–2026 Tolstoj</span></span>
       </header>
       <div id="wrapper2" style="text-align: center;">
-        <h1>TREP v 1.1</h1>
+        <h1>TREP v 1.2</h1>
         <h2>Henlo friens!</h2>
         <label class="custom-file-input">
-          <input type="file" id="romFileInput" accept=".gb,.sym,.map" multiple>
+          <input type="file" id="romFileInput" accept=".gb,.sym,.map,.json" multiple>
         </label>
-        <p class="rom-settings-help">Choose a <b>.gb</b> alone for standard settings, or select its companion <b>.sym</b> and <b>.map</b> files at the same time to resolve relocated addresses.</p>
-        <div class="build-info">Build: 7 August 2026</div>
+        <p class="rom-settings-help">Choose a <b>.gb</b> alone for standard settings, or select its companion <b>.sym</b>, <b>.map</b>, and optional <b>.trep.json</b> files at the same time to resolve relocated addresses and project-specific layouts.</p>
+        <div class="rom-file-staging" id="romFileStaging" hidden>
+          <table class="rom-file-table" aria-label="Selected TREP files">
+            <thead><tr><th scope="col">File</th><th scope="col">Type</th><th scope="col">Size</th><th scope="col">Ready</th></tr></thead>
+            <tbody id="romFileTableBody"></tbody>
+          </table>
+          <p class="rom-file-status" id="romFileStatus" aria-live="polite"></p>
+        </div>
+        <button id="continueWithRomFiles" type="button" disabled>Continue</button>
+        <div class="build-info">Build: 9 August 2026</div>
       </div>
 
       <div id="loadingAnimation" style="display: none; text-align: center;">
@@ -731,7 +739,7 @@
 
     <!-- JAVA SCRIPT FILES -->
     <!-- OLD -->
-    <script src="hexeditor.js?v=20260807-19"></script>
+    <script src="hexeditor.js?v=20260809-22"></script>
     <script src="tileEditor.js?v=20260807-1"></script>    
     <script src="gamegenie.js"></script>
     <script src="lookup.js"></script>

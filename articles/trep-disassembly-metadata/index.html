@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Step-by-step instructions for adding TREP background-map metadata generation to an RGBDS Game Boy disassembly.">
+  <title>Preparing an RGBDS Disassembly for TREP | Tolstoj's Workbench</title>
+  <link rel="stylesheet" href="../../assets/styles/general.css?v=20260724-10">
+  <link rel="stylesheet" href="../../assets/styles/header.css">
+  <link rel="stylesheet" href="../../assets/styles/layouts.css">
+  <link rel="stylesheet" href="../tetris-collection/style.css?v=20260809-1">
+  <link rel="stylesheet" href="../rng/prism-okaidia.min.css">
+  <link rel="stylesheet" href="style.css?v=20260809-1">
+</head>
+<body class="menu-open theme-article">
+  <div class="content">
+    <header>
+      <a class="article-back-button" href="../../index.html?section=articles" aria-label="Back to all articles">← All articles</a>
+      <h1 class="article-title">
+        <span>Preparing an RGBDS Disassembly for TREP</span>
+        <span class="article-subtitle">Generate reliable background-map metadata after every build</span>
+      </h1>
+      <button class="menu-btn" id="hamburger-icon" type="button" aria-label="Close table of contents" aria-controls="site-menu" aria-expanded="true">☰</button>
+    </header>
+
+    <aside class="menu-container article-toc active" id="site-menu" aria-hidden="false" data-persistent>
+      <div class="article-toc-header">
+        <span class="article-toc-header-title">Contents</span>
+        <button class="close-btn" id="close-icon" type="button" aria-label="Close table of contents">✖</button>
+      </div>
+      <nav aria-label="On this page"><ol class="article-toc-list" id="article-toc-list"></ol></nav>
+    </aside>
+
+    <div class="page-content">
+      <main>
+        <p><strong>Last edited:</strong> 08/2026<br><strong>Author:</strong> Tolstoj, with editorial assistance from AI</p>
+        <p>TREP can use RGBDS <code>.sym</code> and <code>.map</code> files to find relocated graphics and labels in a modified Game Boy ROM. Linker files do not, however, describe a background map's width, height, or associated tile graphics. A small project metadata file supplies that missing information.</p>
+        <p>This guide adds a post-build step that creates <code>Project.trep.json</code>. The generated file can be loaded into TREP together with the compiled ROM and linker files.</p>
+
+        <h2>What the Build Produces</h2>
+        <p>A TREP-ready build can produce these files:</p>
+        <table>
+          <thead><tr><th>File</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>Project.gb</code></td><td>The compiled Game Boy ROM.</td></tr>
+            <tr><td><code>Project.sym</code></td><td>Final labels and their banked addresses.</td></tr>
+            <tr><td><code>Project.map</code></td><td>Linker sections, labels, and unused ranges.</td></tr>
+            <tr><td><code>Project.trep.json</code></td><td>Background-map dimensions, resolved starts, and tile-set assignments.</td></tr>
+          </tbody>
+        </table>
+        <div class="remark"><strong>Important:</strong> The JSON file is generated after linking. This ensures that relocated labels use their final ROM offsets.</div>
+
+        <h2>Prepare the Disassembly Labels</h2>
+        <p>Give every graphics block and background map a stable global label. Add an <code>.end</code> label wherever possible. TREP recognizes graphics labels beginning with <code>Gfx_</code> and layout labels beginning with <code>Layout_</code>, <code>GameScreenLayout_</code>, or <code>GameInnerScreenLayout_</code>.</p>
+<pre><code class="language-gbassembly">Gfx_TitleScreen::
+    INCBIN "gfx/title-screen.2bpp"
+.end::
+
+Layout_TitleScreen::
+    INCBIN "layouts/title-screen.tilemap"
+.end::</code></pre>
+        <p>The label name may be different, but using these conventions lets TREP recognize more data automatically. An explicit metadata definition will handle the details that cannot be inferred safely.</p>
+
+        <h2>Add the Generator</h2>
+        <p>Copy <a href="../../apps/trep/tools/generate-trep-metadata.mjs">the TREP metadata generator</a> into a <code>tools</code> directory in the disassembly. The generator requires Node.js and accepts four input paths:</p>
+<pre><code class="language-shell">node tools/generate-trep-metadata.mjs Project.trep-source.json Project.sym Project.map Project.trep.json</code></pre>
+        <p>The script reads the final symbols, resolves every declared layout start, and writes a loadable TREP metadata file.</p>
+
+        <h2>Create the Project Definition</h2>
+        <p>Add <code>Project.trep-source.json</code> to the disassembly. This source file is maintained by the project and should be committed alongside the assembly source.</p>
+<pre><code class="language-json">{
+  "format": "trep-source",
+  "version": 1,
+  "project": "My Game",
+  "backgroundMaps": [
+    {
+      "name": "Title Screen",
+      "symbol": "Layout_TitleScreen",
+      "endSymbol": "Layout_TitleScreen.end",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Title Screen-Set",
+      "filename": "title-screen.bin"
+    }
+  ]
+}</code></pre>
+
+        <h3>Definition fields</h3>
+        <table>
+          <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>The name shown in TREP.</td></tr>
+            <tr><td><code>symbol</code></td><td>The global label at the first byte of the map.</td></tr>
+            <tr><td><code>endSymbol</code></td><td>An optional label immediately after the map.</td></tr>
+            <tr><td><code>width</code></td><td>The map width in tiles.</td></tr>
+            <tr><td><code>height</code></td><td>The map height in tiles.</td></tr>
+            <tr><td><code>tileSet</code></td><td>The TREP tile set used to render tile indexes.</td></tr>
+            <tr><td><code>filename</code></td><td>The suggested filename when exporting the map as binary data.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Tile-set names</h3>
+        <p>TREP converts a graphics symbol such as <code>Gfx_TitleScreen</code> to the display name <strong>Title Screen</strong> and creates the tile set <strong>Title Screen-Set</strong>. The value in <code>tileSet</code> must match a tile set TREP can build from the selected linker files.</p>
+        <p>If a screen combines ASCII and screen-specific graphics, keep the conventional <code>Gfx_Ascii</code>, <code>Gfx_TitleScreen</code>, and <code>Gfx_MenuScreens</code> names. TREP uses those groups to construct its combined title and menu tile sets.</p>
+
+        <h2>Add the Post-Build Step</h2>
+        <h3>Makefile example</h3>
+<pre><code class="language-makefile">PROJECT := MyGame
+OBJECTS := main.o graphics.o layouts.o
+TREP_GENERATOR := tools/generate-trep-metadata.mjs
+
+$(PROJECT).gb $(PROJECT).sym $(PROJECT).map: $(OBJECTS)
+	rgblink -o $(PROJECT).gb -n $(PROJECT).sym -m $(PROJECT).map $(OBJECTS)
+	rgbfix -v -p 0 $(PROJECT).gb
+
+$(PROJECT).trep.json: $(PROJECT).trep-source.json $(PROJECT).sym $(PROJECT).map
+	node $(TREP_GENERATOR) $(PROJECT).trep-source.json $(PROJECT).sym $(PROJECT).map $(PROJECT).trep.json
+
+.PHONY: all
+all: $(PROJECT).gb $(PROJECT).trep.json</code></pre>
+
+        <h3>PowerShell example</h3>
+<pre><code class="language-powershell">rgblink -o MyGame.gb -n MyGame.sym -m MyGame.map main.o graphics.o layouts.o
+rgbfix -v -p 0 MyGame.gb
+node tools\generate-trep-metadata.mjs MyGame.trep-source.json MyGame.sym MyGame.map MyGame.trep.json</code></pre>
+        <p>Run the generator again whenever labels move, layouts change, or a new ROM is built.</p>
+
+        <h2>Load the Files into TREP</h2>
+        <p>Open <a href="../../apps/trep/index.html">TREP</a> and add files by browsing or dropping them onto the start screen. Files may be added over several drops. TREP shows all expected file types and marks each supplied file with a checkmark.</p>
+        <p>The Continue button accepts these combinations:</p>
+        <ul>
+          <li><code>.gb</code> only, using built-in addresses.</li>
+          <li><code>.gb</code>, <code>.sym</code>, and <code>.map</code>, using automatic linker inference.</li>
+          <li>All four files, using the generated project metadata for reliable BG-map definitions.</li>
+        </ul>
+        <p>For a modified disassembly, all four files provide the most complete result.</p>
+
+        <h2>Validate the Result</h2>
+        <ol>
+          <li>Open TREP's background-map editor.</li>
+          <li>Confirm that every declared map appears by name.</li>
+          <li>Check that each preview has the expected width and height.</li>
+          <li>Verify that letters and graphics use the correct tiles rather than unrelated data.</li>
+          <li>Export a map, then compare its byte count with <code>width × height</code>.</li>
+          <li>After editing, save the modified ROM and test it in an emulator.</li>
+        </ol>
+
+        <h2>Troubleshooting</h2>
+        <h3>Missing symbol</h3>
+        <p>The generator stops if <code>symbol</code> or <code>endSymbol</code> is absent from the linker output. Make the label global with <code>::</code>, check its spelling, and rebuild the object files before linking again.</p>
+
+        <h3>Unknown tile set</h3>
+        <p>TREP found the map but could not find the named tile set. Check the corresponding <code>Gfx_</code> labels and the generated display name. The metadata value is case-sensitive.</p>
+
+        <h3>Correct dimensions but incorrect graphics</h3>
+        <p>The map points to the correct bytes but uses the wrong tile set. Change <code>tileSet</code> to the graphics group that is loaded into VRAM for that screen.</p>
+
+        <h3>Map starts correctly but includes an extra byte</h3>
+        <p>Some layouts have a terminator byte or linker padding after their tile data. Keep the declared width and height exact. The editable map size is determined by <code>width × height</code>, not by the distance to the next unrelated symbol.</p>
+
+        <h2>Keeping It Maintainable</h2>
+        <p>Keep addresses out of <code>Project.trep-source.json</code>. Store only stable symbol names and structural information there. The generator writes resolved addresses to <code>Project.trep.json</code> after every link, so relocated data never needs to be updated by hand.</p>
+        <p>Commit the source definition and generator with the disassembly. The generated metadata may also be committed for releases or distributed beside the ROM patch, symbols, and linker map.</p>
+
+        <aside class="remark">
+          <h3>Editorial note: AI usage</h3>
+          <p>AI was used to write most of this article and to implement most of the described functionality. The technical workflow and implementation were reviewed and tested using the TREP source and the generated DM i Tetris metadata.</p>
+        </aside>
+      </main>
+    </div>
+  </div>
+
+  <script src="../rng/prism.min.js"></script>
+  <script src="../rng/gb-assembly.js"></script>
+  <script src="code-highlighting.js?v=20260809-1"></script>
+  <script src="../../script.js?v=20260809-3"></script>
+  <script src="../tetris-collection/accordions.js?v=5"></script>
+</body>
+</html>

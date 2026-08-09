@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Download DM i Tetris - Qualification ROM, a timed Game Boy Tetris patch created for the Danish championship.">
+  <title>DM i Tetris - Qualification ROM | Tolstoj's Workbench</title>
+  <link rel="stylesheet" href="../../assets/styles/general.css?v=20260724-10">
+  <link rel="stylesheet" href="../../assets/styles/header.css">
+  <link rel="stylesheet" href="../../assets/styles/layouts.css">
+  <link rel="stylesheet" href="../../assets/styles/modal.css?v=20260724-4">
+  <link rel="stylesheet" href="../../articles/tetris-collection/style.css?v=20260809-1">
+  <link rel="stylesheet" href="style.css?v=20260809-57">
+</head>
+<body class="menu-open theme-game">
+  <div class="content">
+    <header>
+      <a class="article-back-button" href="../../index.html#games-section" aria-label="Back to all games and patches">← Games &amp; patches</a>
+      <h1 class="article-title">
+        <span>DM i Tetris - Qualification ROM</span>
+        <span class="article-subtitle">Built for the 2025 Danish championship</span>
+      </h1>
+      <button class="menu-btn" id="hamburger-icon" type="button" aria-label="Close table of contents" aria-controls="site-menu" aria-expanded="true">☰</button>
+    </header>
+
+    <aside class="menu-container article-toc active" id="site-menu" aria-hidden="false" data-persistent>
+      <div class="article-toc-header">
+        <span class="article-toc-header-title">Other Games &amp; Patches</span>
+        <button class="close-btn" id="close-icon" type="button" aria-label="Close games and patches menu">✖</button>
+      </div>
+      <nav aria-label="Other games and ROM patches">
+        <ol class="article-toc-list game-navigation-list">
+          <li class="article-toc-item article-toc-item--h2"><a class="article-toc-link" href="../chris-and-triss/index.html">Chris &amp; Triss</a></li>
+          <li class="article-toc-item article-toc-item--h2"><a class="article-toc-link" href="../rom-hacks/index.html">ROM patches</a></li>
+        </ol>
+      </nav>
+    </aside>
+
+    <div class="page-content">
+      <main>
+        <section class="game-page-section" aria-labelledby="about-heading">
+          <h2 id="about-heading">About the ROM patch</h2>
+          <div class="game-introduction">
+            <div class="game-copy">
+              <p><cite>DM i Tetris - Qualification ROM</cite> is a custom Game Boy Tetris ROM created for the qualifying round of DM i Tetris 2025, the Danish Tetris Championship. Players select a starting level and time limit, then aim to survive and earn the highest possible score before time runs out.</p>
+              <p>The project began as a focused event tool and grew into a streamlined, reusable Tetris codebase with custom presentation, end screens, animation, and music.</p>
+              <p><a href="../../articles/danish-championship-2025/index.html">Read the full development article</a> for the technical background, design process, and debugging stories.</p>
+              <h3>Features</h3>
+              <ul class="feature-list">
+                <li><strong>Selectable qualification time</strong> from one to nine minutes.</li>
+                <li><strong>Selectable starting level</strong> and a <strong>Heart Mode</strong> toggle.</li>
+                <li>Visible <strong>countdown timer</strong> with final-five warning beeps.</li>
+                <li><strong>Pause and next-piece controls disabled</strong> for consistent runs.</li>
+                <li>A <strong>unified leaderboard</strong> for every starting level.</li>
+                <li>Custom <strong>Good Game and animated Success screens</strong>.</li>
+                <li>The <strong>Danish national anthem</strong> for qualifying high scores.</li>
+                <li class="feature-more" aria-label="And more features">…</li>
+              </ul>
+              <div class="anthem-player-block">
+                <h4 class="anthem-player-title">Custom Danish Anthem</h4>
+                <div class="anthem-player" aria-label="Custom Danish Anthem audio player">
+                  <button class="anthem-play-button" type="button" aria-label="Play Custom Danish Anthem">▶</button>
+                  <input class="anthem-progress" type="range" min="0" max="100" value="0" step="0.1" aria-label="Anthem playback progress">
+                  <div class="anthem-volume">
+                    <button class="anthem-volume-button" type="button" aria-label="Mute Custom Danish Anthem">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path class="volume-speaker" d="M4 9h4l5-4v14l-5-4H4z"/>
+                        <path class="volume-wave" d="M16 9.5a4 4 0 0 1 0 5M18.5 7a7.5 7.5 0 0 1 0 10"/>
+                        <path class="volume-muted-mark" d="M4 4l16 16"/>
+                      </svg>
+                    </button>
+                    <div class="anthem-volume-popover">
+                      <input class="anthem-volume-slider" type="range" min="0" max="100" value="50" step="1" aria-label="Anthem volume">
+                    </div>
+                  </div>
+                  <audio id="anthem-audio" preload="metadata" src="DM_i_Tetris.mp3"></audio>
+                </div>
+              </div>
+            </div>
+
+            <aside class="download-panel" aria-labelledby="downloads-heading">
+              <div class="download-topline">
+                <figure class="download-preview">
+                <img class="clickable" src="main%20screen.png" data-modal-src="../../articles/danish-championship-2025/images/custom-title.png?v=20260809-2" alt="DM i Tetris custom title and time-selection screen">
+                </figure>
+                <section class="game-contributors" aria-labelledby="contributors-heading">
+                  <h3 id="contributors-heading">Contributors</h3>
+                  <table aria-label="DM i Tetris contributors">
+                    <tbody>
+                      <tr><th scope="row">Programming</th><td>Tolstoj</td></tr>
+                      <tr><th scope="row">Music</th><td>Tolstoj</td></tr>
+                      <tr><th scope="row">Testers</th><td>Tolstoj, Toni, Anders, Pascal</td></tr>
+                    </tbody>
+                  </table>
+                </section>
+              </div>
+            <h3 class="downloads-heading" id="downloads-heading">Downloads
+              <button class="downloads-info" type="button" aria-label="ROM requirement information">
+                <span aria-hidden="true">i</span>
+                <span class="downloads-info-tooltip" role="tooltip">Supply your own legally obtained Game Boy Tetris ROM (v&nbsp;1.1). The patch does not contain the original game.</span>
+              </button>
+            </h3>
+            <div class="download-list">
+              <a class="download-file download-file--primary" href="DM_i_Tetris.bps" download>
+                <span class="file-symbol-wrap" aria-hidden="true"><span class="file-symbol file-symbol--bps">BPS</span><span class="file-symbol-tooltip">Game patch · Start here</span></span>
+                <span class="file-copy"><strong>DM_i_Tetris.bps</strong></span>
+                <span class="file-download" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14"/></svg></span>
+              </a>
+              <a class="download-file" href="DM_i_Tetris.sym" download>
+                <span class="file-symbol-wrap" aria-hidden="true"><span class="file-symbol file-symbol--sym">SYM</span><span class="file-symbol-tooltip">Debug symbols</span></span>
+                <span class="file-copy"><strong>DM_i_Tetris.sym</strong></span>
+                <span class="file-download" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14"/></svg></span>
+              </a>
+              <a class="download-file" href="DM_i_Tetris.map" download>
+                <span class="file-symbol-wrap" aria-hidden="true"><span class="file-symbol file-symbol--map">MAP</span><span class="file-symbol-tooltip">Linker map</span></span>
+                <span class="file-copy"><strong>DM_i_Tetris.map</strong></span>
+                <span class="file-download" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14"/></svg></span>
+              </a>
+              <a class="download-file" href="DM_i_Tetris.trep.json" download>
+                <span class="file-symbol-wrap" aria-hidden="true"><span class="file-symbol file-symbol--json">JSON</span><span class="file-symbol-tooltip">TREP BG-map metadata</span></span>
+                <span class="file-copy"><strong>DM_i_Tetris.trep.json</strong></span>
+                <span class="file-download" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14"/></svg></span>
+              </a>
+            </div>
+            <p class="zip-download"><a href="DM_i_Tetris-files.zip" download>Download all files as ZIP <svg class="inline-download-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14"/></svg></a></p>
+
+            <details class="download-help">
+              <summary>Patch: .bps → .gb</summary>
+              <ol>
+                <li>Download <a class="patch-file-reference patch-file-reference--bps" href="DM_i_Tetris.bps" download><code><strong>DM_i_Tetris.bps</strong></code></a>.</li>
+                <li>Open <a href="https://www.marcrobledo.com/RomPatcher.js/" target="_blank" rel="noopener noreferrer">Marc Robledo’s ROM Patcher ↗</a>.</li>
+                <li>Choose your original Game Boy Tetris (v&nbsp;1.1) ROM under <strong>ROM file</strong>.</li>
+                <li>Choose the BPS file under <strong>Patch file</strong>.</li>
+                <li>Select <strong>Apply patch</strong> and save the patched ROM.</li>
+              </ol>
+              <p class="download-help-note"><span class="download-note-icon" aria-hidden="true">i</span><span>If the patcher reports a source-ROM mismatch, verify that the base ROM is correct and unmodified.</span></p>
+            </details>
+
+            <details class="download-help">
+              <summary>Modify the ROM with TREP</summary>
+              <p><strong>TREP</strong> can inspect and modify the patched ROM without rebuilding the source project. Load the patched ROM together with <a class="patch-file-reference patch-file-reference--sym" href="DM_i_Tetris.sym" download><code>.sym</code></a> and <a class="patch-file-reference patch-file-reference--json" href="DM_i_Tetris.trep.json" download><code>.trep.json</code></a>. The optional <a class="patch-file-reference patch-file-reference--map" href="DM_i_Tetris.map" download><code>.map</code></a> adds further linker context.</p>
+              <p class="trep-action"><a class="button secondary" href="../../apps/trep/index.html">Open TREP</a></p>
+            </details>
+
+            <aside class="trep-tips" aria-labelledby="tips-heading">
+              <h4 id="tips-heading">Tip</h4>
+              <p>Use the <a href="../../apps/luter/index.html?lut=DM%20i%20Tetris">DM i Tetris LUT</a> to let the Danish flag shine proudly. It maps the four shades from brightest to darkest as follows:</p>
+              <ul class="lut-color-list">
+                <li><span class="lut-swatch lut-swatch--white" aria-hidden="true"></span><strong>White</strong><span class="lut-values">RGB (255, 255, 255) · Hex #FFFFFF</span></li>
+                <li><span class="lut-swatch lut-swatch--peach" aria-hidden="true"></span><strong>Chickadee</strong><span class="lut-values">RGB (255, 165, 115) · Hex #FFA573</span></li>
+                <li><span class="lut-swatch lut-swatch--red" aria-hidden="true"></span><strong>Dannebrog Red</strong><span class="lut-values">RGB (198, 12, 32) · Hex #C60C20</span></li>
+                <li><span class="lut-swatch lut-swatch--black" aria-hidden="true"></span><strong>Black</strong><span class="lut-values">RGB (0, 0, 0) · Hex #000000</span></li>
+              </ul>
+            </aside>
+            </aside>
+          </div>
+
+          <p class="screenshot-lut-note">These screenshots use the <strong>DM i Tetris LUT</strong>.</p>
+          <div class="screenshot-grid" aria-label="In-game screenshots">
+            <figure><img class="clickable" src="scoreboard.png" data-modal-src="../../articles/danish-championship-2025/images/custom-level-select.png?v=20260809-2" alt="DM i Tetris level-selection and scoreboard screen"><figcaption>Level selection and scoreboard.</figcaption></figure>
+            <figure><img class="clickable" src="in-game-1.png" data-modal-src="../../articles/danish-championship-2025/images/in-game-timer.png?v=20260809-2" alt="DM i Tetris game with countdown timer"><figcaption>Timer and score tracking during play.</figcaption></figure>
+            <figure><img class="clickable" src="celebration.png" data-modal-src="../../articles/danish-championship-2025/images/success-screen.png?v=20260809-2" alt="DM i Tetris celebration screen"><figcaption>A post-success celebration, with people appearing when specific conditions are met.</figcaption></figure>
+          </div>
+
+          <aside class="editorial-note" aria-labelledby="editorial-note-heading">
+            <h3 id="editorial-note-heading">Editorial note: AI usage</h3>
+            <p>AI was used to correct grammar and punctuation and to improve sentence structure on this page. No AI was used during the development of the project.</p>
+          </aside>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../script.js?v=20260809-3"></script>
+  <script src="player.js?v=3"></script>
+
+  <div id="imageModal" class="modal" role="dialog" aria-modal="true" aria-label="Screenshot preview" aria-hidden="true" style="display:none">
+    <div class="modal-content">
+      <button class="close" type="button" aria-label="Close screenshot preview">&times;</button>
+      <img id="modalImage" alt="Enlarged game screenshot">
+    </div>
+  </div>
+</body>
+</html>

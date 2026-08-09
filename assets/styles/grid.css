@@ -242,6 +242,20 @@
     color: #59636e;
 }
 
+.article-date {
+    display: block;
+    margin: -5px 0 8px;
+    color: #707780;
+    font-size: 0.78rem;
+    line-height: 1.2;
+}
+
+.article-vip {
+    border-color: #B2054C;
+    background-color: #B2054C;
+    color: #fff;
+}
+
 .device-label {
     border-color: transparent;
     color: #fff;

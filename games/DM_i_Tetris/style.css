@@ -1,0 +1,821 @@
+main { max-width:1040px }
+
+#imageModal .modal-content {
+  box-sizing:border-box;
+  padding-block:24px;
+}
+
+#imageModal .close {
+  display:grid;
+  width:38px;
+  height:38px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  outline:0;
+  background:transparent;
+  place-items:center;
+  line-height:1;
+  box-shadow:none;
+  transition:background-color .15s ease;
+}
+
+#imageModal .close:focus,
+#imageModal .close:focus-visible {
+  outline:0;
+  background:transparent;
+  box-shadow:none;
+}
+
+#imageModal .close:hover,
+#imageModal .close:focus:hover,
+#imageModal .close:focus-visible:hover {
+  background:#eee;
+  box-shadow:none;
+}
+
+.game-page-section {
+  padding:0 22px 22px;
+  border:2px solid var(--page-accent);
+  border-radius:10px;
+  background:var(--page-accent-soft);
+}
+
+.game-page-section > h2 {
+  width:calc(100% + 44px);
+  margin:0 -22px 22px;
+  padding:12px 18px;
+  border-radius:8px 8px 0 0;
+  background:var(--page-accent);
+  color:var(--page-accent-contrast);
+  text-align:center;
+}
+
+body.theme-game .game-page-section h3 {
+  color:#333;
+}
+
+.game-introduction {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(300px,.82fr);
+  grid-template-areas:"copy downloads";
+  gap:28px;
+  align-items:start;
+}
+
+.game-copy { grid-area:copy }
+
+.download-panel {
+  grid-area:downloads;
+  padding:18px;
+  border:0;
+  border-radius:10px;
+  background:#fff;
+}
+
+.download-panel h3 { margin-top:0 }
+
+.downloads-heading {
+  display:flex;
+  gap:7px;
+  align-items:center;
+}
+
+.downloads-info {
+  position:relative;
+  display:grid;
+  width:22px;
+  height:22px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:var(--page-accent);
+  color:#172b4d;
+  font-family:Georgia,serif;
+  font-size:.9rem;
+  font-weight:700;
+  font-style:italic;
+  place-items:center;
+  cursor:default;
+}
+
+.downloads-info-tooltip {
+  position:absolute;
+  z-index:8;
+  top:calc(100% + 10px);
+  left:50%;
+  width:max-content;
+  max-width:min(280px,70vw);
+  padding:10px 12px;
+  border-radius:6px;
+  background:#111;
+  box-shadow:0 4px 12px rgba(0,0,0,.32);
+  color:#fff;
+  font-family:"Outfit",sans-serif;
+  font-size:.78rem;
+  font-weight:400;
+  font-style:normal;
+  line-height:1.45;
+  text-align:left;
+  opacity:0;
+  pointer-events:none;
+  transform:translate(-50%,4px);
+  transition:opacity .18s ease,transform .18s ease;
+}
+
+.downloads-info-tooltip::before {
+  content:"";
+  position:absolute;
+  bottom:100%;
+  left:50%;
+  border-right:6px solid transparent;
+  border-bottom:7px solid #111;
+  border-left:6px solid transparent;
+  transform:translateX(-50%);
+}
+
+.downloads-info:hover .downloads-info-tooltip,
+.downloads-info:focus-visible .downloads-info-tooltip {
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+.download-topline {
+  display:grid;
+  width:100%;
+  grid-template-columns:200px minmax(0,1fr);
+  gap:20px;
+  align-items:flex-start;
+  margin-bottom:20px;
+}
+
+.download-preview {
+  width:200px;
+  margin:0;
+  justify-self:start;
+}
+
+.download-preview img {
+  display:block;
+  width:100%;
+  aspect-ratio:10 / 9;
+  margin-left:auto;
+  border:1px solid #c9d8e5;
+  object-fit:cover;
+  object-position:center bottom;
+  image-rendering:auto;
+  border-radius:8px;
+  box-shadow:0 3px 10px rgba(24,39,58,.12);
+  cursor:zoom-in;
+  transition:border-color .18s ease,box-shadow .18s ease;
+}
+
+.download-preview img:hover,
+.download-preview img:focus-visible {
+  border:1px solid #9fb0bd !important;
+  border-color:#9fb0bd;
+  box-shadow:0 10px 26px rgba(24,39,58,.3);
+  transform:none !important;
+}
+
+.game-contributors {
+  width:100%;
+  min-width:105px;
+}
+
+body.theme-game .game-contributors h3 {
+  margin:0 0 7px;
+  font-size:1rem;
+}
+
+.game-contributors table {
+  width:100%;
+  margin:0;
+  border:0;
+  border-collapse:collapse;
+  border-radius:0;
+  table-layout:fixed;
+  background:transparent;
+  box-shadow:none;
+}
+
+.game-contributors tr { border-top:1px solid #dce3e8 }
+
+.game-contributors tr:last-child { border-bottom:1px solid #dce3e8 }
+
+.game-contributors th,
+.game-contributors td {
+  padding:7px 3px;
+  border:0;
+  background:transparent;
+  color:#333;
+  text-align:left;
+  vertical-align:top;
+}
+
+body.theme-game .game-contributors tr,
+body.theme-game .game-contributors tr:nth-child(even),
+body.theme-game .game-contributors tr:nth-child(odd),
+body.theme-game .game-contributors th,
+body.theme-game .game-contributors td {
+  border-radius:0;
+  background:transparent;
+}
+
+.game-contributors th {
+  width:58%;
+  font-size:.78rem;
+  font-weight:700;
+}
+
+.game-contributors td {
+  font-size:.88rem;
+  text-align:right;
+}
+
+.download-note {
+  display:flex;
+  gap:9px;
+  align-items:flex-start;
+  margin-top:0;
+  padding:9px;
+  border-radius:6px;
+  background:var(--page-accent-soft);
+  font-size:.9rem;
+  line-height:1.45;
+}
+
+.download-note-icon {
+  display:grid;
+  width:22px;
+  height:22px;
+  flex:0 0 22px;
+  place-items:center;
+  border-radius:50%;
+  background:var(--page-accent);
+  color:#172b4d;
+  font-family:Georgia,serif;
+  font-weight:700;
+  font-style:italic;
+}
+
+.feature-list,
+.patching-steps { line-height:1.65 }
+
+.feature-more {
+  color:inherit;
+}
+
+.feature-more::marker { color:inherit }
+
+.anthem-player-block {
+  margin-top:20px;
+}
+
+.anthem-player {
+  position:relative;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:8px 12px;
+  border:1px solid #c9d8e5;
+  border-radius:999px;
+  background:#fff;
+}
+
+body.theme-game .anthem-player-title {
+  margin:0 0 8px;
+  color:#333;
+  font-weight:700;
+}
+
+.anthem-play-button {
+  display:grid;
+  width:34px;
+  height:34px;
+  flex:0 0 34px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:var(--page-accent);
+  color:#172b4d;
+  place-items:center;
+  cursor:pointer;
+}
+
+.anthem-play-button:hover { background:var(--page-accent-hover) }
+
+.anthem-progress {
+  width:100%;
+  accent-color:var(--page-accent);
+  cursor:pointer;
+}
+
+.anthem-volume {
+  position:relative;
+  display:grid;
+  width:32px;
+  height:32px;
+  flex:0 0 32px;
+  place-items:center;
+}
+
+.anthem-volume-button {
+  display:grid;
+  width:32px;
+  height:32px;
+  padding:5px;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  color:#111;
+  place-items:center;
+  cursor:pointer;
+}
+
+.anthem-volume-button:hover { background:#eee }
+
+.anthem-volume-button svg {
+  display:block;
+  width:21px;
+  height:21px;
+}
+
+.volume-speaker { fill:currentColor }
+
+.volume-wave,
+.volume-muted-mark {
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+}
+
+.volume-muted-mark { display:none }
+
+.anthem-volume-button.is-muted .volume-wave { display:none }
+.anthem-volume-button.is-muted .volume-muted-mark { display:block }
+
+.anthem-volume-popover {
+  position:absolute;
+  z-index:10;
+  right:50%;
+  bottom:100%;
+  display:grid;
+  padding:10px 8px;
+  border-radius:999px;
+  background:#fff;
+  box-shadow:0 5px 16px rgba(24,39,58,.25);
+  opacity:0;
+  pointer-events:none;
+  place-items:center;
+  transform:translate(50%,5px);
+  transition:opacity .16s ease,transform .16s ease;
+}
+
+.anthem-volume:hover .anthem-volume-popover,
+.anthem-volume-popover:focus-within {
+  opacity:1;
+  pointer-events:auto;
+  transform:translate(50%,0);
+}
+
+.anthem-volume-slider {
+  width:18px;
+  height:90px;
+  margin:0;
+  accent-color:var(--page-accent);
+  cursor:pointer;
+  direction:rtl;
+  writing-mode:vertical-lr;
+}
+
+.patch-file-reference,
+.patch-file-reference:hover,
+.patch-file-reference:focus-visible {
+  border-bottom:0 !important;
+  text-decoration:none !important;
+}
+
+.patch-file-reference code {
+  transition:background-color .15s ease;
+}
+
+.patch-file-reference:hover code,
+.patch-file-reference:focus-visible code {
+  background:#5f5f5f;
+  box-shadow:none;
+}
+
+.download-list {
+  display:grid;
+  gap:0;
+  margin:14px 0 10px;
+  border-top:1px solid var(--page-accent);
+  border-bottom:1px solid var(--page-accent);
+}
+
+.download-file {
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr) auto;
+  gap:9px;
+  align-items:center;
+  padding:6px 4px;
+  border:0;
+  border-bottom:1px dotted var(--page-accent);
+  border-radius:0;
+  background:transparent;
+  color:#24384c;
+  text-decoration:none;
+  transition:border-color .15s ease,background-color .15s ease;
+}
+
+.download-file:hover,
+.download-file:focus-visible {
+  background:#ffe39a;
+}
+
+.download-file:last-child { border-bottom:0 }
+
+.download-file--primary {
+  margin:0;
+  padding:6px 4px;
+  border:0;
+  border-bottom:1px dotted var(--page-accent);
+  border-radius:0;
+  background:#ffefb5;
+}
+
+.download-file--primary:hover,
+.download-file--primary:focus-visible {
+  background:#ffd568;
+}
+
+.download-file .file-copy strong,
+.download-file--primary .file-copy strong { color:#333 }
+
+.download-panel:has(.patch-file-reference--bps:hover) .download-file--primary,
+.download-panel:has(.patch-file-reference--bps:focus-visible) .download-file--primary {
+  background:#ffd568;
+}
+
+.download-panel:has(.patch-file-reference--sym:hover) .download-file[href$=".sym"],
+.download-panel:has(.patch-file-reference--sym:focus-visible) .download-file[href$=".sym"],
+.download-panel:has(.patch-file-reference--map:hover) .download-file[href$=".map"],
+.download-panel:has(.patch-file-reference--map:focus-visible) .download-file[href$=".map"],
+.download-panel:has(.patch-file-reference--json:hover) .download-file[href$=".trep.json"],
+.download-panel:has(.patch-file-reference--json:focus-visible) .download-file[href$=".trep.json"] {
+  background:#ffe39a;
+}
+
+.file-symbol-wrap {
+  position:relative;
+  display:block;
+  width:28px;
+  height:32px;
+}
+
+.file-symbol {
+  position:relative;
+  display:grid;
+  width:28px;
+  height:32px;
+  place-items:center;
+  overflow:hidden;
+  border:2px solid currentColor;
+  border-radius:3px;
+  background:#fff;
+  font-family:Consolas,"Courier New",monospace;
+  font-size:.58rem;
+  font-weight:700;
+  letter-spacing:-.02em;
+}
+
+.file-symbol-tooltip {
+  position:absolute;
+  z-index:9;
+  bottom:calc(100% + 9px);
+  left:50%;
+  width:max-content;
+  max-width:190px;
+  padding:7px 9px;
+  border-radius:5px;
+  background:#111;
+  box-shadow:0 4px 12px rgba(0,0,0,.28);
+  color:#fff;
+  font-family:"Outfit",sans-serif;
+  font-size:.75rem;
+  font-weight:400;
+  line-height:1.3;
+  opacity:0;
+  pointer-events:none;
+  transform:translate(-50%,4px);
+  transition:opacity .18s ease,transform .18s ease;
+}
+
+.file-symbol-tooltip::after {
+  content:"";
+  position:absolute;
+  top:100%;
+  left:50%;
+  border-top:7px solid #111;
+  border-right:6px solid transparent;
+  border-left:6px solid transparent;
+  transform:translateX(-50%);
+}
+
+.file-symbol-wrap:hover .file-symbol-tooltip {
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+.file-symbol::after {
+  content:"";
+  position:absolute;
+  top:-2px;
+  right:-2px;
+  width:9px;
+  height:9px;
+  border-bottom:2px solid currentColor;
+  border-left:2px solid currentColor;
+  background:#fff;
+}
+
+.file-symbol--bps { color:#2f6fa3 }
+.file-symbol--sym { color:#217346 }
+.file-symbol--map { color:#b34d32 }
+.file-symbol--json {
+  color:#176b6b;
+  font-size:.48rem;
+}
+
+.file-copy {
+  display:flex;
+  min-width:0;
+  flex-direction:column;
+  line-height:1.25;
+}
+
+.file-copy strong { overflow-wrap:anywhere }
+
+.file-copy small {
+  color:#607286;
+  font-size:.8rem;
+}
+
+.file-download {
+  color:#172b4d;
+  font-size:1.15rem;
+  font-weight:700;
+  transition:transform .15s ease,color .15s ease;
+}
+
+.file-download svg,
+.inline-download-icon {
+  width:1.15em;
+  height:1.15em;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.file-download svg { display:block }
+
+.inline-download-icon {
+  display:inline-block;
+  vertical-align:-.18em;
+}
+
+.download-file:hover .file-download {
+  color:#172b4d;
+  transform:translateY(2px);
+}
+
+.zip-download {
+  margin:8px 0 16px;
+  text-align:center;
+  font-size:.9rem;
+}
+
+.download-help {
+  margin-top:9px;
+  border:2px solid var(--page-accent);
+  border-radius:7px;
+  background:#fff;
+}
+
+.download-help summary {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  background:#ffb900;
+  color:#333;
+  font-weight:700;
+  list-style:none;
+  cursor:pointer;
+}
+
+.download-help summary::-webkit-details-marker { display:none }
+.download-help summary::marker { content:"" }
+.download-help summary::after {
+  content:"+";
+  flex:0 0 auto;
+  font-size:1.3rem;
+  line-height:1;
+}
+
+.download-help[open] summary::after { content:"−" }
+.download-help summary:hover { background:#e6a700 }
+
+.download-help[open] summary { border-bottom:2px solid #ffd258 }
+
+.download-help > :not(summary) { margin-right:12px; margin-left:12px }
+.download-help ol { padding-left:1.35rem; line-height:1.5 }
+.download-help p,
+.download-help li { line-height:1.5 }
+
+.download-help .trep-action {
+  margin-top:18px;
+  text-align:center;
+}
+
+.download-help-note {
+  display:flex;
+  gap:9px;
+  align-items:flex-start;
+  padding:9px;
+  border-radius:6px;
+  background:#fff9e6;
+}
+
+.trep-tips {
+  margin-top:14px;
+  padding:10px 12px;
+  border:0;
+  border-radius:6px;
+  background:var(--page-accent-soft);
+}
+
+body.theme-game .trep-tips h4 {
+  margin:0 0 5px;
+  color:#333;
+}
+
+.trep-tips p { margin:0 }
+
+.lut-color-list {
+  display:grid;
+  gap:4px;
+  margin:9px 0 0;
+  padding:0;
+  list-style:none;
+}
+
+.lut-color-list li {
+  display:flex;
+  gap:7px;
+  align-items:center;
+}
+
+.lut-values {
+  margin-left:auto;
+  font-size:.72rem;
+  line-height:1.25;
+  text-align:right;
+}
+
+.lut-swatch {
+  width:15px;
+  height:15px;
+  flex:0 0 15px;
+  border:1px solid rgba(0,0,0,.25);
+  border-radius:2px;
+}
+
+.lut-swatch--white { background:rgb(255,255,255) }
+.lut-swatch--peach { background:rgb(255,165,115) }
+.lut-swatch--red { background:rgb(198,12,32) }
+.lut-swatch--black { background:rgb(0,0,0) }
+
+.screenshot-lut-note {
+  width:calc(100% + 44px);
+  margin:28px -22px 0;
+  padding-top:22px;
+  border-top:2px dotted var(--page-accent);
+  text-align:center;
+}
+
+.screenshot-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,240px);
+  gap:16px;
+  justify-content:center;
+  width:calc(100% + 44px);
+  margin:16px -22px 0;
+}
+
+.screenshot-grid figure { margin:0; text-align:center }
+
+.screenshot-grid img {
+  width:240px;
+  height:216px;
+  border:0 !important;
+  aspect-ratio:10 / 9;
+  object-fit:cover;
+  object-position:center bottom;
+  image-rendering:auto;
+  border-radius:8px;
+  box-shadow:0 4px 16px rgba(24,39,58,.16);
+  cursor:zoom-in;
+  transition:box-shadow .2s ease;
+}
+
+#imageModal .modal-content {
+  width:95vw;
+  max-width:95vw;
+}
+
+#imageModal .modal-content img {
+  width:800px;
+  height:auto;
+  max-width:calc(100vw - 120px);
+  max-height:calc(100vh - 80px);
+  aspect-ratio:10 / 9;
+  box-sizing:border-box;
+  border:1px solid #c9d8e5;
+  border-radius:4px;
+  image-rendering:pixelated;
+  object-fit:contain;
+}
+
+.screenshot-grid img:hover {
+  z-index:1;
+  border:0 !important;
+  box-shadow:0 12px 30px rgba(24,39,58,.36);
+  transform:none !important;
+}
+
+.screenshot-grid figcaption {
+  margin-top:7px;
+  color:#172b4d;
+  font-size:.85rem;
+}
+
+.editorial-note {
+  margin-top:24px;
+  padding:14px 16px;
+  border-radius:6px;
+  background:#fff;
+}
+
+body.theme-game .editorial-note h3 {
+  margin:0 0 6px;
+  color:#333;
+  font-size:1rem;
+}
+
+.editorial-note p { margin:0 }
+
+@media (max-width:760px) {
+  .game-introduction {
+    grid-template-columns:1fr;
+    grid-template-areas:"copy" "downloads";
+  }
+  .screenshot-grid { grid-template-columns:repeat(auto-fit,240px) }
+}
+
+@media (max-width:540px) {
+  .game-page-section { padding:0 16px 16px }
+  .game-page-section > h2 {
+    width:calc(100% + 32px);
+    margin-right:-16px;
+    margin-left:-16px;
+  }
+  .screenshot-grid {
+    width:calc(100% + 32px);
+    margin-right:-16px;
+    margin-left:-16px;
+  }
+  .screenshot-lut-note {
+    width:calc(100% + 32px);
+    margin-right:-16px;
+    margin-left:-16px;
+  }
+  .anthem-player {
+    border-radius:999px;
+  }
+}
+
+@media (max-width:460px) {
+  .screenshot-grid {
+    grid-template-columns:160px;
+  }
+  .screenshot-grid img {
+    width:160px;
+    height:144px;
+  }
+}

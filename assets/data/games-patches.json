@@ -3,12 +3,19 @@
     "image": "assets/images/chris-and-triss.png",
     "name": "Chris & Triss",
     "description": "A Tetromino-based puzzle and block-stacking game for the original Game Boy, created with EuroChrisKA.",
-    "link": null
+    "link": "games/chris-and-triss/index.html"
   },
   {
     "image": "assets/images/ROM.png",
     "name": "ROM Patches",
     "description": "Game Boy ROM patches mostly created by Pascal and Tolstoj, with contributions from Kirjava, Ospin, and Toni.",
-    "link": null
+    "link": "games/rom-hacks/index.html"
+  },
+  {
+    "image": "articles/danish-championship-2025/images/custom-title.png",
+    "name": "DM i Tetris 2025",
+    "description": "A timed Game Boy Tetris qualification ROM created for the 2025 Danish championship.",
+    "link": "games/DM_i_Tetris/index.html",
+    "detailsKey": "dm-i-tetris"
   }
 ]

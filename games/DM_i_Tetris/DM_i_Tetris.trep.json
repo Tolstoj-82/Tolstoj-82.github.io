@@ -1,0 +1,58 @@
+{
+  "format": "trep-metadata",
+  "version": 1,
+  "project": "DM i Tetris - Qualification ROM",
+  "generatedFrom": {
+    "symbols": "DM_i_Tetris.sym",
+    "map": "DM_i_Tetris.map"
+  },
+  "backgroundMaps": [
+    {
+      "name": "A-Type Playfield",
+      "symbol": "Layout_ATypeInGame",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Menu Screens-Set",
+      "filename": "layout_aTypeInGame.bin",
+      "start": "0x3E8F"
+    },
+    {
+      "name": "Title Screen",
+      "symbol": "Layout_TitleScreen",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Title Screen-Set",
+      "filename": "layout_titleScreen.bin",
+      "start": "0x48A8"
+    },
+    {
+      "name": "Level Selection",
+      "symbol": "Layout_ATypeSelectionScreen",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Menu Screens-Set",
+      "filename": "layout_aTypeSelectionScreen.bin",
+      "start": "0x4A10"
+    },
+    {
+      "name": "Success",
+      "symbol": "GameScreenLayout_Success",
+      "width": 10,
+      "height": 18,
+      "tileSet": "Menu Screens-Set",
+      "filename": "gameScreenLayout_success.bin",
+      "start": "0x4B78"
+    },
+    {
+      "name": "Good Game",
+      "symbol": "GameScreenLayout_GG",
+      "endSymbol": "GameScreenLayout_GG.end",
+      "width": 10,
+      "height": 18,
+      "tileSet": "Menu Screens-Set",
+      "filename": "gameScreenLayout_goodGame.bin",
+      "start": "0x4C2D",
+      "end": "0x4CE2"
+    }
+  ]
+}

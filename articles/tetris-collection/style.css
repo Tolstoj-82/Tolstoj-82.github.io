@@ -3,10 +3,196 @@
     --collection-blue-light: #79a9d5;
 }
 
+body.theme-article {
+    --page-accent: #B2054C;
+    --page-accent-hover: #940441;
+    --page-accent-soft: #fff0f6;
+    --page-accent-text: #7c0738;
+    --page-accent-focus: #e3a1bd;
+    --page-accent-contrast: #fff;
+    --collection-blue: var(--page-accent);
+    --collection-blue-light: #d66a98;
+}
+
+body.theme-game {
+    --page-accent: #FFB900;
+    --page-accent-hover: #e6a700;
+    --page-accent-soft: #fff9e6;
+    --page-accent-text: #624900;
+    --page-accent-focus: #e6c35d;
+    --page-accent-contrast: #172b4d;
+    --collection-blue: var(--page-accent);
+    --collection-blue-light: #d79c00;
+}
+
+body.theme-article header,
+body.theme-game header {
+    background-color: var(--page-accent);
+    color: var(--page-accent-contrast);
+}
+
+body.theme-game .menu-btn,
+body.theme-game .article-back-button { color: var(--page-accent-contrast) }
+
+body.theme-game .article-back-button {
+    border-color: rgba(23,43,77,.72);
+    background-color: rgba(255,255,255,.22);
+}
+
+body.theme-article .article-back-button:hover,
+body.theme-game .article-back-button:hover { color: var(--page-accent-text) }
+
+body.theme-article .article-related-links a,
+body.theme-game .article-related-links a,
+body.theme-article .article-page-link,
+body.theme-game .article-page-link { color: var(--page-accent-text) }
+
+body.theme-article .article-toc-link.is-current,
+body.theme-game .article-toc-link.is-current {
+    border-left-color: var(--page-accent);
+    background-color: var(--page-accent-soft);
+    color: var(--page-accent-text);
+}
+
+body.theme-article .article-accordion-control,
+body.theme-game .article-accordion-control {
+    border-color: var(--page-accent);
+    color: var(--page-accent-text);
+}
+
+body.theme-article .article-accordion-control:hover:not(:disabled),
+body.theme-game .article-accordion-control:hover:not(:disabled) {
+    border-color: var(--page-accent-hover);
+    background-color: var(--page-accent-hover);
+    color: var(--page-accent-contrast);
+}
+
+body.theme-article .article-accordion-control:focus-visible,
+body.theme-game .article-accordion-control:focus-visible { outline-color: var(--page-accent-focus) }
+
+body.theme-article main a:not(.button),
+body.theme-game main a:not(.button) { color: var(--page-accent-text) }
+
+body.theme-article main :is(p, li, figcaption, td) a:not(.button),
+body.theme-game main :is(p, li, figcaption, td) a:not(.button) {
+    border-radius: 3px;
+    color: var(--page-accent-text);
+    font-weight: 600;
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: color-mix(in srgb, var(--page-accent) 72%, transparent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    transition: background-color .15s ease, color .15s ease, text-decoration-color .15s ease;
+}
+
+body.theme-article main :is(p, li, figcaption, td) a:not(.button):hover,
+body.theme-game main :is(p, li, figcaption, td) a:not(.button):hover {
+    background-color: var(--page-accent-soft);
+    color: var(--page-accent-hover);
+    text-decoration-color: var(--page-accent-hover);
+}
+
+body.theme-article main :is(p, li, figcaption, td) a:not(.button):focus-visible,
+body.theme-game main :is(p, li, figcaption, td) a:not(.button):focus-visible {
+    outline: 3px solid var(--page-accent-focus);
+    outline-offset: 3px;
+    background-color: var(--page-accent-soft);
+}
+
+body.theme-article a.button.secondary,
+body.theme-game a.button.secondary {
+    border-color: var(--page-accent);
+    background-color: #fff;
+    color: var(--page-accent-text);
+}
+
+body.theme-article a.button.secondary:hover,
+body.theme-game a.button.secondary:hover {
+    border-color: var(--page-accent-hover);
+    background-color: var(--page-accent-hover);
+    color: var(--page-accent-contrast);
+}
+
+body.theme-article .article-accordion-trigger,
+body.theme-game .article-accordion-trigger {
+    border-width: 2px;
+    border-color: var(--page-accent-hover);
+    background-color: var(--page-accent);
+    color: var(--page-accent-contrast);
+}
+
+body.theme-article .article-accordion-trigger:hover,
+body.theme-game .article-accordion-trigger:hover { background-color: var(--page-accent-hover) }
+
+body.theme-article .article-accordion-trigger:focus-visible,
+body.theme-game .article-accordion-trigger:focus-visible { outline-color: var(--page-accent-focus) }
+
+body.theme-article .article-accordion-panel,
+body.theme-game .article-accordion-panel {
+    border-width: 2px;
+    border-top-width: 0;
+    border-color: var(--page-accent-focus);
+    background-color: color-mix(in srgb, var(--page-accent-soft) 58%, #fff);
+}
+
+body.theme-article .remark:not(.remark--warning):not(.remark--spotlight):not(.remark--positive):not(.remark--minimal),
+body.theme-game .remark:not(.remark--warning):not(.remark--spotlight):not(.remark--positive):not(.remark--minimal) {
+    border-color: var(--page-accent-focus);
+    background: var(--page-accent-soft);
+    color: var(--page-accent-text);
+}
+
+body.theme-game th,
+body.theme-game .subhead,
+body.theme-game .table-title,
+body.theme-game .table-columns th,
+body.theme-game .title { color: var(--page-accent-contrast) }
+
+body.theme-article h2:not(.article-accordion-heading) {
+    background-color: var(--page-accent);
+    color: #fff;
+}
+
+body.theme-article h3,
+body.theme-article h4,
+body.theme-article h5,
+body.theme-article h6 { color: var(--page-accent-text) }
+
+body.theme-game h3,
+body.theme-game h4,
+body.theme-game h5,
+body.theme-game h6 { color: var(--page-accent-text) }
+
+body.theme-article table {
+    border-color: var(--page-accent-focus);
+}
+
+body.theme-article table th,
+body.theme-article .table-scroll thead th {
+    border-color: var(--page-accent-focus);
+    background: var(--page-accent);
+    color: #fff;
+}
+
+body.theme-article table td { border-color: var(--page-accent-focus) }
+
+body.theme-article table tbody tr:nth-child(even) > td {
+    background-color: var(--page-accent-soft);
+}
+
+body.theme-article table tbody tr:nth-child(odd) > td {
+    background-color: #fff;
+}
+
 .article-title {
     display: flex;
     flex-direction: column;
     line-height: 1.05;
+}
+
+.page-content main {
+    margin-inline: auto;
 }
 
 .collection-title {
@@ -558,6 +744,27 @@ main .article-image--medium {
 .check::before {
     content: "✔";
     color: green;
+}
+
+/* Keep inline code labels from increasing the gap between consecutive lines. */
+body.theme-article main p code,
+body.theme-article main li code,
+body.theme-article main td code,
+body.theme-article main figcaption code,
+body.theme-article main .remark code,
+body.theme-game main p code,
+body.theme-game main li code,
+body.theme-game main td code,
+body.theme-game main figcaption code,
+body.theme-game main .remark code {
+    padding-top: 0;
+    padding-bottom: 0;
+    color: #f5f5f5;
+    line-height: inherit;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 @media (max-width: 700px) {

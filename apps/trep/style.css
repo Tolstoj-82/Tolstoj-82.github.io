@@ -131,6 +131,60 @@ a:hover {
   line-height:1.4
 }
 
+.rom-file-staging {
+  width:min(680px,calc(100% - 32px));
+  margin:18px auto 12px;
+}
+
+.rom-file-table {
+  width:100%;
+  border-collapse:collapse;
+  border:1px solid #C9D8E5;
+  background:#FFF;
+  text-align:left;
+}
+
+.rom-file-table th,
+.rom-file-table td {
+  padding:8px 10px;
+  border:0;
+  border-bottom:1px solid #DCE5EB;
+}
+
+.rom-file-table th:nth-child(2),
+.rom-file-table td:nth-child(2),
+.rom-file-table th:nth-child(3),
+.rom-file-table td:nth-child(3) {
+  white-space:nowrap;
+}
+
+.rom-file-table th:last-child,
+.rom-file-table td:last-child {
+  width:52px;
+  text-align:center;
+}
+
+.rom-file-table tr.is-missing td {
+  background:#F1F3F5;
+  color:#929AA1;
+}
+
+.rom-file-ready {
+  color:#176B45;
+  font-size:1.2rem;
+  font-weight:800;
+}
+
+.rom-file-table tr:last-child td { border-bottom:0 }
+
+.rom-file-status {
+  margin:8px 0 0;
+  color:#8A3C00;
+  font-size:.88rem;
+}
+
+.rom-file-status.is-valid { color:#176B45 }
+
 .tab-content#tab4 { padding-top:0 }
 
 .code-browser-header {
@@ -821,7 +875,7 @@ button {
 }
 
 .custom-file-input::before {
-  content:'Choose a .gb ROM File'
+  content:'Add Files'
 }
 
 .custom-file-input::before {

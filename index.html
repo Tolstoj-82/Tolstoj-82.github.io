@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tolstoj's Workbench</title>
-    <link rel="stylesheet" href="assets/styles/general.css?v=20260807-2" />
+    <link rel="stylesheet" href="assets/styles/general.css?v=20260808-1" />
     <link rel="stylesheet" href="assets/styles/grid.css?v=20260727-4" />
     <link rel="stylesheet" href="assets/styles/header.css" />
     <link rel="stylesheet" href="assets/styles/layouts.css" />
@@ -87,6 +87,7 @@
             >
           </li>
           <li><a href="articles/rng/index.html">RNG in GB Tetris</a></li>
+          <li><a href="articles/danish-championship-2025/index.html">DM i Tetris 2025 ROM</a></li>
         </ul>
       </div>
 
@@ -255,7 +256,7 @@
               <div class="grid-item-wrapper">
                 <a href="apps/trep/index.html" class="grid-item-clickable">
                   <img src="assets/images/TREP.png" alt="TREP" />
-                  <h3>TREP v 1.1</h3>
+                  <h3>TREP v 1.2</h3>
                   <div
                     class="card-labels"
                     aria-label="Status and optimized devices"
@@ -537,6 +538,7 @@
               data-game-name="Chris &amp; Triss"
               data-game-image="assets/images/chris-and-triss.png"
               data-game-description="A Tetromino-based puzzle and block-stacking game for the original Game Boy, created with EuroChrisKA."
+              data-game-link="games/chris-and-triss/index.html"
             ></button>
             <button
               class="person-card game-directory-card"
@@ -544,6 +546,16 @@
               data-game-name="ROM Patches"
               data-game-image="assets/images/ROM.png"
               data-game-description="Game Boy ROM patches mostly created by Pascal and Tolstoj, with contributions from Kirjava, Ospin, and Toni."
+              data-game-link="games/rom-hacks/index.html"
+            ></button>
+            <button
+              class="person-card game-directory-card"
+              type="button"
+              data-game-name="DM i Tetris 2025"
+              data-game-image="articles/danish-championship-2025/images/custom-title.png"
+              data-game-description="A timed Game Boy Tetris qualification ROM created for the 2025 Danish championship."
+              data-game-link="games/DM_i_Tetris/index.html"
+              data-game-details-key="dm-i-tetris"
             ></button>
           </section>
           <h2 class="section-accordion-heading" id="articles-section">
@@ -565,6 +577,7 @@
               <div class="grid-item-wrapper">
                 <a
                   href="articles/new-to-tetris/index.html"
+                  data-article-date="2026-07-28"
                   class="grid-item-clickable"
                 >
                   <img
@@ -572,6 +585,7 @@
                     alt="Game Boy Tetris pieces"
                   />
                   <h3>New to Game Boy Tetris?</h3>
+                  <time class="article-date" datetime="2026-07-28">07/2026</time>
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">1 min read</span>
                   </div>
@@ -587,6 +601,7 @@
               <div class="grid-item-wrapper">
                 <a
                   href="articles/two-player-reverse-engineering/index.html"
+                  data-article-date="2026-03-01"
                   class="grid-item-clickable"
                 >
                   <img
@@ -594,6 +609,7 @@
                     alt="Two-player link cable diagram"
                   />
                   <h3>2-Player</h3>
+                  <time class="article-date" datetime="2026-03">03/2026</time>
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">30+ min read</span>
                   </div>
@@ -609,6 +625,7 @@
               <div class="grid-item-wrapper">
                 <a
                   href="articles/tetris-collection/index.html"
+                  data-article-date="2026-07-27"
                   class="grid-item-clickable"
                 >
                   <img
@@ -616,6 +633,7 @@
                     alt="Tetris collection"
                   />
                   <h3>My Tetris Collection</h3>
+                  <time class="article-date" datetime="2026-07-27">07/2026</time>
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">5 min read</span>
                   </div>
@@ -628,12 +646,13 @@
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="articles/rng/index.html" class="grid-item-clickable">
+                <a href="articles/rng/index.html" class="grid-item-clickable" data-article-date="2024-01-01">
                   <img
                     src="articles/rng/images/overview.png"
                     alt="Game Boy Tetris RNG flow overview"
                   />
                   <h3>RNG in GB Tetris</h3>
+                  <time class="article-date" datetime="2024">01/2024</time>
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">12 min read</span>
                   </div>
@@ -647,12 +666,52 @@
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
+                <a href="articles/trep-disassembly-metadata/index.html" class="grid-item-clickable" data-article-date="2026-08-09">
+                  <img
+                    src="assets/images/ROM.png"
+                    alt="Game Boy ROM patch illustration"
+                  />
+                  <h3>Preparing a Disassembly for TREP</h3>
+                  <time class="article-date" datetime="2026-08-09">08/2026</time>
+                  <div class="card-labels" aria-label="Estimated reading time">
+                    <span class="card-label reading-time">8 min read</span>
+                  </div>
+                  <p>
+                    Generate reliable background-map metadata from an RGBDS disassembly.
+                  </p>
+                </a>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
+                <a href="articles/danish-championship-2025/index.html" class="grid-item-clickable" data-article-date="2026-08-08">
+                  <img
+                    src="articles/danish-championship-2025/images/game-state-overview.png"
+                    alt="Game-state overview of the DM i Tetris 2025 qualification ROM"
+                  />
+                  <h3>DM i Tetris 2025 ROM</h3>
+                  <time class="article-date" datetime="2026-08-08">08/2026</time>
+                  <div class="card-labels" aria-label="Estimated reading time">
+                    <span class="card-label reading-time">25 min read</span>
+                  </div>
+                  <p>
+                    Building a timed Game Boy Tetris qualification ROM for DM i Tetris 2025.
+                  </p>
+                </a>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div class="grid-item-wrapper">
                 <a
                   href="articles/about-me/index.html"
+                  data-article-date="2026-07-27"
                   class="grid-item-clickable"
                 >
                   <img src="assets/images/tolstoj.jpg" alt="Tolstoj" />
                   <h3>About Me</h3>
+                  <time class="article-date" datetime="2026-07-27">07/2026</time>
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">1 min read</span>
                   </div>
@@ -667,6 +726,7 @@
               <div class="grid-item-wrapper">
                 <a
                   href="articles/tetris-collection/Game-Boy-Tetris.html"
+                  data-article-date="2026-08-07"
                   class="grid-item-clickable"
                 >
                   <img
@@ -674,6 +734,7 @@
                     alt="Game Boy Tetris collection"
                   />
                   <h3>GB Tetris Collector's Guide</h3>
+                  <time class="article-date" datetime="2026-08-07">08/2026</time>
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">30 min read</span>
                   </div>
@@ -1324,6 +1385,7 @@
             >
             <a href="games/rom-hacks/index.html">ROM Patches</a>
             <a href="articles/rng/index.html">Tetris RNG</a>
+            <a href="articles/danish-championship-2025/index.html">DM i Tetris 2025 ROM</a>
           </nav>
 
           <nav class="site-footer-column" aria-label="Footer community">
@@ -1362,7 +1424,7 @@
     </div>
     <script src="assets/data/players-fallback.js?v=20260727-5"></script>
     <script src="assets/data/player-images.js?v=20260727-2"></script>
-    <script src="script.js?v=20260807-2"></script>
+    <script src="script.js?v=20260808-3"></script>
     <div
       id="imageModal"
       class="modal"
@@ -1426,6 +1488,7 @@
         <div class="person-modal-copy game-modal-copy">
           <h2 id="gameModalTitle"></h2>
           <p id="gameModalDescription"></p>
+          <div id="gameModalDetails" class="game-modal-details" hidden></div>
           <a id="gameModalDownload" class="button game-modal-action" download
             >Download</a
           >
