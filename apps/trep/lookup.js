@@ -310,7 +310,7 @@ const bgMaps = {
   "Buran Scaffold (l)":       ["141B",  1,  7, "Celebration-Set", "coming soon.bin"],
   "Buran Scaffold (r)":       ["1422",  1,  7, "Celebration-Set", "coming soon.bin"],
 
-  "Pause":                    ["2839",  8, 10, "Game Play-Set",   "coming soon.bin"],
+  "Pause":                    ["2839", 10,  3, "Game Play-Set",   "gameInnerScreenLayout_pause.bin"],
   "Game Over":                ["2976",  8,  6, "Game Play-Set",   "coming soon.bin"]
 };
 

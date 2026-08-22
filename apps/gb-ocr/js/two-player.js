@@ -8488,7 +8488,9 @@ function renderHighScoreSettingPicker(gameName, settingKey) {
 function renderDaysExportButton(gameName, settingKey) {
   const row = document.createElement("div");
   const importButton = document.createElement("button");
-  const exportButton = document.createElement("button");
+  const exportMenu = document.createElement("details");
+  const exportButton = document.createElement("summary");
+  const exportChoices = document.createElement("div");
   const deleteSelectedButton = document.createElement("button");
   const input = document.createElement("input");
 
@@ -8508,8 +8510,32 @@ function renderDaysExportButton(gameName, settingKey) {
 
   exportButton.textContent = "Export Days Data";
   exportButton.className = "button-black";
-  exportButton.disabled = !gameName || !settingKey;
-  exportButton.onclick = () => exportLeaderboardDaysData(gameName, settingKey);
+  exportButton.setAttribute("role", "button");
+  exportMenu.className = "daysExportMenu";
+  exportChoices.className = "daysExportChoices";
+  exportMenu.classList.toggle("disabled", !gameName || !settingKey);
+  exportButton.setAttribute("aria-disabled", String(!gameName || !settingKey));
+  exportButton.onclick = (event) => {
+    if (gameName && settingKey) return;
+    event.preventDefault();
+  };
+
+  [
+    ["JSON (Settings)", "json"],
+    ["CSV", "csv"],
+    ["XLSX", "xlsx"],
+  ].forEach(([label, format]) => {
+    const choice = document.createElement("button");
+
+    choice.type = "button";
+    choice.textContent = label;
+    choice.onclick = () => {
+      exportMenu.open = false;
+      exportLeaderboardDaysData(gameName, settingKey, format);
+    };
+    exportChoices.appendChild(choice);
+  });
+  exportMenu.append(exportButton, exportChoices);
 
   deleteSelectedButton.textContent = "Delete Selected";
   deleteSelectedButton.className =
@@ -8536,7 +8562,7 @@ function renderDaysExportButton(gameName, settingKey) {
     deleteSelectedHistoryEntries();
   });
 
-  row.append(importButton, exportButton, deleteSelectedButton, input);
+  row.append(importButton, exportMenu, deleteSelectedButton, input);
   daysModalContent.appendChild(row);
 }
 
@@ -9031,8 +9057,13 @@ function getOpenDaysModalKeys() {
   );
 }
 
-function exportLeaderboardDaysData(gameName, settingKey) {
-  const days = getStoredLeaderboardDays()
+function exportLeaderboardDaysData(
+  gameName,
+  settingKey,
+  format = "json",
+  selectedDateKeys = null,
+) {
+  let days = getStoredLeaderboardDays()
     .map((dateKey) => {
       return {
         date: dateKey,
@@ -9045,6 +9076,16 @@ function exportLeaderboardDaysData(gameName, settingKey) {
       };
     })
     .filter((day) => day.entries.length > 0);
+
+  if ((format === "csv" || format === "xlsx") && selectedDateKeys === null) {
+    showLeaderboardExportDayPicker(gameName, settingKey, format, days);
+    return;
+  }
+
+  if (selectedDateKeys) {
+    const selected = new Set(selectedDateKeys);
+    days = days.filter((day) => selected.has(day.date));
+  }
   const setting = getScoreSettingsForHistoryGame(gameName).find((item) => {
     return item.key === settingKey;
   });
@@ -9067,15 +9108,241 @@ function exportLeaderboardDaysData(gameName, settingKey) {
       .sort(compareScoreEntries)
       .slice(0, 20),
   };
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json",
+  const baseName = `${gameName || "leaderboard"}-${setting?.label || "scores"}-days`;
+
+  if (format === "csv") {
+    downloadLeaderboardExport(
+      createLeaderboardCsv(data),
+      `${baseName}.csv`,
+      "text/csv;charset=utf-8",
+    );
+    return;
+  }
+
+  if (format === "xlsx") {
+    downloadLeaderboardExport(
+      createLeaderboardXlsx(data),
+      `${baseName}.xlsx`,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
+    return;
+  }
+
+  downloadLeaderboardExport(
+    JSON.stringify(data, null, 2),
+    `${baseName}.json`,
+    "application/json",
+  );
+}
+
+function showLeaderboardExportDayPicker(gameName, settingKey, format, days) {
+  if (days.length === 0) {
+    showAlert("There are no saved days to export.");
+    return;
+  }
+
+  const content = document.createElement("div");
+  const title = document.createElement("strong");
+  const tools = document.createElement("div");
+  const list = document.createElement("div");
+  const inputType = format === "csv" ? "radio" : "checkbox";
+  const inputName = `leaderboard-export-${format}`;
+
+  content.className = "leaderboardExportDayPicker";
+  title.textContent =
+    format === "csv"
+      ? "Choose one day to export as CSV"
+      : "Choose the days to include in the XLSX workbook";
+  tools.className = "leaderboardExportDayTools";
+  list.className = "leaderboardExportDayList";
+  content.append(title);
+
+  if (format === "xlsx") {
+    const checkAll = document.createElement("button");
+    const uncheckAll = document.createElement("button");
+
+    checkAll.type = "button";
+    checkAll.textContent = "Check all";
+    uncheckAll.type = "button";
+    uncheckAll.textContent = "Uncheck all";
+    tools.append(checkAll, uncheckAll);
+    content.appendChild(tools);
+
+    checkAll.onclick = () => {
+      list.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = true;
+      });
+      updateLeaderboardExportDayPickerState(list);
+    };
+    uncheckAll.onclick = () => {
+      list.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+        input.checked = false;
+      });
+      updateLeaderboardExportDayPickerState(list);
+    };
+  }
+
+  days.forEach((day, index) => {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    const text = document.createElement("span");
+
+    input.type = inputType;
+    input.name = inputName;
+    input.value = day.date;
+    input.checked = format === "xlsx" || index === 0;
+    input.onchange = () => updateLeaderboardExportDayPickerState(list);
+    text.textContent = `${day.date} (${day.entries.length} score${day.entries.length === 1 ? "" : "s"})`;
+    label.append(input, text);
+    list.appendChild(label);
   });
+  content.appendChild(list);
+
+  showConfirmContent(
+    content,
+    () => {
+      const selectedDays = [...list.querySelectorAll("input:checked")].map(
+        (input) => input.value,
+      );
+      exportLeaderboardDaysData(
+        gameName,
+        settingKey,
+        format,
+        selectedDays,
+      );
+    },
+    null,
+    "Export",
+    "Cancel",
+  );
+  updateLeaderboardExportDayPickerState(list);
+}
+
+function updateLeaderboardExportDayPickerState(list) {
+  modalOk.disabled = !list.querySelector("input:checked");
+}
+
+function downloadLeaderboardExport(content, fileName, type) {
+  const blob = new Blob([content], { type });
   const link = document.createElement("a");
 
   link.href = URL.createObjectURL(blob);
-  link.download = `${gameName || "leaderboard"}-${setting?.label || "scores"}-days.json`;
+  link.download = fileName;
   link.click();
   URL.revokeObjectURL(link.href);
+}
+
+function getLeaderboardExportRows(data) {
+  return data.days.flatMap((day) =>
+    day.entries.map((entry, index) => [
+      index + 1,
+      entry.name || entry.player || "Player",
+      Number(entry.score),
+    ]),
+  );
+}
+
+function createLeaderboardCsv(data) {
+  const rows = [
+    ["Rank", "Name", "Score"],
+    ...getLeaderboardExportRows(data),
+  ];
+  const escape = (value) => {
+    const text = String(value ?? "");
+    return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  };
+
+  return `\ufeff${rows.map((row) => row.map(escape).join(",")).join("\r\n")}`;
+}
+
+function createLeaderboardXlsx(data) {
+  const header = ["Rank", "Name", "Score"];
+  const sheets = data.days.map((day) => ({
+    name: day.date,
+    rows: [header, ...getLeaderboardExportRows({ days: [day] })],
+  }));
+  const files = {
+    "[Content_Types].xml": createXlsxContentTypes(sheets.length),
+    "_rels/.rels": '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
+    "xl/workbook.xml": createXlsxWorkbook(sheets),
+    "xl/_rels/workbook.xml.rels": createXlsxWorkbookRelationships(sheets.length),
+  };
+
+  sheets.forEach((sheet, index) => {
+    files[`xl/worksheets/sheet${index + 1}.xml`] = createXlsxWorksheet(sheet.rows);
+  });
+
+  return createStoredZip(files);
+}
+
+function escapeSpreadsheetXml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function createXlsxWorksheet(rows) {
+  const body = rows.map((row, rowIndex) => {
+    const cells = row.map((value, columnIndex) => {
+      const ref = `${String.fromCharCode(65 + columnIndex)}${rowIndex + 1}`;
+      return typeof value === "number" && Number.isFinite(value)
+        ? `<c r="${ref}"><v>${value}</v></c>`
+        : `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${escapeSpreadsheetXml(value)}</t></is></c>`;
+    }).join("");
+    return `<row r="${rowIndex + 1}">${cells}</row>`;
+  }).join("");
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${body}</sheetData></worksheet>`;
+}
+
+function createXlsxWorkbook(sheets) {
+  const list = sheets.map((sheet, index) => `<sheet name="${escapeSpreadsheetXml(sheet.name)}" sheetId="${index + 1}" r:id="rId${index + 1}"/>`).join("");
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${list}</sheets></workbook>`;
+}
+
+function createXlsxWorkbookRelationships(count) {
+  const list = Array.from({ length: count }, (_, index) => `<Relationship Id="rId${index + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${index + 1}.xml"/>`).join("");
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${list}</Relationships>`;
+}
+
+function createXlsxContentTypes(count) {
+  const sheets = Array.from({ length: count }, (_, index) => `<Override PartName="/xl/worksheets/sheet${index + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("");
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${sheets}</Types>`;
+}
+
+function createStoredZip(files) {
+  const encoder = new TextEncoder();
+  const chunks = [];
+  const directory = [];
+  let offset = 0;
+  const uint16 = (value) => [value & 255, (value >>> 8) & 255];
+  const uint32 = (value) => [...uint16(value), ...uint16(value >>> 16)];
+
+  Object.entries(files).forEach(([name, content]) => {
+    const nameBytes = encoder.encode(name);
+    const data = encoder.encode(content);
+    const crc = crc32(data);
+    const local = new Uint8Array([80, 75, 3, 4, ...uint16(20), 0, 0, 0, 0, 0, 0, 0, 0, ...uint32(crc), ...uint32(data.length), ...uint32(data.length), ...uint16(nameBytes.length), 0, 0, ...nameBytes]);
+    chunks.push(local, data);
+    directory.push(new Uint8Array([80, 75, 1, 2, ...uint16(20), ...uint16(20), 0, 0, 0, 0, 0, 0, 0, 0, ...uint32(crc), ...uint32(data.length), ...uint32(data.length), ...uint16(nameBytes.length), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...uint32(offset), ...nameBytes]));
+    offset += local.length + data.length;
+  });
+
+  const directorySize = directory.reduce((sum, item) => sum + item.length, 0);
+  const end = new Uint8Array([80, 75, 5, 6, 0, 0, 0, 0, ...uint16(directory.length), ...uint16(directory.length), ...uint32(directorySize), ...uint32(offset), 0, 0]);
+  return new Blob([...chunks, ...directory, end]);
+}
+
+function crc32(bytes) {
+  let crc = 0xffffffff;
+  for (const byte of bytes) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
 }
 
 async function importLeaderboardDaysDataFiles(files) {

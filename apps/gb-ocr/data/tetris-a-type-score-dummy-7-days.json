@@ -1,0 +1,68 @@
+{
+  "exportedAt": "2026-08-14T13:40:00.000Z",
+  "game": "Tetris",
+  "scoreSettingKey": "[\"A-Type\",\"Score\"]",
+  "scoreScreen": "A-Type",
+  "scoreMetric": "Score",
+  "scoreMinScore": 0,
+  "scoreValueLabel": "",
+  "days": [
+    {
+      "date": "2026-08-08",
+      "entries": [
+        { "id": 2026080801, "startedAt": 1786183200000, "createdAt": 1786183200000, "name": "MARIO", "player": "MARIO", "color": "blue", "playerSide": 1, "score": 84200 },
+        { "id": 2026080802, "startedAt": 1786186800000, "createdAt": 1786186800000, "name": "LUIGI", "player": "LUIGI", "color": "red", "playerSide": 2, "score": 67500 },
+        { "id": 2026080803, "startedAt": 1786190400000, "createdAt": 1786190400000, "name": "SAM", "player": "SAM", "color": "blue", "playerSide": 1, "score": 43100 }
+      ]
+    },
+    {
+      "date": "2026-08-09",
+      "entries": [
+        { "id": 2026080901, "startedAt": 1786269600000, "createdAt": 1786269600000, "name": "ANNA", "player": "ANNA", "color": "red", "playerSide": 2, "score": 119400 },
+        { "id": 2026080902, "startedAt": 1786273200000, "createdAt": 1786273200000, "name": "TONI", "player": "TONI", "color": "blue", "playerSide": 1, "score": 95800 },
+        { "id": 2026080903, "startedAt": 1786276800000, "createdAt": 1786276800000, "name": "MAX", "player": "MAX", "color": "red", "playerSide": 2, "score": 51200 }
+      ]
+    },
+    {
+      "date": "2026-08-10",
+      "entries": [
+        { "id": 2026081001, "startedAt": 1786356000000, "createdAt": 1786356000000, "name": "LEO", "player": "LEO", "color": "blue", "playerSide": 1, "score": 143700 },
+        { "id": 2026081002, "startedAt": 1786359600000, "createdAt": 1786359600000, "name": "NINA", "player": "NINA", "color": "red", "playerSide": 2, "score": 101300 },
+        { "id": 2026081003, "startedAt": 1786363200000, "createdAt": 1786363200000, "name": "KIM", "player": "KIM", "color": "blue", "playerSide": 1, "score": 78600 }
+      ]
+    },
+    {
+      "date": "2026-08-11",
+      "entries": [
+        { "id": 2026081101, "startedAt": 1786442400000, "createdAt": 1786442400000, "name": "PASA", "player": "PASA", "color": "red", "playerSide": 2, "score": 186900 },
+        { "id": 2026081102, "startedAt": 1786446000000, "createdAt": 1786446000000, "name": "MARTIN", "player": "MARTIN", "color": "blue", "playerSide": 1, "score": 124500 },
+        { "id": 2026081103, "startedAt": 1786449600000, "createdAt": 1786449600000, "name": "IVA", "player": "IVA", "color": "red", "playerSide": 2, "score": 69300 }
+      ]
+    },
+    {
+      "date": "2026-08-12",
+      "entries": [
+        { "id": 2026081201, "startedAt": 1786528800000, "createdAt": 1786528800000, "name": "TOBI", "player": "TOBI", "color": "blue", "playerSide": 1, "score": 215600 },
+        { "id": 2026081202, "startedAt": 1786532400000, "createdAt": 1786532400000, "name": "SARA", "player": "SARA", "color": "red", "playerSide": 2, "score": 157800 },
+        { "id": 2026081203, "startedAt": 1786536000000, "createdAt": 1786536000000, "name": "BEN", "player": "BEN", "color": "blue", "playerSide": 1, "score": 88700 }
+      ]
+    },
+    {
+      "date": "2026-08-13",
+      "entries": [
+        { "id": 2026081301, "startedAt": 1786615200000, "createdAt": 1786615200000, "name": "ELI", "player": "ELI", "color": "red", "playerSide": 2, "score": 264300 },
+        { "id": 2026081302, "startedAt": 1786618800000, "createdAt": 1786618800000, "name": "NOAH", "player": "NOAH", "color": "blue", "playerSide": 1, "score": 178400 },
+        { "id": 2026081303, "startedAt": 1786622400000, "createdAt": 1786622400000, "name": "MIA", "player": "MIA", "color": "red", "playerSide": 2, "score": 112900 }
+      ]
+    },
+    {
+      "date": "2026-08-14",
+      "entries": [
+        { "id": 2026081401, "startedAt": 1786701600000, "createdAt": 1786701600000, "name": "TOLSTOJ", "player": "TOLSTOJ", "color": "blue", "playerSide": 1, "score": 312700 },
+        { "id": 2026081402, "startedAt": 1786705200000, "createdAt": 1786705200000, "name": "ZOE", "player": "ZOE", "color": "red", "playerSide": 2, "score": 203500 },
+        { "id": 2026081403, "startedAt": 1786708800000, "createdAt": 1786708800000, "name": "FINN", "player": "FINN", "color": "blue", "playerSide": 1, "score": 136200 }
+      ]
+    }
+  ],
+  "allTimeTop20": []
+}

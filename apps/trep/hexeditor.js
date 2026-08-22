@@ -675,6 +675,52 @@ function parseTrepMetadata(text = "") {
   return metadata;
 }
 
+function applyTrepTileMetadata(metadata, symbols, romSize) {
+  if (!Array.isArray(metadata.tileRegions) || !Array.isArray(metadata.tileSets)) return 0;
+
+  const definitions = {};
+  for (const region of metadata.tileRegions) {
+    const name = String(region.name || "").trim();
+    const start = metadataRomOffset(region.symbol, symbols)
+      ?? metadataRomOffset(region.start, symbols);
+    const tileCount = Number(region.tileCount);
+    const bitsPerPixel = Number(region.bitsPerPixel);
+    const bytesPerTile = bitsPerPixel === 1 ? 8 : bitsPerPixel === 2 ? 16 : 0;
+    if (!name || start === null || !Number.isInteger(tileCount) || tileCount < 1 || !bytesPerTile) {
+      throw new Error(`Invalid tile-region definition${name ? ` for "${name}"` : ""}.`);
+    }
+    if (start + tileCount * bytesPerTile > romSize) {
+      throw new Error(`Tile region "${name}" lies outside the selected ROM.`);
+    }
+    definitions[name] = [
+      start.toString(16).toUpperCase().padStart(4, "0"),
+      tileCount,
+      bitsPerPixel,
+      region.show !== false
+    ];
+  }
+
+  const sets = {};
+  for (const tileSet of metadata.tileSets) {
+    const name = String(tileSet.name || "").trim();
+    if (!name || !Array.isArray(tileSet.regions) || !tileSet.regions.length) {
+      throw new Error(`Invalid tile-set definition${name ? ` for "${name}"` : ""}.`);
+    }
+    sets[name] = tileSet.regions.map(regionName => {
+      if (!definitions[regionName]) {
+        throw new Error(`Tile set "${name}" refers to unknown region "${regionName}".`);
+      }
+      return definitions[regionName];
+    });
+  }
+
+  Object.keys(tileAddressesInROM).forEach(key => delete tileAddressesInROM[key]);
+  Object.assign(tileAddressesInROM, definitions);
+  Object.keys(vRamTileSets).forEach(key => delete vRamTileSets[key]);
+  Object.assign(vRamTileSets, sets);
+  return Object.keys(definitions).length + Object.keys(sets).length;
+}
+
 function metadataRomOffset(value, symbols) {
   if (typeof value === "number" && Number.isInteger(value) && value >= 0) return value;
   if (typeof value === "string") {
@@ -768,7 +814,7 @@ function linkerDisplayName(symbol) {
 
 function inferLayoutDimensions(symbol, byteLength) {
   const explicit = {
-    GameInnerScreenLayout_Pause: [8, 10],
+    GameInnerScreenLayout_Pause: [10, 3],
     GameScreenLayout_ScoreTotals: [10, 18],
     GameInnerScreenLayout_GameOver: [8, 6]
   };
@@ -811,11 +857,16 @@ function buildLinkerSidebarDefinitions(symbols) {
   if (asciiGroup && titleGroup) {
     vRamTileSets[titleGroup.setName] = [asciiGroup.definition, titleGroup.definition];
   }
-  if (asciiGroup && titleGroup && menuGroup) {
-    const prefixName = `${titleGroup.name} Menu Prefix`;
-    const prefixTiles = Math.min(9, titleGroup.definition[1]);
-    tileAddressesInROM[prefixName] = [titleGroup.definition[0], prefixTiles, titleGroup.definition[2], false];
-    vRamTileSets[menuGroup.setName] = [asciiGroup.definition, tileAddressesInROM[prefixName], menuGroup.definition];
+  if (asciiGroup && menuGroup) {
+    const menuSet = [asciiGroup.definition];
+    if (titleGroup) {
+      const prefixName = `${titleGroup.name} Menu Prefix`;
+      const prefixTiles = Math.min(9, titleGroup.definition[1]);
+      tileAddressesInROM[prefixName] = [titleGroup.definition[0], prefixTiles, titleGroup.definition[2], false];
+      menuSet.push(tileAddressesInROM[prefixName]);
+    }
+    menuSet.push(menuGroup.definition);
+    vRamTileSets[menuGroup.setName] = menuSet;
   }
   if (rocketGroup) vRamTileSets[rocketGroup.setName] = [rocketGroup.definition];
 
@@ -1206,6 +1257,7 @@ async function validateFile(selectedFiles) {
   ggButton.setAttribute("aria-expanded", String(!gameGenieWarningActive));
   document.getElementById("ggCodesInlineWarning").hidden = !gameGenieWarningActive;
   let resolvedLinkerAddresses = 0;
+  let resolvedMetadataTiles = 0;
   let resolvedMetadataMaps = 0;
   let loadedLinkerSymbols = null;
   if (symFile || mapFile) {
@@ -1229,6 +1281,7 @@ async function validateFile(selectedFiles) {
   if (metadataFile) {
     try {
       const metadata = parseTrepMetadata(await metadataFile.text());
+      resolvedMetadataTiles = applyTrepTileMetadata(metadata, loadedLinkerSymbols || new Map(), file.size);
       resolvedMetadataMaps = applyTrepMetadata(metadata, loadedLinkerSymbols || new Map(), file.size);
     } catch (error) {
       hideLoadingAnimation();
@@ -1274,6 +1327,9 @@ async function validateFile(selectedFiles) {
         addToLog(`${resolvedLinkerAddresses} tile/BG-map addresses resolved from RGBDS linker files`);
       }
       if (metadataFile) {
+        if (resolvedMetadataTiles) {
+          addToLog(`${resolvedMetadataTiles} tile regions/sets loaded from ${metadataFile.name}`);
+        }
         addToLog(`${resolvedMetadataMaps} BG maps loaded from ${metadataFile.name}`);
       }
       if (!isVerifiedOriginalRom) {

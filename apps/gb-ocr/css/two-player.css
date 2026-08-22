@@ -3508,6 +3508,132 @@ body {
   margin: 0 0 var(--gap-sm);
 }
 
+.daysExportMenu {
+  position: relative;
+}
+
+.daysExportMenu > summary {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-height);
+  padding: 8px 16px;
+  background: var(--panel-light);
+  color: var(--shade-black);
+  border: 2px solid var(--shade-black);
+  border-radius: var(--radius-small);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  list-style: none;
+}
+
+.daysExportMenu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.daysExportMenu > summary::after {
+  content: "▾";
+  margin-left: 8px;
+  font-size: 11px;
+}
+
+.daysExportMenu > summary:hover,
+.daysExportMenu[open] > summary {
+  background: var(--shade-black);
+  color: var(--shade-white);
+  border-radius: var(--radius-small) var(--radius-small) 0 0;
+}
+
+.daysExportMenu > summary:focus-visible {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+.daysExportMenu.disabled > summary {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.daysExportChoices {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% - 2px);
+  right: 0;
+  display: grid;
+  min-width: 100%;
+  padding: 0;
+  background: var(--panel-light);
+  border: 2px solid var(--shade-black);
+  border-radius: 0 0 var(--radius-small) var(--radius-small);
+  box-shadow: 0 8px 18px var(--black-shadow-soft);
+  overflow: hidden;
+}
+
+.daysExportChoices button {
+  width: 100%;
+  min-height: var(--control-height);
+  padding: 8px 16px;
+  background: var(--panel-light);
+  color: var(--shade-black);
+  border: 0;
+  border-bottom: 1px solid var(--border-section);
+  border-radius: 0;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.daysExportChoices button:last-child {
+  border-bottom: 0;
+}
+
+.daysExportChoices button:hover,
+.daysExportChoices button:focus-visible {
+  background: var(--shade-black);
+  color: var(--shade-white);
+}
+
+.leaderboardExportDayPicker {
+  display: grid;
+  gap: var(--gap-md);
+  min-width: min(360px, 75vw);
+  text-align: left;
+}
+
+.leaderboardExportDayTools {
+  display: flex;
+  gap: var(--gap-sm);
+}
+
+.leaderboardExportDayTools button {
+  min-height: 30px;
+  padding: 4px 10px;
+}
+
+.leaderboardExportDayList {
+  display: grid;
+  gap: 4px;
+  max-height: min(360px, 55vh);
+  overflow-y: auto;
+}
+
+.leaderboardExportDayList label {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: 7px 9px;
+  border: 1px solid var(--border-section);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.leaderboardExportDayList label:hover {
+  background: rgba(47, 140, 255, 0.1);
+}
+
 .gameModuleSettingsFields .gameModuleEnabledToggle {
   display: inline-flex;
   align-items: center;
