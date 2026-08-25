@@ -354,6 +354,11 @@ function saveTileSetAsPNG(address, nTiles, name, nCols) {
 // Function to get the corresponding value for a given tileSetTitle and property
 function getTileSetProperty(tileSetTitle, property) {
 
+  const metadataExport = metadataTileExportData.get(tileSetTitle);
+  if (metadataExport && metadataExport[property] != null) {
+    return metadataExport[property];
+  }
+
   const index = tileExportData.oNames.indexOf(tileSetTitle);
   if (index !== -1) {
     switch (property) {

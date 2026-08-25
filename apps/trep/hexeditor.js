@@ -16,6 +16,12 @@ let e_searchInput;
 let autoApply = false;
 let tileDataReady = Promise.resolve();
 let activeBGMapName = "";
+let activeBGMapDraft = null;
+let sessionBGMapCounter = 0;
+const sessionBGMaps = new Map();
+let draggedBGMapRegionRow = null;
+let visualBGMapRegionRow = null;
+let visualBGMapRangeStart = null;
 let bgPreviewRefreshFrame = null;
 const dirtyBGMapPreviews = new Set();
 let pendingHeaderCell = null;
@@ -31,6 +37,7 @@ let defaultTileDefinitions = null;
 let defaultBGMapDefinitions = null;
 let defaultVramDefinitions = null;
 const stagedRomFiles = new Map();
+const metadataTileExportData = new Map();
 
 const linkerTileSymbols = {
   "ABC": ["Gfx_Ascii", 0],
@@ -137,6 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeToastCloseButtons();
   initializeBGMapList();
   initializeBGMapBinImportDialog();
+  initializeBGMapLayoutControls();
   document.getElementById("toggleGGCodes").addEventListener("click", event => {
     const content = document.getElementById("ggCodesContent");
     content.hidden = false;
@@ -442,6 +450,9 @@ function renderStagedRomFiles() {
   ];
   slots.forEach(slot => {
     const entry = entries.find(candidate => candidate.type === slot.type);
+    const entryKey = entry
+      ? Array.from(stagedRomFiles.entries()).find(([, candidate]) => candidate === entry)?.[0]
+      : null;
     const row = document.createElement("tr");
     row.classList.toggle("is-missing", !entry);
     const nameCell = document.createElement("td");
@@ -454,7 +465,22 @@ function renderStagedRomFiles() {
     readyCell.className = "rom-file-ready";
     readyCell.textContent = entry ? "✓" : "";
     readyCell.setAttribute("aria-label", entry ? "File added" : "File missing");
-    row.append(nameCell, typeCell, sizeCell, readyCell);
+    const removeCell = document.createElement("td");
+    removeCell.className = "rom-file-remove-cell";
+    if (entry && entryKey) {
+      const removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "rom-file-remove";
+      removeButton.textContent = "×";
+      removeButton.setAttribute("aria-label", `Remove ${entry.file.name}`);
+      removeButton.title = `Remove ${entry.file.name}`;
+      removeButton.addEventListener("click", () => {
+        stagedRomFiles.delete(entryKey);
+        renderStagedRomFiles();
+      });
+      removeCell.appendChild(removeButton);
+    }
+    row.append(nameCell, typeCell, sizeCell, readyCell, removeCell);
     body.append(row);
   });
   updateStagedRomFileValidity();
@@ -620,6 +646,527 @@ function refreshBGMapPreviews() {
   for (const name of Object.keys(bgMaps)) renderBGMapPreview(name);
 }
 
+function getBGMapEditorBytes() {
+  return Uint8Array.from(document.querySelectorAll("#selectable li img"), image =>
+    parseInt(image.dataset.tileId || "00", 16) || 0
+  );
+}
+
+function downloadBytesAsBin(bytes, filename) {
+  const url = URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename || "background-map.bin";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function createSessionBGMapPreview(map) {
+  assignVramTileSet(vRamTileSets[map.tileSet], false);
+  const scale = 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = map.columns * 8 * scale;
+  canvas.height = map.rows * 8 * scale;
+  const context = canvas.getContext("2d");
+  context.imageSmoothingEnabled = false;
+  const colors = Array.from({ length: 4 }, (_, index) =>
+    document.getElementById(`color-picker-${index}`).value
+  );
+  context.fillStyle = colors[0];
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  map.bytes.forEach((byte, index) => {
+    const tileId = byte.toString(16).padStart(2, "0").toUpperCase();
+    const tile = document.querySelector(`.tile[data-vram="${tileId}"]`);
+    if (!tile) return;
+    const tileX = (index % map.columns) * 8 * scale;
+    const tileY = Math.floor(index / map.columns) * 8 * scale;
+    tile.querySelectorAll(".pixel").forEach((pixel, pixelIndex) => {
+      const colorClass = Array.from(pixel.classList).find(name => /^col[0-3]$/.test(name));
+      context.fillStyle = colors[colorClass ? Number(colorClass.slice(3)) : 0];
+      context.fillRect(
+        tileX + pixelIndex % 8 * scale,
+        tileY + Math.floor(pixelIndex / 8) * scale,
+        scale,
+        scale
+      );
+    });
+  });
+  return canvas.toDataURL("image/png");
+}
+
+function storeActiveSessionBGMap() {
+  if (!activeBGMapDraft?.exportOnly || !activeBGMapDraft.copyName) return;
+  const key = activeBGMapDraft.sessionKey
+    || `copy:${Date.now()}`;
+  activeBGMapDraft.sessionKey = key;
+  sessionBGMaps.set(key, {
+    ...activeBGMapDraft,
+    bytes: getBGMapEditorBytes()
+  });
+  renderSessionBGMapList();
+}
+
+function renderSessionBGMapList() {
+  const section = document.getElementById("sessionBGMapsSection");
+  const list = document.getElementById("sessionBGMapList");
+  list.replaceChildren();
+  section.hidden = sessionBGMaps.size === 0;
+  sessionBGMaps.forEach((map, key) => {
+    const item = document.createElement("section");
+    item.className = "bg-map-item";
+    const label = document.createElement("div");
+    label.className = "bg-map-name";
+    label.textContent = map.copyName;
+    const meta = document.createElement("div");
+    meta.className = "bg-map-session-meta";
+    meta.textContent = `${map.columns}×${map.rows} tiles · ${map.tileSet} · ${map.filename}${map.sessionOnly ? "" : ` · Copy of ${map.name}`}`;
+    const previewButton = document.createElement("button");
+    previewButton.type = "button";
+    previewButton.className = "bg-map-entry";
+    previewButton.setAttribute("aria-label", `Open ${map.name}`);
+    const preview = document.createElement("img");
+    preview.className = "bg-map-preview";
+    preview.alt = `${map.name} preview`;
+    preview.src = createSessionBGMapPreview(map);
+    previewButton.appendChild(preview);
+    previewButton.addEventListener("click", () => openSessionBGMap(key));
+    const actions = document.createElement("div");
+    actions.className = "bg-map-actions";
+    const openButton = document.createElement("button");
+    openButton.type = "button";
+    openButton.textContent = "Open";
+    openButton.addEventListener("click", () => openSessionBGMap(key));
+    const downloadButton = document.createElement("button");
+    downloadButton.type = "button";
+    downloadButton.className = "secondary";
+    downloadButton.textContent = map.filename
+      ? `⇩ Download as "${map.filename}"`
+      : "⇩ Download .bin";
+    downloadButton.addEventListener("click", () => downloadBytesAsBin(map.bytes, map.filename));
+    actions.append(openButton, downloadButton);
+    item.append(label, meta, previewButton, actions);
+    list.appendChild(item);
+  });
+  if (activeBGMapDraft?.tileSet && vRamTileSets[activeBGMapDraft.tileSet]) {
+    assignVramTileSet(vRamTileSets[activeBGMapDraft.tileSet], false);
+  }
+}
+
+async function openSessionBGMap(key) {
+  await tileDataReady;
+  const stored = sessionBGMaps.get(key);
+  if (!stored) return;
+  activeBGMapName = stored.name;
+  activeBGMapDraft = { ...stored, bytes: undefined };
+  document.dispatchEvent(new Event("bgmaploaded"));
+  populateBGMapEditorSettings(stored.name, [null, stored.columns, stored.rows, stored.tileSet, stored.filename]);
+  wipeTilesFromLocalStorage();
+  assignVramTileSet(vRamTileSets[stored.tileSet]);
+  loadTileContentToVRAMGrid();
+  addMatrix(stored.columns, stored.rows);
+  document.querySelectorAll("#selectable li img").forEach((image, index) => {
+    const tileId = (stored.bytes[index] ?? stored.emptyTileId ?? 0).toString(16).padStart(2, "0").toUpperCase();
+    image.id = `bg-tile-${index.toString(16).padStart(2, "0").toUpperCase()}`;
+    image.style.imageRendering = "pixelated";
+    displayTileImageFromLocalStorage(tileId, image.id);
+    if (!image.dataset.tileId) image.dataset.tileId = tileId;
+  });
+  setBGMapExportOnly(true);
+  document.getElementById("BG-myModal").style.display = "flex";
+  enableKeyPressTracking();
+}
+
+function createBGMapRegionRow(name, definition) {
+  const totalTiles = Number(definition[1]);
+  const row = document.createElement("div");
+  row.className = "bg-map-region-row tile-set-settings";
+  row.dataset.regionName = name;
+
+  row.setAttribute("role", "checkbox");
+  row.setAttribute("aria-checked", "false");
+  row.tabIndex = 0;
+  const handle = document.createElement("span");
+  handle.className = "bg-map-region-handle";
+  handle.textContent = "⋮⋮";
+  handle.title = "Drag to change VRAM order";
+  handle.draggable = true;
+  const title = document.createElement("span");
+  title.textContent = `${name} (${totalTiles} tiles)`;
+
+  const startLabel = document.createElement("label");
+  startLabel.textContent = "Start ";
+  const start = document.createElement("input");
+  start.type = "number";
+  start.className = "bg-map-region-start";
+  start.min = "0";
+  start.max = String(Math.max(0, totalTiles - 1));
+  start.value = "0";
+  startLabel.appendChild(start);
+
+  const countLabel = document.createElement("label");
+  countLabel.textContent = "Tiles ";
+  const count = document.createElement("input");
+  count.type = "number";
+  count.className = "bg-map-region-count";
+  count.min = "1";
+  count.max = String(totalTiles);
+  count.value = String(totalTiles);
+  countLabel.appendChild(count);
+
+  const visualButton = document.createElement("button");
+  visualButton.type = "button";
+  visualButton.className = "secondary bg-map-region-visual-button";
+  visualButton.textContent = "Choose visually…";
+  visualButton.addEventListener("click", () => openBGMapVisualRangeDialog(row));
+
+  const toggleSelected = () => {
+    const selected = row.classList.toggle("is-selected");
+    row.setAttribute("aria-checked", String(selected));
+  };
+  row.addEventListener("click", event => {
+    if (event.target.closest("input, button, label, .bg-map-region-handle")) return;
+    toggleSelected();
+  });
+  row.addEventListener("keydown", event => {
+    if ((event.key === " " || event.key === "Enter") && event.target === row) {
+      event.preventDefault();
+      toggleSelected();
+    }
+  });
+  handle.addEventListener("dragstart", event => {
+    draggedBGMapRegionRow = row;
+    row.classList.add("is-dragging");
+    event.dataTransfer.effectAllowed = "move";
+  });
+  handle.addEventListener("dragend", () => {
+    row.classList.remove("is-dragging");
+    draggedBGMapRegionRow = null;
+  });
+  row.addEventListener("dragover", event => {
+    if (!draggedBGMapRegionRow || draggedBGMapRegionRow === row) return;
+    event.preventDefault();
+    const before = event.clientY < row.getBoundingClientRect().top + row.offsetHeight / 2;
+    row.parentElement.insertBefore(draggedBGMapRegionRow, before ? row : row.nextElementSibling);
+  });
+  row.append(handle, title, startLabel, countLabel, visualButton);
+  return row;
+}
+
+function openBGMapVisualRangeDialog(row) {
+  visualBGMapRegionRow = row;
+  visualBGMapRangeStart = null;
+  const name = row.dataset.regionName;
+  const definition = tileAddressesInROM[name];
+  const totalTiles = Number(definition[1]);
+  const bytesPerTile = Number(definition[2]) === 1 ? 8 : 16;
+  const baseAddress = parseInt(definition[0], 16);
+  const grid = document.getElementById("bgMapVisualRangeGrid");
+  grid.replaceChildren();
+  document.getElementById("bgMapVisualRangeTitle").textContent = `Choose ${name} tiles`;
+  document.getElementById("bgMapVisualRangeStatus").textContent = "Select the first tile.";
+  for (let index = 0; index < totalTiles; index++) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary bg-map-visual-tile";
+    button.dataset.tileIndex = index;
+    const address = (baseAddress + index * bytesPerTile).toString(16).toUpperCase();
+    const sourceTile = document.getElementById(`tileaddr-${address}`);
+    if (sourceTile) {
+      const preview = sourceTile.cloneNode(true);
+      preview.removeAttribute("id");
+      preview.removeAttribute("data-vram");
+      preview.querySelectorAll("[id]").forEach(element => element.removeAttribute("id"));
+      button.appendChild(preview);
+    }
+    const number = document.createElement("span");
+    number.textContent = String(index);
+    button.appendChild(number);
+    button.addEventListener("click", () => selectBGMapVisualRangeTile(index));
+    grid.appendChild(button);
+  }
+  document.getElementById("bgMapVisualRangeDialog").showModal();
+}
+
+function selectBGMapVisualRangeTile(index) {
+  const buttons = Array.from(document.querySelectorAll("#bgMapVisualRangeGrid .bg-map-visual-tile"));
+  if (visualBGMapRangeStart === null) {
+    visualBGMapRangeStart = index;
+    buttons.forEach(button => button.classList.toggle("is-first", Number(button.dataset.tileIndex) === index));
+    document.getElementById("bgMapVisualRangeStatus").textContent = "Select the last tile.";
+    return;
+  }
+  const first = Math.min(visualBGMapRangeStart, index);
+  const last = Math.max(visualBGMapRangeStart, index);
+  visualBGMapRegionRow.querySelector(".bg-map-region-start").value = first;
+  visualBGMapRegionRow.querySelector(".bg-map-region-count").value = last - first + 1;
+  visualBGMapRegionRow.classList.add("is-selected");
+  visualBGMapRegionRow.setAttribute("aria-checked", "true");
+  buttons.forEach(button => {
+    const tileIndex = Number(button.dataset.tileIndex);
+    button.classList.toggle("is-range", tileIndex >= first && tileIndex <= last);
+  });
+  document.getElementById("bgMapVisualRangeDialog").close();
+  visualBGMapRegionRow = null;
+  visualBGMapRangeStart = null;
+}
+
+function showBGMapRegionError(message = "") {
+  const error = document.getElementById("BGMapTileRegionError");
+  error.textContent = message;
+  error.hidden = !message;
+}
+
+function buildCustomBGMapTileSet() {
+  const rows = Array.from(document.querySelectorAll("#BGMapTileRegions .bg-map-region-row"));
+  const selected = [];
+  let combinedCount = 0;
+  for (const row of rows) {
+    if (!row.classList.contains("is-selected")) continue;
+    const name = row.dataset.regionName;
+    const definition = tileAddressesInROM[name];
+    const available = Number(definition[1]);
+    const startInput = row.querySelector(".bg-map-region-start");
+    const countInput = row.querySelector(".bg-map-region-count");
+    const start = Number(startInput.value);
+    const count = Number(countInput.value);
+    if (!Number.isInteger(start) || !Number.isInteger(count)
+      || start < 0 || count < 1 || start + count > available) {
+      showBGMapRegionError(`${name}: the selected range must stay within its ${available}-tile ROM group.`);
+      startInput.reportValidity();
+      return null;
+    }
+    combinedCount += count;
+    if (combinedCount > 256) {
+      showBGMapRegionError("A VRAM tileset can contain no more than 256 tiles.");
+      return null;
+    }
+    const bytesPerTile = Number(definition[2]) === 1 ? 8 : 16;
+    const address = (parseInt(definition[0], 16) + start * bytesPerTile)
+      .toString(16).toUpperCase().padStart(4, "0");
+    selected.push({
+      name,
+      start,
+      count,
+      definition: [address, count, definition[2], ...definition.slice(3)]
+    });
+  }
+  if (!selected.length) {
+    showBGMapRegionError("Select at least one ROM tile group.");
+    return null;
+  }
+  showBGMapRegionError();
+  return selected;
+}
+
+function populateBGMapEditorSettings(mapName, suppliedMapInfo = null) {
+  const mapInfo = suppliedMapInfo || bgMaps[mapName];
+  const select = document.getElementById("BGMapTileset");
+  select.replaceChildren();
+  const seen = new Set();
+  Object.entries(bgMaps).forEach(([name, info]) => {
+    if (seen.has(info[3])) return;
+    seen.add(info[3]);
+    select.add(new Option(`From BG map: ${name}`, info[3]));
+  });
+  Object.keys(vRamTileSets).forEach(name => {
+    if (!seen.has(name)) select.add(new Option(`Tileset: ${name}`, name));
+  });
+  select.add(new Option("Custom Tile Editor regions…", "__custom__"));
+  select.value = mapInfo[3];
+  document.getElementById("BGMapWidth").value = mapInfo[1];
+  document.getElementById("BGMapHeight").value = mapInfo[2];
+  document.getElementById("BGMapCopyName").value = activeBGMapDraft?.copyName || "";
+
+  const regions = document.getElementById("BGMapTileRegions");
+  regions.replaceChildren();
+  Object.entries(tileAddressesInROM).forEach(([name, definition]) => {
+    regions.appendChild(createBGMapRegionRow(name, definition));
+  });
+  if (activeBGMapDraft?.customRegions?.length) {
+    activeBGMapDraft.customRegions.forEach(region => {
+      const row = Array.from(regions.children)
+        .find(candidate => candidate.dataset.regionName === region.name);
+      if (!row) return;
+      row.classList.add("is-selected");
+      row.setAttribute("aria-checked", "true");
+      row.querySelector(".bg-map-region-start").value = region.start;
+      row.querySelector(".bg-map-region-count").value = region.count;
+      regions.appendChild(row);
+    });
+  }
+  showBGMapRegionError();
+  regions.hidden = true;
+}
+
+function setBGMapExportOnly(exportOnly) {
+  activeBGMapDraft.exportOnly = exportOnly;
+  document.getElementById("applyBGMap").hidden = exportOnly;
+  document.getElementById("downloadEditedBGMap").hidden = !exportOnly;
+  document.getElementById("BGMapExportNotice").hidden = !exportOnly;
+  document.getElementById("openBGMapSettings").textContent = exportOnly && activeBGMapDraft.copyName
+    ? "Edit copy…"
+    : "Create copy…";
+}
+
+function findKnownEmptyTileId(bytes = new Uint8Array()) {
+  const uniformTileIds = Array.from(document.querySelectorAll(".tile[data-vram]"))
+    .filter(tile => {
+      const pixels = Array.from(tile.querySelectorAll(".pixel"));
+      if (!pixels.length) return false;
+      const firstColor = Array.from(pixels[0].classList).find(name => /^col[0-3]$/.test(name));
+      return firstColor && pixels.every(pixel => pixel.classList.contains(firstColor));
+    })
+    .map(tile => tile.dataset.vram.toUpperCase());
+  if (!uniformTileIds.length) {
+    return document.querySelector(`#BG-vramgrid .BG-cell[id="${currentMino}"]`) ? currentMino : "00";
+  }
+  const counts = new Map(uniformTileIds.map(id => [id, 0]));
+  bytes.forEach(byte => {
+    const id = byte.toString(16).padStart(2, "0").toUpperCase();
+    if (counts.has(id)) counts.set(id, counts.get(id) + 1);
+  });
+  return uniformTileIds.sort((a, b) => counts.get(b) - counts.get(a))[0];
+}
+
+function rebuildBGMapDraft(columns, rows, tileSetName) {
+  const oldBytes = getBGMapEditorBytes();
+  const oldColumns = activeBGMapDraft.columns;
+  const oldRows = activeBGMapDraft.rows;
+  activeBGMapDraft.columns = columns;
+  activeBGMapDraft.rows = rows;
+  activeBGMapDraft.tileSet = tileSetName;
+  wipeTilesFromLocalStorage();
+  assignVramTileSet(vRamTileSets[tileSetName]);
+  loadTileContentToVRAMGrid();
+  const emptyTileId = findKnownEmptyTileId(oldBytes);
+  activeBGMapDraft.emptyTileId = emptyTileId;
+  addMatrix(columns, rows);
+  const images = document.querySelectorAll("#selectable li img");
+  images.forEach((image, index) => {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const oldIndex = row < oldRows && column < oldColumns ? row * oldColumns + column : -1;
+    const tileId = oldIndex >= 0
+      ? oldBytes[oldIndex].toString(16).padStart(2, "0").toUpperCase()
+      : emptyTileId;
+    image.id = `bg-tile-${index.toString(16).padStart(2, "0").toUpperCase()}`;
+    image.style.imageRendering = "pixelated";
+    displayTileImageFromLocalStorage(tileId, image.id);
+    if (!image.dataset.tileId) image.dataset.tileId = tileId;
+  });
+  setBGMapExportOnly(true);
+  storeActiveSessionBGMap();
+}
+
+function initializeBGMapLayoutControls() {
+  const tileset = document.getElementById("BGMapTileset");
+  const settingsDialog = document.getElementById("bgMapSettingsDialog");
+  tileset.addEventListener("change", () => {
+    document.getElementById("BGMapTileRegions").hidden = tileset.value !== "__custom__";
+    showBGMapRegionError();
+  });
+  document.getElementById("openBGMapSettings").addEventListener("click", () => {
+    const editingCopy = activeBGMapDraft.exportOnly && Boolean(activeBGMapDraft.copyName);
+    document.getElementById("bgMapSettingsTitle").textContent = editingCopy
+      ? "Edit background map copy"
+      : "Create background map copy";
+    document.getElementById("applyBGMapSettings").textContent = editingCopy
+      ? "Apply changes"
+      : "Create copy";
+    document.getElementById("BGMapWidth").value = activeBGMapDraft.columns;
+    document.getElementById("BGMapHeight").value = activeBGMapDraft.rows;
+    const copyNameInput = document.getElementById("BGMapCopyName");
+    copyNameInput.value = editingCopy ? activeBGMapDraft.copyName || "" : "";
+    tileset.value = activeBGMapDraft.customRegions ? "__custom__" : activeBGMapDraft.tileSet;
+    document.getElementById("BGMapTileRegions").hidden = tileset.value !== "__custom__";
+    showBGMapRegionError();
+    settingsDialog.showModal();
+    copyNameInput.focus();
+  });
+  document.getElementById("applyBGMapSettings").addEventListener("click", () => {
+    const widthInput = document.getElementById("BGMapWidth");
+    const heightInput = document.getElementById("BGMapHeight");
+    const columns = Number(widthInput.value);
+    const rows = Number(heightInput.value);
+    const copyNameInput = document.getElementById("BGMapCopyName");
+    let copyName = copyNameInput.value.trim();
+    if (copyName.toLowerCase().endsWith(".bin")) copyName = copyName.slice(0, -4).trim();
+    copyNameInput.value = copyName;
+    const filename = copyName ? `${copyName}.bin` : "";
+    if (!widthInput.reportValidity() || !heightInput.reportValidity()
+      || !copyNameInput.reportValidity()
+      || !Number.isInteger(columns) || columns < 1 || columns > 32
+      || !Number.isInteger(rows) || rows < 1 || rows > 32) return;
+    let tileSetName = tileset.value;
+    let customRegions = null;
+    if (tileSetName === "__custom__") {
+      customRegions = buildCustomBGMapTileSet();
+      if (!customRegions) return;
+      tileSetName = `Session custom ${Date.now()}`;
+      vRamTileSets[tileSetName] = customRegions.map(region => region.definition);
+      tileset.add(new Option("Custom Tile Editor regions", tileSetName));
+    }
+    const changed = !activeBGMapDraft.exportOnly
+      || columns !== activeBGMapDraft.columns
+      || rows !== activeBGMapDraft.rows
+      || tileSetName !== activeBGMapDraft.tileSet
+      || filename !== activeBGMapDraft.filename
+      || JSON.stringify(customRegions?.map(({ name, start, count }) => ({ name, start, count })))
+        !== JSON.stringify(activeBGMapDraft.customRegions || null);
+    activeBGMapDraft.copyName = copyName;
+    activeBGMapDraft.filename = filename;
+    activeBGMapDraft.customRegions = customRegions
+      ? customRegions.map(({ name, start, count }) => ({ name, start, count }))
+      : null;
+    if (changed) rebuildBGMapDraft(columns, rows, tileSetName);
+    settingsDialog.close();
+  });
+  document.getElementById("cancelBGMapSettings").addEventListener("click", () => settingsDialog.close());
+  document.getElementById("cancelBGMapVisualRange").addEventListener("click", () => {
+    document.getElementById("bgMapVisualRangeDialog").close();
+    visualBGMapRegionRow = null;
+    visualBGMapRangeStart = null;
+  });
+  document.getElementById("downloadEditedBGMap").addEventListener("click", () => {
+    if (!activeBGMapDraft.copyName) {
+      document.getElementById("openBGMapSettings").click();
+      return;
+    }
+    storeActiveSessionBGMap();
+    downloadBytesAsBin(sessionBGMaps.get(activeBGMapDraft.sessionKey).bytes, activeBGMapDraft.filename);
+    addToLog(`BG map exported as "${activeBGMapDraft.filename || "background-map.bin"}" (ROM unchanged).`);
+  });
+  document.getElementById("newSessionBGMap").addEventListener("click", async () => {
+    await tileDataReady;
+    const firstSet = Object.keys(vRamTileSets)[0];
+    if (!firstSet) return;
+    const name = `New BG Map ${++sessionBGMapCounter}`;
+    const filename = "";
+    activeBGMapName = name;
+    activeBGMapDraft = { name, columns:20, rows:18, tileSet:firstSet, filename, exportOnly:true, sessionOnly:true, sessionKey:`new:${sessionBGMapCounter}` };
+    populateBGMapEditorSettings(name, [null, 20, 18, firstSet, filename]);
+    wipeTilesFromLocalStorage();
+    assignVramTileSet(vRamTileSets[firstSet]);
+    loadTileContentToVRAMGrid();
+    const emptyTileId = findKnownEmptyTileId();
+    activeBGMapDraft.emptyTileId = emptyTileId;
+    addMatrix(20, 18);
+    document.querySelectorAll("#selectable li img").forEach((image, index) => {
+      image.id = `bg-tile-${index.toString(16).padStart(2, "0").toUpperCase()}`;
+      image.style.imageRendering = "pixelated";
+      displayTileImageFromLocalStorage(emptyTileId, image.id);
+      if (!image.dataset.tileId) image.dataset.tileId = emptyTileId;
+    });
+    setBGMapExportOnly(true);
+    storeActiveSessionBGMap();
+    document.getElementById("BG-myModal").style.display = "flex";
+    enableKeyPressTracking();
+    document.getElementById("openBGMapSettings").click();
+  });
+}
+
 async function isVerifiedOriginalTetrisRom(file) {
   if (file.size !== 32768) return false;
   const bytes = new Uint8Array(await file.arrayBuffer());
@@ -679,6 +1226,7 @@ function applyTrepTileMetadata(metadata, symbols, romSize) {
   if (!Array.isArray(metadata.tileRegions) || !Array.isArray(metadata.tileSets)) return 0;
 
   const definitions = {};
+  metadataTileExportData.clear();
   for (const region of metadata.tileRegions) {
     const name = String(region.name || "").trim();
     const start = metadataRomOffset(region.symbol, symbols)
@@ -698,6 +1246,13 @@ function applyTrepTileMetadata(metadata, symbols, romSize) {
       bitsPerPixel,
       region.show !== false
     ];
+    const filename = String(region.filename || "").trim();
+    if (filename) {
+      metadataTileExportData.set(name, {
+        name: filename.replace(/\.png$/i, ""),
+        width: Number(region.width) || null,
+      });
+    }
   }
 
   const sets = {};
@@ -733,25 +1288,41 @@ function metadataRomOffset(value, symbols) {
 
 function applyTrepMetadata(metadata, symbols, romSize) {
   let resolved = 0;
+  // Explicit project metadata is authoritative. Linker-only loading builds an
+  // inferred background-map catalog first; keeping those inferred entries
+  // here leaves duplicate rows whose generated tile-set names no longer exist
+  // after applyTrepTileMetadata replaces the tile definitions.
+  Object.keys(bgMaps).forEach(key => delete bgMaps[key]);
   for (const definition of metadata.backgroundMaps) {
     const name = String(definition.name || "").trim();
     const start = metadataRomOffset(definition.symbol, symbols)
       ?? metadataRomOffset(definition.start, symbols);
     const width = Number(definition.width);
     const height = Number(definition.height);
+    const visibleSize = width * height;
+    const fileSize = definition.fileSize == null ? visibleSize : Number(definition.fileSize);
     const tileSet = String(definition.tileSet || "").trim();
     if (!name || start === null || !Number.isInteger(width) || width < 1
-      || !Number.isInteger(height) || height < 1 || !tileSet) {
+      || !Number.isInteger(height) || height < 1
+      || !Number.isInteger(fileSize) || fileSize < visibleSize || !tileSet) {
       throw new Error(`Invalid background-map definition${name ? ` for "${name}"` : ""}.`);
     }
-    if (start + width * height > romSize) {
+    if (start + fileSize > romSize) {
       throw new Error(`Background map "${name}" lies outside the selected ROM.`);
     }
     if (!vRamTileSets[tileSet]) {
       throw new Error(`Background map "${name}" refers to unknown tile set "${tileSet}".`);
     }
     const filename = String(definition.filename || `${name.replace(/\s+/g, "_")}.bin`);
-    bgMaps[name] = [start.toString(16).toUpperCase().padStart(4, "0"), width, height, tileSet, filename];
+    bgMaps[name] = [
+      start.toString(16).toUpperCase().padStart(4, "0"),
+      width,
+      height,
+      tileSet,
+      filename,
+      null,
+      fileSize,
+    ];
     resolved++;
   }
   initializeBGMapList();
@@ -976,10 +1547,10 @@ async function saveBGMap() {
 //-----------------------------------------------------------------------------------------
 // Download a background map directly from its ROM address range.
 function downloadBGMapAsBin(bgMapName) {
-  const [startAddress, columns, rows, , bgMapFileName, gapValue] = bgMaps[bgMapName];
+  const [startAddress, columns, rows, , bgMapFileName, gapValue, fileSize] = bgMaps[bgMapName];
   const start = parseInt(startAddress, 16);
   const gap = gapValue ? parseInt(gapValue, 10) : 1;
-  const byteArray = new Uint8Array(columns * rows);
+  const byteArray = new Uint8Array(fileSize || columns * rows);
   for (let index = 0; index < byteArray.length; index++) {
     const address = (start + index * gap).toString(16).toUpperCase().padStart(4, "0");
     byteArray[index] = parseInt(document.getElementById(address).textContent, 16);
@@ -1008,8 +1579,8 @@ function chooseBGMapBin(bgMapName) {
   input.addEventListener("change", async () => {
     const file = input.files[0];
     if (!file) return;
-    const [, columns, rows] = bgMaps[bgMapName];
-    const expectedSize = columns * rows;
+    const [, columns, rows, , , , fileSize] = bgMaps[bgMapName];
+    const expectedSize = fileSize || columns * rows;
     if (file.size !== expectedSize) {
       displayToast("invalidBGMapBinSize");
       return;
@@ -1067,6 +1638,7 @@ function initializeBGMapBinImportDialog() {
 //------------------------------------------------------------------------------------------
 // close the bg map modal without saving
   function closeBGModal(){
+    storeActiveSessionBGMap();
     document.getElementById("BG-myModal").style.display = "none";
     
     // make sure, the key press event listeners are disabled once the modal closes
@@ -1859,6 +2431,17 @@ async function getBGMap(id, bgMap) {
 
   await tileDataReady;
   activeBGMapName = bgMap;
+  activeBGMapDraft = {
+    name: bgMap,
+    columns: bgMaps[bgMap][1],
+    rows: bgMaps[bgMap][2],
+    tileSet: bgMaps[bgMap][3],
+    filename: bgMaps[bgMap][4],
+    exportOnly: false,
+    sessionOnly: false
+  };
+  populateBGMapEditorSettings(bgMap);
+  setBGMapExportOnly(false);
   document.dispatchEvent(new Event("bgmaploaded"));
   document.querySelectorAll(".bg-map-entry").forEach(entry => {
     entry.classList.toggle("active", entry.dataset.bgMapName === bgMap);

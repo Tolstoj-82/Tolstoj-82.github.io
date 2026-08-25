@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TREP - Tolstoj's ROM Editor Plus</title>
-    <link rel="stylesheet" href="style.css?v=20260809-16">
+    <link rel="stylesheet" href="style.css?v=20260825-2">
     <link rel="stylesheet" href="../../assets/styles/mobile-app-warning.css?v=20260727-1">
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
@@ -24,7 +24,7 @@
         <p class="rom-settings-help">Choose a <b>.gb</b> alone for standard settings, or select its companion <b>.sym</b>, <b>.map</b>, and optional <b>.trep.json</b> files at the same time to resolve relocated addresses and project-specific layouts.</p>
         <div class="rom-file-staging" id="romFileStaging" hidden>
           <table class="rom-file-table" aria-label="Selected TREP files">
-            <thead><tr><th scope="col">File</th><th scope="col">Type</th><th scope="col">Size</th><th scope="col">Ready</th></tr></thead>
+            <thead><tr><th scope="col">File</th><th scope="col">Type</th><th scope="col">Size</th><th scope="col">Ready</th><th scope="col"><span class="visually-hidden">Remove</span></th></tr></thead>
             <tbody id="romFileTableBody"></tbody>
           </table>
           <p class="rom-file-status" id="romFileStatus" aria-live="polite"></p>
@@ -544,6 +544,15 @@
                   <h2>Edit Background Maps</h2>
                   <p><b>Select a Background Screen</b></p>
                   <div id="bgMapList" class="bg-map-list"></div>
+                  <section id="sessionBGMapsSection" class="bg-map-session-section" hidden>
+                    <b>Session-only .bin maps</b>
+                    <p>These maps are not part of the ROM.</p>
+                    <div id="sessionBGMapList" class="bg-map-list"></div>
+                  </section>
+                  <section class="bg-map-new-session">
+                    <button id="newSessionBGMap" class="bg-map-new-button" type="button" aria-label="Create a new session-only background map"><span aria-hidden="true">+</span></button>
+                    <div><b>New .bin BG map</b><br><small>Creates a map for this session only. It will not be added to the ROM.</small></div>
+                  </section>
                 </div>
             
                 <div id="tab3" class="tab-content" style="display: none;">
@@ -604,6 +613,10 @@
       <div id="BG-myModal" class="BG-modal">
         <div class="BG-modal-content">
           <button id="closeBGMapButton" class="modal-close-button" type="button" aria-label="Discard changes and close">&times;</button>
+          <div class="BG-map-toolbar">
+            <button id="openBGMapSettings" class="secondary" type="button">Create copy…</button>
+            <p id="BGMapExportNotice" class="gg-codes-inline-warning" hidden>Dimensions or tileset changed. This version is export-only and will not overwrite the ROM.</p>
+          </div>
           <div class="BG-center-container">
             <div class="BG-container">
               <div class="BG-playfieldgrid">
@@ -618,6 +631,7 @@
           <div class="BG-map-footer">
             <div class="button-group">
               <button id="applyBGMap">Save changes</button>
+              <button id="downloadEditedBGMap" type="button" hidden>⇩ Download .bin</button>
               <button id="discardBGMap" class="secondary">Discard changes</button>
               <input type="text" id="BGMapStartAddress" disabled style="display: none;">
               <div class="toggle-switch">
@@ -648,6 +662,34 @@
         <p><kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes the last placement or paint operation.</p>
         <div class="button-group">
           <button id="closeBGShortcutHelp" type="button">Close</button>
+        </div>
+      </dialog>
+
+      <dialog id="bgMapSettingsDialog" class="confirmation-dialog">
+        <b id="bgMapSettingsTitle">Create background map copy</b>
+        <p><b>Dimensions</b></p>
+        <div class="gg-inline-fields">
+          <label>Width <input id="BGMapWidth" type="number" min="1" max="32"></label>
+          <span aria-hidden="true">×</span>
+          <label>Height <input id="BGMapHeight" type="number" min="1" max="32"></label>
+        </div>
+        <p>New cells use the tileset's empty tile when TREP can identify one.</p>
+        <p><label><b>Tileset</b><br><select id="BGMapTileset"></select></label></p>
+        <div id="BGMapTileRegions" hidden></div>
+        <p id="BGMapTileRegionError" class="gg-codes-inline-warning" hidden></p>
+        <p><label><b>Copy name</b><br><input id="BGMapCopyName" type="text" required placeholder="background-map"></label></p>
+        <div class="button-group">
+          <button id="applyBGMapSettings" type="button">Create copy</button>
+          <button id="cancelBGMapSettings" class="secondary" type="button">Cancel</button>
+        </div>
+      </dialog>
+
+      <dialog id="bgMapVisualRangeDialog" class="confirmation-dialog bg-map-visual-range-dialog">
+        <b id="bgMapVisualRangeTitle">Choose tiles visually</b>
+        <p id="bgMapVisualRangeStatus">Select the first tile.</p>
+        <div id="bgMapVisualRangeGrid" class="bg-map-visual-range-grid"></div>
+        <div class="button-group">
+          <button id="cancelBGMapVisualRange" class="secondary" type="button">Cancel</button>
         </div>
       </dialog>
 
@@ -739,8 +781,8 @@
 
     <!-- JAVA SCRIPT FILES -->
     <!-- OLD -->
-    <script src="hexeditor.js?v=20260809-22"></script>
-    <script src="tileEditor.js?v=20260807-1"></script>    
+    <script src="hexeditor.js?v=20260825-2"></script>
+    <script src="tileEditor.js?v=20260823-1"></script>
     <script src="gamegenie.js"></script>
     <script src="lookup.js"></script>
     <script src="modal.js"></script>
