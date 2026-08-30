@@ -696,6 +696,29 @@ function createSessionBGMapPreview(map) {
   return canvas.toDataURL("image/png");
 }
 
+function chooseSessionBGMapBin(key) {
+  const map = sessionBGMaps.get(key);
+  if (!map) return;
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".bin,application/octet-stream";
+  input.addEventListener("change", async () => {
+    const file = input.files[0];
+    if (!file) return;
+    const expectedSize = map.columns * map.rows;
+    if (file.size !== expectedSize) {
+      displayToast("invalidBGMapBinSize");
+      return;
+    }
+    map.bytes = new Uint8Array(await file.arrayBuffer());
+    sessionBGMaps.set(key, map);
+    renderSessionBGMapList();
+    displayToast("bgMapBinImported");
+    addToLog(`Session background map "${map.copyName}" was loaded from "${file.name}"`);
+  }, { once: true });
+  input.click();
+}
+
 function storeActiveSessionBGMap() {
   if (!activeBGMapDraft?.exportOnly || !activeBGMapDraft.copyName) return;
   const key = activeBGMapDraft.sessionKey
@@ -734,10 +757,6 @@ function renderSessionBGMapList() {
     previewButton.addEventListener("click", () => openSessionBGMap(key));
     const actions = document.createElement("div");
     actions.className = "bg-map-actions";
-    const openButton = document.createElement("button");
-    openButton.type = "button";
-    openButton.textContent = "Open";
-    openButton.addEventListener("click", () => openSessionBGMap(key));
     const downloadButton = document.createElement("button");
     downloadButton.type = "button";
     downloadButton.className = "secondary";
@@ -745,7 +764,12 @@ function renderSessionBGMapList() {
       ? `⇩ Download as "${map.filename}"`
       : "⇩ Download .bin";
     downloadButton.addEventListener("click", () => downloadBytesAsBin(map.bytes, map.filename));
-    actions.append(openButton, downloadButton);
+    const uploadButton = document.createElement("button");
+    uploadButton.type = "button";
+    uploadButton.className = "upload-tile-set-button upload-bg-map-button";
+    uploadButton.textContent = "⇧ Upload a .bin";
+    uploadButton.addEventListener("click", () => chooseSessionBGMapBin(key));
+    actions.append(downloadButton, uploadButton);
     item.append(label, meta, previewButton, actions);
     list.appendChild(item);
   });
@@ -1003,7 +1027,7 @@ function populateBGMapEditorSettings(mapName, suppliedMapInfo = null) {
 function setBGMapExportOnly(exportOnly) {
   activeBGMapDraft.exportOnly = exportOnly;
   document.getElementById("applyBGMap").hidden = exportOnly;
-  document.getElementById("downloadEditedBGMap").hidden = !exportOnly;
+  document.getElementById("saveSessionBGMap").hidden = !exportOnly;
   document.getElementById("BGMapExportNotice").hidden = !exportOnly;
   document.getElementById("openBGMapSettings").textContent = exportOnly && activeBGMapDraft.copyName
     ? "Edit copy…"
@@ -1057,7 +1081,6 @@ function rebuildBGMapDraft(columns, rows, tileSetName) {
     if (!image.dataset.tileId) image.dataset.tileId = tileId;
   });
   setBGMapExportOnly(true);
-  storeActiveSessionBGMap();
 }
 
 function initializeBGMapLayoutControls() {
@@ -1086,6 +1109,7 @@ function initializeBGMapLayoutControls() {
     copyNameInput.focus();
   });
   document.getElementById("applyBGMapSettings").addEventListener("click", () => {
+    const editingStoredCopy = activeBGMapDraft.exportOnly && Boolean(activeBGMapDraft.copyName);
     const widthInput = document.getElementById("BGMapWidth");
     const heightInput = document.getElementById("BGMapHeight");
     const columns = Number(widthInput.value);
@@ -1121,6 +1145,7 @@ function initializeBGMapLayoutControls() {
       ? customRegions.map(({ name, start, count }) => ({ name, start, count }))
       : null;
     if (changed) rebuildBGMapDraft(columns, rows, tileSetName);
+    if (!editingStoredCopy) storeActiveSessionBGMap();
     settingsDialog.close();
   });
   document.getElementById("cancelBGMapSettings").addEventListener("click", () => settingsDialog.close());
@@ -1129,14 +1154,14 @@ function initializeBGMapLayoutControls() {
     visualBGMapRegionRow = null;
     visualBGMapRangeStart = null;
   });
-  document.getElementById("downloadEditedBGMap").addEventListener("click", () => {
+  document.getElementById("saveSessionBGMap").addEventListener("click", () => {
     if (!activeBGMapDraft.copyName) {
       document.getElementById("openBGMapSettings").click();
       return;
     }
     storeActiveSessionBGMap();
-    downloadBytesAsBin(sessionBGMaps.get(activeBGMapDraft.sessionKey).bytes, activeBGMapDraft.filename);
-    addToLog(`BG map exported as "${activeBGMapDraft.filename || "background-map.bin"}" (ROM unchanged).`);
+    addToLog(`Session background map "${activeBGMapDraft.copyName}" saved.`);
+    closeBGModal();
   });
   document.getElementById("newSessionBGMap").addEventListener("click", async () => {
     await tileDataReady;
@@ -1638,7 +1663,6 @@ function initializeBGMapBinImportDialog() {
 //------------------------------------------------------------------------------------------
 // close the bg map modal without saving
   function closeBGModal(){
-    storeActiveSessionBGMap();
     document.getElementById("BG-myModal").style.display = "none";
     
     // make sure, the key press event listeners are disabled once the modal closes
