@@ -31,7 +31,7 @@ const GAME_RECOGNITION_TOAST_MS = 3600;
 const BOXART_IMAGE_BASE_PATH = "Games/boxart/bigger/";
 const UNKNOWN_GAME_IMAGE_PATH = "assets/no_clue.png";
 const SCORE_DUPLICATE_CONFINEMENT_MS = 30000;
-const RANDOM_NAME_DUPLICATE_WINDOW_MS = 20000;
+const NAME_ACQUISITION_DUPLICATE_WINDOW_MS = 30000;
 const DEFAULT_ALL_TIME_CAROUSEL_INTERVAL_SECONDS = 6;
 const DEFAULT_ALL_TIME_CAROUSEL_DURATION_SECONDS = 6;
 const ALL_TIME_CAROUSEL_MIN_ENTRY_COUNT = 5;
@@ -965,6 +965,7 @@ function serializeScoreEntry(entry) {
     player: entry.player,
     name: entry.name || "",
     acquiredName: entry.acquiredName || "",
+    nameAcquiredFromModule: Boolean(entry.nameAcquiredFromModule),
     color: entry.color,
     playerSide: getScoreEntryPlayerSide(entry),
     score: entry.score,
@@ -1045,6 +1046,7 @@ function restoreTodayLeaderboard() {
       player: entry.player || entry.name || "Player",
       name: entry.name || "",
       acquiredName: entry.acquiredName || "",
+      nameAcquiredFromModule: Boolean(entry.nameAcquiredFromModule),
       color: entry.color === "red" ? "red" : "blue",
       playerSide: normalizeScoreEntryPlayerSide(entry.playerSide, entry.color),
       score: Number(entry.score),
@@ -4123,16 +4125,7 @@ function getScoreEntryCreatedAt(entry) {
   return Number(entry.createdAt) || Number(entry.startedAt) || 0;
 }
 
-function getScoreEntryNameKey(entry) {
-  return normalizePlayerNameKey(
-    entry.nameEntry?.value || entry.name || entry.player || "",
-  );
-}
-
-function reconcileRecentRandomNameDuplicates() {
-  if (randomPlayerNames.length === 0) return false;
-
-  const randomNameKeys = new Set(randomPlayerNames.map(normalizePlayerNameKey));
+function reconcileRecentNameAcquisitionDuplicates() {
   const candidates = sessionScores.filter((entry) => {
     return (
       !entry.demo &&
@@ -4169,25 +4162,25 @@ function reconcileRecentRandomNameDuplicates() {
       if (
         Math.abs(
           getScoreEntryCreatedAt(first) - getScoreEntryCreatedAt(second),
-        ) > RANDOM_NAME_DUPLICATE_WINDOW_MS
+        ) > NAME_ACQUISITION_DUPLICATE_WINDOW_MS
       ) {
         continue;
       }
 
-      const firstHasRandomName = randomNameKeys.has(
-        getScoreEntryNameKey(first),
-      );
-      const secondHasRandomName = randomNameKeys.has(
-        getScoreEntryNameKey(second),
-      );
+      const firstHasAcquiredName = Boolean(first.nameAcquiredFromModule);
+      const secondHasAcquiredName = Boolean(second.nameAcquiredFromModule);
 
-      if (firstHasRandomName === secondHasRandomName) continue;
+      if (firstHasAcquiredName === secondHasAcquiredName) continue;
 
-      const randomEntry = firstHasRandomName ? first : second;
-      const retainedEntry = firstHasRandomName ? second : first;
+      // A module-acquired name is strong evidence that this is the completed
+      // run. If OCR also created an otherwise identical nearby entry, discard
+      // only that unnamed/default-named copy. Equal scores without this
+      // provenance remain independent legitimate runs.
+      const retainedEntry = firstHasAcquiredName ? first : second;
+      const duplicateEntry = firstHasAcquiredName ? second : first;
 
-      removeIds.add(randomEntry.id);
-      replacements.set(randomEntry.id, retainedEntry.id);
+      removeIds.add(duplicateEntry.id);
+      replacements.set(duplicateEntry.id, retainedEntry.id);
     }
   }
 
@@ -4706,6 +4699,8 @@ function finishNameEntry(entry) {
     entry.acquiredName = "";
   }
 
+  entry.nameAcquiredFromModule = source === "module" && hadExplicitName;
+
   window.clearInterval(entry.nameEntry.timer);
   delete entry.nameEntry;
   releasePlayerAfterNameEntry(entry, { hadExplicitName, source });
@@ -4721,11 +4716,12 @@ function releasePlayerAfterNameEntry(entry, options = {}) {
 
   const stillReadingSameMetric = isPlayerStillReadingEntryScore(player, entry);
 
-  if (
-    options.source === "module" &&
-    !options.hadExplicitName &&
-    stillReadingSameMetric
-  ) {
+  // The leaderboard/name-entry screen can keep exposing the completed run's
+  // score while Start returns to gameplay, and the attract-mode demo can do
+  // the same shortly afterwards. Keep the finalized-entry guard until OCR
+  // observes a genuine new-game start signal; whether the module managed to
+  // read a name must not change the identity of the run.
+  if (options.source === "module" && stillReadingSameMetric) {
     player.runRestartBlocked = true;
     player.finalizedScore = entry.score;
     return;
@@ -5517,7 +5513,7 @@ function restartAllTimeCarouselCycle() {
 function renderScoreBoard() {
   dedupeActiveSessionScores();
 
-  if (reconcileRecentRandomNameDuplicates()) {
+  if (reconcileRecentNameAcquisitionDuplicates()) {
     saveTodayLeaderboard();
     rebuildAllTimeLeaderboardFromDays();
     scoreBoardSignature = "";
@@ -9467,6 +9463,7 @@ function normalizeImportedLeaderboardEntry(
     acquiredName: String(entry.acquiredName || "")
       .trim()
       .slice(0, MAX_SCORE_NAME_LENGTH),
+    nameAcquiredFromModule: Boolean(entry.nameAcquiredFromModule),
     color,
     playerSide,
     score,

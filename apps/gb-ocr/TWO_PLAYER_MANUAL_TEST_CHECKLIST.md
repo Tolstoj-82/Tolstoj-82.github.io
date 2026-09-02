@@ -151,6 +151,8 @@ Version Beta 1.4
 - [ ] Short screen-detection artefacts are bridged using the exported game grace setting.
 - [ ] A fully recognized lower OCR value replaces a previously misread higher value.
 - [ ] Duplicate score entries are blocked when the same finalized score is seen again after interceptor/offline screens.
+- [ ] After entering a leaderboard name, pressing Start, resetting to the legal screen, and allowing the attract-mode demo to begin does not duplicate the finalized score.
+- [ ] A completed module-acquired name keeps the finalized-run guard until OCR sees a genuine new-game start signal.
 - [ ] Numbers are formatted with commas, e.g. 12,345 and 1,234,567.
 - [ ] Current Rank panel appears only when there is rank content.
 - [ ] Current Rank panel says "Current Rank: #n" and adds the optional normal-weight all-time rank in parentheses.
