@@ -2533,6 +2533,18 @@ async function loadCameras() {
       player.cameraSelect.appendChild(option);
     });
 
+    // PZA: If camera gets plugged out then the camera does not show up
+    // anymore in the cameraSelect and cameraSelect.value is empty
+    // By checking player.cameraIsVisible together with
+    // player.cameraSelect.value we know that a previous working
+    // camera is now not working anymore. We try to restore it by
+    // checking if it reappears. Load camera is always called if
+    // a new camera is added or an old camera gets removed
+    if(!player.cameraSelect.value && player.cameraIsVisible) {
+      previous = player.cameraId
+    }
+    // End PZA
+    
     if (cameras.some((camera) => camera.deviceId === previous)) {
       player.cameraSelect.value = previous;
     }
@@ -2558,6 +2570,8 @@ async function loadCameras() {
 async function getAvailableCameras() {
   let permissionStream = null;
 
+  /* Need to get a stream to fetch the permission */
+  /* Without a permission no cameras are visible*/
   try {
     permissionStream = await navigator.mediaDevices.getUserMedia({
       video: true,
@@ -2577,6 +2591,12 @@ async function getAvailableCameras() {
 }
 
 async function startPlayerCamera(player) {
+  // PZA: Don't do anything if camera is already running.
+  if(player.cameraSelect.value == player.cameraId) {
+    return
+  }
+  // PZA: End
+
   stopCameraRecovery(player);
 
   if (player.stream) {
@@ -2608,6 +2628,11 @@ async function startPlayerCamera(player) {
   player.video.srcObject = player.stream;
   bindCameraRecovery(player);
   await player.video.play();
+
+  // PZA: Keep track of the camera state
+  player.cameraIsVisible = true;
+  player.cameraId = player.cameraSelect.value;
+  // PZA: End
 
   player.cameraRecovering = false;
   updatePlayerStatus(player);
