@@ -1,10 +1,8 @@
 const WIDTH = 160;
 const HEIGHT = 144;
 const TILE = 8;
-const LOCAL_STORAGE_KEY = "gbOcrHelper.games";
 const TWO_PLAYER_SETTINGS_KEY = "gbOcrHelper.twoPlayerSettings";
 const TWO_PLAYER_RANDOM_NAMES_KEY = "gbOcrHelper.twoPlayerRandomNames";
-const TWO_PLAYER_LEADERBOARD_PREFIX = "gbOcrHelper.twoPlayerLeaderboard.";
 const TWO_PLAYER_ALL_TIME_KEY = "gbOcrHelper.twoPlayerLeaderboard.allTime";
 const INTERCEPTOR_SETTINGS_URL = "GB-Interceptor-Settings/settings.json";
 const DEFAULT_THRESHOLDS = [64, 128, 192];
@@ -21,7 +19,6 @@ const MODULE_NAME_ENTRY_KEEPALIVE_SECONDS = 30;
 const MAX_SCORE_NAME_LENGTH = 12;
 const MAX_INLINE_LEADERBOARD_NAME_LENGTH = 10;
 const DEFAULT_TRACKED_SCREEN_NAME = "A-Type";
-const DEFAULT_SCREEN_DETECTION_GRACE_MS = 300;
 const STARTUP_RESTART_REQUIRED_MS = 10000;
 const GAME_RECOGNITION_WINDOW_MS = 20000;
 const GAME_RECOGNITION_PENDING_MS = 5000;
@@ -32,8 +29,6 @@ const BOXART_IMAGE_BASE_PATH = "Games/boxart/bigger/";
 const UNKNOWN_GAME_IMAGE_PATH = "assets/no_clue.png";
 const SCORE_DUPLICATE_CONFINEMENT_MS = 30000;
 const NAME_ACQUISITION_DUPLICATE_WINDOW_MS = 30000;
-const DEFAULT_ALL_TIME_CAROUSEL_INTERVAL_SECONDS = 6;
-const DEFAULT_ALL_TIME_CAROUSEL_DURATION_SECONDS = 6;
 const ALL_TIME_CAROUSEL_MIN_ENTRY_COUNT = 5;
 const ALL_TIME_CAROUSEL_MAX_ENTRY_COUNT = 20;
 const NEW_GAME_RESET_CONFIRM_MS = 650;
@@ -222,8 +217,8 @@ let allTimeCarouselInterval = null;
 let allTimeCarouselHideTimer = null;
 let allTimeCarouselVisible = false;
 let allTimeCarouselEnabled = true;
-let allTimeCarouselIntervalSeconds = DEFAULT_ALL_TIME_CAROUSEL_INTERVAL_SECONDS;
-let allTimeCarouselDurationSeconds = DEFAULT_ALL_TIME_CAROUSEL_DURATION_SECONDS;
+let allTimeCarouselIntervalSeconds = Normalizer.DEFAULT_ALL_TIME_CAROUSEL_INTERVAL_SECONDS;
+let allTimeCarouselDurationSeconds = Normalizer.DEFAULT_ALL_TIME_CAROUSEL_DURATION_SECONDS;
 let allTimeScrollDirection = 1;
 let allTimeScrollHoldUntil = 0;
 let allTimeScrollLastTime = 0;
@@ -231,7 +226,6 @@ let allTimeScrollPhase = "";
 let allTimeBoardPointerInside = false;
 const historySelectionState = createRowSelectionState();
 const namePoolSelectionState = createRowSelectionState();
-
 const sharedGameSelect = document.getElementById("sharedGameSelect");
 const scoreSettingSelect = document.getElementById("scoreSettingSelect");
 const topGameSetup = document.querySelector(".topGameSetup");
@@ -334,56 +328,16 @@ const gameSettingsTitle = gameSettingsModal?.querySelector("h2");
 let persistedSettings = getTwoPlayerSettings();
 rememberGame = persistedSettings.rememberGame !== false;
 allTimeCarouselEnabled = persistedSettings.allTimeCarousel?.enabled !== false;
-allTimeCarouselIntervalSeconds = normalizeAllTimeCarouselInterval(
+allTimeCarouselIntervalSeconds = Normalizer.normalizeAllTimeCarouselInterval(
   persistedSettings.allTimeCarousel?.intervalSeconds,
 );
-allTimeCarouselDurationSeconds = normalizeAllTimeCarouselDuration(
+allTimeCarouselDurationSeconds = Normalizer.normalizeAllTimeCarouselDuration(
   persistedSettings.allTimeCarousel?.durationSeconds,
   allTimeCarouselIntervalSeconds,
 );
 let activeCalibrationPlayer = null;
 let pendingPlayerCalibrationThresholds = null;
 let playerCalibrationDragIndex = -1;
-
-function getTodayDateKey() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function normalizeAllTimeCarouselInterval(value) {
-  const seconds = Number(value);
-
-  return Number.isFinite(seconds)
-    ? Math.max(1, Math.min(3600, Math.round(seconds)))
-    : DEFAULT_ALL_TIME_CAROUSEL_INTERVAL_SECONDS;
-}
-
-function normalizeAllTimeCarouselDuration(
-  value,
-  intervalSeconds = allTimeCarouselIntervalSeconds,
-) {
-  const seconds = Number(value);
-  const fallback = Math.min(
-    DEFAULT_ALL_TIME_CAROUSEL_DURATION_SECONDS,
-    intervalSeconds,
-  );
-
-  return Number.isFinite(seconds)
-    ? Math.max(1, Math.min(600, intervalSeconds, Math.round(seconds)))
-    : fallback;
-}
-
-function getTodayLeaderboardKey() {
-  return `${TWO_PLAYER_LEADERBOARD_PREFIX}${getTodayDateKey()}`;
-}
-
-function getLeaderboardStorageKey(dateKey) {
-  return `${TWO_PLAYER_LEADERBOARD_PREFIX}${dateKey}`;
-}
 
 function createPlayerState(number, label, color) {
   const canvas = document.getElementById(`player${number}Canvas`);
@@ -500,22 +454,8 @@ function createPlayerState(number, label, color) {
   };
 }
 
-function getSavedGames() {
-  try {
-    const games = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || {};
-
-    return Object.fromEntries(
-      Object.entries(games)
-        .filter(([, data]) => isValidProjectData(data))
-        .map(([name, data]) => [name, normalizeProjectData(data)]),
-    );
-  } catch {
-    return {};
-  }
-}
-
 function setSavedGames(games) {
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(games));
+  localStorage.setItem(LocalStorageManager.LOCAL_STORAGE_KEY, JSON.stringify(games));
 }
 
 function getTwoPlayerSettings() {
@@ -564,7 +504,7 @@ function saveTwoPlayerSettings() {
 function getTodayLeaderboard() {
   try {
     const data =
-      JSON.parse(localStorage.getItem(getTodayLeaderboardKey())) || [];
+      JSON.parse(localStorage.getItem(Helper.getTodayLeaderboardKey())) || [];
 
     return Array.isArray(data) ? data : [];
   } catch {
@@ -690,34 +630,6 @@ function normalizeScoreValueLabel(value) {
     .slice(0, 24);
 }
 
-function normalizeScoreStopScreen(value, gameData = selectedGame) {
-  const screenName = String(value || "");
-
-  if (!screenName) return "";
-
-  return (gameData?.screens || []).some((screen) => screen.name === screenName)
-    ? screenName
-    : "";
-}
-
-function normalizeScoreStopScreens(value, gameData = selectedGame) {
-  const values = Array.isArray(value)
-    ? value
-    : String(value || "")
-        .split(",")
-        .map((item) => item.trim());
-  const seen = new Set();
-
-  return values
-    .map((item) => normalizeScoreStopScreen(item, gameData))
-    .filter((screenName) => {
-      if (!screenName || seen.has(screenName)) return false;
-
-      seen.add(screenName);
-      return true;
-    });
-}
-
 function normalizeScoreFireworkScreens(value) {
   const values = Array.isArray(value) ? value : [];
   const validScreens = new Set(
@@ -751,58 +663,26 @@ function normalizeScoreDemoMetric(value, screenName, gameData = selectedGame) {
     : "";
 }
 
-function normalizeScoreDemoSequenceInput(value) {
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => Number(item))
-      .filter((item) => Number.isFinite(item))
-      .join(", ");
-  }
-
-  return parseScoreDemoSequence(value).join(", ");
-}
-
-function parseScoreDemoSequence(value) {
-  return String(value || "")
-    .replace(/[\[\]]/g, "")
-    .split(",")
-    .map((item) => item.trim())
-    .filter((item) => item !== "")
-    .map((item) => Number(item.trim()))
-    .filter((item) => Number.isFinite(item));
-}
-
-function normalizeScoreDemoStartValue(value, sequenceInput) {
-  const sequence = parseScoreDemoSequence(sequenceInput);
-  const number = Number(value);
-
-  if (!sequence.length) return "";
-  if (Number.isFinite(number) && sequence.includes(number))
-    return String(number);
-
-  return String(sequence[0]);
-}
-
 function normalizeDemoDetectorConfig(
   value,
   screenName = selectedScoreScreenName,
   gameData = selectedGame,
 ) {
   const mode = value?.mode === "held" ? "held" : "sequence";
-  const sequence = normalizeScoreDemoSequenceInput(
+  const sequence = Normalizer.normalizeScoreDemoSequenceInput(
     value?.sequence ?? value?.demoSequence,
   );
   const rawMetric = String(value?.metric ?? value?.demoMetric ?? "").trim();
   const metric = screenName
     ? normalizeScoreDemoMetric(rawMetric, screenName, gameData)
     : rawMetric;
-  const startValue = normalizeScoreDemoStartValue(
+  const startValue = Normalizer.normalizeScoreDemoStartValue(
     value?.startValue ?? value?.demoStartValue,
     sequence,
   );
   const created =
     value?.created === true || value?.demoDetectorCreated === true;
-  const stopScreens = normalizeScoreStopScreens(
+  const stopScreens = Normalizer.normalizeScoreStopScreens(
     value?.stopScreens ?? value?.trackUntilScreens ?? value?.stopScreen,
     gameData,
   );
@@ -834,7 +714,7 @@ function hasUsableDemoDetectorConfig(value = {}) {
   const metric = String(value.metric ?? value.demoMetric ?? "").trim();
   const mode =
     value.mode === "held" || value.demoMode === "held" ? "held" : "sequence";
-  const sequence = normalizeScoreDemoSequenceInput(
+  const sequence = Normalizer.normalizeScoreDemoSequenceInput(
     value.sequence ?? value.demoSequence,
   );
   const heldValue = String(
@@ -847,12 +727,12 @@ function hasUsableDemoDetectorConfig(value = {}) {
 function hasDemoDetectorDraftValues(value = {}) {
   return Boolean(
     String(value.metric ?? value.demoMetric ?? "").trim() ||
-    normalizeScoreDemoSequenceInput(value.sequence ?? value.demoSequence) ||
+    Normalizer.normalizeScoreDemoSequenceInput(value.sequence ?? value.demoSequence) ||
     String(value.startValue ?? value.demoStartValue ?? "").trim() ||
     String(
       value.heldValue ?? value.demoHeldValue ?? value.targetValue ?? "",
     ).trim() ||
-    normalizeScoreStopScreens(
+    Normalizer.normalizeScoreStopScreens(
       value.stopScreens ?? value.demoStopScreens ?? value.trackUntilScreens,
     ).length,
   );
@@ -860,7 +740,7 @@ function hasDemoDetectorDraftValues(value = {}) {
 
 function getScoreDemoDetectorConfig(setting = getSelectedScoreSetting()) {
   const config = getResolvedDemoDetectorConfig(setting);
-  const sequence = parseScoreDemoSequence(config?.sequence);
+  const sequence = Normalizer.parseScoreDemoSequence(config?.sequence);
   const metric = normalizeScoreDemoMetric(
     config?.metric,
     selectedScoreScreenName,
@@ -940,7 +820,7 @@ function getScoreEntryKey(entry) {
   return (
     entry.key ||
     [
-      entry.date || getTodayDateKey(),
+      entry.date || Helper.getTodayDateKey(),
       entry.game || "game",
       entry.startedAt || entry.id || "score",
       entry.id || entry.score || "entry",
@@ -953,7 +833,7 @@ function serializeScoreEntry(entry) {
   return {
     id: entry.id,
     key: getScoreEntryKey(entry),
-    date: entry.date || getTodayDateKey(),
+    date: entry.date || Helper.getTodayDateKey(),
     game: entry.game,
     scoreSettingKey: getScoreEntrySettingKey(entry),
     scoreScreen: entry.scoreScreen || "",
@@ -983,7 +863,7 @@ function saveTodayLeaderboard() {
     .map(serializeScoreEntry)
     .slice(0, MAX_SESSION_SCORES);
 
-  localStorage.setItem(getTodayLeaderboardKey(), JSON.stringify(entries));
+  localStorage.setItem(Helper.getTodayLeaderboardKey(), JSON.stringify(entries));
   saveAllTimeLeaderboard();
 }
 
@@ -1036,7 +916,7 @@ function restoreTodayLeaderboard() {
     .map((entry) => ({
       id: Number(entry.id) || ++sessionScoreId,
       key: entry.key || getScoreEntryKey(entry),
-      date: entry.date || getTodayDateKey(),
+      date: entry.date || Helper.getTodayDateKey(),
       game: entry.game || "",
       scoreSettingKey: getScoreEntrySettingKey(entry),
       scoreScreen: entry.scoreScreen || "",
@@ -1072,10 +952,10 @@ function getStoredLeaderboardDays() {
   for (let index = 0; index < localStorage.length; index++) {
     const key = localStorage.key(index);
 
-    if (!key?.startsWith(TWO_PLAYER_LEADERBOARD_PREFIX)) continue;
+    if (!key?.startsWith(Helper.TWO_PLAYER_LEADERBOARD_PREFIX)) continue;
     if (key === TWO_PLAYER_ALL_TIME_KEY) continue;
 
-    days.push(key.slice(TWO_PLAYER_LEADERBOARD_PREFIX.length));
+    days.push(key.slice(Helper.TWO_PLAYER_LEADERBOARD_PREFIX.length));
   }
 
   return days.sort((a, b) => b.localeCompare(a));
@@ -1091,11 +971,11 @@ function cleanupUnknownGameLeaderboardData() {
 
     if (knownEntries.length > 0) {
       localStorage.setItem(
-        getLeaderboardStorageKey(dateKey),
+        Helper.getLeaderboardStorageKey(dateKey),
         JSON.stringify(knownEntries),
       );
     } else {
-      localStorage.removeItem(getLeaderboardStorageKey(dateKey));
+      localStorage.removeItem(Helper.getLeaderboardStorageKey(dateKey));
     }
   });
 
@@ -1104,9 +984,9 @@ function cleanupUnknownGameLeaderboardData() {
 }
 
 function deleteStoredLeaderboardDay(dateKey) {
-  localStorage.removeItem(getLeaderboardStorageKey(dateKey));
+  localStorage.removeItem(Helper.getLeaderboardStorageKey(dateKey));
 
-  if (dateKey === getTodayDateKey()) {
+  if (dateKey === Helper.getTodayDateKey()) {
     sessionScores.forEach((entry) => {
       if (entry.nameEntry?.timer) {
         window.clearInterval(entry.nameEntry.timer);
@@ -1126,7 +1006,7 @@ function rebuildAllTimeLeaderboardFromDays() {
   getStoredLeaderboardDays().forEach((dateKey) => {
     try {
       const data =
-        JSON.parse(localStorage.getItem(getLeaderboardStorageKey(dateKey))) ||
+        JSON.parse(localStorage.getItem(Helper.getLeaderboardStorageKey(dateKey))) ||
         [];
 
       if (Array.isArray(data)) {
@@ -1853,18 +1733,18 @@ function normalizeScoreSettingsRecord(record) {
     item.metric = String(item.metric || "");
     item.minScore = normalizeScoreMinScore(item.minScore);
     item.valueLabel = normalizeScoreValueLabel(item.valueLabel);
-    item.stopScreens = normalizeScoreStopScreens(
+    item.stopScreens = Normalizer.normalizeScoreStopScreens(
       item.stopScreens ?? item.stopScreen,
     );
     item.stopScreen = item.stopScreens[0] || "";
     item.fireworkScreens = normalizeScoreFireworkScreens(item.fireworkScreens);
     item.demoMetric = normalizeScoreDemoMetric(item.demoMetric, item.screen);
-    item.demoSequence = normalizeScoreDemoSequenceInput(item.demoSequence);
-    item.demoStartValue = normalizeScoreDemoStartValue(
+    item.demoSequence = Normalizer.normalizeScoreDemoSequenceInput(item.demoSequence);
+    item.demoStartValue = Normalizer.normalizeScoreDemoStartValue(
       item.demoStartValue,
       item.demoSequence,
     );
-    item.demoStopScreens = normalizeScoreStopScreens(item.demoStopScreens);
+    item.demoStopScreens = Normalizer.normalizeScoreStopScreens(item.demoStopScreens);
     item.demoMode = item.demoMode === "held" ? "held" : "sequence";
     item.demoHeldValue = String(item.demoHeldValue ?? "").trim();
     item.demoHoldMs = Number.isFinite(Number(item.demoHoldMs))
@@ -1982,7 +1862,7 @@ function applySelectedScoreSetting() {
   selectedScoreMetricName = setting?.metric || "";
   selectedScoreMinScore = normalizeScoreMinScore(setting?.minScore);
   selectedScoreValueLabel = normalizeScoreValueLabel(setting?.valueLabel);
-  selectedScoreStopScreenNames = normalizeScoreStopScreens(
+  selectedScoreStopScreenNames = Normalizer.normalizeScoreStopScreens(
     setting?.stopScreens ?? setting?.stopScreen,
   );
   useFastOCR = record?.fastOCR !== false;
@@ -2341,7 +2221,7 @@ async function importProjectFiles(files) {
     try {
       const data = JSON.parse(await file.text());
 
-      if (!isValidProjectData(data)) {
+      if (!LocalStorageManager.isValidProjectData(data)) {
         showAlert(`${file.name} is not a valid OCR JSON.`);
         continue;
       }
@@ -2349,7 +2229,7 @@ async function importProjectFiles(files) {
       imported.push({
         name: data.game || file.name.replace(/\.json$/i, ""),
         timestamp: getProjectTimestamp(data, file),
-        data: normalizeProjectData(data),
+        data: Normalizer.normalizeProjectData(data),
       });
     } catch {
       showAlert(`${file.name} could not be imported.`);
@@ -2411,56 +2291,6 @@ function getProjectTimestamp(data, file) {
   return file.lastModified || 0;
 }
 
-function isValidProjectData(data) {
-  return data && Array.isArray(data.screens) && Array.isArray(data.tilesets);
-}
-
-function normalizeProjectData(data) {
-  return {
-    ...data,
-    boxartImage: String(data.boxartImage || ""),
-    boxartImages: Array.isArray(data.boxartImages)
-      ? data.boxartImages.map((item) => String(item || "")).filter(Boolean)
-      : data.boxartImage
-        ? [String(data.boxartImage)]
-        : [],
-    demoDetector: normalizeImportedGameDemoDetector(data.demoDetector, data),
-    recognitionScreen: String(data.recognitionScreen || ""),
-    settings: normalizeGameSettings(data.settings),
-    tilesets: (data.tilesets || []).map((tileset) => ({
-      ...tileset,
-      type: normalizeTilesetType(tileset.type),
-      scanPixels: normalizeScanPixels(tileset.scanPixels),
-      tiles: Array.isArray(tileset.tiles) ? tileset.tiles : [],
-    })),
-    screens: (data.screens || []).map((screen) => ({
-      ...screen,
-      identifierMatchCount: Number.isFinite(Number(screen.identifierMatchCount))
-        ? Number(screen.identifierMatchCount)
-        : "all",
-      demoDetector: normalizeDemoDetectorConfig(
-        screen.demoDetector,
-        screen.name,
-        data,
-      ),
-      identifiers: Array.isArray(screen.identifiers) ? screen.identifiers : [],
-      rois: Array.isArray(screen.rois) ? screen.rois : [],
-      achievements: normalizeImportedAchievements(screen.achievements),
-    })),
-  };
-}
-
-function normalizeGameSettings(settings = {}) {
-  const grace = Number(settings.screenDetectionGraceMs);
-
-  return {
-    screenDetectionGraceMs: Number.isFinite(grace)
-      ? Math.max(0, Math.min(1000, Math.round(grace)))
-      : DEFAULT_SCREEN_DETECTION_GRACE_MS,
-    stallOcrOnUnknownTiles: Boolean(settings.stallOcrOnUnknownTiles),
-  };
-}
-
 async function loadInterceptorSettings() {
   let settings = fallbackInterceptorSettings;
 
@@ -2478,7 +2308,7 @@ async function loadInterceptorSettings() {
     }
   }
 
-  const data = normalizeProjectData(settings);
+  const data = Normalizer.normalizeProjectData(settings);
   const screens = (data.screens || []).filter((screen) => {
     return Object.prototype.hasOwnProperty.call(
       interceptorScreenMessages,
@@ -2544,7 +2374,7 @@ async function loadCameras() {
       previous = player.cameraId
     }
     // End PZA
-    
+
     if (cameras.some((camera) => camera.deviceId === previous)) {
       player.cameraSelect.value = previous;
     }
@@ -3858,8 +3688,8 @@ function updateSessionScore(player, score, options = {}) {
 
     entry = {
       id: ++sessionScoreId,
-      key: `${getTodayDateKey()}-${selectedGameName || "game"}-${createdAt}-${sessionScoreId}`,
-      date: getTodayDateKey(),
+      key: `${Helper.getTodayDateKey()}-${selectedGameName || "game"}-${createdAt}-${sessionScoreId}`,
+      date: Helper.getTodayDateKey(),
       player: player.label,
       color: player.color,
       playerSide: getPlayerSide(player),
@@ -3929,7 +3759,7 @@ function hasDuplicateSettledOrNameEntryScore(player, score) {
 
   return sessionScores.some((entry) => {
     if (entry.active || entry.removingDemo || entry.demo) return false;
-    if (entry.date !== getTodayDateKey()) return false;
+    if (entry.date !== Helper.getTodayDateKey()) return false;
     if (entry.game !== selectedGameName) return false;
     if (entry.color !== player.color) return false;
     if (Number(entry.score) !== Number(score)) return false;
@@ -4155,7 +3985,7 @@ function reconcileRecentNameAcquisitionDuplicates() {
     return (
       !entry.demo &&
       !entry.removingDemo &&
-      entry.date === getTodayDateKey() &&
+      entry.date === Helper.getTodayDateKey() &&
       Number.isFinite(Number(entry.score)) &&
       getScoreEntryCreatedAt(entry) > 0
     );
@@ -4251,7 +4081,7 @@ function isCurrentSessionScore(entry) {
     entry.active &&
     !entry.nameEntry &&
     !entry.removingDemo &&
-    entry.date === getTodayDateKey()
+    entry.date === Helper.getTodayDateKey()
   );
 }
 
@@ -4931,10 +4761,6 @@ function normalizeScanPixels(scanPixels) {
     .sort((a, b) => a - b);
 }
 
-function normalizeTilesetType(type) {
-  return type === "counter" ? "counter" : "text-number";
-}
-
 function formatRegionValue(labels, type) {
   if (labels.length === 0) return "--";
 
@@ -5517,10 +5343,10 @@ function syncHighScoreCarouselControls() {
 
 function updateHighScoreCarouselSettings() {
   allTimeCarouselEnabled = highScoreCarouselEnabled.checked;
-  allTimeCarouselIntervalSeconds = normalizeAllTimeCarouselInterval(
+  allTimeCarouselIntervalSeconds = Normalizer.normalizeAllTimeCarouselInterval(
     highScoreCarouselInterval.value,
   );
-  allTimeCarouselDurationSeconds = normalizeAllTimeCarouselDuration(
+  allTimeCarouselDurationSeconds = Normalizer.normalizeAllTimeCarouselDuration(
     highScoreCarouselDuration.value,
     allTimeCarouselIntervalSeconds,
   );
@@ -5795,7 +5621,7 @@ function startHighScoreNameEdit(entry, label) {
     }
 
     updateStoredLeaderboardEntryName(
-      entry.date || getTodayDateKey(),
+      entry.date || Helper.getTodayDateKey(),
       entry,
       nextName,
     );
@@ -5807,7 +5633,7 @@ function startHighScoreNameEdit(entry, label) {
 }
 
 function deleteLeaderboardEntryWithUndo(entry) {
-  const dateKey = entry.date || getTodayDateKey();
+  const dateKey = entry.date || Helper.getTodayDateKey();
 
   pendingHighScoreUndo = {
     dateKey,
@@ -5853,13 +5679,13 @@ function restorePendingHighScoreEntry() {
   if (!stored.some((item) => getScoreEntryKey(item) === key)) {
     stored.push(entry);
     localStorage.setItem(
-      getLeaderboardStorageKey(dateKey),
+      Helper.getLeaderboardStorageKey(dateKey),
       JSON.stringify(stored),
     );
   }
 
   if (
-    dateKey === getTodayDateKey() &&
+    dateKey === Helper.getTodayDateKey() &&
     !sessionScores.some((item) => getScoreEntryKey(item) === key)
   ) {
     sessionScores.push({
@@ -6912,7 +6738,7 @@ function createGameScoreSettingRow(setting) {
     values: setting.stopScreens ?? setting.stopScreen,
     emptyText: "No stop screen",
     onChange: (values) => {
-      setting.stopScreens = normalizeScoreStopScreens(values);
+      setting.stopScreens = Normalizer.normalizeScoreStopScreens(values);
       setting.stopScreen = setting.stopScreens[0] || "";
       syncScoreSettingsAfterEdit({ resetRuns: true });
     },
@@ -6940,7 +6766,7 @@ function createGameScoreSettingRow(setting) {
     setting.screen = screen.value;
     setting.metric = nextMetric;
     setting.name = getScoreSettingLabel(setting);
-    setting.stopScreens = normalizeScoreStopScreens(
+    setting.stopScreens = Normalizer.normalizeScoreStopScreens(
       setting.stopScreens ?? setting.stopScreen,
     );
     setting.stopScreen = setting.stopScreens[0] || "";
@@ -6951,7 +6777,7 @@ function createGameScoreSettingRow(setting) {
       setting.demoMetric,
       setting.screen,
     );
-    setting.demoStartValue = normalizeScoreDemoStartValue(
+    setting.demoStartValue = Normalizer.normalizeScoreDemoStartValue(
       setting.demoStartValue,
       setting.demoSequence,
     );
@@ -7123,7 +6949,7 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
     values: config.stopScreens,
     emptyText: "No stop screen",
     onChange: (values) => {
-      current.stopScreens = normalizeScoreStopScreens(values);
+      current.stopScreens = Normalizer.normalizeScoreStopScreens(values);
       onChange(current);
       updateDemoDetectorValidation(
         block,
@@ -7138,12 +6964,12 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
     created: true,
     enabled: true,
     metric: config.metric || "",
-    sequence: normalizeScoreDemoSequenceInput(config.sequence),
-    startValue: normalizeScoreDemoStartValue(
+    sequence: Normalizer.normalizeScoreDemoSequenceInput(config.sequence),
+    startValue: Normalizer.normalizeScoreDemoStartValue(
       config.startValue,
       config.sequence,
     ),
-    stopScreens: normalizeScoreStopScreens(config.stopScreens),
+    stopScreens: Normalizer.normalizeScoreStopScreens(config.stopScreens),
     mode: config.mode === "held" ? "held" : "sequence",
     heldValue: String(config.heldValue ?? ""),
     holdMs: Number.isFinite(Number(config.holdMs))
@@ -7175,8 +7001,8 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
   sequence.placeholder = "";
   sequence.value = current.sequence;
   sequence.onchange = () => {
-    current.sequence = normalizeScoreDemoSequenceInput(sequence.value);
-    current.startValue = normalizeScoreDemoStartValue(
+    current.sequence = Normalizer.normalizeScoreDemoSequenceInput(sequence.value);
+    current.startValue = Normalizer.normalizeScoreDemoStartValue(
       current.startValue,
       current.sequence,
     );
@@ -7190,7 +7016,7 @@ function createDemoDetectorEditor({ config, metricNames, onChange, onRemove }) {
     current.startValue,
   );
   startValue.onchange = () => {
-    current.startValue = normalizeScoreDemoStartValue(
+    current.startValue = Normalizer.normalizeScoreDemoStartValue(
       startValue.value,
       current.sequence,
     );
@@ -7288,7 +7114,7 @@ function updateDemoDetectorValidation(
 ) {
   const heldMode = config.mode === "held";
   const sequenceMissing =
-    !heldMode && parseScoreDemoSequence(config.sequence).length === 0;
+    !heldMode && Normalizer.parseScoreDemoSequence(config.sequence).length === 0;
   const metricMissing = !String(config.metric || "").trim();
   const heldValueMissing = heldMode && !String(config.heldValue ?? "").trim();
 
@@ -7333,12 +7159,12 @@ function setSettingDemoDetectorConfig(setting, config) {
       (config.mode === "held" ? config.heldValue : config.sequence),
     );
   setting.demoMetric = config.metric || "";
-  setting.demoSequence = normalizeScoreDemoSequenceInput(config.sequence);
-  setting.demoStartValue = normalizeScoreDemoStartValue(
+  setting.demoSequence = Normalizer.normalizeScoreDemoSequenceInput(config.sequence);
+  setting.demoStartValue = Normalizer.normalizeScoreDemoStartValue(
     config.startValue,
     setting.demoSequence,
   );
-  setting.demoStopScreens = normalizeScoreStopScreens(config.stopScreens);
+  setting.demoStopScreens = Normalizer.normalizeScoreStopScreens(config.stopScreens);
   setting.demoMode = config.mode === "held" ? "held" : "sequence";
   setting.demoHeldValue = String(config.heldValue ?? "").trim();
   setting.demoHoldMs = Number.isFinite(Number(config.holdMs))
@@ -7364,7 +7190,7 @@ function createScreenMultiSelectDropdown({ values, emptyText, onChange }) {
   const root = document.createElement("div");
   const button = document.createElement("button");
   const menu = document.createElement("div");
-  let selected = normalizeScoreStopScreens(values);
+  let selected = Normalizer.normalizeScoreStopScreens(values);
 
   root.className = "multiSelectDropdown";
   button.type = "button";
@@ -7395,7 +7221,7 @@ function createScreenMultiSelectDropdown({ values, emptyText, onChange }) {
       selected = selected.includes(screenName)
         ? selected.filter((value) => value !== screenName)
         : [...selected, screenName];
-      selected = normalizeScoreStopScreens(selected);
+      selected = Normalizer.normalizeScoreStopScreens(selected);
       option.classList.toggle("selected", selected.includes(screenName));
       emitChange();
     };
@@ -7929,8 +7755,8 @@ function populateDemoMetricOptionsFromNames(select, names, value) {
 }
 
 function populateDemoStartValueOptions(select, setting) {
-  const sequence = parseScoreDemoSequence(setting.demoSequence);
-  const selected = normalizeScoreDemoStartValue(
+  const sequence = Normalizer.parseScoreDemoSequence(setting.demoSequence);
+  const selected = Normalizer.normalizeScoreDemoStartValue(
     setting.demoStartValue,
     setting.demoSequence,
   );
@@ -7963,8 +7789,8 @@ function populateDemoStartValueOptionsFromSequence(
   sequenceInput,
   value,
 ) {
-  const sequence = parseScoreDemoSequence(sequenceInput);
-  const selected = normalizeScoreDemoStartValue(value, sequenceInput);
+  const sequence = Normalizer.parseScoreDemoSequence(sequenceInput);
+  const selected = Normalizer.normalizeScoreDemoStartValue(value, sequenceInput);
 
   select.replaceChildren();
   select.disabled = sequence.length === 0;
@@ -8062,15 +7888,15 @@ function exportGameScoreSettings() {
 function serializeScoreSetting(item) {
   return {
     ...item,
-    stopScreens: normalizeScoreStopScreens(item.stopScreens ?? item.stopScreen),
+    stopScreens: Normalizer.normalizeScoreStopScreens(item.stopScreens ?? item.stopScreen),
     fireworkScreens: normalizeScoreFireworkScreens(item.fireworkScreens),
     demoMetric: normalizeScoreDemoMetric(item.demoMetric, item.screen),
-    demoSequence: normalizeScoreDemoSequenceInput(item.demoSequence),
-    demoStartValue: normalizeScoreDemoStartValue(
+    demoSequence: Normalizer.normalizeScoreDemoSequenceInput(item.demoSequence),
+    demoStartValue: Normalizer.normalizeScoreDemoStartValue(
       item.demoStartValue,
       item.demoSequence,
     ),
-    demoStopScreens: normalizeScoreStopScreens(item.demoStopScreens),
+    demoStopScreens: Normalizer.normalizeScoreStopScreens(item.demoStopScreens),
     demoMode: item.demoMode === "held" ? "held" : "sequence",
     demoHeldValue: String(item.demoHeldValue ?? "").trim(),
     demoHoldMs: Number(item.demoHoldMs) || 2000,
@@ -8084,16 +7910,16 @@ function serializeScoreSetting(item) {
 
 function serializeDemoDetectorConfig(config = {}, gameData = selectedGame) {
   const metric = String(config?.metric ?? config?.demoMetric ?? "").trim();
-  const sequence = normalizeScoreDemoSequenceInput(
+  const sequence = Normalizer.normalizeScoreDemoSequenceInput(
     config?.sequence ?? config?.demoSequence,
   );
-  const startValue = normalizeScoreDemoStartValue(
+  const startValue = Normalizer.normalizeScoreDemoStartValue(
     config?.startValue ?? config?.demoStartValue,
     sequence,
   );
   const created =
     config?.created === true || config?.demoDetectorCreated === true;
-  const stopScreens = normalizeScoreStopScreens(
+  const stopScreens = Normalizer.normalizeScoreStopScreens(
     config?.stopScreens ?? config?.trackUntilScreens ?? config?.stopScreen,
     gameData,
   );
@@ -8145,7 +7971,7 @@ function hasSerializedDemoDetector(config = {}) {
     metric ||
     sequence ||
     heldValue ||
-    normalizeScoreStopScreens(config.stopScreens).length,
+    Normalizer.normalizeScoreStopScreens(config.stopScreens).length,
   );
 
   return Boolean((config.created === true && hasDraftValues) || usable);
@@ -8177,19 +8003,19 @@ async function importGameScoreSettingsFile(file) {
       metric: String(item.metric || ""),
       minScore: normalizeScoreMinScore(item.minScore),
       valueLabel: normalizeScoreValueLabel(item.valueLabel),
-      stopScreens: normalizeScoreStopScreens(
+      stopScreens: Normalizer.normalizeScoreStopScreens(
         item.stopScreens ?? item.stopScreen,
       ),
       stopScreen:
-        normalizeScoreStopScreens(item.stopScreens ?? item.stopScreen)[0] || "",
+        Normalizer.normalizeScoreStopScreens(item.stopScreens ?? item.stopScreen)[0] || "",
       fireworkScreens: normalizeScoreFireworkScreens(item.fireworkScreens),
       demoMetric: normalizeScoreDemoMetric(item.demoMetric, item.screen),
-      demoSequence: normalizeScoreDemoSequenceInput(item.demoSequence),
-      demoStartValue: normalizeScoreDemoStartValue(
+      demoSequence: Normalizer.normalizeScoreDemoSequenceInput(item.demoSequence),
+      demoStartValue: Normalizer.normalizeScoreDemoStartValue(
         item.demoStartValue,
         item.demoSequence,
       ),
-      demoStopScreens: normalizeScoreStopScreens(item.demoStopScreens),
+      demoStopScreens: Normalizer.normalizeScoreStopScreens(item.demoStopScreens),
       demoMode: item.demoMode === "held" ? "held" : "sequence",
       demoHeldValue: String(item.demoHeldValue ?? "").trim(),
       demoHoldMs: Number(item.demoHoldMs) || 2000,
@@ -8676,7 +8502,7 @@ function createAllTimeEntryRow(entry, rankText) {
   const row = createScoreHistoryRow(entry, rankText, {
     showGame: false,
     editableName: true,
-    dateKey: entry.date || getTodayDateKey(),
+    dateKey: entry.date || Helper.getTodayDateKey(),
     selectable: true,
   });
   const del = document.createElement("button");
@@ -8688,7 +8514,7 @@ function createAllTimeEntryRow(entry, rankText) {
     showConfirm(
       `Delete all-time score ${formatScore(entry.score)}?`,
       () => {
-        deleteStoredLeaderboardEntry(entry.date || getTodayDateKey(), entry);
+        deleteStoredLeaderboardEntry(entry.date || Helper.getTodayDateKey(), entry);
         renderDaysModal();
         renderScoreBoard();
       },
@@ -8759,7 +8585,7 @@ function createScoreHistoryRow(entry, rankText = "", options = {}) {
     name.maxLength = MAX_SCORE_NAME_LENGTH;
     name.onchange = () => {
       updateStoredLeaderboardEntryName(
-        options.dateKey || entry.date || getTodayDateKey(),
+        options.dateKey || entry.date || Helper.getTodayDateKey(),
         entry,
         name.value,
       );
@@ -8774,7 +8600,7 @@ function createScoreHistoryRow(entry, rankText = "", options = {}) {
   score.textContent = formatScoreValue(entry);
 
   if (options.selectable) {
-    row.dataset.dateKey = options.dateKey || entry.date || getTodayDateKey();
+    row.dataset.dateKey = options.dateKey || entry.date || Helper.getTodayDateKey();
     row.dataset.entryKey = getScoreEntryKey(entry);
     row.tabIndex = 0;
     row.draggable = true;
@@ -9047,11 +8873,11 @@ function updateStoredLeaderboardEntryName(dateKey, entry, nextName) {
   });
 
   localStorage.setItem(
-    getLeaderboardStorageKey(dateKey),
+    Helper.getLeaderboardStorageKey(dateKey),
     JSON.stringify(entries),
   );
 
-  if (dateKey === getTodayDateKey()) {
+  if (dateKey === Helper.getTodayDateKey()) {
     sessionScores = sessionScores.map((item) => {
       if (getScoreEntryKey(item) !== key) return item;
 
@@ -9517,11 +9343,11 @@ function mergeLeaderboardDayEntries(dateKey, importedEntries) {
   });
 
   localStorage.setItem(
-    getLeaderboardStorageKey(dateKey),
+    Helper.getLeaderboardStorageKey(dateKey),
     JSON.stringify([...byKey.values()]),
   );
 
-  if (dateKey === getTodayDateKey()) {
+  if (dateKey === Helper.getTodayDateKey()) {
     mergeImportedTodaySessionEntries(serializedEntries);
   }
 }
@@ -9563,11 +9389,11 @@ function deleteStoredLeaderboardEntry(dateKey, entry) {
   });
 
   localStorage.setItem(
-    getLeaderboardStorageKey(dateKey),
+    Helper.getLeaderboardStorageKey(dateKey),
     JSON.stringify(nextEntries),
   );
 
-  if (dateKey === getTodayDateKey()) {
+  if (dateKey === Helper.getTodayDateKey()) {
     sessionScores = sessionScores.filter(
       (item) => getScoreEntryKey(item) !== key,
     );
@@ -9583,14 +9409,14 @@ function deleteStoredLeaderboardDayGame(dateKey, gameName, settingKey) {
 
   if (nextEntries.length > 0) {
     localStorage.setItem(
-      getLeaderboardStorageKey(dateKey),
+      Helper.getLeaderboardStorageKey(dateKey),
       JSON.stringify(nextEntries),
     );
   } else {
-    localStorage.removeItem(getLeaderboardStorageKey(dateKey));
+    localStorage.removeItem(Helper.getLeaderboardStorageKey(dateKey));
   }
 
-  if (dateKey === getTodayDateKey()) {
+  if (dateKey === Helper.getTodayDateKey()) {
     sessionScores = sessionScores.filter((entry) => {
       return !isScoreEntryForSetting(entry, gameName, settingKey);
     });
@@ -9602,7 +9428,7 @@ function deleteStoredLeaderboardDayGame(dateKey, gameName, settingKey) {
 function getLeaderboardEntriesForDay(dateKey) {
   try {
     const data =
-      JSON.parse(localStorage.getItem(getLeaderboardStorageKey(dateKey))) || [];
+      JSON.parse(localStorage.getItem(Helper.getLeaderboardStorageKey(dateKey))) || [];
 
     return Array.isArray(data) ? data : [];
   } catch {
@@ -10295,7 +10121,7 @@ function closeTopGameSetupPanel() {
 }
 
 async function init() {
-  savedGames = getSavedGames();
+  savedGames = LocalStorageManager.getSavedGames();
   await loadRandomPlayerNames();
   cleanupUnknownGameLeaderboardData();
   restoreTodayLeaderboard();
