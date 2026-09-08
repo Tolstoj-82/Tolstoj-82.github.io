@@ -1,0 +1,12 @@
+.puzzle-table { width:100%; border-collapse:collapse; margin:12px 0 18px; font-size:.94rem; }
+.puzzle-table caption { text-align:left; margin-bottom:8px; font-weight:600; }
+.puzzle-table th,.puzzle-table td { padding:9px 10px; border-bottom:1px solid #dbc88d; text-align:left; vertical-align:top; }
+.puzzle-table thead { background:#ffefb5; }
+.download-placeholder { cursor:default; }
+.download-placeholder:hover { background:transparent; }
+.download-placeholder.download-file--primary:hover { background:#ffefb5; }
+.placeholder-label { color:#666; font-size:.7rem; white-space:nowrap; }
+.message-list { columns:2; column-gap:32px; padding-left:26px; }
+.message-list li { break-inside:avoid; padding:4px 0; font-family:Consolas,monospace; font-size:.85rem; }
+.puzzle-spoilers { margin-top:22px; }
+@media(max-width:650px) { .message-list { columns:1; } .puzzle-table th,.puzzle-table td { padding:8px 5px; } .placeholder-label { font-size:.64rem; } }

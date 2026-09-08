@@ -17,5 +17,11 @@
     "description": "A timed Game Boy Tetris qualification ROM created for the 2025 Danish championship.",
     "link": "games/DM_i_Tetris/index.html",
     "detailsKey": "dm-i-tetris"
+  },
+  {
+    "image": "games/gb-puzzle-mode/images/title.png",
+    "name": "GB Puzzle Mode",
+    "description": "Two-piece Game Boy Tetris puzzles with ideal solutions, half-credit alternatives, and score-dependent endings.",
+    "link": "games/gb-puzzle-mode/index.html"
   }
 ]

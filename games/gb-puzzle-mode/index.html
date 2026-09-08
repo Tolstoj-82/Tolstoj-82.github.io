@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="GB Puzzle Mode: two-piece Game Boy Tetris puzzles, scoring, controls, hidden endings, and all result messages.">
+  <title>GB Puzzle Mode | Tolstoj's Workbench</title>
+  <link rel="stylesheet" href="../../assets/styles/general.css?v=20260724-10">
+  <link rel="stylesheet" href="../../assets/styles/header.css">
+  <link rel="stylesheet" href="../../assets/styles/layouts.css">
+  <link rel="stylesheet" href="../../assets/styles/modal.css?v=20260724-4">
+  <link rel="stylesheet" href="../../articles/tetris-collection/style.css?v=20260809-1">
+  <link rel="stylesheet" href="../DM_i_Tetris/style.css?v=20260809-57">
+  <link rel="stylesheet" href="style.css?v=20260908-1">
+</head>
+<body class="menu-open theme-game">
+  <div class="content">
+    <header>
+      <a class="article-back-button" href="../../index.html#games-section" aria-label="Back to all games and patches">← Games &amp; patches</a>
+      <h1 class="article-title">
+        <span>GB Puzzle Mode</span>
+        <span class="article-subtitle">Two pieces. Find the best placement.</span>
+      </h1>
+      <button class="menu-btn" id="hamburger-icon" type="button" aria-label="Close table of contents" aria-controls="site-menu" aria-expanded="true">☰</button>
+    </header>
+
+    <aside class="menu-container article-toc active" id="site-menu" aria-hidden="false" data-persistent>
+      <div class="article-toc-header">
+        <span class="article-toc-header-title">Other Games &amp; Patches</span>
+        <button class="close-btn" id="close-icon" type="button" aria-label="Close games and patches menu">✖</button>
+      </div>
+      <nav aria-label="Other games and ROM patches">
+        <ol class="article-toc-list game-navigation-list">
+          <li class="article-toc-item article-toc-item--h2"><a class="article-toc-link" href="../chris-and-triss/index.html">Chris &amp; Triss</a></li>
+          <li class="article-toc-item article-toc-item--h2"><a class="article-toc-link" href="../DM_i_Tetris/index.html">DM i Tetris</a></li>
+          <li class="article-toc-item article-toc-item--h2"><a class="article-toc-link" href="../rom-hacks/index.html">ROM patches</a></li>
+        </ol>
+      </nav>
+    </aside>
+
+    <div class="page-content">
+      <main>
+        <section class="game-page-section" aria-labelledby="about-heading">
+          <h2 id="about-heading">About the ROM patch</h2>
+          <div class="game-introduction">
+            <div class="game-copy">
+              <p><cite>GB Puzzle Mode</cite>, created by DLB, turns Game Boy Tetris into a series of placement puzzles. Each puzzle starts with a prepared stack and gives you two pieces. Your job is to find the best way to fit them into the board.</p>
+              <p>The game judges the final arrangement against a stored solution. Find the ideal placement for full points, or an accepted second-best placement for half points. Anything else counts as a miss—even if the pieces fit without topping out.</p>
+              <h3>Features</h3>
+              <ul class="feature-list">
+                <li><strong>Two-piece puzzles</strong> on prepared boards.</li>
+                <li><strong>Ideal and second-best solutions</strong> with full or half credit.</li>
+                <li><strong>Selectable starting levels</strong> to change the pace.</li>
+                <li><strong>Repeat, skip, and reveal</strong> controls for practice.</li>
+                <li><strong>Saved scores</strong> and a six-character player name.</li>
+                <li><strong>107 result-message entries</strong>, including community references and jokes.</li>
+                <li><strong>Score-dependent endings</strong>, including a surprise for a very low score.</li>
+              </ul>
+              <h3>How to play</h3>
+              <ol>
+                <li>Enable <strong>Puzzle</strong> on the title screen and choose your music setting.</li>
+                <li>Choose a starting level, then begin. Move and rotate the two pieces into position.</li>
+                <li>After both pieces lock, read the result. Try again, continue to another puzzle, or reveal the ideal placement.</li>
+              </ol>
+              <h3>Controls</h3>
+              <table class="puzzle-table"><caption>After a puzzle is judged</caption><thead><tr><th scope="col">Button</th><th scope="col">Action</th></tr></thead><tbody>
+                <tr><th scope="row">A</th><td>Proceed after an accepted solution.</td></tr>
+                <tr><th scope="row">B</th><td>Repeat the puzzle.</td></tr>
+                <tr><th scope="row">Start</th><td>Skip to another puzzle.</td></tr>
+                <tr><th scope="row">Select</th><td>Show the ideal solution.</td></tr>
+                <tr><th scope="row">A + B + Start + Select</th><td>Save the score and show the ending.</td></tr>
+              </tbody></table>
+              <p>On the title screen, <strong>Select</strong> opens the name editor. Use Up/Down to change a character and Left/Right to move; A saves and B goes back.</p>
+            </div>
+            <aside class="download-panel" aria-labelledby="downloads-heading">
+              <div class="download-topline">
+                <figure class="download-preview"><img class="clickable" src="images/title.png" alt="GB Puzzle Mode version 2.5 title screen and button guide" width="160" height="144"></figure>
+                <section class="game-contributors" aria-labelledby="contributors-heading">
+                  <h3 id="contributors-heading">Contributors</h3>
+                  <table aria-label="GB Puzzle Mode contributors"><tbody><tr><th scope="row">Game author</th><td>DLB</td></tr></tbody></table>
+                </section>
+              </div>
+              <h3 class="downloads-heading" id="downloads-heading">Downloads</h3>
+              <p>Version <strong>2.5</strong>. The BPS patch is available below; supporting release files will follow.</p>
+              <div class="download-list">
+                <a class="download-file download-file--primary" href="gbpuzzlemode-v2-5.bps" download><span class="file-symbol-wrap" aria-hidden="true"><span class="file-symbol file-symbol--bps">BPS</span><span class="file-symbol-tooltip">Game patch · Start here</span></span><span class="file-copy"><strong>gbpuzzlemode-v2-5.bps</strong></span><span class="file-download" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 19h14"/></svg></span></a>
+                <div class="download-file download-placeholder" aria-disabled="true"><span class="file-symbol-wrap" aria-hidden="true"><span class="file-symbol file-symbol--sym">SYM</span><span class="file-symbol-tooltip">Debug symbols</span></span><span class="file-copy"><strong>gbpuzzlemode.sym</strong></span><span class="placeholder-label">Coming soon</span></div>
+                <div class="download-file download-placeholder" aria-disabled="true"><span class="file-symbol-wrap" aria-hidden="true"><span class="file-symbol file-symbol--map">MAP</span><span class="file-symbol-tooltip">Linker map</span></span><span class="file-copy"><strong>gbpuzzlemode.map</strong></span><span class="placeholder-label">Coming soon</span></div>
+                <div class="download-file download-placeholder" aria-disabled="true"><span class="file-symbol-wrap" aria-hidden="true"><span class="file-symbol file-symbol--json">JSON</span><span class="file-symbol-tooltip">TREP metadata</span></span><span class="file-copy"><strong>gbpuzzlemode.trep.json</strong></span><span class="placeholder-label">Coming soon</span></div>
+              </div>
+              <p class="zip-download">All-files ZIP: coming soon.</p>
+              <details class="download-help"><summary>Patch: .bps → .gb</summary><p>Download <a href="gbpuzzlemode-v2-5.bps" download>gbpuzzlemode-v2-5.bps</a> and open <a href="https://www.marcrobledo.com/RomPatcher.js/" target="_blank" rel="noopener noreferrer">Marc Robledo’s ROM Patcher ↗</a>. Choose your original 32 KB Game Boy Tetris ROM (CRC32 <code>46DF91AD</code>), select the BPS patch, and apply it. Save the resulting .gb file.</p><p class="download-help-note">Supply your own original ROM. A source mismatch means that the selected ROM is not the version this patch expects.</p></details>
+              <details class="download-help"><summary>Modify the ROM with TREP</summary><p>When the matching symbols and metadata are available, load them alongside the patched ROM in TREP to inspect its graphics and data.</p><p class="trep-action"><a class="button secondary" href="../../apps/trep/index.html">Open TREP</a></p></details>
+              <aside class="trep-tips" aria-labelledby="tips-heading"><h4 id="tips-heading">Tip</h4><p>Use <strong>B</strong> to repeat a puzzle before revealing its answer. After the result, <strong>Select</strong> displays the ideal placement so you can compare it with your attempt.</p></aside>
+            </aside>
+          </div>
+          <div class="screenshot-grid" aria-label="In-game screenshots">
+            <figure><img class="clickable" src="images/puzzle.png" alt="A two-piece puzzle with a prepared stack" width="160" height="144" loading="lazy"><figcaption>Two pieces and a prepared board.</figcaption></figure>
+            <figure><img class="clickable" src="images/solution.png" alt="The ideal placement revealed on the puzzle board" width="160" height="144" loading="lazy"><figcaption>Select reveals the ideal placement.</figcaption></figure>
+            <figure><img class="clickable" src="images/ending.png" alt="The positive-score ending at 100000 points" width="160" height="144" loading="lazy"><figcaption>The 100,000-point ending, staged to show the threshold.</figcaption></figure>
+          </div>
+          <h3>What counts as a win?</h3>
+          <p>After both pieces have been placed, the game compares every square of the 10-column, 18-row playfield with its stored solution. Only whether a square is occupied matters. The whole arrangement must match; simply filling a gap or avoiding a top-out is not enough.</p>
+          <table class="puzzle-table"><thead><tr><th scope="col">Result</th><th scope="col">Condition</th><th scope="col">Credit</th></tr></thead><tbody><tr><th scope="row">Ideal</th><td>The board exactly matches the best solution.</td><td>Full points</td></tr><tr><th scope="row">Second best</th><td>The board matches the alternate solution.</td><td>Half points</td></tr><tr><th scope="row">Miss</th><td>The board matches neither solution.</td><td>Penalty</td></tr></tbody></table>
+          <p>The game remembers previous results for each puzzle, so repeating the same result is not an unlimited source of points.</p>
+          <details class="download-help puzzle-spoilers"><summary>Hidden endings: what triggers the rockets?</summary>
+            <p>Hold <strong>A + B + Start + Select</strong> together in Puzzle Mode. The game saves your score and chooses an ending from your current total. Reaching a threshold by itself does not start the animation.</p>
+            <table class="puzzle-table"><thead><tr><th scope="col">Score</th><th scope="col">Ending text</th></tr></thead><tbody><tr><th scope="row">−50,000 or lower</th><td>LET ME RATE YOUR PERFORMANCE THIS GAME</td></tr><tr><th scope="row">100,000 or higher</th><td>YOU PRETTY GOOD AT TETRIS</td></tr><tr><th scope="row">−49,999 to 99,999</th><td>SCORE SAVED / PLAY SOME MORE / IF YOU LIKE THIS</td></tr></tbody></table>
+            <p>Yes, the low-score threshold is negative. The game has a separate ending for a sufficiently large losing score. “YOU WIN” in a puzzle result is one of the ordinary success messages, not a special trigger for the ending.</p>
+          </details>
+          <h3>What the game says (SPOILERS!)</h3>
+          <p>There are 42 failure messages, 62 success entries, and three second-best messages. Some are encouragement, others are jokes or nods to the Game Boy Tetris community. The lists below preserve the game’s wording, including typos and the repeated “CORRECT AGAIN” entry.</p>
+          <details class="download-help message-group"><summary>Failure messages (42)</summary><ol class="message-list">
+            <li>PLEASE TRY AGAIN</li>
+            <li>NO JUST NO</li>
+            <li>GOOD TRY BUT WRONG</li>
+            <li>ONCE AGAIN PLEASE</li>
+            <li>PROBABLY THIS WAS A MISSDROP</li>
+            <li>PLEASE CONTACT HEPTA</li>
+            <li>ASK M-J FOR HELP</li>
+            <li>WHAT WAS THAT</li>
+            <li>BETTER SKIP THIS ONE</li>
+            <li>TONI DID THAT ONE TOO ONCE</li>
+            <li>DOG DOES THIS MY DOG</li>
+            <li>COME ON PLEASE</li>
+            <li>GOOD IDEA BUT YEAH</li>
+            <li>DO YOU PLAY CASUALLY</li>
+            <li>I KNOW YOU CAN DO BETTER</li>
+            <li>MAYBE TAKE A BREAK NOW</li>
+            <li>ALEXEY DID NOT INTEND LIKE THIS</li>
+            <li>ANDREW DID KNOW HOW TO DO THAT</li>
+            <li>DO U PLAY ON A DMG IN DARKNES</li>
+            <li>DONT DO THAT AGAIN</li>
+            <li>MISSDROP FOR SURE</li>
+            <li>THAT WAS NOT BAD RNG</li>
+            <li>DO NOT BLAME RNG</li>
+            <li>EVEN DLB DID THIS ONE BETTER</li>
+            <li>PEOPLES IN THE 90S DID THIS</li>
+            <li>YOU NEED SOME SLEEP</li>
+            <li>THAT ONE WAS PURE RAGEBAIT</li>
+            <li>WHY DID YOU DO IT THIS WAY</li>
+            <li>I CANT TAKE THIS ANYMORE</li>
+            <li>I AM ERROR</li>
+            <li>ITS A SECRET TO EVERYBODY</li>
+            <li>THAT WAS CLOSE ALMOST</li>
+            <li>TRY AGAIN PLEASE</li>
+            <li>OH COME ON</li>
+            <li>I SEE WHAT YOU DID THERE</li>
+            <li>GIVE IT ANOTHER TRY NOW</li>
+            <li>YOU WONT BEAT MARQ LIKE THAT</li>
+            <li>NITSREK GOT IT RIGHT</li>
+            <li>DISCUSS THIS ON ON DC</li>
+            <li>TOLSTOJ IS IT YOU</li>
+            <li>PASCAL DID IT IN LIKE 1 SEC</li>
+            <li>FRANK DID IT WITH EYESCLOSED</li>
+          </ol></details>
+          <details class="download-help message-group"><summary>Success messages (62)</summary><ol class="message-list">
+            <li>PERFECT</li>
+            <li>PROCEED</li>
+            <li>WELL DONE</li>
+            <li>LIKE A PRO</li>
+            <li>THIS WAS VERY GOOD</li>
+            <li>IMPRESSIVE</li>
+            <li>YOU ARE CAPABLE</li>
+            <li>CORRECT AGAIN</li>
+            <li>YOU MUST HAVE CHEATED</li>
+            <li>NO ONE SOLVED THIS</li>
+            <li>TRY A FASTER LEVEL</li>
+            <li>YOU ARE ON A RUN</li>
+            <li>YOU ARE RDY FOR CTWC</li>
+            <li>HANK WOULD BE A FAN OF YOURS</li>
+            <li>THANK YOU FOR THIS PLACEMENT</li>
+            <li>IS THIS TO EASY FOR YOU</li>
+            <li>KAINZOW IS IT YOU</li>
+            <li>NOW YOU CAN BEAT AKATU</li>
+            <li>YOU ARE BETTER NOW</li>
+            <li>YOU ARE PROBABLY CHEATING</li>
+            <li>YOU CRUSH THIS LIKE CODE</li>
+            <li>YOU ARE TOO SMART FOR THIS</li>
+            <li>PLEASE SHARE ON DISCORD</li>
+            <li>POST YOUR RECORD NOW ON DISCORD</li>
+            <li>YOU COULD PLAY ON LEVEL M</li>
+            <li>TRY THE NEXT LVL</li>
+            <li>YOU ARE QUICK TO THINK</li>
+            <li>ANOTHER ONE GOT SOLVED</li>
+            <li>YOU ARE ON FIRE</li>
+            <li>LFG</li>
+            <li>YES</li>
+            <li>RIGHT</li>
+            <li>CORRECT</li>
+            <li>YOU DID IT</li>
+            <li>ITS SOLVED</li>
+            <li>NICE ONE</li>
+            <li>NOT TO BAD</li>
+            <li>JUST WOW</li>
+            <li>BLUESCUTI WOULD BE PROUD OF U</li>
+            <li>CELEBRATE THIS ONE WITH NELLS</li>
+            <li>U CAN BRAG ABOUT THAT ONE FR</li>
+            <li>THIS WAS A GUESS FOR SURE</li>
+            <li>ONLY THE BEST DID THIS RIGHT</li>
+            <li>NO PANIAC YOU GOT THIS ONE</li>
+            <li>CORRECT AGAIN</li>
+            <li>YOU ARE SPOT ON</li>
+            <li>HOW DID YOU KNOW</li>
+            <li>U LOOKED THIS ONE UP DONTCHU</li>
+            <li>DO A BARREL ROLL</li>
+            <li>TOASTY</li>
+            <li>THIS WAS A FUN ONE</li>
+            <li>OK THIS WAS TOO EASY</li>
+            <li>YES YES YES YES YES YES</li>
+            <li>YOU SOLVED IT RIGHT</li>
+            <li>YOU PLAY LIKE ITS 2040</li>
+            <li>INSANE SOLVE</li>
+            <li>NOBODY KNEW THIS BUT YOU</li>
+            <li>YOU SHOULD TEACH IN SCHOOLS</li>
+            <li>PLEASE CREATE A TUTORIAL</li>
+            <li>1100101010 0110110101 1010110110</li>
+            <li>YOU WIN</li>
+            <li>REMEMBER TO CHANGE BATTERIES</li>
+          </ol></details>
+          <details class="download-help message-group"><summary>Second-best messages (3)</summary><ol class="message-list">
+            <li>ALMOST</li>
+            <li>2ND BEST SOLUTION HALF PTS</li>
+            <li>PRESS SELECT FOR BEST</li>
+          </ol></details>
+          <aside class="editorial-note" aria-labelledby="editorial-note-heading"><h3 id="editorial-note-heading">Editorial note: AI usage</h3><p>AI assisted with writing this page, examining the supplied version 2.5 ROM, and capturing its screens. The gameplay and ending descriptions are based on that ROM.</p></aside>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../script.js?v=20260809-3"></script>
+
+  <div id="imageModal" class="modal" role="dialog" aria-modal="true" aria-label="Screenshot preview" aria-hidden="true" style="display:none">
+    <div class="modal-content">
+      <button class="close" type="button" aria-label="Close screenshot preview">&times;</button>
+      <img id="modalImage" alt="Enlarged game screenshot">
+    </div>
+  </div>
+</body>
+</html>
