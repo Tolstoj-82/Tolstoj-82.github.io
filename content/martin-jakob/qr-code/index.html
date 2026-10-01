@@ -95,6 +95,7 @@
           text-align:center;
           cursor:pointer;
           transition:all .2s;
+          max-width: 500px;
       } 
       #dropZone.dragover{
           border-color:#0078d4;
@@ -190,10 +191,11 @@
     <button id="downloadBtn" type="button" style="display: none">
       Download
     </button>
+    <p>&nbsp;</p>
 
     <div id="dropZone">
-    <strong>Drop JSON here</strong><br><br>
-    or click to browse
+    <strong>Droppe ein JSON hier!</strong><br><br>
+    oder Klicke das Feld.
 </div>
 
 <input
@@ -209,7 +211,7 @@
     id="generateBtn"
     disabled
 >
-    Generate ZIP
+   Generiere ein ZIP-File
 </button>
 
 <div id="status"></div>
@@ -277,8 +279,8 @@ async function loadFile(file){
         loadedData = JSON.parse(text);
 
         info.innerHTML =
-            `<strong>File:</strong> ${file.name}<br>
-             <strong>Records:</strong> ${loadedData.length}`;
+            `<strong>Dateiname:</strong> ${file.name}<br>
+             <strong>Anzahl Einträge:</strong> ${loadedData.length}`;
 
         generateBtn.disabled = false;
 
@@ -288,7 +290,7 @@ async function loadFile(file){
     catch(error){
 
         alert(
-            "Invalid JSON:\n\n" +
+            "Ungültiges JSON:\n\n" +
             error.message
         );
 
@@ -459,7 +461,7 @@ async function generateZip(){
         }
 
         statusDiv.innerHTML =
-            "Creating ZIP...";
+            "Erzeuge das ZIP...";
 
         const zipBlob =
             await zip.generateAsync({
