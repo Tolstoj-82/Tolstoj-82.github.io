@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QR Code Generator</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <style>
       
       body {
@@ -83,6 +85,51 @@
         color: #666;
         margin-top: 5px;
       }
+
+      h1{
+    text-align:center;
+      }
+      
+      #dropZone{
+          border:3px dashed #888;
+          border-radius:12px;
+          background:white;
+          padding:80px;
+          text-align:center;
+          cursor:pointer;
+          transition:all .2s;
+      }
+      
+      #dropZone.dragover{
+          border-color:#0078d4;
+          background:#eef6ff;
+      }
+      
+      #info{
+          margin-top:20px;
+          font-size:18px;
+      }
+      
+      #status{
+          margin-top:15px;
+          font-weight:bold;
+      }
+      
+      button{
+          margin-top:20px;
+          padding:12px 25px;
+          border:none;
+          background:#0078d4;
+          color:white;
+          border-radius:6px;
+          cursor:pointer;
+          font-size:16px;
+      }
+      
+      button:disabled{
+          background:#999;
+          cursor:not-allowed;
+      }
     
     </style>
   </head>
@@ -149,18 +196,309 @@
     <button id="downloadBtn" type="button" style="display: none">
       Download
     </button>
-    <script>
-      const qrInput = document.getElementById("qrInput");
-      const shapeSelect = document.getElementById("shapeSelect");
-      const colorPicker = document.getElementById("colorPicker");
-      const finderShapeSelect = document.getElementById("finderShapeSelect");
-      const finderColorPicker = document.getElementById("finderColorPicker");
-      const sizeSlider = document.getElementById("sizeSlider");
-      const canvas = document.getElementById("qrCanvas");
-      const downloadBtn = document.getElementById("downloadBtn");
-      const qrTitle = document.getElementById("qrTitle");
-      const qrSubtitle = document.getElementById("qrSubtitle");
-      const ctx = canvas.getContext("2d");
+
+    <div id="dropZone">
+    <strong>Drop JSON here</strong><br><br>
+    or click to browse
+</div>
+
+<input
+    type="file"
+    id="fileInput"
+    accept=".json"
+    hidden
+>
+
+<div id="info"></div>
+
+<button
+    id="generateBtn"
+    disabled
+>
+    Generate ZIP
+</button>
+
+<div id="status"></div>
+
+<script>
+
+const dropZone = document.getElementById("dropZone");
+const fileInput = document.getElementById("fileInput");
+const info = document.getElementById("info");
+const statusDiv = document.getElementById("status");
+const generateBtn = document.getElementById("generateBtn");
+
+const qrInput = document.getElementById("qrInput");
+const shapeSelect = document.getElementById("shapeSelect");
+const colorPicker = document.getElementById("colorPicker");
+const finderShapeSelect = document.getElementById("finderShapeSelect");
+const finderColorPicker = document.getElementById("finderColorPicker");
+const sizeSlider = document.getElementById("sizeSlider");
+const canvas = document.getElementById("qrCanvas");
+const downloadBtn = document.getElementById("downloadBtn");
+const qrTitle = document.getElementById("qrTitle");
+const qrSubtitle = document.getElementById("qrSubtitle");
+const ctx = canvas.getContext("2d");
+
+let loadedData = null;
+
+dropZone.addEventListener("click", () => {
+    fileInput.click();
+});
+
+fileInput.addEventListener("change", e => {
+
+    if(e.target.files.length){
+        loadFile(e.target.files[0]);
+    }
+
+});
+
+dropZone.addEventListener("dragover", e => {
+    e.preventDefault();
+    dropZone.classList.add("dragover");
+});
+
+dropZone.addEventListener("dragleave", () => {
+    dropZone.classList.remove("dragover");
+});
+
+dropZone.addEventListener("drop", e => {
+
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+
+    const file = e.dataTransfer.files[0];
+
+    if(file){
+        loadFile(file);
+    }
+
+});
+
+async function loadFile(file){
+
+    try{
+
+        const text = await file.text();
+
+        loadedData = JSON.parse(text);
+
+        info.innerHTML =
+            `<strong>File:</strong> ${file.name}<br>
+             <strong>Records:</strong> ${loadedData.length}`;
+
+        generateBtn.disabled = false;
+
+        statusDiv.innerHTML = "";
+
+    }
+    catch(error){
+
+        alert(
+            "Invalid JSON:\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+function sanitizeFilename(text){
+
+    return (text || "QR")
+        .replace(/[<>:"/\\|?*]/g, "_")
+        .replace(/\s+/g, "_")
+        .trim();
+
+}
+
+function createQRImage(entry){
+
+    return new Promise(resolve => {
+
+        const url =
+            "https://mobileinfo.test.bernmobil.ch/stop/" +
+            entry.Interne_ID;
+
+        const qr = qrcode(0, "H");
+
+        qr.addData(url);
+        qr.make();
+
+        const modules = qr.getModuleCount();
+
+        const width = 1000;
+        const qrSize = 850;
+
+        const title = entry.Titel || "";
+        const subtitle = entry.Untertitel || "";
+
+        const headerHeight =
+            subtitle.trim() !== ""
+                ? 140
+                : 90;
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = width;
+        canvas.height = qrSize + headerHeight;
+
+        ctx.fillStyle = "white";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        ctx.textAlign = "center";
+
+        if(title){
+
+            ctx.fillStyle = "#000";
+
+            ctx.font = "bold 42px Arial";
+
+            ctx.fillText(
+                title,
+                width / 2,
+                50
+            );
+
+        }
+
+        if(subtitle){
+
+            ctx.fillStyle = "#666";
+
+            ctx.font = "24px Arial";
+
+            ctx.fillText(
+                subtitle,
+                width / 2,
+                90
+            );
+
+        }
+
+        const moduleSize =
+            Math.floor((qrSize * 0.8) / modules);
+
+        const actualQRSize =
+            modules * moduleSize;
+
+        const qrOffsetX =
+            Math.floor(
+                (width - actualQRSize) / 2
+            );
+
+        const qrOffsetY =
+            headerHeight +
+            Math.floor(
+                (qrSize - actualQRSize) / 2
+            );
+
+        ctx.fillStyle = "#000";
+
+        for(let row=0; row<modules; row++){
+
+            for(let col=0; col<modules; col++){
+
+                if(!qr.isDark(row,col)){
+                    continue;
+                }
+
+                ctx.fillRect(
+                    qrOffsetX + col * moduleSize,
+                    qrOffsetY + row * moduleSize,
+                    moduleSize,
+                    moduleSize
+                );
+
+            }
+
+        }
+
+        canvas.toBlob(blob => {
+
+            resolve(blob);
+
+        }, "image/png");
+
+    });
+
+}
+
+generateBtn.addEventListener(
+    "click",
+    generateZip
+);
+
+async function generateZip(){
+
+    if(!loadedData){
+        return;
+    }
+
+    try{
+
+        generateBtn.disabled = true;
+
+        const zip = new JSZip();
+
+        for(let i=0; i<loadedData.length; i++){
+
+            const entry = loadedData[i];
+
+            statusDiv.innerHTML =
+                `Generating ${i + 1} / ${loadedData.length}`;
+
+            const image =
+                await createQRImage(entry);
+
+            const fileName =
+                sanitizeFilename(
+                    entry.Titel ||
+                    entry.Interne_ID
+                ) + ".png";
+
+            zip.file(
+                fileName,
+                image
+            );
+
+        }
+
+        statusDiv.innerHTML =
+            "Creating ZIP...";
+
+        const zipBlob =
+            await zip.generateAsync({
+                type:"blob"
+            });
+
+        saveAs(
+            zipBlob,
+            "QR-Codes.zip"
+        );
+
+        statusDiv.innerHTML =
+            `Done! Generated ${loadedData.length} QR codes.`;
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert(error.message);
+
+    }
+    finally{
+
+        generateBtn.disabled = false;
+
+    }
+
+}
+
+
 
       function clearQRCode() {
         canvas.width = Number.parseInt(sizeSlider.value, 10);
@@ -247,7 +585,6 @@
           document.title = title;
         }
       }
-
 
       function generateQRCode() {
         const inputText = qrInput.value.trim();
