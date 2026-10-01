@@ -6,6 +6,7 @@
     <title>QR Code Generator</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
     <style>
+      
       body {
         text-align: center;
         font-family: "Poppins", sans-serif;
@@ -66,6 +67,23 @@
         box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
         border-radius: 20px;
       }
+      #labelContainer {
+        text-align: center;
+        margin: 10px 0 20px 0;
+      }
+
+      #qrTitle {
+        font-size: 28px;
+        font-weight: 700;
+        color: #222;
+      }
+
+      #qrSubtitle {
+        font-size: 18px;
+        color: #666;
+        margin-top: 5px;
+      }
+    
     </style>
   </head>
   <body>
@@ -122,6 +140,11 @@
       aria-label="QR code size"
     />
 
+    <div id="labelContainer">
+      <div id="qrTitle"></div>
+      <div id="qrSubtitle"></div>
+    </div>
+
     <p><canvas id="qrCanvas" aria-label="Generated QR code"></canvas></p>
     <button id="downloadBtn" type="button" style="display: none">
       Download
@@ -135,6 +158,8 @@
       const sizeSlider = document.getElementById("sizeSlider");
       const canvas = document.getElementById("qrCanvas");
       const downloadBtn = document.getElementById("downloadBtn");
+      const qrTitle = document.getElementById("qrTitle");
+      const qrSubtitle = document.getElementById("qrSubtitle");
       const ctx = canvas.getContext("2d");
 
       function clearQRCode() {
@@ -203,6 +228,26 @@
             ctx.fillRect(x, y, size, size);
         }
       }
+
+      function loadQueryParameters() {
+        const params = new URLSearchParams(window.location.search);
+
+        const url = params.get("url");
+        const title = params.get("title");
+        const subtitle = params.get("subtitle");
+
+        if (url) {
+          qrInput.value = url;
+        }
+
+        qrTitle.textContent = title || "";
+        qrSubtitle.textContent = subtitle || "";
+
+        if (title) {
+          document.title = title;
+        }
+      }
+
 
       function generateQRCode() {
         const inputText = qrInput.value.trim();
@@ -350,12 +395,71 @@
       function downloadQRCode() {
         if (qrInput.value.trim() === "") return;
 
+        const title = qrTitle.textContent;
+        const subtitle = qrSubtitle.textContent;
+
+        const exportCanvas = document.createElement("canvas");
+        const exportCtx = exportCanvas.getContext("2d");
+
+        let headerHeight = 0;
+
+        if (title) headerHeight += 50;
+        if (subtitle) headerHeight += 30;
+
+        headerHeight += 20;
+
+        exportCanvas.width = canvas.width;
+        exportCanvas.height = canvas.height + headerHeight;
+
+        exportCtx.fillStyle = "white";
+        exportCtx.fillRect(
+          0,
+          0,
+          exportCanvas.width,
+          exportCanvas.height
+        );
+
+        let y = 35;
+
+        if (title) {
+          exportCtx.fillStyle = "#222";
+          exportCtx.font = "bold 28px Arial";
+          exportCtx.textAlign = "center";
+          exportCtx.fillText(
+            title,
+            exportCanvas.width / 2,
+            y
+          );
+          y += 35;
+        }
+
+        if (subtitle) {
+          exportCtx.fillStyle = "#666";
+          exportCtx.font = "18px Arial";
+          exportCtx.textAlign = "center";
+          exportCtx.fillText(
+            subtitle,
+            exportCanvas.width / 2,
+            y
+          );
+        }
+
+        exportCtx.drawImage(
+          canvas,
+          0,
+          headerHeight
+        );
+
+        const safeName =
+          (title || "QR-code")
+            .replace(/[<>:"/\\|?*]/g, "_")
+            .trim();
+
         const link = document.createElement("a");
-        link.download = "QR-code.png";
-        link.href = canvas.toDataURL("image/png");
+        link.download = `${safeName}.png`;
+        link.href = exportCanvas.toDataURL("image/png");
         link.click();
       }
-
       [
         qrInput,
         shapeSelect,
@@ -366,7 +470,14 @@
       ].forEach((control) => control.addEventListener("input", generateQRCode));
 
       downloadBtn.addEventListener("click", downloadQRCode);
-      clearQRCode();
+
+      loadQueryParameters();
+
+      if (qrInput.value.trim()) {
+        generateQRCode();
+      } else {
+        clearQRCode();
+      }
     </script>
   </body>
 </html>
