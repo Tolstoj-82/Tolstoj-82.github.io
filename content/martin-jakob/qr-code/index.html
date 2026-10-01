@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    
     <style>
       
       body {
@@ -73,23 +74,19 @@
         text-align: center;
         margin: 10px 0 20px 0;
       }
-
       #qrTitle {
         font-size: 28px;
         font-weight: 700;
         color: #222;
       }
-
       #qrSubtitle {
         font-size: 18px;
         color: #666;
         margin-top: 5px;
       }
-
       h1{
-    text-align:center;
+        text-align:center;
       }
-      
       #dropZone{
           border:3px dashed #888;
           border-radius:12px;
@@ -98,23 +95,19 @@
           text-align:center;
           cursor:pointer;
           transition:all .2s;
-      }
-      
+      } 
       #dropZone.dragover{
           border-color:#0078d4;
           background:#eef6ff;
       }
-      
       #info{
           margin-top:20px;
           font-size:18px;
       }
-      
       #status{
           margin-top:15px;
           font-weight:bold;
       }
-      
       button{
           margin-top:20px;
           padding:12px 25px;
@@ -132,6 +125,7 @@
       }
     
     </style>
+    
   </head>
   <body>
     <p>
@@ -219,9 +213,7 @@
 </button>
 
 <div id="status"></div>
-
 <script>
-
 const dropZone = document.getElementById("dropZone");
 const fileInput = document.getElementById("fileInput");
 const info = document.getElementById("info");
@@ -339,8 +331,8 @@ function createQRImage(entry){
                 ? 140
                 : 90;
 
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
+        const exportCanvas = document.createElement("canvas");
+        const exportCtx = exportCanvas.getContext("2d");
 
         canvas.width = width;
         canvas.height = qrSize + headerHeight;
