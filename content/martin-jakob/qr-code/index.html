@@ -5,24 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QR-Code-Generator</title>
     <script defer src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=20261002-url-mapping" />
-    <script defer src="script.js?v=20261002-url-mapping"></script>
+    <link rel="stylesheet" href="styles.css?v=20261002-preserve-design" />
+    <script defer src="script.js?v=20261002-preserve-design"></script>
     
   </head>
   <body>
-    <p>
+    <main class="generator">
+    <section class="settings-panel" aria-label="QR-Code gestalten">
+    <div class="address-field">
       <label for="qrInput">Adresse oder Text</label>
       <input
         type="text"
         id="qrInput"
         placeholder="Adresse oder Text eingeben …"
       />
-    </p>
-    <p>
+    </div>
+    <div class="appearance-fields">
+    <div class="appearance-field">
       <label for="shapeSelect">QR-Code</label>
+      <div class="shape-color">
       <select id="shapeSelect">
         <option value="square">Eckig</option>
         <option value="circle">Rund</option>
@@ -38,8 +43,11 @@
         value="#000000"
         aria-label="Farbe des QR-Codes"
       />
-      |
+      </div>
+    </div>
+    <div class="appearance-field">
       <label for="finderShapeSelect">Positionsmarkierungen</label>
+      <div class="shape-color">
       <select id="finderShapeSelect">
         <option value="square">Eckig</option>
         <option value="circle">Rund</option>
@@ -56,26 +64,34 @@
         value="#000000"
         aria-label="Farbe der Positionsmarkierungen"
       />
-    </p>
-    <input
-      type="range"
-      id="sizeSlider"
-      min="200"
-      max="700"
-      value="300"
-      aria-label="Grösse des QR-Codes"
-    />
-
-    <div id="labelContainer">
+      </div>
+    </div>
+    </div>
+    </section>
+    <section class="preview-panel" aria-label="Vorschau und Download">
+<div id="labelContainer">
       <div id="qrTitle"></div>
       <div id="qrSubtitle"></div>
     </div>
 
-    <p><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></p>
-    <p id="exampleHint" hidden>Beispiel-QR-Code: Form, Farben und Grösse oben anpassen. Diese Einstellungen gelten auch für den Massenexport.</p>
+    <p class="canvas-wrap"><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></p>
+    <div class="logo-controls">
+      <div class="logo-heading"><label for="logoInput">Logo (Quadratisch)</label>
+      <span class="logo-info"><button type="button" class="info-button" aria-label="Hinweise zum Logo" aria-describedby="logoHelp">i</button><span id="logoHelp" role="tooltip">PNG oder JPEG · max. 2 MB / 512 × 512 px. Logo wird am QR-Raster ausgerichtet und auf Lesbarkeit geprüft. Bei Bedarf wird nur das Logo verkleinert oder weggelassen. Scan vor Verwendung testen.</span></span></div>
+      <div class="logo-upload-row">
+      <input id="logoInput" type="file" accept="image/png,image/jpeg" aria-describedby="logoHelp" />
+      <button id="removeLogoBtn" class="secondary" type="button" hidden>Logo entfernen</button>
+      </div>
+      <div id="savedLogos" role="group" aria-label="Gespeicherte Logos" hidden></div>
+      <p id="logoStatus" role="status"></p>
+    </div>
+    <p id="exampleHint" hidden>Beispielvorschau – noch keine eigenen Daten. Form, Farben und Logo gelten auch für den Massenexport.</p>
     <button id="downloadBtn" type="button" hidden>
-      Herunterladen
+      PNG herunterladen
     </button>
+    <p id="renderNotice" role="status"></p>
+    <p id="qrError" role="alert"></p>
+    </section>
     <div class="import-disclosure">
       <button id="toggleImportBtn" type="button" aria-expanded="false" aria-controls="bulkImport">Massenimport <span aria-hidden="true"></span></button>
     </div>
@@ -83,8 +99,8 @@
       <hr />
 
     <div id="dropZone" role="button" tabindex="0" aria-label="JSON-Datei importieren">
-    <strong>JSON-Datei hierher ziehen</strong><br><br>
-    oder zum Auswählen auf dieses Feld klicken.
+    <strong>JSON-Datei hierher ziehen</strong>
+    <span>oder klicken, um eine Datei auszuwählen</span>
 </div>
 
 <input
@@ -96,18 +112,22 @@
 
 <div id="info" aria-live="polite"></div>
 
+<p class="preview-option"><label><input id="showBulkPreview" type="checkbox" checked /> QR-Codes während der Erstellung anzeigen</label></p>
+<div class="export-actions">
 <button
     id="generateBtn"
     disabled
 >
    ZIP-Datei erstellen
 </button>
-<button id="cancelExportBtn" type="button" hidden>Export abbrechen</button>
+<button id="cancelExportBtn" class="secondary" type="button" hidden>Export abbrechen</button>
+</div>
 
-<p class="preview-option"><label><input id="showBulkPreview" type="checkbox" checked /> QR-Codes während der Erstellung anzeigen</label></p>
+
 <div id="status" role="status"></div>
 
     </section>
+    </main>
     <dialog id="mappingDialog" aria-labelledby="mappingHeading" aria-describedby="mappingHelp">
       <h2 id="mappingHeading">JSON-Felder zuordnen</h2>
       <p id="mappingHelp">Wählen Sie genau eine der drei Möglichkeiten für die URL. Titel und Untertitel sind optional.</p>
@@ -124,6 +144,7 @@
           <label for="manualBaseURL">Basis-URL</label>
           <div id="baseURLCombo">
           <input id="manualBaseURL" type="url" placeholder="https://example.com/stop/" autocomplete="off" aria-expanded="false" aria-controls="savedBaseURLs" aria-describedby="manualBaseURLHelp" />
+          <button id="baseURLDropdownBtn" type="button" aria-label="Gespeicherte Basis-URLs anzeigen" aria-controls="savedBaseURLs" hidden><span aria-hidden="true"></span></button>
           <div id="savedBaseURLs" role="group" aria-label="Gespeicherte Basis-URLs" hidden></div>
           </div>
           <p id="baseURLStorageStatus" role="status"></p>
@@ -135,7 +156,7 @@
           <label for="mapInterne_ID">ID (bei Basis-URL erforderlich)</label><select id="mapInterne_ID"></select>
         </div>
         <p id="mappingError" role="alert"></p>
-        <div><button id="cancelMappingBtn" type="button">Abbrechen</button> <button type="submit">Zuordnung übernehmen</button></div>
+        <div class="modal-actions"><button id="cancelMappingBtn" class="secondary" type="button">Abbrechen</button> <button id="mappingSubmitBtn" type="submit" disabled>ZIP-Datei erstellen</button></div>
       </form>
     </dialog>
     <dialog id="bulkPreview" aria-labelledby="previewHeading" aria-describedby="previewHelp">
@@ -147,7 +168,7 @@
       <div class="preview-image"><canvas id="bulkCanvas" aria-label="Vorschau des aktuellen QR-Codes"></canvas></div>
       <p id="previewStatus" role="status"></p>
     </dialog>
-    <p id="qrError" role="alert"></p>
+
 
   </body>
 </html>

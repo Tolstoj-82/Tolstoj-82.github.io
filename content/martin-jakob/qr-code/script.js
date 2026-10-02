@@ -12,12 +12,140 @@ const shapeSelect = document.getElementById("shapeSelect");
 const colorPicker = document.getElementById("colorPicker");
 const finderShapeSelect = document.getElementById("finderShapeSelect");
 const finderColorPicker = document.getElementById("finderColorPicker");
-const sizeSlider = document.getElementById("sizeSlider");
+const EXPORT_SIZE = 1000;
 const canvas = document.getElementById("qrCanvas");
 const downloadBtn = document.getElementById("downloadBtn");
 const qrTitle = document.getElementById("qrTitle");
 const qrSubtitle = document.getElementById("qrSubtitle");
 const ctx = canvas.getContext("2d");
+
+let logoImage = null;
+let logoLoadVersion = 0;
+let activeLogoData = "";
+const logoInput = document.getElementById("logoInput");
+const logoStatus = document.getElementById("logoStatus");
+const removeLogoBtn = document.getElementById("removeLogoBtn");
+const logoStorageKey = "qr-generator.logos.v1";
+const savedLogos = document.getElementById("savedLogos");
+function readSavedLogos() {
+    try {
+        const items = JSON.parse(localStorage.getItem(logoStorageKey) || "[]");
+        return Array.isArray(items) ? items.filter(item => item && typeof item.name === "string" &&
+            typeof item.data === "string" && item.data.length < 500000 && /^data:image\/png;base64,/.test(item.data)).slice(0, 12) : [];
+    } catch { return []; }
+}
+function writeSavedLogos(items) {
+    try { localStorage.setItem(logoStorageKey, JSON.stringify(items)); return true; }
+    catch {
+        logoStatus.textContent = "Das Logo kann verwendet werden, aber der lokale Speicher ist voll oder nicht verfügbar.";
+        return false;
+    }
+}
+function renderSavedLogos() {
+    const items = readSavedLogos();
+    savedLogos.replaceChildren();
+    savedLogos.hidden = !items.length;
+    for (const item of items) {
+        const tile = document.createElement("div");
+        tile.className = "saved-logo";
+        const select = document.createElement("button");
+        select.type = "button";
+        select.className = "saved-logo-select";
+        select.setAttribute("aria-label", "Logo auswählen: " + item.name);
+        select.setAttribute("aria-pressed", String(activeLogoData === item.data));
+        const thumbnail = document.createElement("img");
+        thumbnail.src = item.data;
+        thumbnail.alt = item.name;
+        select.append(thumbnail);
+        select.addEventListener("click", async () => {
+            const version = ++logoLoadVersion;
+            try {
+                const image = new Image();
+                image.src = item.data;
+                await image.decode();
+                if (version !== logoLoadVersion) return;
+                if (!image.naturalWidth || image.naturalWidth !== image.naturalHeight || image.naturalWidth > 256) throw new Error("Ungültiges gespeichertes Logo.");
+                logoImage = image;
+                activeLogoData = item.data;
+                removeLogoBtn.hidden = false;
+                logoStatus.textContent = "Logo ausgewählt.";
+                renderSavedLogos();
+                saveSettings();
+                generateQRCode();
+            } catch { if (version === logoLoadVersion) logoStatus.textContent = "Das gespeicherte Logo konnte nicht geladen werden. Bitte löschen und erneut hochladen."; }
+        });
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "saved-logo-delete";
+        remove.textContent = "×";
+        remove.setAttribute("aria-label", "Gespeichertes Logo löschen: " + item.name);
+        remove.addEventListener("click", () => {
+            ++logoLoadVersion;
+            if (!writeSavedLogos(readSavedLogos().filter(saved => saved.data !== item.data))) return;
+            if (activeLogoData === item.data) {
+                logoImage = null;
+                activeLogoData = "";
+                removeLogoBtn.hidden = true;
+                generateQRCode();
+            }
+            saveSettings();
+            logoStatus.textContent = "Gespeichertes Logo gelöscht.";
+            renderSavedLogos();
+        });
+        tile.append(select, remove);
+        savedLogos.append(tile);
+    }
+}
+logoInput.addEventListener("change", async () => {
+    const file = logoInput.files[0];
+    if (!file) return;
+    const version = ++logoLoadVersion;
+    logoStatus.textContent = "Bild wird geladen …";
+    let objectURL;
+    try {
+        if (!["image/png", "image/jpeg"].includes(file.type)) throw new Error("Bitte ein PNG- oder JPEG-Bild auswählen.");
+        if (file.size > 2 * 1024 * 1024) throw new Error("Das Bild darf höchstens 2 MB gross sein.");
+        objectURL = URL.createObjectURL(file);
+        const image = new Image();
+        image.src = objectURL;
+        await image.decode();
+        if (version !== logoLoadVersion) return;
+        if (!image.naturalWidth || image.naturalWidth !== image.naturalHeight) throw new Error("Das Bild muss quadratisch sein.");
+        if (image.naturalWidth > 512) throw new Error("Das Bild darf höchstens 512 × 512 Pixel gross sein.");
+        const logo = document.createElement("canvas");
+        logo.width = logo.height = Math.min(256, image.naturalWidth);
+        logo.getContext("2d").drawImage(image, 0, 0, logo.width, logo.height);
+        logoImage = logo;
+        activeLogoData = logo.toDataURL("image/png");
+        removeLogoBtn.hidden = false;
+        logoStatus.textContent = "Logo hinzugefügt. Es wird auch im Massenexport verwendet.";
+        const saved = readSavedLogos().filter(item => item.data !== activeLogoData);
+        if (saved.length >= 12) {
+            logoStatus.textContent = "Logo hinzugefügt. Zum Speichern bitte eines der 12 gespeicherten Logos löschen.";
+        } else {
+            writeSavedLogos([{name: file.name, data: activeLogoData}, ...saved]);
+        }
+        renderSavedLogos();
+        saveSettings();
+        generateQRCode();
+    } catch (error) {
+        if (version === logoLoadVersion) logoStatus.textContent = error.message + (logoImage ? " Das bisherige Bild bleibt erhalten." : "");
+    } finally {
+        if (objectURL) URL.revokeObjectURL(objectURL);
+        if (version === logoLoadVersion) logoInput.value = "";
+    }
+});
+removeLogoBtn.addEventListener("click", () => {
+    ++logoLoadVersion;
+    logoImage = null;
+    activeLogoData = "";
+    renderSavedLogos();
+    logoInput.value = "";
+    removeLogoBtn.hidden = true;
+    logoStatus.textContent = "";
+    saveSettings();
+    generateQRCode();
+});
 
 let loadedData = null;
 let isGenerating = false;
@@ -79,6 +207,7 @@ dropZone.addEventListener("drop", e => {
 const mappingDialog = document.getElementById("mappingDialog");
 const mappingError = document.getElementById("mappingError");
 const mappingForm = document.getElementById("mappingForm");
+const mappingSubmitBtn = document.getElementById("mappingSubmitBtn");
 const manualBaseURL = document.getElementById("manualBaseURL");
 const baseURLStorageKey = "qr-generator.base-urls.v1";
 const savedBaseURLs = document.getElementById("savedBaseURLs");
@@ -106,9 +235,15 @@ const baseURLCombo = document.getElementById("baseURLCombo");
 function closeSavedBaseURLs() {
     savedBaseURLs.hidden = true;
     manualBaseURL.setAttribute("aria-expanded", "false");
+    document.getElementById("baseURLDropdownBtn").setAttribute("aria-expanded", "false");
     baseURLCombo.classList.remove("is-open");
 }
 manualBaseURL.addEventListener("click", () => renderSavedBaseURLs(true));
+document.getElementById("baseURLDropdownBtn").addEventListener("click", () => {
+    if (savedBaseURLs.hidden) renderSavedBaseURLs(true);
+    else closeSavedBaseURLs();
+    manualBaseURL.focus();
+});
 manualBaseURL.addEventListener("keydown", event => {
     if (event.key === "ArrowDown") {
         event.preventDefault();
@@ -133,10 +268,13 @@ baseURLCombo.addEventListener("focusout", event => {
 
 function renderSavedBaseURLs(open = false) {
     const values = readSavedBaseURLs();
+    document.getElementById("baseURLDropdownBtn").hidden = values.length === 0;
+    baseURLCombo.classList.toggle("has-suggestions", values.length > 0);
     savedBaseURLs.replaceChildren();
     const expanded = open && values.length > 0;
     savedBaseURLs.hidden = !expanded;
     manualBaseURL.setAttribute("aria-expanded", String(expanded));
+    document.getElementById("baseURLDropdownBtn").setAttribute("aria-expanded", String(expanded));
     baseURLCombo.classList.toggle("is-open", expanded);
     for (const url of values) {
         const row = document.createElement("div");
@@ -147,6 +285,7 @@ function renderSavedBaseURLs(open = false) {
         select.textContent = url;
         select.addEventListener("click", () => {
             manualBaseURL.value = url;
+            updateMappingSubmit();
             closeSavedBaseURLs();
             manualBaseURL.focus();
         });
@@ -191,6 +330,7 @@ function setURLMode(mode) {
     }
     mappingFields.Interne_ID.required = mode !== "full";
     mappingError.textContent = "";
+    updateMappingSubmit();
 }
 for (const [id, mode] of [["urlModeFull", "full"], ["urlModeBase", "base"], ["urlModeManual", "manual"]]) {
     document.getElementById(id).addEventListener("change", () => setURLMode(mode));
@@ -270,6 +410,17 @@ function selectedMapping() {
     return mapping;
 }
 
+function updateMappingSubmit() {
+    mappingSubmitBtn.disabled = !pendingImport;
+    if (!pendingImport) return;
+    try {
+        normalizeRecords(pendingImport.records, selectedMapping(), urlMode === "manual" ? manualBaseURL.value : "");
+        mappingSubmitBtn.disabled = false;
+    } catch { mappingSubmitBtn.disabled = true; }
+}
+mappingForm.addEventListener("input", updateMappingSubmit);
+mappingForm.addEventListener("change", updateMappingSubmit);
+
 function cancelMapping() {
     pendingImport = null;
     mappingDialog.close();
@@ -284,6 +435,7 @@ mappingForm.addEventListener("submit", event => {
         const records = normalizeRecords(pendingImport.records, selectedMapping(), urlMode === "manual" ? manualBaseURL.value : "");
         if (urlMode === "manual") saveBaseURL(manualBaseURL.value);
         acceptImport(records, pendingImport.filename);
+        generateZip();
     } catch (error) { mappingError.textContent = error.message; }
 });
 
@@ -375,15 +527,62 @@ function sanitizeFilename(text) {
         .replace(/[. ]+$/g, "") || "QR";
 }
 
+const settingsStorageKey = "qr-generator.settings.v1";
+function saveSettings() {
+    try {
+        const {logo, ...appearance} = readSettings();
+        localStorage.setItem(settingsStorageKey, JSON.stringify({
+            ...appearance, preview: showBulkPreview.checked, logoData: activeLogoData
+        }));
+    } catch { /* Preferences are optional when browser storage is unavailable. */ }
+}
+function restoreSettings() {
+    let saved;
+    try { saved = JSON.parse(localStorage.getItem(settingsStorageKey) || "null"); }
+    catch { return; }
+    if (!saved || typeof saved !== "object") return;
+    for (const [key, control] of [["shape", shapeSelect], ["finderShape", finderShapeSelect]]) {
+        if (Array.from(control.options).some(option => option.value === saved[key])) control.value = saved[key];
+    }
+    for (const [key, control] of [["color", colorPicker], ["finderColor", finderColorPicker]]) {
+        if (typeof saved[key] === "string" && /^#[0-9a-f]{6}$/i.test(saved[key])) control.value = saved[key];
+    }
+    if (typeof saved.preview === "boolean") showBulkPreview.checked = saved.preview;
+    const storedLogo = readSavedLogos().find(item => item.data === saved.logoData);
+    if (storedLogo) {
+        const version = ++logoLoadVersion;
+        const image = new Image();
+        image.src = storedLogo.data;
+        image.decode().then(() => {
+            if (version !== logoLoadVersion || !image.naturalWidth || image.naturalWidth !== image.naturalHeight || image.naturalWidth > 256) return;
+            logoImage = image;
+            activeLogoData = storedLogo.data;
+            removeLogoBtn.hidden = false;
+            renderSavedLogos();
+            generateQRCode();
+        }).catch(() => {});
+    }
+}
+
 function readSettings() {
     return {
         shape: shapeSelect.value, finderShape: finderShapeSelect.value,
         color: colorPicker.value, finderColor: finderColorPicker.value,
-        size: Number.parseInt(sizeSlider.value, 10)
+        logo: logoImage,
+        size: EXPORT_SIZE
     };
 }
 
 function renderQRCode(canvas, inputText, settings) {
+    const verifiedLogo = drawQRCode(canvas, inputText, {...settings, size: EXPORT_SIZE});
+    if (settings.logo && !verifiedLogo) {
+        // The logo renderer restores the original, styled QR code on failure.
+        return "Das Logo wurde für diesen Code weggelassen. Die gewählten Formen und Farben bleiben erhalten. Bitte den Code vor Verwendung scannen.";
+    }
+    return "";
+}
+
+function drawQRCode(canvas, inputText, settings) {
     const ctx = canvas.getContext("2d");
     const qr = qrcode(0, "H");
     qr.addData(inputText);
@@ -506,7 +705,62 @@ function renderQRCode(canvas, inputText, settings) {
       drawFinderPattern(finderShape, 0, modules - 7);
     }
 
+    if (settings.logo) {
+        return drawVerifiedLogo(canvas, ctx, settings.logo, inputText, modules, moduleSize, padding);
+    }
 
+
+}
+
+// Reuse verification buffers and a successful footprint as a starting point.
+// Payloads differ, so every logo-bearing code still needs its own check.
+const logoFootprints = new WeakMap();
+let verificationCanvas;
+let logoBackupCanvas;
+function drawVerifiedLogo(canvas, context, logo, inputText, modules, moduleSize, padding) {
+    if (typeof jsQR !== "function") throw new Error("Die QR-Leseprüfung ist nicht verfügbar. Bitte die Seite neu laden oder das Logo entfernen.");
+    if (!Number.isInteger(moduleSize)) return false;
+    if (!verificationCanvas) verificationCanvas = document.createElement("canvas");
+    if (!logoBackupCanvas) logoBackupCanvas = document.createElement("canvas");
+    let maxModules = Math.floor(modules * 0.27);
+    if (maxModules % 2 === 0) maxModules--;
+    const odd = value => { const n = Math.max(5, Math.floor(value)); return n % 2 ? n : n - 1; };
+    const footprintCache = logoFootprints.get(logo) || new Map();
+    logoFootprints.set(logo, footprintCache);
+    const cached = footprintCache.get(modules);
+    const candidates = [...new Set([cached || maxModules, odd(modules * 0.18), 5])]
+        .filter(value => value >= 5 && value <= maxModules).sort((a, b) => b - a);
+    const backupEdge = maxModules * moduleSize;
+    const backupStart = padding + (modules - maxModules) / 2 * moduleSize;
+    logoBackupCanvas.width = logoBackupCanvas.height = backupEdge;
+    logoBackupCanvas.getContext("2d").drawImage(canvas, backupStart, backupStart, backupEdge, backupEdge, 0, 0, backupEdge, backupEdge);
+    const restore = () => context.drawImage(logoBackupCanvas, backupStart, backupStart);
+    // Four pixels per module keeps decoding work proportional to QR complexity,
+    // rather than scanning the full 1000 px export for every attempt.
+    const testModule = Math.min(moduleSize, 4);
+    verificationCanvas.width = verificationCanvas.height = (modules + 8) * testModule;
+    const testContext = verificationCanvas.getContext("2d", {willReadFrequently: true});
+    for (const covered of candidates) {
+        restore();
+        const x = padding + (modules - covered) / 2 * moduleSize;
+        const edge = covered * moduleSize;
+        context.fillStyle = "white";
+        context.fillRect(x, x, edge, edge);
+        context.drawImage(logo, x + moduleSize, x + moduleSize, edge - 2 * moduleSize, edge - 2 * moduleSize);
+        testContext.fillStyle = "white";
+        testContext.fillRect(0, 0, verificationCanvas.width, verificationCanvas.height);
+        testContext.imageSmoothingEnabled = true;
+        testContext.drawImage(canvas, padding, padding, modules * moduleSize, modules * moduleSize,
+            4 * testModule, 4 * testModule, modules * testModule, modules * testModule);
+        const pixels = testContext.getImageData(0, 0, verificationCanvas.width, verificationCanvas.height);
+        const decoded = jsQR(pixels.data, pixels.width, pixels.height, {inversionAttempts: "dontInvert"});
+        if (decoded && decoded.data === inputText) {
+            footprintCache.set(modules, covered);
+            return true;
+        }
+    }
+    restore();
+    return false;
 }
 
 // Wrap at word boundaries, splitting long words when necessary.
@@ -540,10 +794,15 @@ function createLabeledCanvas(qrCanvas, title, subtitle, internalId = "") {
     const context = output.getContext("2d");
     const margin = Math.max(12, Math.round(qrCanvas.width * 0.05));
     const maxWidth = qrCanvas.width - margin * 2;
+    const scale = qrCanvas.width / 1000;
+    const titleSize = Math.round(72 * scale);
+    const subtitleSize = Math.round(48 * scale);
+    const idSize = Math.round(36 * scale);
+    const idLineHeight = Math.ceil(idSize * 1.4);
     const blocks = [];
     for (const [text, font, lineHeight, color] of [
-        [title, "bold 28px Arial", 36, "#222"],
-        [subtitle, "18px Arial", 26, "#666"]
+        [title, `bold ${titleSize}px Arial`, Math.ceil(titleSize * 1.3), "#222"],
+        [subtitle, `${subtitleSize}px Arial`, Math.ceil(subtitleSize * 1.4), "#666"]
     ]) {
         if (!text.trim()) continue;
         context.font = font;
@@ -553,9 +812,9 @@ function createLabeledCanvas(qrCanvas, title, subtitle, internalId = "") {
         ? margin * 2 + blocks.reduce((height, block) => height + block.lines.length * block.lineHeight, 0)
         : 0;
     const idText = String(internalId ?? "").trim();
-    context.font = "14px Arial";
+    context.font = `${idSize}px Arial`;
     const idLines = idText ? wrapText(context, idText, maxWidth) : [];
-    const footerHeight = idLines.length ? margin * 2 + idLines.length * 20 : 0;
+    const footerHeight = idLines.length ? margin * 2 + idLines.length * idLineHeight : 0;
     output.width = qrCanvas.width;
     output.height = qrCanvas.height + headerHeight + footerHeight;
     // Browsers impose canvas size limits; fail clearly instead of exporting clipped text.
@@ -574,12 +833,12 @@ function createLabeledCanvas(qrCanvas, title, subtitle, internalId = "") {
         }
     }
     context.drawImage(qrCanvas, 0, headerHeight);
-    context.font = "14px Arial";
+    context.font = `${idSize}px Arial`;
     context.fillStyle = "#666";
     y = headerHeight + qrCanvas.height + margin;
     for (const line of idLines) {
-        context.fillText(line, output.width / 2, y + 10, maxWidth);
-        y += 20;
+        context.fillText(line, output.width / 2, y + idLineHeight / 2, maxWidth);
+        y += idLineHeight;
     }
     return output;
 }
@@ -597,6 +856,7 @@ const bulkCanvas = document.getElementById("bulkCanvas");
 const previewStatus = document.getElementById("previewStatus");
 function dismissPreview() {
     showBulkPreview.checked = false;
+    saveSettings();
     bulkPreview.close();
 }
 document.getElementById("closePreviewBtn").addEventListener("click", dismissPreview);
@@ -606,6 +866,7 @@ bulkPreview.addEventListener("cancel", event => {
 });
 showBulkPreview.addEventListener("change", () => {
     if (!showBulkPreview.checked) bulkPreview.close();
+    saveSettings();
 });
 
 generateBtn.addEventListener("click", generateZip);
@@ -636,6 +897,7 @@ async function generateZip() {
     const entries = loadedData.slice();
     const settings = readSettings();
     try {
+        let adjustedCount = 0;
         const filenames = new Set();
         const zip = new JSZip();
         const qrCanvas = document.createElement("canvas");
@@ -643,16 +905,17 @@ async function generateZip() {
             checkExportCancelled();
             const entry = entries[i];
             statusDiv.textContent = "QR-Code " + (i + 1) + " von " + entries.length + " wird erstellt …";
-            renderQRCode(qrCanvas, entry.URL, settings);
+            const adjustment = renderQRCode(qrCanvas, entry.URL, settings);
+            if (adjustment) adjustedCount++;
             const output = createLabeledCanvas(qrCanvas, entry.Titel, entry.Untertitel, entry.Interne_ID);
             if (showBulkPreview.checked) {
                 bulkCanvas.width = output.width;
                 bulkCanvas.height = output.height;
                 bulkCanvas.getContext("2d").drawImage(output, 0, 0);
-                previewStatus.textContent = statusDiv.textContent;
+                previewStatus.textContent = statusDiv.textContent + (adjustment ? " " + adjustment : "");
                 if (!bulkPreview.open) bulkPreview.showModal();
-                // Give the browser time to paint and keep the preview readable.
-                await new Promise(resolve => setTimeout(resolve, 80));
+                // Yield for painting/cancellation without adding a delay per image.
+                await new Promise(resolve => setTimeout(resolve, 0));
             } else {
                 // Allow cancellation and other UI events between images.
                 await new Promise(resolve => setTimeout(resolve, 0));
@@ -678,7 +941,9 @@ async function generateZip() {
         info.textContent = "";
         bulkPreview.close();
         bulkCanvas.width = bulkCanvas.height = 0;
-        statusDiv.textContent = entries.length + " QR-Codes wurden erstellt. Die importierten Daten wurden entfernt.";
+        statusDiv.textContent = entries.length + " QR-Codes wurden erstellt. " +
+            (adjustedCount ? adjustedCount + " Codes wurden ohne Logo exportiert; Formen und Farben wurden beibehalten. " : "") +
+            "Die importierten Daten wurden entfernt.";
     } catch (error) {
         if (error === exportCancelled) {
             statusDiv.textContent = "Export abgebrochen. Die importierten Daten bleiben für einen erneuten Export erhalten.";
@@ -698,7 +963,7 @@ async function generateZip() {
 }
 
 function clearQRCode() {
-  canvas.width = Number.parseInt(sizeSlider.value, 10);
+  canvas.width = EXPORT_SIZE;
   canvas.height = canvas.width;
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -786,7 +1051,10 @@ function loadQueryParameters() {
 
 function generateQRCode() {
   qrError.textContent = "";
-  const isExample = !qrInput.value.trim() && !bulkImport.hidden;
+  document.getElementById("renderNotice").textContent = "";
+  const isExample = !qrInput.value.trim();
+  canvas.classList.toggle("is-example", isExample);
+  canvas.setAttribute("aria-label", isExample ? "Beispiel-QR-Code ohne eigene Daten" : "Erstellter QR-Code");
   document.getElementById("exampleHint").hidden = !isExample;
   const inputText = qrInput.value.trim() || (isExample ? "https://example.com" : "");
 
@@ -803,11 +1071,17 @@ function generateQRCode() {
   }
 
   try {
-    renderQRCode(canvas, inputText, readSettings());
+    // Verify off-screen; failed logo checks must not erase the visible preview.
+    const nextCanvas = document.createElement("canvas");
+    const adjustment = renderQRCode(nextCanvas, inputText, readSettings());
+    document.getElementById("renderNotice").textContent = adjustment;
+    canvas.width = nextCanvas.width;
+    canvas.height = nextCanvas.height;
+    ctx.drawImage(nextCanvas, 0, 0);
     downloadBtn.hidden = isExample;
   } catch (error) {
-    clearQRCode();
-    qrError.textContent = "Der Text konnte nicht als QR-Code erstellt werden. Bitte kürzen Sie die Eingabe.";
+    downloadBtn.hidden = true;
+    qrError.textContent = (error instanceof Error ? error.message : "Der Text konnte nicht als QR-Code erstellt werden. Bitte kürzen Sie die Eingabe.") + " Die letzte erfolgreiche Vorschau bleibt erhalten.";
     console.error(error);
   }
 }
@@ -828,12 +1102,16 @@ async function downloadQRCode() {
   shapeSelect,
   colorPicker,
   finderShapeSelect,
-  finderColorPicker,
-  sizeSlider
-].forEach((control) => control.addEventListener("input", generateQRCode));
+  finderColorPicker
+].forEach((control) => control.addEventListener("input", () => {
+    generateQRCode();
+    if (control !== qrInput) saveSettings();
+}));
 
 downloadBtn.addEventListener("click", downloadQRCode);
 
+restoreSettings();
+renderSavedLogos();
 loadQueryParameters();
 
 setImportVisible(new URLSearchParams(window.location.search).size > 0);

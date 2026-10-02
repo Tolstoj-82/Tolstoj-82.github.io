@@ -215,3 +215,100 @@ canvas { max-width: 100%; height: auto; }
 #savedBaseURLs .saved-base-url-remove { flex: 0 0 38px; padding: 4px; font-size: 24px; }
 #baseURLStorageStatus { font-size: 13px; font-weight: normal; color: #a02020; }
 #baseURLStorageStatus:empty { display: none; }
+
+button.secondary { background: #e8e8e8; color: #333; }
+button.secondary:hover { background: #d7d7d7; }
+button.secondary:disabled { color: #777; background: #eee; }
+.modal-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.logo-controls { margin: 16px auto; max-width: 650px; }
+.logo-controls input { max-width: 100%; }
+#logoHelp, #logoStatus { font-size: 13px; font-weight: normal; color: #666; }
+#removeLogoBtn { margin: 8px; padding: 7px 12px; font-size: 13px; }
+
+.logo-info { position: relative; display: inline-block; }
+.logo-info .info-button { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: #555; color: #fff; font: bold 11px/1 Georgia, serif; padding: 0; margin: 0 8px 0 0; vertical-align: middle; }
+.logo-info .info-button:hover { background: #333; }
+#logoHelp { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); width: 250px; padding: 10px; background: #333; color: white; border-radius: 6px; text-align: left; z-index: 3; box-shadow: 0 3px 10px #0003; }
+.logo-info:hover #logoHelp, .logo-info:focus-within #logoHelp { display: block; }
+#savedLogos { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.saved-logo { position: relative; }
+.saved-logo .saved-logo-select { margin: 0; padding: 7px; background: white; border: 1px solid #ccc; width: 62px; height: 62px; }
+.saved-logo-select img { width: 100%; height: 100%; object-fit: contain; }
+.saved-logo-select[aria-pressed="true"] { outline: 2px solid #0078d4; }
+.saved-logo .saved-logo-delete { position: absolute; top: -7px; right: -7px; margin: 0; padding: 0; width: 22px; height: 22px; border-radius: 50%; background: #eee; color: #333; font-size: 18px; }
+
+/* Page layout: keep the existing palette while giving controls a consistent rhythm. */
+* { box-sizing: border-box; }
+body { margin: 0; padding: 32px 20px 48px; line-height: 1.5; }
+button, input, select { font-family: inherit; }
+button { margin-top: 0; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #0078d4; outline-offset: 3px; }
+.generator { width: 100%; max-width: 760px; margin: 0 auto; padding: 24px; background: #fff; border: 1px solid #e2e2e2; border-radius: 10px; }
+.settings-panel { text-align: left; }
+.settings-panel label { margin: 0; font-size: 14px; font-weight: 600; }
+.address-field { display: grid; gap: 7px; }
+#qrInput { width: 100%; margin: 0; padding: 11px 12px; font-size: 15px; background: #fafafa; }
+.appearance-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+.appearance-field { min-width: 0; }
+.shape-color { display: flex; align-items: center; gap: 10px; margin-top: 7px; }
+.shape-color select { flex: 1; min-width: 0; width: 100%; margin: 0; height: 40px; background: white; font-size: 14px; }
+.shape-color input[type="color"] { width: 40px; height: 36px; flex-shrink: 0; background: transparent; }
+.size-field { max-width: 340px; margin: 20px auto 0; padding-top: 16px; border-top: 1px solid #eee; }
+.size-label { display: flex; justify-content: space-between; align-items: center; }
+#sizeValue { font-size: 13px; color: #666; font-variant-numeric: tabular-nums; }
+#sizeSlider { width: 100%; margin: 12px 0 0; padding: 0; accent-color: #0078d4; }
+.preview-panel { padding-top: 28px; }
+#labelContainer { margin: 0 0 16px; overflow-wrap: anywhere; }
+#labelContainer:has(#qrTitle:empty):has(#qrSubtitle:empty) { display: none; }
+.canvas-wrap { margin: 0; line-height: 0; }
+#qrCanvas { width: 300px; max-width: 100%; height: auto; aspect-ratio: 1; box-shadow: 0 5px 18px rgba(0, 0, 0, .16); border-radius: 16px; }
+.logo-controls { max-width: 480px; margin: 24px auto 20px; }
+.logo-heading { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; }
+.logo-heading label { margin: 0; font-size: 13px; font-weight: 500; color: #555; }
+.logo-info .info-button { margin: 0; }
+.logo-upload-row { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; }
+#logoInput { width: 270px; font-size: 12px; color: #666; }
+#logoInput::file-selector-button { padding: 8px 12px; margin-right: 10px; border: 1px solid #d6d6d6; border-radius: 5px; background: #fff; color: #444; cursor: pointer; font: inherit; }
+#logoInput::file-selector-button:hover { background: #eee; }
+#removeLogoBtn { margin: 0; }
+#logoStatus { margin: 8px 0 0; }
+#logoStatus:empty, #qrError:empty, #info:empty, #status:empty { display: none; }
+#downloadBtn { min-width: 180px; }
+#exampleHint { margin: 16px auto; font-size: 13px; }
+.import-disclosure { margin-top: 20px; }
+#bulkImport { max-width: 600px; margin: 20px auto 0; }
+#bulkImport hr { margin-bottom: 24px; border-color: #ddd; }
+#dropZone { max-width: none; padding: 32px 20px; border: 2px dashed #bbb; border-radius: 10px; }
+#dropZone strong { display: block; font-size: 15px; }
+#dropZone span { display: block; margin-top: 6px; font-size: 13px; color: #777; }
+#dropZone:hover { border-color: #0078d4; background: #f8fbff; }
+#info { margin-top: 14px; font-size: 13px; color: #666; }
+.preview-option { margin: 18px 0 14px; }
+.preview-option label { display: inline-flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; }
+input[type="checkbox"], input[type="radio"] { accent-color: #0078d4; }
+.export-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+#status { margin-top: 16px; font-size: 13px; }
+#mappingHeading { margin: 0; font-size: 21px; }
+#mappingHelp { font-size: 14px; color: #666; margin: 10px 0 20px; }
+#mappingForm label { font-size: 14px; }
+#mappingForm select, #manualBaseURL { min-height: 40px; }
+.modal-actions { margin-top: 24px; padding-top: 18px; border-top: 1px solid #eee; }
+@media (max-width: 540px) {
+  body { padding: 16px 14px 32px; }
+  .generator { padding: 18px; }
+  .appearance-fields { grid-template-columns: 1fr; gap: 14px; }
+  .preview-panel { padding-top: 22px; }
+  #mappingDialog { padding: 20px; }
+  #logoHelp { left: auto; right: -30px; transform: none; width: min(250px, calc(100vw - 40px)); }
+  .modal-actions button { flex: 1; padding: 11px 14px; }
+}
+
+#qrCanvas.is-example { opacity: .35; }
+#baseURLCombo.has-suggestions #manualBaseURL { padding-right: 40px; }
+#baseURLDropdownBtn { position: absolute; top: 1px; right: 1px; width: 36px; height: 38px; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: transparent; color: #666; border-radius: 0 5px 5px 0; }
+#baseURLDropdownBtn:hover { background: #eee; }
+#baseURLDropdownBtn span { width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+#baseURLCombo.is-open #baseURLDropdownBtn span { transform: translateY(2px) rotate(225deg); }
+
+#renderNotice { font-size: 13px; font-weight: normal; color: #666; max-width: 520px; margin: 12px auto; }
+#renderNotice:empty { display: none; }
