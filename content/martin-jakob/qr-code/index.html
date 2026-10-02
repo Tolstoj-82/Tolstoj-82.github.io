@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QR Code Generator</title>
+    <title>QR-Code-Generator</title>
     <script defer src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
@@ -14,15 +14,15 @@
   </head>
   <body>
     <p>
-      <label for="qrInput">Adresse</label>
+      <label for="qrInput">Adresse oder Text</label>
       <input
         type="text"
         id="qrInput"
-        placeholder="Text..."
+        placeholder="Adresse oder Text eingeben …"
       />
     </p>
     <p>
-      <label for="shapeSelect">QR Code</label>
+      <label for="shapeSelect">QR-Code</label>
       <select id="shapeSelect">
         <option value="square">Eckig</option>
         <option value="circle">Rund</option>
@@ -36,10 +36,10 @@
         type="color"
         id="colorPicker"
         value="#000000"
-        aria-label="QR code color"
+        aria-label="Farbe des QR-Codes"
       />
       |
-      <label for="finderShapeSelect">Finder</label>
+      <label for="finderShapeSelect">Positionsmarkierungen</label>
       <select id="finderShapeSelect">
         <option value="square">Eckig</option>
         <option value="circle">Rund</option>
@@ -54,7 +54,7 @@
         type="color"
         id="finderColorPicker"
         value="#000000"
-        aria-label="Finder color"
+        aria-label="Farbe der Positionsmarkierungen"
       />
     </p>
     <input
@@ -63,7 +63,7 @@
       min="200"
       max="700"
       value="300"
-      aria-label="QR code size"
+      aria-label="Grösse des QR-Codes"
     />
 
     <div id="labelContainer">
@@ -71,9 +71,10 @@
       <div id="qrSubtitle"></div>
     </div>
 
-    <p><canvas id="qrCanvas" aria-label="Generated QR code"></canvas></p>
+    <p><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></p>
+    <p id="exampleHint" hidden>Beispiel-QR-Code: Form, Farben und Grösse oben anpassen. Diese Einstellungen gelten auch für den Massenexport.</p>
     <button id="downloadBtn" type="button" hidden>
-      Download
+      Herunterladen
     </button>
     <div class="import-disclosure">
       <button id="toggleImportBtn" type="button" aria-expanded="false" aria-controls="bulkImport">Massenimport <span aria-hidden="true"></span></button>
@@ -82,8 +83,8 @@
       <hr />
 
     <div id="dropZone" role="button" tabindex="0" aria-label="JSON-Datei importieren">
-    <strong>Droppe ein JSON hier!</strong><br><br>
-    oder Klicke das Feld.
+    <strong>JSON-Datei hierher ziehen</strong><br><br>
+    oder zum Auswählen auf dieses Feld klicken.
 </div>
 
 <input
@@ -99,11 +100,22 @@
     id="generateBtn"
     disabled
 >
-   Generiere ein ZIP-File
+   ZIP-Datei erstellen
 </button>
 
+<p class="preview-option"><label><input id="showBulkPreview" type="checkbox" checked /> QR-Codes während der Erstellung anzeigen</label></p>
 <div id="status" role="status"></div>
+
     </section>
+    <dialog id="bulkPreview" aria-labelledby="previewHeading" aria-describedby="previewHelp">
+      <div class="preview-header">
+        <h2 id="previewHeading">QR-Code-Vorschau</h2>
+        <button id="closePreviewBtn" type="button" aria-label="Vorschau schliessen" title="Vorschau schliessen" autofocus><span aria-hidden="true">×</span></button>
+      </div>
+      <p id="previewHelp">Sie können dieses Fenster schliessen, ohne die Verarbeitung abzubrechen. Ohne Vorschau werden die QR-Codes schneller erstellt.</p>
+      <div class="preview-image"><canvas id="bulkCanvas" aria-label="Vorschau des aktuellen QR-Codes"></canvas></div>
+      <p id="previewStatus" role="status"></p>
+    </dialog>
     <p id="qrError" role="alert"></p>
 
   </body>

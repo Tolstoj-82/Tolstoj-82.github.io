@@ -29,10 +29,11 @@ const toggleImportBtn = document.getElementById("toggleImportBtn");
 function setImportVisible(visible) {
     bulkImport.hidden = !visible;
     toggleImportBtn.setAttribute("aria-expanded", String(visible));
+    generateQRCode();
 }
 
 toggleImportBtn.addEventListener("click", () => setImportVisible(bulkImport.hidden));
-setImportVisible(new URLSearchParams(window.location.search).size > 0);
+
 
 dropZone.addEventListener("keydown", event => {
     if (event.key === "Enter" || event.key === " ") {
@@ -81,7 +82,7 @@ async function loadFile(file) {
     loadedData = null;
     generateBtn.disabled = true;
     info.textContent = "";
-    statusDiv.textContent = "Lade JSON…";
+    statusDiv.textContent = "JSON-Datei wird geladen …";
     try {
         const data = JSON.parse(await file.text());
         if (version !== fileLoadVersion) return;
@@ -97,13 +98,13 @@ async function loadFile(file) {
             }
             return { URL: entry.URL.trim(), Interne_ID: String(entry.Interne_ID ?? "").trim(), Titel: entry.Titel || "", Untertitel: entry.Untertitel || "" };
         });
-        info.textContent = "Dateiname: " + file.name + "\nAnzahl Einträge: " + loadedData.length;
+        info.textContent = "Dateiname: " + file.name + "\nAnzahl der Einträge: " + loadedData.length;
         generateBtn.disabled = false;
         statusDiv.textContent = "";
     } catch (error) {
         if (version !== fileLoadVersion) return;
         loadedData = null;
-        statusDiv.textContent = "Ungültiges JSON: " + error.message;
+        statusDiv.textContent = "Ungültige JSON-Datei: " + error.message;
     } finally {
         if (version === fileLoadVersion) fileInput.value = "";
     }
@@ -120,315 +121,26 @@ function sanitizeFilename(text) {
         .replace(/[. ]+$/g, "") || "QR";
 }
 
-function createQRImage(entry){
-
-    return new Promise((resolve, reject) => {
-
-  const qr = qrcode(0, "H");
-
-  qr.addData(entry.URL);
-  qr.make();
-
-  const modules = qr.getModuleCount();
-
-  const width = 1000;
-  const qrSize = 850;
-
-  const title = entry.Titel || "";
-  const subtitle = entry.Untertitel || "";
-
-  const headerHeight =
-      subtitle.trim() !== ""
-          ? 140
-          : 90;
-
-  const exportCanvas = document.createElement("canvas");
-  const exportCtx = exportCanvas.getContext("2d");
-
-  exportCanvas.width = width;
-  exportCanvas.height = qrSize + headerHeight;
-
-  exportCtx.fillStyle = "white";
-  exportCtx.fillRect(0,0,exportCanvas.width,exportCanvas.height);
-
-  exportCtx.textAlign = "center";
-
-  if(title){
-
-      exportCtx.fillStyle = "#000";
-
-      exportCtx.font = "bold 42px Arial";
-
-      exportCtx.fillText(
-          title,
-          width / 2,
-          50
-      );
-
-  }
-
-  if(subtitle){
-
-      exportCtx.fillStyle = "#666";
-
-      exportCtx.font = "24px Arial";
-
-      exportCtx.fillText(
-          subtitle,
-          width / 2,
-          90
-      );
-
-  }
-
-  const moduleSize =
-      Math.floor((qrSize * 0.8) / modules);
-
-  const actualQRSize =
-      modules * moduleSize;
-
-  const qrOffsetX =
-      Math.floor(
-          (width - actualQRSize) / 2
-      );
-
-  const qrOffsetY =
-      headerHeight +
-      Math.floor(
-          (qrSize - actualQRSize) / 2
-      );
-
-  exportCtx.fillStyle = "#000";
-
-  for(let row=0; row<modules; row++){
-
-      for(let col=0; col<modules; col++){
-
-          if(!qr.isDark(row,col)){
-              continue;
-          }
-
-          exportCtx.fillRect(
-              qrOffsetX + col * moduleSize,
-              qrOffsetY + row * moduleSize,
-              moduleSize,
-              moduleSize
-          );
-
-      }
-
-  }
-
-  exportCanvas.toBlob(blob => {
-
-      if (blob) resolve(blob);
-            else reject(new Error("PNG konnte nicht erstellt werden."));
-
-  }, "image/png");
-
-    });
-
+function readSettings() {
+    return {
+        shape: shapeSelect.value, finderShape: finderShapeSelect.value,
+        color: colorPicker.value, finderColor: finderColorPicker.value,
+        size: Number.parseInt(sizeSlider.value, 10)
+    };
 }
 
-generateBtn.addEventListener(
-    "click",
-    generateZip
-);
-
-async function generateZip(){
-
-    if (!loadedData || isGenerating) {
-  return;
-    }
-
-    try{
-
-  generateBtn.disabled = true;
-
-  isGenerating = true;
-  fileInput.disabled = true;
-  const entries = loadedData.slice();
-  const filenames = new Set();
-  const zip = new JSZip();
-
-  for(let i=0; i<entries.length; i++){
-
-      const entry = entries[i];
-
-      statusDiv.textContent =
-          `Generating ${i + 1} / ${entries.length}`;
-
-      const image =
-          await createQRImage(entry);
-
-      const baseName =
-          sanitizeFilename(
-              entry.Titel ||
-              entry.Interne_ID
-          );
-            let fileName = `${baseName}.png`;
-            let suffix = 2;
-            while (filenames.has(fileName.toLowerCase())) {
-                fileName = `${baseName}_${suffix++}.png`;
-            }
-            filenames.add(fileName.toLowerCase());
-
-      zip.file(
-          fileName,
-          image
-      );
-
-  }
-
-  statusDiv.textContent =
-      "Erzeuge das ZIP...";
-
-  const zipBlob =
-      await zip.generateAsync({
-          type:"blob"
-      });
-
-  saveAs(
-      zipBlob,
-      "QR-Codes.zip"
-  );
-
-  statusDiv.textContent =
-      `Done! Generated ${entries.length} QR codes.`;
-
-    }
-    catch(error){
-
-  console.error(error);
-
-  statusDiv.textContent = `Export fehlgeschlagen: ${error.message}`;
-
-    }
-    finally{
-
-  isGenerating = false;
-        fileInput.disabled = false;
-        generateBtn.disabled = !loadedData;
-
-    }
-
-}
-
-
-
-function clearQRCode() {
-  canvas.width = Number.parseInt(sizeSlider.value, 10);
-  canvas.height = canvas.width;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  downloadBtn.hidden = true;
-}
-
-function roundedRectPath(context, x, y, width, height, radius) {
-  const safeRadius = Math.min(radius, width / 2, height / 2);
-  context.beginPath();
-  context.moveTo(x + safeRadius, y);
-  context.lineTo(x + width - safeRadius, y);
-  context.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
-  context.lineTo(x + width, y + height - safeRadius);
-  context.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
-  context.lineTo(x + safeRadius, y + height);
-  context.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
-  context.lineTo(x, y + safeRadius);
-  context.quadraticCurveTo(x, y, x + safeRadius, y);
-  context.closePath();
-}
-
-function diamondPath(context, centerX, centerY, radius) {
-  context.beginPath();
-  context.moveTo(centerX, centerY - radius);
-  context.lineTo(centerX + radius, centerY);
-  context.lineTo(centerX, centerY + radius);
-  context.lineTo(centerX - radius, centerY);
-  context.closePath();
-}
-
-function drawModule(shape, x, y, size) {
-  const centerX = x + size / 2;
-  const centerY = y + size / 2;
-
-  switch (shape) {
-    case "circle":
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-    case "rounded":
-      roundedRectPath(ctx, x, y, size, size, size * 0.3);
-      ctx.fill();
-      break;
-    case "diamond":
-      diamondPath(ctx, centerX, centerY, size / 2);
-      ctx.fill();
-      break;
-    case "horizontal":
-      roundedRectPath(ctx, x, y + size * 0.15, size, size * 0.7, size * 0.35);
-      ctx.fill();
-      break;
-    case "vertical":
-      roundedRectPath(ctx, x + size * 0.15, y, size * 0.7, size, size * 0.35);
-      ctx.fill();
-      break;
-    case "dot":
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, size * 0.35, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-    default:
-      ctx.fillRect(x, y, size, size);
-  }
-}
-
-function loadQueryParameters() {
-  const params = new URLSearchParams(window.location.search);
-
-  const url = params.get("url");
-  const title = params.get("title");
-  const subtitle = params.get("subtitle");
-
-  if (url) {
-    qrInput.value = url;
-  }
-
-  qrTitle.textContent = title || "";
-  qrSubtitle.textContent = subtitle || "";
-
-  if (title) {
-    document.title = title;
-  }
-}
-
-function generateQRCode() {
-  qrError.textContent = "";
-  const inputText = qrInput.value.trim();
-
-  if (inputText === "") {
-    clearQRCode();
-    return;
-  }
-
-  if (typeof qrcode !== "function") {
-    downloadBtn.hidden = true;
-    clearQRCode();
-    qrError.textContent = "Die QR-Code-Bibliothek konnte nicht geladen werden. Bitte die Seite neu laden.";
-    return;
-  }
-
-  try {
+function renderQRCode(canvas, inputText, settings) {
+    const ctx = canvas.getContext("2d");
     const qr = qrcode(0, "H");
     qr.addData(inputText);
     qr.make();
 
     const modules = qr.getModuleCount();
-    const shape = shapeSelect.value;
-    const finderShape = finderShapeSelect.value;
-    const color = colorPicker.value;
-    const finderColor = finderColorPicker.value;
-    const size = Number.parseInt(sizeSlider.value, 10);
+    const shape = settings.shape;
+    const finderShape = settings.finderShape;
+    const color = settings.color;
+    const finderColor = settings.finderColor;
+    const size = settings.size;
 
     canvas.width = size;
     canvas.height = size;
@@ -530,7 +242,7 @@ function generateQRCode() {
         const drawShape = isFinderPattern ? finderShape : shape;
         ctx.fillStyle = isFinderPattern ? finderColor : color;
 
-        drawModule(drawShape, x, y, moduleSize);
+        drawModule(ctx, drawShape, x, y, moduleSize);
       }
     }
 
@@ -540,7 +252,264 @@ function generateQRCode() {
       drawFinderPattern(finderShape, 0, modules - 7);
     }
 
-    downloadBtn.hidden = false;
+
+}
+
+// Wrap at word boundaries, splitting long words when necessary.
+function wrapText(context, text, maxWidth) {
+    const lines = [];
+    for (const paragraph of text.split(/\r?\n/)) {
+        let line = "";
+        for (const word of paragraph.trim().split(/\s+/)) {
+            const candidate = line ? line + " " + word : word;
+            if (context.measureText(candidate).width <= maxWidth) {
+                line = candidate;
+                continue;
+            }
+            if (line) lines.push(line);
+            line = "";
+            for (const character of word) {
+                if (line && context.measureText(line + character).width > maxWidth) {
+                    lines.push(line);
+                    line = "";
+                }
+                line += character;
+            }
+        }
+        lines.push(line);
+    }
+    return lines;
+}
+
+function createLabeledCanvas(qrCanvas, title, subtitle) {
+    const output = document.createElement("canvas");
+    const context = output.getContext("2d");
+    const margin = Math.max(12, Math.round(qrCanvas.width * 0.05));
+    const maxWidth = qrCanvas.width - margin * 2;
+    const blocks = [];
+    for (const [text, font, lineHeight, color] of [
+        [title, "bold 28px Arial", 36, "#222"],
+        [subtitle, "18px Arial", 26, "#666"]
+    ]) {
+        if (!text.trim()) continue;
+        context.font = font;
+        blocks.push({font, lineHeight, color, lines: wrapText(context, text, maxWidth)});
+    }
+    const headerHeight = blocks.length
+        ? margin * 2 + blocks.reduce((height, block) => height + block.lines.length * block.lineHeight, 0)
+        : 0;
+    output.width = qrCanvas.width;
+    output.height = qrCanvas.height + headerHeight;
+    // Browsers impose canvas size limits; fail clearly instead of exporting clipped text.
+    if (output.height > 16384) throw new Error("Die Beschriftung ist zu lang. Bitte kürzen Sie den Text.");
+    context.fillStyle = "white";
+    context.fillRect(0, 0, output.width, output.height);
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    let y = margin;
+    for (const block of blocks) {
+        context.font = block.font;
+        context.fillStyle = block.color;
+        for (const line of block.lines) {
+            context.fillText(line, output.width / 2, y + block.lineHeight / 2, maxWidth);
+            y += block.lineHeight;
+        }
+    }
+    context.drawImage(qrCanvas, 0, headerHeight);
+    return output;
+}
+
+function toPNG(source) {
+    return new Promise((resolve, reject) => source.toBlob(blob => {
+        if (blob) resolve(blob);
+        else reject(new Error("Die PNG-Datei konnte nicht erstellt werden."));
+    }, "image/png"));
+}
+
+const showBulkPreview = document.getElementById("showBulkPreview");
+const bulkPreview = document.getElementById("bulkPreview");
+const bulkCanvas = document.getElementById("bulkCanvas");
+const previewStatus = document.getElementById("previewStatus");
+function dismissPreview() {
+    showBulkPreview.checked = false;
+    bulkPreview.close();
+}
+document.getElementById("closePreviewBtn").addEventListener("click", dismissPreview);
+bulkPreview.addEventListener("cancel", event => {
+    event.preventDefault();
+    dismissPreview();
+});
+showBulkPreview.addEventListener("change", () => {
+    if (!showBulkPreview.checked) bulkPreview.close();
+});
+
+generateBtn.addEventListener("click", generateZip);
+
+async function generateZip() {
+    if (!loadedData || isGenerating) return;
+    isGenerating = true;
+    generateBtn.disabled = true;
+    fileInput.disabled = true;
+    dropZone.setAttribute("aria-disabled", "true");
+    bulkPreview.close();
+    const entries = loadedData.slice();
+    const settings = readSettings();
+    try {
+        const filenames = new Set();
+        const zip = new JSZip();
+        const qrCanvas = document.createElement("canvas");
+        for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+            statusDiv.textContent = "QR-Code " + (i + 1) + " von " + entries.length + " wird erstellt …";
+            renderQRCode(qrCanvas, entry.URL, settings);
+            const output = createLabeledCanvas(qrCanvas, entry.Titel, entry.Untertitel);
+            if (showBulkPreview.checked) {
+                bulkCanvas.width = output.width;
+                bulkCanvas.height = output.height;
+                bulkCanvas.getContext("2d").drawImage(output, 0, 0);
+                previewStatus.textContent = statusDiv.textContent;
+                if (!bulkPreview.open) bulkPreview.showModal();
+                // Give the browser time to paint and keep the preview readable.
+                await new Promise(resolve => setTimeout(resolve, 80));
+            }
+            const image = await toPNG(output);
+            const baseName = sanitizeFilename(entry.Titel || entry.Interne_ID);
+            let fileName = baseName + ".png";
+            let suffix = 2;
+            while (filenames.has(fileName.toLowerCase())) fileName = baseName + "_" + suffix++ + ".png";
+            filenames.add(fileName.toLowerCase());
+            zip.file(fileName, image);
+        }
+        statusDiv.textContent = "ZIP-Datei wird erstellt …";
+        previewStatus.textContent = statusDiv.textContent;
+        const zipBlob = await zip.generateAsync({type: "blob"});
+        saveAs(zipBlob, "QR-Codes.zip");
+        loadedData = null;
+        fileInput.value = "";
+        info.textContent = "";
+        bulkPreview.close();
+        bulkCanvas.width = bulkCanvas.height = 0;
+        statusDiv.textContent = entries.length + " QR-Codes wurden erstellt. Die importierten Daten wurden entfernt.";
+    } catch (error) {
+        console.error(error);
+        statusDiv.textContent = "Export fehlgeschlagen: " + error.message;
+    } finally {
+        bulkPreview.close();
+        isGenerating = false;
+        fileInput.disabled = false;
+        dropZone.setAttribute("aria-disabled", "false");
+        generateBtn.disabled = !loadedData;
+    }
+}
+
+function clearQRCode() {
+  canvas.width = Number.parseInt(sizeSlider.value, 10);
+  canvas.height = canvas.width;
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  downloadBtn.hidden = true;
+}
+
+function roundedRectPath(context, x, y, width, height, radius) {
+  const safeRadius = Math.min(radius, width / 2, height / 2);
+  context.beginPath();
+  context.moveTo(x + safeRadius, y);
+  context.lineTo(x + width - safeRadius, y);
+  context.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+  context.lineTo(x + width, y + height - safeRadius);
+  context.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
+  context.lineTo(x + safeRadius, y + height);
+  context.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
+  context.lineTo(x, y + safeRadius);
+  context.quadraticCurveTo(x, y, x + safeRadius, y);
+  context.closePath();
+}
+
+function diamondPath(context, centerX, centerY, radius) {
+  context.beginPath();
+  context.moveTo(centerX, centerY - radius);
+  context.lineTo(centerX + radius, centerY);
+  context.lineTo(centerX, centerY + radius);
+  context.lineTo(centerX - radius, centerY);
+  context.closePath();
+}
+
+function drawModule(ctx, shape, x, y, size) {
+  const centerX = x + size / 2;
+  const centerY = y + size / 2;
+
+  switch (shape) {
+    case "circle":
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    case "rounded":
+      roundedRectPath(ctx, x, y, size, size, size * 0.3);
+      ctx.fill();
+      break;
+    case "diamond":
+      diamondPath(ctx, centerX, centerY, size / 2);
+      ctx.fill();
+      break;
+    case "horizontal":
+      roundedRectPath(ctx, x, y + size * 0.15, size, size * 0.7, size * 0.35);
+      ctx.fill();
+      break;
+    case "vertical":
+      roundedRectPath(ctx, x + size * 0.15, y, size * 0.7, size, size * 0.35);
+      ctx.fill();
+      break;
+    case "dot":
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, size * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    default:
+      ctx.fillRect(x, y, size, size);
+  }
+}
+
+function loadQueryParameters() {
+  const params = new URLSearchParams(window.location.search);
+
+  const url = params.get("url");
+  const title = params.get("title");
+  const subtitle = params.get("subtitle");
+
+  if (url) {
+    qrInput.value = url;
+  }
+
+  qrTitle.textContent = title || "";
+  qrSubtitle.textContent = subtitle || "";
+
+  if (title) {
+    document.title = title;
+  }
+}
+
+function generateQRCode() {
+  qrError.textContent = "";
+  const isExample = !qrInput.value.trim() && !bulkImport.hidden;
+  document.getElementById("exampleHint").hidden = !isExample;
+  const inputText = qrInput.value.trim() || (isExample ? "https://example.com" : "");
+
+  if (inputText === "") {
+    clearQRCode();
+    return;
+  }
+
+  if (typeof qrcode !== "function") {
+    downloadBtn.hidden = true;
+    clearQRCode();
+    qrError.textContent = "Die QR-Code-Bibliothek konnte nicht geladen werden. Bitte die Seite neu laden.";
+    return;
+  }
+
+  try {
+    renderQRCode(canvas, inputText, readSettings());
+    downloadBtn.hidden = isExample;
   } catch (error) {
     clearQRCode();
     qrError.textContent = "Der Text konnte nicht als QR-Code erstellt werden. Bitte kürzen Sie die Eingabe.";
@@ -548,71 +517,17 @@ function generateQRCode() {
   }
 }
 
-function downloadQRCode() {
-  if (qrInput.value.trim() === "") return;
-
-  const title = qrTitle.textContent;
-  const subtitle = qrSubtitle.textContent;
-
-  const exportCanvas = document.createElement("canvas");
-  const exportCtx = exportCanvas.getContext("2d");
-
-  let headerHeight = 0;
-
-  if (title) headerHeight += 50;
-  if (subtitle) headerHeight += 30;
-
-  headerHeight += 20;
-
-  exportCanvas.width = canvas.width;
-  exportCanvas.height = canvas.height + headerHeight;
-
-  exportCtx.fillStyle = "white";
-  exportCtx.fillRect(
-    0,
-    0,
-    exportCanvas.width,
-    exportCanvas.height
-  );
-
-  let y = 35;
-
-  if (title) {
-    exportCtx.fillStyle = "#222";
-    exportCtx.font = "bold 28px Arial";
-    exportCtx.textAlign = "center";
-    exportCtx.fillText(
-      title,
-      exportCanvas.width / 2,
-      y
-    );
-    y += 35;
-  }
-
-  if (subtitle) {
-    exportCtx.fillStyle = "#666";
-    exportCtx.font = "18px Arial";
-    exportCtx.textAlign = "center";
-    exportCtx.fillText(
-      subtitle,
-      exportCanvas.width / 2,
-      y
-    );
-  }
-
-  exportCtx.drawImage(
-    canvas,
-    0,
-    headerHeight
-  );
-
-  const safeName = sanitizeFilename(title || "QR-code");
-
-  const link = document.createElement("a");
-  link.download = `${safeName}.png`;
-  link.href = exportCanvas.toDataURL("image/png");
-  link.click();
+async function downloadQRCode() {
+    if (downloadBtn.hidden || !qrInput.value.trim()) return;
+    try {
+        const output = createLabeledCanvas(canvas, qrTitle.textContent, qrSubtitle.textContent);
+        const blob = await toPNG(output);
+        saveAs(blob, sanitizeFilename(qrTitle.textContent || "QR-Code") + ".png");
+    } catch (error) {
+        qrError.textContent = "Export fehlgeschlagen: " + error.message;
+    }
 }
+
 [
   qrInput,
   shapeSelect,
@@ -626,9 +541,5 @@ downloadBtn.addEventListener("click", downloadQRCode);
 
 loadQueryParameters();
 
-if (qrInput.value.trim()) {
-  generateQRCode();
-} else {
-  clearQRCode();
-}
+setImportVisible(new URLSearchParams(window.location.search).size > 0);
 })();
