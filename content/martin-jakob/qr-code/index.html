@@ -102,11 +102,42 @@
 >
    ZIP-Datei erstellen
 </button>
+<button id="cancelExportBtn" type="button" hidden>Export abbrechen</button>
 
 <p class="preview-option"><label><input id="showBulkPreview" type="checkbox" checked /> QR-Codes während der Erstellung anzeigen</label></p>
 <div id="status" role="status"></div>
 
     </section>
+    <dialog id="mappingDialog" aria-labelledby="mappingHeading" aria-describedby="mappingHelp">
+      <h2 id="mappingHeading">JSON-Felder zuordnen</h2>
+      <p id="mappingHelp">Wählen Sie genau eine der drei Möglichkeiten für die URL. Titel und Untertitel sind optional.</p>
+      <form id="mappingForm">
+        <fieldset id="urlModeChoices">
+          <legend>URL-Quelle – genau eine Option auswählen</legend>
+          <label><input type="radio" name="urlMode" id="urlModeFull" value="full" /> Vollständige URL aus der JSON-Datei</label>
+          <label><input type="radio" name="urlMode" id="urlModeBase" value="base" /> Basis-URL aus der JSON-Datei + ID</label>
+          <label><input type="radio" name="urlMode" id="urlModeManual" value="manual" /> Basis-URL eingeben + ID</label>
+        </fieldset>
+        <div id="fullURLGroup"><label for="mapURL">Feld mit der vollständigen URL</label><select id="mapURL"></select></div>
+        <div id="baseURLGroup"><label for="mapBase_URL">Feld mit der Basis-URL</label><select id="mapBase_URL"></select></div>
+        <div id="manualBaseURLGroup">
+          <label for="manualBaseURL">Basis-URL</label>
+          <div id="baseURLCombo">
+          <input id="manualBaseURL" type="url" placeholder="https://example.com/stop/" autocomplete="off" aria-expanded="false" aria-controls="savedBaseURLs" aria-describedby="manualBaseURLHelp" />
+          <div id="savedBaseURLs" role="group" aria-label="Gespeicherte Basis-URLs" hidden></div>
+          </div>
+          <p id="baseURLStorageStatus" role="status"></p>
+          <p id="manualBaseURLHelp">Die Basis-URL wird mit der ID jedes Eintrags kombiniert.</p>
+        </div>
+        <div id="recordMappingFields">
+          <label for="mapTitel">Titel (optional)</label><select id="mapTitel"></select>
+          <label for="mapUntertitel">Untertitel (optional)</label><select id="mapUntertitel"></select>
+          <label for="mapInterne_ID">ID (bei Basis-URL erforderlich)</label><select id="mapInterne_ID"></select>
+        </div>
+        <p id="mappingError" role="alert"></p>
+        <div><button id="cancelMappingBtn" type="button">Abbrechen</button> <button type="submit">Zuordnung übernehmen</button></div>
+      </form>
+    </dialog>
     <dialog id="bulkPreview" aria-labelledby="previewHeading" aria-describedby="previewHelp">
       <div class="preview-header">
         <h2 id="previewHeading">QR-Code-Vorschau</h2>
