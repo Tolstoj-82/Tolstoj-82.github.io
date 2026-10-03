@@ -3,18 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QR-Code-Generator</title>
+    <title>QR-Code Generator Plus</title>
     <script defer src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=20261003-lines" />
-    <script defer src="script.js?v=20261003-lines"></script>
+    <link rel="stylesheet" href="styles.css?v=20261004-i18n" />
+    <script defer src="script.js?v=20261004-i18n"></script>
     
   </head>
   <body>
     <main class="generator">
+    <div class="page-heading"><h1 class="page-title">QR-Code Generator Plus</h1><div class="language-toggle" role="group" aria-label="Sprache"><button type="button" data-language="de" lang="de" aria-pressed="true">Deutsch</button><button type="button" data-language="en" lang="en" aria-pressed="false">English</button></div></div>
+    <button id="toggleSingleBtn" class="section-toggle" type="button" aria-expanded="true" aria-controls="singleSection">Einzelner QR-Code erstellen<span class="accordion-chevron" aria-hidden="true"></span></button>
+    <div id="singleSection">
     <section class="settings-panel" aria-label="QR-Code gestalten">
     <div class="address-field">
       <label for="qrInput">Adresse oder Text</label>
@@ -74,29 +77,30 @@
       <div id="qrSubtitle"></div>
     </div>
 
-    <p class="canvas-wrap"><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></p>
+    <p class="canvas-wrap"><span id="mainTestRibbon" class="test-ribbon" hidden>TST</span><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></p>
     <div class="logo-controls">
       <div class="logo-heading"><label for="logoInput">Logo (Quadratisch)</label>
       <span class="logo-info"><button type="button" class="info-button" aria-label="Hinweise zum Logo" aria-describedby="logoHelp">i</button><span id="logoHelp" role="tooltip">PNG oder JPEG · max. 2 MB / 512 × 512 px. Logo wird am QR-Raster ausgerichtet und auf Lesbarkeit geprüft. Bei Bedarf wird nur das Logo verkleinert oder weggelassen. Scan vor Verwendung testen.</span></span></div>
       <div class="logo-upload-row">
-      <input id="logoInput" type="file" accept="image/png,image/jpeg" aria-describedby="logoHelp" />
+      <button id="chooseLogoBtn" class="secondary" type="button">Logo auswählen</button><input id="logoInput" type="file" accept="image/png,image/jpeg" aria-describedby="logoHelp" hidden />
       <button id="removeLogoBtn" class="secondary" type="button" hidden>Logo entfernen</button>
       </div>
       <div id="savedLogos" role="group" aria-label="Gespeicherte Logos" hidden></div>
       <p id="logoStatus" role="status"></p>
     </div>
-    <p id="exampleHint" hidden>Beispielvorschau – noch keine eigenen Daten. Form, Farben und Logo gelten auch für den Massenexport.</p>
+
     <button id="downloadBtn" type="button" hidden>
       PNG herunterladen
     </button>
     <p id="renderNotice" role="status"></p>
     <p id="qrError" role="alert"></p>
     </section>
+    </div>
     <div class="import-disclosure">
-      <button id="toggleImportBtn" type="button" aria-expanded="false" aria-controls="bulkImport">Massenimport <span aria-hidden="true"></span></button>
+      <button id="toggleImportBtn" class="section-toggle" type="button" aria-expanded="false" aria-controls="bulkImport">Massenimport <span class="accordion-chevron" aria-hidden="true"></span></button>
     </div>
     <section id="bulkImport" aria-label="Massenimport" hidden>
-      <hr />
+
 
     <div id="dropZone" role="button" tabindex="0" aria-label="JSON-Datei importieren">
     <strong>JSON-Datei hierher ziehen</strong>
@@ -111,14 +115,16 @@
 >
 
 <div id="info" aria-live="polite"></div>
+<button id="editLayoutBtn" class="secondary" type="button">Erscheinungsbild ändern</button>
 
 <p class="preview-option"><label><input id="showBulkPreview" type="checkbox" checked /> QR-Codes während der Erstellung anzeigen</label></p>
+
 <div class="export-actions">
 <button
     id="generateBtn"
     disabled
 >
-   ZIP-Datei erstellen
+   Template anpassen
 </button>
 <button id="cancelExportBtn" class="secondary" type="button" hidden>Export abbrechen</button>
 </div>
@@ -128,6 +134,39 @@
 
     </section>
     </main>
+    <dialog id="layoutDialog" aria-labelledby="layoutHeading">
+      <div class="preview-header"><h2 id="layoutHeading">Erscheinungsbild ändern</h2><button id="closeLayoutBtn" class="modal-close" type="button" aria-label="Layout schliessen">×</button></div>
+
+
+      <div class="layout-sheet">
+        <div class="ribbon-corner"><button id="layoutRibbon" class="test-ribbon" type="button" aria-label="Eckband ändern">TST</button></div>
+        <label class="ribbon-switch" title="Eckband aktivieren"><input id="ribbonEnabled" type="checkbox" checked /><span>Eckband</span></label>
+        <div id="layoutTitle"></div><div id="layoutSubtitle"></div>
+        <div id="layoutAbove"></div>
+        <button id="editQRStyleBtn" class="qr-edit-button" type="button" aria-label="QR-Code gestalten"><canvas id="layoutQR" aria-label="Beispiel für die Beschriftung"></canvas><span class="qr-edit-hint">QR-Code gestalten</span></button>
+        <div id="layoutBelow"></div>
+      </div>
+
+      <p id="layoutError" role="status"></p>
+      <div class="export-format"><label for="exportFormat">Dateiformat</label><select id="exportFormat"><option value="png">PNG (Bild)</option><option value="svg">SVG (Vektorgrafik)</option></select></div>
+      <div class="modal-actions"><button id="applyLayoutBtn" class="secondary" type="button">Übernehmen</button><button id="layoutExportBtn" type="button">ZIP-Datei erstellen</button></div>
+    </dialog>
+    <dialog id="ribbonDialog" aria-labelledby="ribbonHeading">
+      <div class="preview-header"><h2 id="ribbonHeading">Eckband ändern</h2><button id="closeRibbonBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+      <div class="ribbon-settings">
+        <label for="ribbonMode">Eckband</label><select id="ribbonMode"><option value="auto">Bei Test-URLs</option><option value="always">Immer</option><option value="off">Aus</option></select>
+        <label for="ribbonText">Text</label><input id="ribbonText" type="text" value="TST" maxlength="12" />
+        <label for="ribbonColor">Farbe</label><input id="ribbonColor" type="color" value="#2563eb" />
+      </div>
+      <div class="modal-actions"><button id="applyRibbonBtn" type="button">Übernehmen</button></div>
+    </dialog>
+    <dialog id="qrStyleDialog" aria-labelledby="qrStyleHeading">
+      <div class="preview-header"><h2 id="qrStyleHeading">QR-Code gestalten</h2><button id="closeQRStyleBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+      <canvas id="styleQR" aria-label="QR-Code-Vorschau"></canvas>
+      <div id="modalAppearanceControls"></div>
+      <div id="modalLogoControls"></div>
+      <div class="modal-actions"><button id="applyQRStyleBtn" type="button">Übernehmen</button></div>
+    </dialog>
     <dialog id="mappingDialog" aria-labelledby="mappingHeading" aria-describedby="mappingHelp">
       <h2 id="mappingHeading">JSON-Felder zuordnen</h2>
       <p id="mappingHelp">Wählen Sie genau eine der drei Möglichkeiten für die URL. Titel und Untertitel sind optional.</p>
@@ -156,7 +195,7 @@
           <label for="mapInterne_ID">ID (bei Basis-URL erforderlich)</label><select id="mapInterne_ID"></select>
         </div>
         <p id="mappingError" role="alert"></p>
-        <div class="modal-actions"><button id="cancelMappingBtn" class="secondary" type="button">Abbrechen</button> <button id="mappingSubmitBtn" type="submit" disabled>ZIP-Datei erstellen</button></div>
+        <div class="modal-actions"><button id="cancelMappingBtn" class="secondary" type="button">Abbrechen</button> <button id="mappingSubmitBtn" type="submit" disabled>Weiter</button></div>
       </form>
     </dialog>
     <dialog id="bulkPreview" aria-labelledby="previewHeading" aria-describedby="previewHelp">
@@ -170,5 +209,6 @@
     </dialog>
 
 
+    <div id="toast" class="toast" role="status" popover="manual"><span id="toastMessage"></span><button id="toastClose" type="button" aria-label="Meldung schliessen">×</button></div>
   </body>
 </html>
