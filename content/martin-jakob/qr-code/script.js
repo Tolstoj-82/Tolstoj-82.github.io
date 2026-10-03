@@ -1174,7 +1174,7 @@ function metricValue(value) {
     return "";
 }
 function metricLabel(key, layout = metricLayout) {
-    return Object.hasOwn(layout.labels || {}, key) ? layout.labels[key] : key === "Interne_ID" ? "" : key === "date:current" ? t("Datum") : t(key.replaceAll("_", " "));
+    return Object.hasOwn(layout.labels || {}, key) ? layout.labels[key] : key === "Interne_ID" ? "" : key === "date:current" ? t("Datum") : key;
 }
 function currentDateText() { return new Intl.DateTimeFormat(language === "en" ? "en-GB" : "de-CH", {day: "numeric", month: "numeric", year: "numeric"}).format(new Date()); }
 function metricValueFor(record, key, layout = metricLayout) {
@@ -1335,7 +1335,7 @@ function renderMetricEditor() {
             dropdown.setAttribute("role", "group"); dropdown.setAttribute("aria-label", t("Verfügbare Felder"));
             const close = () => { dropdown.hidden = true; button.setAttribute("aria-expanded", "false"); };
             for (const key of [...remaining, ...(!used.has("date:current") ? ["date:current"] : []), "__add_custom__"]) {
-                const option = document.createElement("button"); option.type = "button"; option.textContent = key === "__add_custom__" ? t("+ Eigener Text") : key === "date:current" ? t("Aktuelles Datum") : key.replaceAll("_", " ");
+                const option = document.createElement("button"); option.type = "button"; option.textContent = key === "__add_custom__" ? t("+ Eigener Text") : key === "date:current" ? t("Aktuelles Datum") : key;
                 option.addEventListener("click", () => {
                     if ([...metricLayout.above, ...metricLayout.below].includes(key)) return;
                     const addedKey = key === "__add_custom__" ? "custom:" + crypto.randomUUID() : key;
@@ -1502,7 +1502,7 @@ function createLabeledCanvas(qrCanvas, title, subtitle, internalId = "", lines =
             const style = metricStyle(key, layout, scale); context.font = style.font;
             return [{...style, lines: wrapText(context, text, maxWidth)}];
         })
-        : [{font: idSize + "px Arial", color: "#666", lineHeight: idLineHeight, lines: [...idLines, ...(lineText ? wrapText(context, t("Linien: ") + lineText, maxWidth) : [])]}].filter(block => block.lines.length);
+        : [{font: idSize + "px Arial", color: "#666", lineHeight: idLineHeight, lines: [...idLines, ...(lineText ? wrapText(context, "Linien: " + lineText, maxWidth) : [])]}].filter(block => block.lines.length);
     const footerHeight = footerBlocks.length ? margin * 2 + footerBlocks.reduce((height, block) => height + block.lines.length * block.lineHeight, 0) : 0;
     output.width = qrCanvas.width;
     output.height = qrCanvas.height + headerHeight + footerHeight;
