@@ -390,6 +390,7 @@ function normalizeRecords(records, mapping, enteredBaseURL = "") {
             }
             result[field] = value == null ? "" : String(value).trim();
         }
+        result.Linien = formatLines(row.Linien);
         return result;
     });
 }
@@ -789,7 +790,20 @@ function wrapText(context, text, maxWidth) {
     return lines;
 }
 
-function createLabeledCanvas(qrCanvas, title, subtitle, internalId = "") {
+function formatLines(value) {
+    const values = Array.isArray(value) ? value : [value];
+    const lines = values.flatMap(item => {
+        if (typeof item !== "string" && typeof item !== "number") return [];
+        return String(item).split(/[,;\s]+/).filter(Boolean).map(line =>
+            /^\d+$/.test(line) ? line.replace(/^0+(?=\d)/, "") : line
+        );
+    });
+    return [...new Set(lines)].sort((a, b) =>
+        a.localeCompare(b, "de", {numeric: true})
+    ).join(", ");
+}
+
+function createLabeledCanvas(qrCanvas, title, subtitle, internalId = "", lines = "") {
     const output = document.createElement("canvas");
     const context = output.getContext("2d");
     const margin = Math.max(12, Math.round(qrCanvas.width * 0.05));
@@ -814,7 +828,9 @@ function createLabeledCanvas(qrCanvas, title, subtitle, internalId = "") {
     const idText = String(internalId ?? "").trim();
     context.font = `${idSize}px Arial`;
     const idLines = idText ? wrapText(context, idText, maxWidth) : [];
-    const footerHeight = idLines.length ? margin * 2 + idLines.length * idLineHeight : 0;
+    const lineText = formatLines(lines);
+    const footerLines = [...idLines, ...(lineText ? wrapText(context, "Linien: " + lineText, maxWidth) : [])];
+    const footerHeight = footerLines.length ? margin * 2 + footerLines.length * idLineHeight : 0;
     output.width = qrCanvas.width;
     output.height = qrCanvas.height + headerHeight + footerHeight;
     // Browsers impose canvas size limits; fail clearly instead of exporting clipped text.
@@ -836,7 +852,7 @@ function createLabeledCanvas(qrCanvas, title, subtitle, internalId = "") {
     context.font = `${idSize}px Arial`;
     context.fillStyle = "#666";
     y = headerHeight + qrCanvas.height + margin;
-    for (const line of idLines) {
+    for (const line of footerLines) {
         context.fillText(line, output.width / 2, y + idLineHeight / 2, maxWidth);
         y += idLineHeight;
     }
@@ -907,7 +923,7 @@ async function generateZip() {
             statusDiv.textContent = "QR-Code " + (i + 1) + " von " + entries.length + " wird erstellt …";
             const adjustment = renderQRCode(qrCanvas, entry.URL, settings);
             if (adjustment) adjustedCount++;
-            const output = createLabeledCanvas(qrCanvas, entry.Titel, entry.Untertitel, entry.Interne_ID);
+            const output = createLabeledCanvas(qrCanvas, entry.Titel, entry.Untertitel, entry.Interne_ID, entry.Linien);
             if (showBulkPreview.checked) {
                 bulkCanvas.width = output.width;
                 bulkCanvas.height = output.height;
