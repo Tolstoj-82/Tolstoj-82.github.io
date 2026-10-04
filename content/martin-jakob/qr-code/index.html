@@ -9,8 +9,8 @@
     <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=20261004-modal-frame" />
-    <script defer src="script.js?v=20261004-modal-frame"></script>
+    <link rel="stylesheet" href="styles.css?v=20261004-query-labels" />
+    <script defer src="script.js?v=20261004-query-labels"></script>
     
   </head>
   <body>
@@ -77,21 +77,21 @@
       <div id="qrSubtitle"></div>
     </div>
 
-    <p class="canvas-wrap"><span id="mainTestRibbon" class="test-ribbon" hidden>TST</span><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></p>
+    <button id="editSingleTemplateBtn" class="single-preview-button" type="button" aria-label="Template anpassen"><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></button>
+    <p class="customize-hint">Zum Anpassen auf den QR-Code klicken</p>
+    <p id="unusedQueryParameters" class="unused-parameters" hidden></p>
+    <button id="singleRibbonBtn" class="secondary" type="button">Eckbänder anpassen</button>
     <div class="logo-controls">
       <div class="logo-heading"><label for="logoInput">Logo (Quadratisch)</label>
       <span class="logo-info"><button type="button" class="info-button" aria-label="Hinweise zum Logo" aria-describedby="logoHelp">i</button><span id="logoHelp" role="tooltip">PNG oder JPEG · max. 2 MB / 512 × 512 px. Logo wird am QR-Raster ausgerichtet und auf Lesbarkeit geprüft. Bei Bedarf wird nur das Logo verkleinert oder weggelassen. Scan vor Verwendung testen.</span></span></div>
       <div class="logo-upload-row">
-      <button id="chooseLogoBtn" class="secondary" type="button">Logo auswählen</button><input id="logoInput" type="file" accept="image/png,image/jpeg" aria-describedby="logoHelp" hidden />
-      <button id="removeLogoBtn" class="secondary" type="button" hidden>Logo entfernen</button>
+      <button id="chooseLogoBtn" class="logo-drop-zone" type="button"><strong>Quadratische Logos hochladen</strong><span>oder klicken, um eine Datei auszuwählen</span></button><input id="logoInput" type="file" accept="image/png,image/jpeg" multiple aria-describedby="logoHelp" hidden />
       </div>
       <div id="savedLogos" role="group" aria-label="Gespeicherte Logos" hidden></div>
       <p id="logoStatus" role="status"></p>
     </div>
 
-    <button id="downloadBtn" type="button" hidden>
-      PNG herunterladen
-    </button>
+    <div class="single-download"><label for="singleFormat">Dateiformat</label><select id="singleFormat"><option value="png">PNG (Bild)</option><option value="svg">SVG (Vektorgrafik)</option></select><button id="downloadBtn" type="button" hidden>Herunterladen</button></div>
     <p id="renderNotice" role="status"></p>
     <p id="qrError" role="alert"></p>
     </section>
@@ -149,18 +149,17 @@
       </div>
 
       <p id="layoutError" role="status"></p>
+      <p id="unusedTemplateParameters" class="unused-parameters" hidden></p>
       <div class="export-format"><label for="exportFormat">Dateiformat</label><select id="exportFormat"><option value="png">PNG (Bild)</option><option value="svg">SVG (Vektorgrafik)</option></select></div>
-      <div class="modal-actions"><button id="applyLayoutBtn" class="secondary" type="button">Übernehmen</button><button id="layoutExportBtn" type="button">ZIP-Datei erstellen</button></div>
+      <div class="modal-actions"><button id="cancelLayoutBtn" class="secondary" type="button" hidden>Abbrechen</button><button id="applyLayoutBtn" type="button">Übernehmen</button><button id="layoutExportBtn" type="button">ZIP-Datei erstellen</button></div>
       </div>
     </dialog>
     <dialog id="ribbonDialog" class="modal-frame" aria-labelledby="ribbonHeading">
       <div class="preview-header"><h2 id="ribbonHeading">Eckband ändern</h2><button id="closeRibbonBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
       <div class="modal-scroll-body">
-      <div class="ribbon-settings">
-        <label for="ribbonMode">Eckband</label><select id="ribbonMode"><option value="auto">Bei Test-URLs</option><option value="always">Immer</option><option value="off">Aus</option></select>
-        <label for="ribbonText">Text</label><input id="ribbonText" type="text" value="TST" maxlength="12" />
-        <label for="ribbonColor">Farbe</label><input id="ribbonColor" type="color" value="#2563eb" />
-      </div>
+      <p class="ribbon-help">Das erste passende Eckband wird verwendet. Gross- und Kleinschreibung werden ignoriert.</p>
+      <div id="ribbonRules"></div>
+      <div class="metric-add ribbon-add"><button id="addRibbonBtn" class="metric-plus" type="button" aria-label="Eckband hinzufügen">+</button></div>
       <div class="modal-actions"><button id="applyRibbonBtn" type="button">Übernehmen</button></div>
       </div>
     </dialog>

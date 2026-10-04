@@ -4,6 +4,20 @@
 
 // All translations are presentation-only: imported data and custom labels stay unchanged.
 const english = {
+    "Ungenutzte URL-Parameter: ": "Unused URL parameters: ",
+    "Zum Anpassen auf den QR-Code klicken": "Click the QR code to customize",
+    "Eckbänder anpassen": "Customize ribbons",
+    "Quadratische Logos hochladen": "Upload square logo",
+    "Ohne Logo": "No logo",
+    "Herunterladen": "Download",
+    "Das erste passende Eckband wird verwendet. Gross- und Kleinschreibung werden ignoriert.": "The first matching ribbon is used. Matching is case-insensitive.",
+    "Eckband hinzufügen": "Add ribbon",
+    "URL enthält": "URL contains",
+    "Immer verwenden": "Always use",
+    "Maximal 5 Zeichen": "Maximum 5 characters",
+    "Eckband verschieben": "Move ribbon",
+    "Eckband entfernen": "Remove ribbon",
+    "Speicher voll: Bitte zuerst ein Logo löschen.": "Gallery full: please delete a logo first.",
     "QR-Code Generator Plus": "QR Code Generator Plus",
     "Einzelner QR-Code erstellen": "Create a single QR code",
     "QR-Code gestalten": "Customize QR code",
@@ -265,15 +279,17 @@ function hideToast() {
 document.getElementById("toastClose").addEventListener("click", hideToast);
 
 let logoImage = null;
+let editorSnapshot = null;
 let logoLoadVersion = 0;
 let activeLogoData = "";
 const logoInput = document.getElementById("logoInput");
 const logoStatus = document.getElementById("logoStatus");
-const removeLogoBtn = document.getElementById("removeLogoBtn");
 const logoStorageKey = "qr-generator.logos.v1";
 const savedLogos = document.getElementById("savedLogos");
+let sessionLogos = null;
 document.getElementById("chooseLogoBtn").addEventListener("click", () => document.getElementById("logoInput").click());
 function readSavedLogos() {
+    if (sessionLogos) return sessionLogos;
     try {
         const items = JSON.parse(localStorage.getItem(logoStorageKey) || "[]");
         return Array.isArray(items) ? items.filter(item => item && typeof item.name === "string" &&
@@ -281,16 +297,23 @@ function readSavedLogos() {
     } catch { return []; }
 }
 function writeSavedLogos(items) {
+    sessionLogos = items;
     try { localStorage.setItem(logoStorageKey, JSON.stringify(items)); return true; }
     catch {
         setMessage(logoStatus, () => t("Das Logo kann verwendet werden, aber der lokale Speicher ist voll oder nicht verfügbar."));
-        return false;
+        return true;
     }
 }
 function renderSavedLogos() {
     const items = readSavedLogos();
     savedLogos.replaceChildren();
-    savedLogos.hidden = !items.length;
+    savedLogos.hidden = false;
+    const empty = document.createElement("button");
+    empty.type = "button"; empty.className = "saved-logo-select empty-logo";
+    empty.setAttribute("aria-label", t("Ohne Logo")); empty.title = t("Ohne Logo");
+    empty.setAttribute("aria-pressed", String(!activeLogoData));
+    empty.addEventListener("click", clearLogo);
+    savedLogos.append(empty);
     for (const item of items) {
         const tile = document.createElement("div");
         tile.className = "saved-logo";
@@ -313,7 +336,6 @@ function renderSavedLogos() {
                 if (!image.naturalWidth || image.naturalWidth !== image.naturalHeight || image.naturalWidth > 256) throw new LocalizedError(() => t("Ungültiges gespeichertes Logo."));
                 logoImage = image;
                 activeLogoData = item.data;
-                removeLogoBtn.hidden = false;
                 setMessage(logoStatus, () => t("Logo ausgewählt."));
                 renderSavedLogos();
                 saveSettings();
@@ -331,7 +353,6 @@ function renderSavedLogos() {
             if (activeLogoData === item.data) {
                 logoImage = null;
                 activeLogoData = "";
-                removeLogoBtn.hidden = true;
                 generateQRCode();
             }
             saveSettings();
@@ -342,8 +363,7 @@ function renderSavedLogos() {
         savedLogos.append(tile);
     }
 }
-logoInput.addEventListener("change", async () => {
-    const file = logoInput.files[0];
+async function uploadLogo(file) {
     if (!file) return;
     const version = ++logoLoadVersion;
     setMessage(logoStatus, () => t("Bild wird geladen …"));
@@ -361,16 +381,14 @@ logoInput.addEventListener("change", async () => {
         const logo = document.createElement("canvas");
         logo.width = logo.height = Math.min(256, image.naturalWidth);
         logo.getContext("2d").drawImage(image, 0, 0, logo.width, logo.height);
+        const data = logo.toDataURL("image/png");
+        const saved = readSavedLogos().filter(item => item.data !== data);
+        if (saved.length >= 12) throw new LocalizedError(() => t("Speicher voll: Bitte zuerst ein Logo löschen."));
         logoImage = logo;
-        activeLogoData = logo.toDataURL("image/png");
-        removeLogoBtn.hidden = false;
+        activeLogoData = data;
+
         setMessage(logoStatus, () => t("Logo hinzugefügt. Es wird auch im Massenexport verwendet."));
-        const saved = readSavedLogos().filter(item => item.data !== activeLogoData);
-        if (saved.length >= 12) {
-            setMessage(logoStatus, () => t("Logo hinzugefügt. Zum Speichern bitte eines der 12 gespeicherten Logos löschen."));
-        } else {
-            writeSavedLogos([{name: file.name, data: activeLogoData}, ...saved]);
-        }
+        writeSavedLogos([{name: file.name, data: activeLogoData}, ...saved]);
         renderSavedLogos();
         saveSettings();
         generateQRCode();
@@ -380,18 +398,29 @@ logoInput.addEventListener("change", async () => {
         if (objectURL) URL.revokeObjectURL(objectURL);
         if (version === logoLoadVersion) logoInput.value = "";
     }
-});
-removeLogoBtn.addEventListener("click", () => {
+}
+function clearLogo() {
     ++logoLoadVersion;
     logoImage = null;
     activeLogoData = "";
     renderSavedLogos();
     logoInput.value = "";
-    removeLogoBtn.hidden = true;
+
     setMessage(logoStatus, () => "");
     saveSettings();
     generateQRCode();
-});
+}
+let logoUploadQueue = Promise.resolve();
+function uploadLogos(files) {
+    const selected = Array.from(files);
+    logoUploadQueue = logoUploadQueue.then(async () => { for (const file of selected) await uploadLogo(file); });
+    return logoUploadQueue;
+}
+logoInput.addEventListener("change", () => uploadLogos(logoInput.files));
+const logoDropZone = document.getElementById("chooseLogoBtn");
+for (const eventName of ["dragenter", "dragover"]) logoDropZone.addEventListener(eventName, event => { event.preventDefault(); logoDropZone.classList.add("drag-over"); });
+logoDropZone.addEventListener("dragleave", () => logoDropZone.classList.remove("drag-over"));
+logoDropZone.addEventListener("drop", event => { event.preventDefault(); logoDropZone.classList.remove("drag-over"); uploadLogos(event.dataTransfer.files); });
 
 let loadedData = null;
 let isGenerating = false;
@@ -788,10 +817,11 @@ function sanitizeFilename(text) {
 
 const settingsStorageKey = "qr-generator.settings.v1";
 function saveSettings() {
+    if (editorSnapshot) return;
     try {
         const {logo, ...appearance} = readSettings();
         localStorage.setItem(settingsStorageKey, JSON.stringify({
-            ...appearance, preview: showBulkPreview.checked, logoData: activeLogoData, format: document.getElementById("exportFormat").value
+            ...appearance, preview: showBulkPreview.checked, logoData: activeLogoData, format: document.getElementById("exportFormat").value, singleFormat: document.getElementById("singleFormat").value
         }));
     } catch { /* Preferences are optional when browser storage is unavailable. */ }
 }
@@ -808,6 +838,7 @@ function restoreSettings() {
     }
 
     if (["png", "svg"].includes(saved.format)) document.getElementById("exportFormat").value = saved.format;
+    if (["png", "svg"].includes(saved.singleFormat)) document.getElementById("singleFormat").value = saved.singleFormat;
     if (typeof saved.preview === "boolean") showBulkPreview.checked = saved.preview;
     const storedLogo = readSavedLogos().find(item => item.data === saved.logoData);
     if (storedLogo) {
@@ -818,7 +849,7 @@ function restoreSettings() {
             if (version !== logoLoadVersion || !image.naturalWidth || image.naturalWidth !== image.naturalHeight || image.naturalWidth > 256) return;
             logoImage = image;
             activeLogoData = storedLogo.data;
-            removeLogoBtn.hidden = false;
+    
             renderSavedLogos();
             generateQRCode();
         }).catch(() => {});
@@ -1118,55 +1149,134 @@ function wrapText(context, text, maxWidth) {
     return lines;
 }
 
-const metricLayout = {above: [], below: ["Interne_ID", "Linien"], labels: Object.create(null), custom: Object.create(null), styles: Object.create(null), ribbon: {mode: "auto", text: "TST", color: "#2563eb"}};
+
+const bulkLayout = {above: [], below: ["Interne_ID", "Linien"], labels: {}, custom: {}, styles: {}, ribbon: {enabled: true, rules: [{id: "test", match: "contains", pattern: ".test.", text: "TST", color: "#2563eb"}]}};
+const singleLayout = {above: [], below: [], labels: {}, custom: {}, styles: {}, ribbon: bulkLayout.ribbon};
+let metricLayout = bulkLayout;
+let editorMode = "bulk";
 const layoutStorageKey = "qr-generator.layout.v1";
 function saveLayout() {
-    try { localStorage.setItem(layoutStorageKey, JSON.stringify(metricLayout)); } catch { /* Optional local preferences. */ }
+    if (editorSnapshot) return;
+    try {
+        localStorage.setItem(layoutStorageKey, JSON.stringify(bulkLayout));
+        localStorage.setItem("qr-generator.single-layout.v1", JSON.stringify(singleLayout));
+    } catch { /* Optional local preferences. */ }
 }
 function restoreLayout() {
-    try {
-        const saved = JSON.parse(localStorage.getItem(layoutStorageKey) || "null");
-        if (!saved || !Array.isArray(saved.above) || !Array.isArray(saved.below)) return;
-        const used = new Set();
-        for (const area of ["above", "below"]) metricLayout[area] = saved[area].filter(key => typeof key === "string" && !used.has(key) && used.add(key));
-        for (const prop of ["labels", "custom"]) metricLayout[prop] = Object.fromEntries(Object.entries(saved[prop] || {}).filter(([key, value]) => typeof value === "string"));
-        metricLayout.styles = Object.fromEntries(Object.entries(saved.styles || {}).filter(([key, value]) => value && typeof value === "object").map(([key, value]) => [key, {bold: value.bold === true, large: value.large === true, black: value.black === true}]));
-        if (["auto", "always"].includes(saved.ribbon?.previousMode)) metricLayout.ribbon.previousMode = saved.ribbon.previousMode;
-        if (["auto", "always", "off"].includes(saved.ribbon?.mode)) metricLayout.ribbon.mode = saved.ribbon.mode;
-        if (typeof saved.ribbon?.text === "string") metricLayout.ribbon.text = saved.ribbon.text.slice(0, 12);
-        if (/^#[0-9a-f]{6}$/i.test(saved.ribbon?.color)) metricLayout.ribbon.color = saved.ribbon.color;
-    } catch { /* Ignore invalid stored layouts. */ }
-}
-function ribbonVisible(url, layout = metricLayout) {
-    return layout.ribbon?.mode !== "off" && (layout.ribbon?.mode === "always" || isTestURL(url));
-}
-function updateRibbonUI() {
-    for (const id of ["layoutRibbon", "mainTestRibbon"]) {
-        const ribbon = document.getElementById(id);
-        ribbon.textContent = metricLayout.ribbon.text || "TST";
-        ribbon.style.backgroundColor = metricLayout.ribbon.color;
+    for (const [layout, storageKey] of [[bulkLayout, layoutStorageKey], [singleLayout, "qr-generator.single-layout.v1"]]) {
+        try {
+            const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
+            if (!saved || !Array.isArray(saved.above) || !Array.isArray(saved.below)) continue;
+            const used = new Set();
+            for (const area of ["above", "below"]) layout[area] = saved[area].filter(key => typeof key === "string" && !used.has(key) && used.add(key));
+            for (const prop of ["labels", "custom"]) layout[prop] = Object.fromEntries(Object.entries(saved[prop] || {}).filter(([key, value]) => typeof value === "string"));
+            layout.styles = Object.fromEntries(Object.entries(saved.styles || {}).filter(([key, value]) => value && typeof value === "object").map(([key, value]) => [key, {bold: value.bold === true, large: value.large === true, black: value.black === true}]));
+            if (layout === bulkLayout && saved.ribbon) {
+                const ribbon = saved.ribbon;
+                if (Array.isArray(ribbon.rules)) {
+                    layout.ribbon = {enabled: ribbon.enabled !== false, rules: ribbon.rules.filter(rule => rule && typeof rule.pattern === "string" && typeof rule.text === "string" && /^#[0-9a-f]{6}$/i.test(rule.color)).map(rule => ({id: crypto.randomUUID(), match: rule.match === "always" ? "always" : "contains", pattern: rule.pattern, text: Array.from(rule.text).slice(0, 5).join(""), color: rule.color}))};
+                } else {
+                    layout.ribbon = {enabled: ribbon.mode !== "off", rules: [{id: crypto.randomUUID(), match: (ribbon.mode === "always" || ribbon.previousMode === "always") ? "always" : "contains", pattern: ".test.", text: Array.from(ribbon.text || "TST").slice(0, 5).join(""), color: /^#[0-9a-f]{6}$/i.test(ribbon.color) ? ribbon.color : "#2563eb"}]};
+                }
+            }
+        } catch { /* Ignore invalid stored preferences. */ }
     }
-    const ribbon = document.getElementById("layoutRibbon");
-    ribbon.hidden = false;
-    ribbon.classList.toggle("inactive", !ribbonVisible(layoutSample?.URL || "https://example.com"));
-    document.getElementById("ribbonEnabled").checked = metricLayout.ribbon.mode !== "off";
+    singleLayout.ribbon = bulkLayout.ribbon;
+    for (const area of ["above", "below"]) singleLayout[area] = singleLayout[area].filter(key => !["title", "subtitle"].includes(key));
 }
-for (const [id, key] of [["ribbonMode", "mode"], ["ribbonText", "text"], ["ribbonColor", "color"]]) {
-    document.getElementById(id).addEventListener("input", event => {
-        metricLayout.ribbon[key] = event.target.value;
-        saveLayout(); updateRibbonUI(); generateQRCode();
-    });
+function matchingRibbon(url, layout = metricLayout) {
+    if (!layout.ribbon?.enabled) return null;
+    const text = String(url || "").toLowerCase();
+    return layout.ribbon.rules.find(rule => rule.text.trim() && (rule.match === "always" || (rule.pattern.trim() && text.includes(rule.pattern.toLowerCase())))) || null;
+}
+function ribbonVisible(url, layout = metricLayout) { return Boolean(matchingRibbon(url, layout)); }
+function updateRibbonUI() {
+    const ribbon = document.getElementById("layoutRibbon");
+    const match = matchingRibbon(layoutSample?.URL, metricLayout);
+    const fallback = metricLayout.ribbon.rules[0];
+    ribbon.textContent = match?.text || fallback?.text || "+";
+    ribbon.style.backgroundColor = match?.color || fallback?.color || "#888888";
+    ribbon.hidden = false;
+    ribbon.classList.toggle("inactive", !match);
+    document.getElementById("ribbonEnabled").checked = metricLayout.ribbon.enabled;
 }
 const ribbonDialog = document.getElementById("ribbonDialog");
-document.getElementById("layoutRibbon").addEventListener("click", () => ribbonDialog.showModal());
+function openRibbonEditor() { renderRibbonRules(); ribbonDialog.showModal(); }
+document.getElementById("layoutRibbon").addEventListener("click", openRibbonEditor);
+document.getElementById("singleRibbonBtn").addEventListener("click", openRibbonEditor);
 document.getElementById("closeRibbonBtn").addEventListener("click", () => ribbonDialog.close());
 document.getElementById("applyRibbonBtn").addEventListener("click", () => ribbonDialog.close());
-document.getElementById("ribbonEnabled").addEventListener("change", event => {
-    if (event.target.checked) metricLayout.ribbon.mode = metricLayout.ribbon.previousMode || "auto";
-    else { metricLayout.ribbon.previousMode = metricLayout.ribbon.mode; metricLayout.ribbon.mode = "off"; }
-    document.getElementById("ribbonMode").value = metricLayout.ribbon.mode;
-    saveLayout(); updateRibbonUI(); generateQRCode();
+document.getElementById("ribbonEnabled").addEventListener("change", event => { metricLayout.ribbon.enabled = event.target.checked; saveLayout(); updateRibbonUI(); generateQRCode(); });
+document.getElementById("addRibbonBtn").addEventListener("click", () => {
+    metricLayout.ribbon.rules.push({id: crypto.randomUUID(), match: "contains", pattern: "", text: "TST", color: "#2563eb"});
+    saveLayout(); renderRibbonRules();
+    document.querySelector("#ribbonRules .ribbon-rule:last-child input[type=text]")?.focus();
 });
+function renderRibbonRules() {
+    const list = document.getElementById("ribbonRules"); list.replaceChildren();
+    for (const rule of metricLayout.ribbon.rules) {
+        const row = document.createElement("div"); row.className = "metric-row ribbon-rule"; row.dataset.key = rule.id;
+        const handle = document.createElement("button"); handle.type = "button"; handle.className = "metric-handle"; handle.textContent = "⠿"; handle.setAttribute("aria-label", t("Eckband verschieben"));
+        const fields = document.createElement("div"); fields.className = "ribbon-rule-fields";
+        const mode = document.createElement("select"); mode.setAttribute("aria-label", t("Eckband"));
+        for (const [value, label] of [["contains", "URL enthält"], ["always", "Immer verwenden"]]) {const option = document.createElement("option"); option.value = value; option.textContent = t(label); mode.append(option);}
+        mode.value = rule.match;
+        const pattern = document.createElement("input"); pattern.type = "text"; pattern.value = rule.pattern; pattern.placeholder = "test"; pattern.setAttribute("aria-label", t("URL enthält")); pattern.hidden = rule.match === "always";
+        const text = document.createElement("input"); text.type = "text"; text.value = rule.text; text.maxLength = 5; text.placeholder = "TST"; text.setAttribute("aria-label", t("Text") + " — " + t("Maximal 5 Zeichen"));
+        const color = document.createElement("input"); color.type = "color"; color.value = rule.color; color.setAttribute("aria-label", t("Farbe"));
+        for (const [control, property] of [[mode, "match"], [pattern, "pattern"], [text, "text"], [color, "color"]]) control.addEventListener("input", () => {
+            rule[property] = property === "text" ? Array.from(control.value).slice(0, 5).join("") : control.value;
+            if (property === "text") control.value = rule.text;
+            pattern.hidden = rule.match === "always";
+            saveLayout(); updateRibbonUI(); generateQRCode();
+        });
+        const remove = document.createElement("button"); remove.type = "button"; remove.className = "metric-remove"; remove.textContent = "×"; remove.setAttribute("aria-label", t("Eckband entfernen"));
+        remove.addEventListener("click", () => {metricLayout.ribbon.rules = metricLayout.ribbon.rules.filter(item => item !== rule); saveLayout(); renderRibbonRules(); updateRibbonUI(); generateQRCode();});
+        fields.append(mode, pattern, text, color); row.append(handle, fields, remove); list.append(row);
+        attachRibbonDrag(handle, row, list);
+    }
+}
+function attachRibbonDrag(handle, row, list) {
+    handle.addEventListener("keydown", event => {
+        if (!["ArrowUp", "ArrowDown"].includes(event.key)) return;
+        event.preventDefault(); const rules = metricLayout.ribbon.rules, index = rules.findIndex(rule => rule.id === row.dataset.key);
+        const next = index + (event.key === "ArrowUp" ? -1 : 1);
+        if (next < 0 || next >= rules.length) return;
+        [rules[index], rules[next]] = [rules[next], rules[index]]; saveLayout(); renderRibbonRules(); updateRibbonUI(); generateQRCode();
+        [...list.children].find(item => item.dataset.key === row.dataset.key)?.querySelector("button").focus();
+    });
+    handle.addEventListener("pointerdown", event => {
+        if (event.button !== 0) return; event.preventDefault();
+        const original = [...list.children], bounds = row.getBoundingClientRect(), dy = event.clientY - bounds.top;
+        const ghost = row.cloneNode(true); ghost.classList.add("ribbon-drag-ghost"); ghost.setAttribute("aria-hidden", "true");
+        Object.assign(ghost.style, {position: "fixed", top: bounds.top + "px", left: bounds.left + "px", width: bounds.width + "px", pointerEvents: "none", zIndex: "20"});
+        ribbonDialog.append(ghost); row.classList.add("ribbon-drag-placeholder");
+        const move = e => {
+            if (e.pointerId !== event.pointerId) return;
+            ghost.style.top = e.clientY - dy + "px";
+            const others = [...list.children].filter(item => item !== row);
+            const next = others.find(item => {const r = item.getBoundingClientRect(), transform = getComputedStyle(item).transform; const offset = !transform || transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m42; return e.clientY < r.top - offset + r.height / 2;});
+            if (row.nextElementSibling !== (next || null)) {
+                const before = new Map([...list.children].map(item => [item, item.getBoundingClientRect().top]));
+                for (const item of list.children) for (const animation of item.getAnimations()) animation.cancel();
+                list.insertBefore(row, next || null);
+                if (!matchMedia("(prefers-reduced-motion: reduce)").matches) for (const item of list.children) if (item !== row) item.animate([{transform: "translateY(" + (before.get(item)-item.getBoundingClientRect().top) + "px)"}, {transform: "translateY(0)"}], {duration: 240, easing: "cubic-bezier(.2,.8,.2,1)"});
+            }
+            const body = ribbonDialog.querySelector(".modal-scroll-body"), rect = body.getBoundingClientRect();
+            if (e.clientY < rect.top + 40) body.scrollBy(0, -12); if (e.clientY > rect.bottom - 40) body.scrollBy(0, 12);
+        };
+        const finish = (cancelled = false) => {
+            window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", cancel); document.removeEventListener("keydown", escape);
+            ghost.remove(); row.classList.remove("ribbon-drag-placeholder");
+            for (const item of list.children) for (const animation of item.getAnimations()) animation.cancel();
+            if (cancelled) list.append(...original);
+            else {const rules = metricLayout.ribbon.rules; metricLayout.ribbon.rules = [...list.children].map(item => rules.find(rule => rule.id === item.dataset.key)); saveLayout(); updateRibbonUI(); generateQRCode();}
+        };
+        const up = e => {if (e.pointerId === event.pointerId) finish();}, cancel = e => {if (e.pointerId === event.pointerId) finish(true);};
+        const escape = e => {if (e.key === "Escape") {e.preventDefault(); e.stopPropagation(); finish(true);}};
+        window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", cancel); document.addEventListener("keydown", escape);
+    });
+}
 const layoutDialog = document.getElementById("layoutDialog");
 let layoutSample;
 let availableMetricKeys = [];
@@ -1198,21 +1308,49 @@ function metricText(record, key, layout = metricLayout) {
     return label ? label + ": " + value : value;
 }
 function isTestURL(value) { return typeof value === "string" && value.toLowerCase().includes(".test."); }
-function drawTestRibbon(context, width, layout = metricLayout) {
+function drawTestRibbon(context, width, layout = metricLayout, url = "") {
+    const ribbon = matchingRibbon(url, layout);
+    if (!ribbon) return;
     const size = width * 0.13;
     context.save();
-    context.fillStyle = layout.ribbon?.color || "#2563eb";
+    context.fillStyle = ribbon.color;
     context.beginPath(); context.moveTo(0, 0); context.lineTo(size, 0); context.lineTo(0, size); context.closePath(); context.fill();
     context.translate(size * 0.32, size * 0.32); context.rotate(-Math.PI / 4);
     context.font = "bold " + Math.round(width * 0.028) + "px Arial";
     context.textAlign = "center"; context.textBaseline = "middle"; context.fillStyle = "white";
-    context.fillText(layout.ribbon?.text || "TST", 0, 0, size * 0.7); context.restore();
+    context.fillText(ribbon.text, 0, 0, size * 0.7); context.restore();
 }
-function openLayoutEditor() {
+function singleRecord() {
+    const metrics = Object.fromEntries(new URLSearchParams(location.search));
+    const title = metrics.title || "", subtitle = metrics.subtitle || "";
+    delete metrics.title; delete metrics.subtitle;
+    if (Object.hasOwn(metrics, "url")) metrics.url = qrInput.value.trim();
+    return {URL: qrInput.value.trim() || "https://example.com", Titel: title, Untertitel: subtitle, Metrics: metrics};
+}
+function updateUnusedParameters() {
+    const used = new Set(["url", "title", "subtitle", ...singleLayout.above, ...singleLayout.below]);
+    const unused = [...new Set(new URLSearchParams(location.search).keys())].filter(key => !used.has(key));
+    for (const id of ["unusedQueryParameters", "unusedTemplateParameters"]) {
+        const node = document.getElementById(id);
+        node.hidden = !unused.length || (id === "unusedTemplateParameters" && editorMode !== "single");
+        node.textContent = unused.length ? t("Ungenutzte URL-Parameter: ") + unused.join(", ") : "";
+    }
+}
+function openLayoutEditor(mode = "bulk") {
+    if (typeof mode !== "string") mode = "bulk";
+    editorMode = mode;
+    metricLayout = mode === "single" ? singleLayout : bulkLayout;
+    if (mode === "single" && !editorSnapshot) editorSnapshot = {
+        layout: structuredClone(singleLayout), ribbon: structuredClone(bulkLayout.ribbon),
+        settings: readSettings(), logo: logoImage, logoData: activeLogoData
+    };
     const demo = {URL: "https://mobileinfo.test.bernmobil.ch/stops/BEISPIEL", Titel: t("Bern, Bahnhof"), Untertitel: t("Kante A"), Metrics: {
         Interne_ID: "M-BEISPIEL", Linien: "3, 9, 10, 12, 332", Hst_SLOID: "ch:1:sloid:7000", Hst_DiDok: "8507000", Kt_SLOID: "ch:1:sloid:7000:0:1", Interner_Bezeichner: t("Richtung Zentrum")
     }};
-    if (loadedData?.length) {
+    if (mode === "single") {
+        layoutSample = singleRecord();
+        availableMetricKeys = Object.keys(layoutSample.Metrics);
+    } else if (loadedData?.length) {
         availableMetricKeys = [...new Set(loadedData.flatMap(record => Object.keys(record.Metrics || {})))].filter(key => loadedData.some(record => metricValue(record.Metrics[key])));
         const richest = loadedData.reduce((best, record) => Object.values(record.Metrics).filter(metricValue).length > Object.values(best.Metrics).filter(metricValue).length ? record : best);
         layoutSample = {...richest, Metrics: {...richest.Metrics}};
@@ -1226,9 +1364,11 @@ function openLayoutEditor() {
     }
 
     document.getElementById("layoutExportBtn").disabled = !loadedData || isGenerating;
+    document.getElementById("layoutExportBtn").hidden = mode === "single";
+    document.getElementById("exportFormat").closest(".export-format").hidden = mode === "single";
+    document.getElementById("cancelLayoutBtn").hidden = mode !== "single";
     document.getElementById("layoutTitle").textContent = layoutSample.Titel;
     document.getElementById("layoutSubtitle").textContent = layoutSample.Untertitel;
-    for (const [id, key] of [["ribbonMode", "mode"], ["ribbonText", "text"], ["ribbonColor", "color"]]) document.getElementById(id).value = metricLayout.ribbon[key];
     updateRibbonUI();
     setMessage(document.getElementById("layoutError"), () => "");
     try { setMessage(document.getElementById("layoutError"), () => renderQRCode(document.getElementById("layoutQR"), layoutSample.URL, readSettings())); }
@@ -1352,6 +1492,7 @@ function attachMetricDrag(handle, row, key, area, index) {
     });
 }
 function renderMetricEditor() {
+    updateUnusedParameters();
     const used = new Set([...metricLayout.above, ...metricLayout.below]);
     const remaining = availableMetricKeys.filter(key => !used.has(key));
     for (const [area, target] of [["above", "layoutAbove"], ["below", "layoutBelow"]]) {
@@ -1472,8 +1613,23 @@ function renderMetricEditor() {
     }
 }
 document.getElementById("editLayoutBtn").addEventListener("click", openLayoutEditor);
-document.getElementById("closeLayoutBtn").addEventListener("click", () => { saveLayout(); layoutDialog.close(); });
-document.getElementById("applyLayoutBtn").addEventListener("click", () => { saveLayout(); layoutDialog.close(); toast("Erscheinungsbild gespeichert."); });
+document.getElementById("closeLayoutBtn").addEventListener("click", () => closeLayoutEditor(false));
+document.getElementById("cancelLayoutBtn").addEventListener("click", () => closeLayoutEditor(false));
+layoutDialog.addEventListener("cancel", event => { event.preventDefault(); closeLayoutEditor(false); });
+document.getElementById("editSingleTemplateBtn").addEventListener("click", () => openLayoutEditor("single"));
+document.getElementById("applyLayoutBtn").addEventListener("click", () => closeLayoutEditor(true));
+function closeLayoutEditor(apply) {
+    if (!apply && editorSnapshot) {
+        Object.assign(singleLayout, editorSnapshot.layout);
+        bulkLayout.ribbon = editorSnapshot.ribbon; singleLayout.ribbon = bulkLayout.ribbon;
+        for (const [key, control] of [["shape", shapeSelect], ["finderShape", finderShapeSelect], ["color", colorPicker], ["finderColor", finderColorPicker]]) control.value = editorSnapshot.settings[key];
+        ++logoLoadVersion; logoImage = editorSnapshot.logo; activeLogoData = editorSnapshot.logoData;
+    }
+    editorSnapshot = null;
+    metricLayout = bulkLayout;
+    layoutDialog.close();
+    saveLayout(); saveSettings(); renderSavedLogos(); generateQRCode();
+}
 document.getElementById("layoutExportBtn").addEventListener("click", () => { layoutDialog.close(); generateZip(); });
 
 function formatLines(value) {
@@ -1564,7 +1720,7 @@ function createLabeledCanvas(qrCanvas, title, subtitle, internalId = "", lines =
             y += block.lineHeight;
         }
     }
-    if (ribbonHeight) drawTestRibbon(context, output.width, layout);
+    if (ribbonHeight) drawTestRibbon(context, output.width, layout, record.URL);
     if (qrCanvas.svgContent) output.svgContent = context.svgContent;
     return output;
 }
@@ -1623,9 +1779,9 @@ async function generateZip() {
     const entries = loadedData.slice();
     const format = document.getElementById("exportFormat").value;
     const settings = {...readSettings(), vector: format === "svg"};
-    const exportLayout = {above: [...metricLayout.above], below: [...metricLayout.below], labels: {...metricLayout.labels}, custom: {...metricLayout.custom}, styles: structuredClone(metricLayout.styles), ribbon: {...metricLayout.ribbon}, dateText: currentDateText()};
+    const exportLayout = {...structuredClone(bulkLayout), dateText: currentDateText()};
     // Keep one language throughout this ZIP even if the interface language changes.
-    for (const key of [...exportLayout.above, ...exportLayout.below]) exportLayout.labels[key] = metricLabel(key);
+    for (const key of [...exportLayout.above, ...exportLayout.below]) exportLayout.labels[key] = metricLabel(key, bulkLayout);
     try {
         let adjustedCount = 0;
         const filenames = new Set();
@@ -1779,6 +1935,7 @@ function loadQueryParameters() {
 }
 
 function generateQRCode() {
+  updateUnusedParameters();
   setMessage(qrError, () => "");
   setMessage(document.getElementById("renderNotice"), () => "");
   const isExample = !qrInput.value.trim();
@@ -1786,10 +1943,7 @@ function generateQRCode() {
   canvas.setAttribute("aria-label", isExample ? t("Beispiel-QR-Code ohne eigene Daten") : t("Erstellter QR-Code"));
 
   const inputText = qrInput.value.trim() || (isExample ? "https://example.com" : "");
-  const showTestRibbon = !isExample && ribbonVisible(inputText);
   updateRibbonUI();
-  document.getElementById("mainTestRibbon").hidden = !showTestRibbon;
-  canvas.parentElement.classList.toggle("has-test-ribbon", showTestRibbon);
 
   if (inputText === "") {
     clearQRCode();
@@ -1808,9 +1962,11 @@ function generateQRCode() {
     const nextCanvas = document.createElement("canvas");
     const adjustment = renderQRCode(nextCanvas, inputText, readSettings());
     setMessage(document.getElementById("renderNotice"), () => adjustment);
-    canvas.width = nextCanvas.width;
-    canvas.height = nextCanvas.height;
-    ctx.drawImage(nextCanvas, 0, 0);
+    const record = singleRecord();
+    const output = createLabeledCanvas(nextCanvas, record.Titel, record.Untertitel, "", "", record, singleLayout);
+    canvas.width = output.width;
+    canvas.height = output.height;
+    ctx.drawImage(output, 0, 0);
     if (layoutDialog.open && layoutSample) renderQRCode(document.getElementById("layoutQR"), layoutSample.URL, readSettings());
     if (qrStyleDialog.open) renderQRCode(document.getElementById("styleQR"), layoutSample?.URL || inputText, readSettings());
     downloadBtn.hidden = isExample;
@@ -1824,9 +1980,13 @@ function generateQRCode() {
 async function downloadQRCode() {
     if (downloadBtn.hidden || !qrInput.value.trim()) return;
     try {
-        const output = createLabeledCanvas(canvas, qrTitle.textContent, qrSubtitle.textContent, "", "", {URL: qrInput.value.trim(), Metrics: {}}, {above: [], below: [], ribbon: {...metricLayout.ribbon}});
-        const blob = await toPNG(output);
-        saveAs(blob, sanitizeFilename(qrTitle.textContent || t("QR-Code")) + ".png");
+        const format = document.getElementById("singleFormat").value;
+        const qr = document.createElement("canvas");
+        renderQRCode(qr, qrInput.value.trim(), {...readSettings(), vector: format === "svg"});
+        const record = singleRecord();
+        const output = createLabeledCanvas(qr, record.Titel, record.Untertitel, "", "", record, singleLayout);
+        const blob = format === "svg" ? new Blob([toSVG(output)], {type: "image/svg+xml;charset=utf-8"}) : await toPNG(output);
+        saveAs(blob, sanitizeFilename(qrTitle.textContent || t("QR-Code")) + "." + format);
     } catch (error) {
         setMessage(qrError, () => t("Export fehlgeschlagen: ") + error.message);
     }
@@ -1848,9 +2008,10 @@ downloadBtn.addEventListener("click", downloadQRCode);
 const qrStyleDialog = document.getElementById("qrStyleDialog");
 const appearanceControls = document.querySelector(".appearance-fields");
 const logoControls = document.querySelector(".logo-controls");
-const appearanceAnchor = document.createComment("appearance controls");
 const logoAnchor = document.createComment("logo controls");
-appearanceControls.before(appearanceAnchor); logoControls.before(logoAnchor);
+logoControls.before(logoAnchor);
+document.getElementById("modalAppearanceControls").append(appearanceControls);
+document.getElementById("labelContainer").hidden = true;
 document.getElementById("editQRStyleBtn").addEventListener("click", () => {
     document.getElementById("modalAppearanceControls").append(appearanceControls);
     document.getElementById("modalLogoControls").append(logoControls);
@@ -1862,7 +2023,7 @@ function closeStyleEditor() { qrStyleDialog.close(); }
 document.getElementById("closeQRStyleBtn").addEventListener("click", closeStyleEditor);
 document.getElementById("applyQRStyleBtn").addEventListener("click", closeStyleEditor);
 qrStyleDialog.addEventListener("close", () => {
-    appearanceAnchor.after(appearanceControls); logoAnchor.after(logoControls);
+    logoAnchor.after(logoControls);
     if (layoutSample) {
         try { renderQRCode(document.getElementById("layoutQR"), layoutSample.URL, readSettings()); }
         catch (error) { toast(error.message, true); }
@@ -1870,6 +2031,7 @@ qrStyleDialog.addEventListener("close", () => {
     saveSettings();
 });
 document.getElementById("exportFormat").addEventListener("change", saveSettings);
+document.getElementById("singleFormat").addEventListener("change", saveSettings);
 // Toast feedback mirrors TREP; keep persistent errors and progress beside their controls.
 for (const id of ["logoStatus", "baseURLStorageStatus"]) {
     const source = document.getElementById(id);
@@ -1886,7 +2048,8 @@ document.querySelectorAll("[data-language]").forEach(button => button.addEventLi
     for (const [field, select] of Object.entries(mappingFields)) if (select.options.length) select.options[0].textContent = field === "URL" ? t("URL-Feld auswählen …") : t("Nicht verwenden");
     renderSavedLogos();
     renderSavedBaseURLs();
-    if (layoutDialog.open) openLayoutEditor();
+    if (layoutDialog.open) openLayoutEditor(editorMode);
+    if (ribbonDialog.open) renderRibbonRules();
     generateQRCode();
 }));
 restoreLayout();
