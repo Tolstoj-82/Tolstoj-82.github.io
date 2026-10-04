@@ -4,6 +4,10 @@
 
 // All translations are presentation-only: imported data and custom labels stay unchanged.
 const english = {
+    "Logo zuschneiden": "Crop logo",
+    "Quadrat verschieben und an den Ecken vergrössern oder verkleinern. Pfeiltasten verschieben den Ausschnitt.": "Move the square and drag its corners to resize it. Use the arrow keys to move the crop.",
+    "Quadratischer Bildausschnitt": "Square crop area",
+    "Grösse des Ausschnitts": "Crop size",
     "Ungenutzte URL-Parameter: ": "Unused URL parameters: ",
     "Zum Anpassen auf den QR-Code klicken": "Click the QR code to customize",
     "Eckbänder anpassen": "Customize ribbons",
@@ -197,8 +201,9 @@ class LocalizedError extends Error {
 }
 // Retain render functions so visible feedback can change language without changing user data.
 const localizedMessages = new Map();
-function setMessage(node, render) {
+function setMessage(node, render, tone = "success") {
     localizedMessages.set(node, render);
+    node.dataset.tone = tone;
     node.textContent = render();
 }
 const localizedNodes = [];
@@ -261,7 +266,8 @@ function showNextToast() {
     const element = document.getElementById("toast");
     document.getElementById("toastMessage").textContent = message;
     element.classList.remove("show");
-    element.classList.toggle("error", error);
+    element.classList.toggle("error", error === true || error === "error");
+    element.classList.toggle("warning", error === "warning");
     if (element.showPopover && !element.matches(":popover-open")) element.showPopover();
     void element.offsetWidth;
     element.classList.add("show");
@@ -306,7 +312,7 @@ function writeSavedLogos(items) {
 }
 function renderSavedLogos() {
     const items = readSavedLogos();
-    savedLogos.replaceChildren();
+    savedLogos.replaceChildren(document.getElementById("chooseLogoBtn"));
     savedLogos.hidden = false;
     const empty = document.createElement("button");
     empty.type = "button"; empty.className = "saved-logo-select empty-logo";
@@ -366,7 +372,6 @@ function renderSavedLogos() {
 async function uploadLogo(file) {
     if (!file) return;
     const version = ++logoLoadVersion;
-    setMessage(logoStatus, () => t("Bild wird geladen …"));
     let objectURL;
     try {
         if (!["image/png", "image/jpeg"].includes(file.type)) throw new LocalizedError(() => t("Bitte ein PNG- oder JPEG-Bild auswählen."));
@@ -376,11 +381,17 @@ async function uploadLogo(file) {
         image.src = objectURL;
         await image.decode();
         if (version !== logoLoadVersion) return;
-        if (!image.naturalWidth || image.naturalWidth !== image.naturalHeight) throw new LocalizedError(() => t("Das Bild muss quadratisch sein."));
-        if (image.naturalWidth > 512) throw new LocalizedError(() => t("Das Bild darf höchstens 512 × 512 Pixel gross sein."));
-        const logo = document.createElement("canvas");
-        logo.width = logo.height = Math.min(256, image.naturalWidth);
-        logo.getContext("2d").drawImage(image, 0, 0, logo.width, logo.height);
+        if (!image.naturalWidth || !image.naturalHeight) throw new LocalizedError(() => t("Das Bild konnte nicht geladen werden."));
+        if (image.naturalWidth > 512 || image.naturalHeight > 512) throw new LocalizedError(() => t("Das Bild darf höchstens 512 × 512 Pixel gross sein."));
+        let logo;
+        if (image.naturalWidth !== image.naturalHeight) {
+            logo = await requestLogoCrop(image);
+            if (!logo || version !== logoLoadVersion) return;
+        } else {
+            logo = document.createElement("canvas");
+            logo.width = logo.height = Math.min(256, image.naturalWidth);
+            logo.getContext("2d").drawImage(image, 0, 0, logo.width, logo.height);
+        }
         const data = logo.toDataURL("image/png");
         const saved = readSavedLogos().filter(item => item.data !== data);
         if (saved.length >= 12) throw new LocalizedError(() => t("Speicher voll: Bitte zuerst ein Logo löschen."));
@@ -393,12 +404,102 @@ async function uploadLogo(file) {
         saveSettings();
         generateQRCode();
     } catch (error) {
-        if (version === logoLoadVersion) setMessage(logoStatus, () => (error.name === "EncodingError" ? t("Das Bild konnte nicht geladen werden.") : error.message) + (logoImage ? t(" Das bisherige Bild bleibt erhalten.") : ""));
+        if (version === logoLoadVersion) setMessage(logoStatus, () => (error.name === "EncodingError" ? t("Das Bild konnte nicht geladen werden.") : error.message) + (logoImage ? t(" Das bisherige Bild bleibt erhalten.") : ""), "warning");
     } finally {
         if (objectURL) URL.revokeObjectURL(objectURL);
         if (version === logoLoadVersion) logoInput.value = "";
     }
 }
+const cropDialog = document.getElementById("cropDialog");
+const cropStage = document.getElementById("cropStage");
+const cropSelection = document.getElementById("cropSelection");
+const cropSize = document.getElementById("cropSize");
+let cropState = null;
+let cropDrag = null;
+function requestLogoCrop(image) {
+    return new Promise(resolve => {
+        const width = image.naturalWidth, height = image.naturalHeight;
+        const size = Math.min(width, height);
+        cropState = {image, width, height, size, x: (width - size) / 2, y: (height - size) / 2, resolve};
+        const preview = document.getElementById("cropImage");
+        preview.width = width; preview.height = height;
+        preview.getContext("2d").drawImage(image, 0, 0);
+        cropStage.style.aspectRatio = width + " / " + height;
+        cropStage.style.width = "min(100%, " + Math.min(440, 320 * width / height) + "px)";
+        cropSize.min = String(Math.min(16, size)); cropSize.max = String(size);
+        updateCrop(); cropDialog.showModal(); cropSelection.focus();
+    });
+}
+function updateCrop() {
+    if (!cropState) return;
+    const c = cropState;
+    c.size = Math.max(Number(cropSize.min), Math.min(Math.min(c.width, c.height), c.size));
+    c.x = Math.max(0, Math.min(c.width - c.size, c.x));
+    c.y = Math.max(0, Math.min(c.height - c.size, c.y));
+    Object.assign(cropSelection.style, {left: c.x / c.width * 100 + "%", top: c.y / c.height * 100 + "%", width: c.size / c.width * 100 + "%", height: c.size / c.height * 100 + "%"});
+    cropSize.value = String(Math.round(c.size));
+}
+function finishLogoCrop(apply) {
+    if (!cropState) return;
+    const c = cropState;
+    let result = null;
+    if (apply) {
+        result = document.createElement("canvas");
+        result.width = result.height = Math.min(256, Math.max(1, Math.round(c.size)));
+        result.getContext("2d").drawImage(c.image, c.x, c.y, c.size, c.size, 0, 0, result.width, result.height);
+    }
+    if (cropDrag && cropSelection.hasPointerCapture(cropDrag.pointer)) cropSelection.releasePointerCapture(cropDrag.pointer);
+    cropDrag = null; cropState = null;
+    cropDialog.close();
+    document.getElementById("cropImage").width = 0;
+    c.resolve(result);
+}
+document.getElementById("applyCropBtn").addEventListener("click", () => finishLogoCrop(true));
+for (const id of ["cancelCropBtn", "closeCropBtn"]) document.getElementById(id).addEventListener("click", () => finishLogoCrop(false));
+cropDialog.addEventListener("cancel", event => {event.preventDefault(); finishLogoCrop(false);});
+cropDialog.addEventListener("close", () => {if (!cropDialog.open && cropState) finishLogoCrop(false);});
+cropSize.addEventListener("input", () => {
+    if (!cropState) return;
+    const delta = cropState.size - Number(cropSize.value);
+    cropState.x += delta / 2; cropState.y += delta / 2; cropState.size = Number(cropSize.value); updateCrop();
+});
+cropSelection.addEventListener("keydown", event => {
+    if (!cropState || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+    event.preventDefault(); const step = event.shiftKey ? 10 : 1;
+    cropState.x += event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0;
+    cropState.y += event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0;
+    updateCrop();
+});
+cropSelection.addEventListener("pointerdown", event => {
+    if (!cropState || event.button !== 0) return;
+    event.preventDefault(); cropSelection.focus();
+    cropDrag = {pointer: event.pointerId, corner: event.target.dataset.corner, clientX: event.clientX, clientY: event.clientY, x: cropState.x, y: cropState.y, size: cropState.size};
+    cropSelection.setPointerCapture(event.pointerId);
+});
+cropSelection.addEventListener("pointermove", event => {
+    if (!cropState || !cropDrag || cropDrag.pointer !== event.pointerId) return;
+    const rect = cropStage.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const dx = (event.clientX - cropDrag.clientX) * cropState.width / rect.width;
+    const dy = (event.clientY - cropDrag.clientY) * cropState.height / rect.height;
+    const start = cropDrag;
+    if (!start.corner) {cropState.x = start.x + dx; cropState.y = start.y + dy;}
+    else {
+        const west = start.corner.includes("w"), north = start.corner.includes("n");
+        const anchorX = start.x + (west ? start.size : 0), anchorY = start.y + (north ? start.size : 0);
+        const delta = Math.abs(dx) > Math.abs(dy) ? dx * (west ? -1 : 1) : dy * (north ? -1 : 1);
+        const limit = Math.min(west ? anchorX : cropState.width - anchorX, north ? anchorY : cropState.height - anchorY);
+        cropState.size = Math.max(Number(cropSize.min), Math.min(limit, start.size + delta));
+        cropState.x = west ? anchorX - cropState.size : anchorX;
+        cropState.y = north ? anchorY - cropState.size : anchorY;
+    }
+    updateCrop();
+});
+for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) cropSelection.addEventListener(type, event => {
+    if (cropDrag?.pointer !== event.pointerId) return;
+    cropDrag = null;
+    if (cropSelection.hasPointerCapture(event.pointerId)) cropSelection.releasePointerCapture(event.pointerId);
+});
 function clearLogo() {
     ++logoLoadVersion;
     logoImage = null;
@@ -417,10 +518,6 @@ function uploadLogos(files) {
     return logoUploadQueue;
 }
 logoInput.addEventListener("change", () => uploadLogos(logoInput.files));
-const logoDropZone = document.getElementById("chooseLogoBtn");
-for (const eventName of ["dragenter", "dragover"]) logoDropZone.addEventListener(eventName, event => { event.preventDefault(); logoDropZone.classList.add("drag-over"); });
-logoDropZone.addEventListener("dragleave", () => logoDropZone.classList.remove("drag-over"));
-logoDropZone.addEventListener("drop", event => { event.preventDefault(); logoDropZone.classList.remove("drag-over"); uploadLogos(event.dataTransfer.files); });
 
 let loadedData = null;
 let isGenerating = false;
@@ -1199,6 +1296,10 @@ function updateRibbonUI() {
     ribbon.hidden = false;
     ribbon.classList.toggle("inactive", !match);
     document.getElementById("ribbonEnabled").checked = metricLayout.ribbon.enabled;
+    document.getElementById("ribbonRulesEnabled").checked = metricLayout.ribbon.enabled;
+    const count = document.getElementById("ribbonCount");
+    count.textContent = String(metricLayout.ribbon.rules.length);
+    count.hidden = metricLayout.ribbon.rules.length === 0;
 }
 const ribbonDialog = document.getElementById("ribbonDialog");
 function openRibbonEditor() { renderRibbonRules(); ribbonDialog.showModal(); }
@@ -1206,13 +1307,14 @@ document.getElementById("layoutRibbon").addEventListener("click", openRibbonEdit
 document.getElementById("singleRibbonBtn").addEventListener("click", openRibbonEditor);
 document.getElementById("closeRibbonBtn").addEventListener("click", () => ribbonDialog.close());
 document.getElementById("applyRibbonBtn").addEventListener("click", () => ribbonDialog.close());
-document.getElementById("ribbonEnabled").addEventListener("change", event => { metricLayout.ribbon.enabled = event.target.checked; saveLayout(); updateRibbonUI(); generateQRCode(); });
+for (const id of ["ribbonEnabled", "ribbonRulesEnabled"]) document.getElementById(id).addEventListener("change", event => { metricLayout.ribbon.enabled = event.target.checked; saveLayout(); updateRibbonUI(); generateQRCode(); });
 document.getElementById("addRibbonBtn").addEventListener("click", () => {
     metricLayout.ribbon.rules.push({id: crypto.randomUUID(), match: "contains", pattern: "", text: "TST", color: "#2563eb"});
     saveLayout(); renderRibbonRules();
     document.querySelector("#ribbonRules .ribbon-rule:last-child input[type=text]")?.focus();
 });
 function renderRibbonRules() {
+    updateRibbonUI();
     const list = document.getElementById("ribbonRules"); list.replaceChildren();
     for (const rule of metricLayout.ribbon.rules) {
         const row = document.createElement("div"); row.className = "metric-row ribbon-rule"; row.dataset.key = rule.id;
@@ -2035,7 +2137,7 @@ document.getElementById("singleFormat").addEventListener("change", saveSettings)
 // Toast feedback mirrors TREP; keep persistent errors and progress beside their controls.
 for (const id of ["logoStatus", "baseURLStorageStatus"]) {
     const source = document.getElementById(id);
-    new MutationObserver(() => { if (source.textContent.trim()) toast(source.textContent); }).observe(source, {childList: true, characterData: true, subtree: true});
+    new MutationObserver(() => { if (source.textContent.trim()) toast(source.textContent, source.dataset.tone === "warning" ? "warning" : false); }).observe(source, {childList: true, characterData: true, subtree: true});
 }
 
 document.querySelectorAll("[data-language]").forEach(button => button.addEventListener("click", () => {

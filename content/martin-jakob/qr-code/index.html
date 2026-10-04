@@ -9,8 +9,8 @@
     <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=20261004-query-labels" />
-    <script defer src="script.js?v=20261004-query-labels"></script>
+    <link rel="stylesheet" href="styles.css?v=20261004-logo-crop" />
+    <script defer src="script.js?v=20261004-logo-crop"></script>
     
   </head>
   <body>
@@ -80,14 +80,12 @@
     <button id="editSingleTemplateBtn" class="single-preview-button" type="button" aria-label="Template anpassen"><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></button>
     <p class="customize-hint">Zum Anpassen auf den QR-Code klicken</p>
     <p id="unusedQueryParameters" class="unused-parameters" hidden></p>
-    <button id="singleRibbonBtn" class="secondary" type="button">Eckbänder anpassen</button>
+    <button id="singleRibbonBtn" class="secondary" type="button">Eckbänder anpassen<span id="ribbonCount" class="ribbon-count" hidden></span></button>
     <div class="logo-controls">
       <div class="logo-heading"><label for="logoInput">Logo (Quadratisch)</label>
       <span class="logo-info"><button type="button" class="info-button" aria-label="Hinweise zum Logo" aria-describedby="logoHelp">i</button><span id="logoHelp" role="tooltip">PNG oder JPEG · max. 2 MB / 512 × 512 px. Logo wird am QR-Raster ausgerichtet und auf Lesbarkeit geprüft. Bei Bedarf wird nur das Logo verkleinert oder weggelassen. Scan vor Verwendung testen.</span></span></div>
-      <div class="logo-upload-row">
-      <button id="chooseLogoBtn" class="logo-drop-zone" type="button"><strong>Quadratische Logos hochladen</strong><span>oder klicken, um eine Datei auszuwählen</span></button><input id="logoInput" type="file" accept="image/png,image/jpeg" multiple aria-describedby="logoHelp" hidden />
-      </div>
-      <div id="savedLogos" role="group" aria-label="Gespeicherte Logos" hidden></div>
+      <input id="logoInput" type="file" accept="image/png,image/jpeg" multiple aria-describedby="logoHelp" hidden />
+      <div id="savedLogos" role="group" aria-label="Gespeicherte Logos"><button id="chooseLogoBtn" class="logo-add" type="button" aria-label="Quadratische Logos hochladen" title="Quadratische Logos hochladen">+</button></div>
       <p id="logoStatus" role="status"></p>
     </div>
 
@@ -158,6 +156,7 @@
       <div class="preview-header"><h2 id="ribbonHeading">Eckband ändern</h2><button id="closeRibbonBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
       <div class="modal-scroll-body">
       <p class="ribbon-help">Das erste passende Eckband wird verwendet. Gross- und Kleinschreibung werden ignoriert.</p>
+      <label class="preview-switch ribbon-master"><input id="ribbonRulesEnabled" type="checkbox" role="switch" checked /><span>Eckband aktivieren</span></label>
       <div id="ribbonRules"></div>
       <div class="metric-add ribbon-add"><button id="addRibbonBtn" class="metric-plus" type="button" aria-label="Eckband hinzufügen">+</button></div>
       <div class="modal-actions"><button id="applyRibbonBtn" type="button">Übernehmen</button></div>
@@ -214,6 +213,15 @@
     </dialog>
 
 
+    <dialog id="cropDialog" class="modal-frame" aria-labelledby="cropHeading" aria-describedby="cropHelp">
+      <div class="preview-header"><h2 id="cropHeading">Logo zuschneiden</h2><button id="closeCropBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+      <div class="modal-scroll-body">
+        <p id="cropHelp">Quadrat verschieben und an den Ecken vergrössern oder verkleinern. Pfeiltasten verschieben den Ausschnitt.</p>
+        <div id="cropStage"><canvas id="cropImage"></canvas><div id="cropSelection" tabindex="0" role="group" aria-label="Quadratischer Bildausschnitt"><span class="crop-handle" data-corner="nw"></span><span class="crop-handle" data-corner="ne"></span><span class="crop-handle" data-corner="sw"></span><span class="crop-handle" data-corner="se"></span></div></div>
+        <label class="crop-size" for="cropSize">Grösse des Ausschnitts<input id="cropSize" type="range" min="1" max="512" /></label>
+        <div class="modal-actions"><button id="cancelCropBtn" class="secondary" type="button">Abbrechen</button><button id="applyCropBtn" type="button">Übernehmen</button></div>
+      </div>
+    </dialog>
     <div id="toast" class="toast" role="status" popover="manual"><span id="toastMessage"></span><button id="toastClose" type="button" aria-label="Meldung schliessen">×</button></div>
   </body>
 </html>
