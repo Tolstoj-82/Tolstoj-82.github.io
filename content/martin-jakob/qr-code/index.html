@@ -9,8 +9,8 @@
     <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=20261004-i18n" />
-    <script defer src="script.js?v=20261004-i18n"></script>
+    <link rel="stylesheet" href="styles.css?v=20261004-modal-frame" />
+    <script defer src="script.js?v=20261004-modal-frame"></script>
     
   </head>
   <body>
@@ -115,16 +115,16 @@
 >
 
 <div id="info" aria-live="polite"></div>
-<button id="editLayoutBtn" class="secondary" type="button">Erscheinungsbild ändern</button>
+<button id="editLayoutBtn" class="secondary" type="button">Template anpassen</button>
 
-<p class="preview-option"><label><input id="showBulkPreview" type="checkbox" checked /> QR-Codes während der Erstellung anzeigen</label></p>
+<p class="preview-option"><label class="preview-switch"><input id="showBulkPreview" type="checkbox" role="switch" checked /> QR-Codes während der Erstellung anzeigen</label></p>
 
 <div class="export-actions">
 <button
     id="generateBtn"
     disabled
 >
-   Template anpassen
+   Export starten
 </button>
 <button id="cancelExportBtn" class="secondary" type="button" hidden>Export abbrechen</button>
 </div>
@@ -134,13 +134,14 @@
 
     </section>
     </main>
-    <dialog id="layoutDialog" aria-labelledby="layoutHeading">
-      <div class="preview-header"><h2 id="layoutHeading">Erscheinungsbild ändern</h2><button id="closeLayoutBtn" class="modal-close" type="button" aria-label="Layout schliessen">×</button></div>
+    <dialog id="layoutDialog" class="modal-frame" aria-labelledby="layoutHeading">
+      <div class="preview-header"><h2 id="layoutHeading">Template anpassen</h2><button id="closeLayoutBtn" class="modal-close" type="button" aria-label="Layout schliessen">×</button></div>
 
 
+      <div class="modal-scroll-body">
       <div class="layout-sheet">
         <div class="ribbon-corner"><button id="layoutRibbon" class="test-ribbon" type="button" aria-label="Eckband ändern">TST</button></div>
-        <label class="ribbon-switch" title="Eckband aktivieren"><input id="ribbonEnabled" type="checkbox" checked /><span>Eckband</span></label>
+        <label class="ribbon-switch" title="Eckband aktivieren"><input id="ribbonEnabled" type="checkbox" role="switch" checked /><span>Eckband</span></label>
         <div id="layoutTitle"></div><div id="layoutSubtitle"></div>
         <div id="layoutAbove"></div>
         <button id="editQRStyleBtn" class="qr-edit-button" type="button" aria-label="QR-Code gestalten"><canvas id="layoutQR" aria-label="Beispiel für die Beschriftung"></canvas><span class="qr-edit-hint">QR-Code gestalten</span></button>
@@ -150,22 +151,27 @@
       <p id="layoutError" role="status"></p>
       <div class="export-format"><label for="exportFormat">Dateiformat</label><select id="exportFormat"><option value="png">PNG (Bild)</option><option value="svg">SVG (Vektorgrafik)</option></select></div>
       <div class="modal-actions"><button id="applyLayoutBtn" class="secondary" type="button">Übernehmen</button><button id="layoutExportBtn" type="button">ZIP-Datei erstellen</button></div>
+      </div>
     </dialog>
-    <dialog id="ribbonDialog" aria-labelledby="ribbonHeading">
+    <dialog id="ribbonDialog" class="modal-frame" aria-labelledby="ribbonHeading">
       <div class="preview-header"><h2 id="ribbonHeading">Eckband ändern</h2><button id="closeRibbonBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+      <div class="modal-scroll-body">
       <div class="ribbon-settings">
         <label for="ribbonMode">Eckband</label><select id="ribbonMode"><option value="auto">Bei Test-URLs</option><option value="always">Immer</option><option value="off">Aus</option></select>
         <label for="ribbonText">Text</label><input id="ribbonText" type="text" value="TST" maxlength="12" />
         <label for="ribbonColor">Farbe</label><input id="ribbonColor" type="color" value="#2563eb" />
       </div>
       <div class="modal-actions"><button id="applyRibbonBtn" type="button">Übernehmen</button></div>
+      </div>
     </dialog>
-    <dialog id="qrStyleDialog" aria-labelledby="qrStyleHeading">
+    <dialog id="qrStyleDialog" class="modal-frame" aria-labelledby="qrStyleHeading">
       <div class="preview-header"><h2 id="qrStyleHeading">QR-Code gestalten</h2><button id="closeQRStyleBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+      <div class="modal-scroll-body">
       <canvas id="styleQR" aria-label="QR-Code-Vorschau"></canvas>
       <div id="modalAppearanceControls"></div>
       <div id="modalLogoControls"></div>
       <div class="modal-actions"><button id="applyQRStyleBtn" type="button">Übernehmen</button></div>
+      </div>
     </dialog>
     <dialog id="mappingDialog" aria-labelledby="mappingHeading" aria-describedby="mappingHelp">
       <h2 id="mappingHeading">JSON-Felder zuordnen</h2>

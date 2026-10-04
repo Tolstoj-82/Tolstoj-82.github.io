@@ -41,6 +41,7 @@ const english = {
     "Erscheinungsbild ändern": "Customize appearance",
     "QR-Codes während der Erstellung anzeigen": "Show QR codes while generating",
     "Template anpassen": "Customize template",
+    "Export starten": "Start export",
     "Export abbrechen": "Cancel export",
     "Layout schliessen": "Close layout",
     "Eckband ändern": "Customize corner ribbon",
@@ -401,15 +402,17 @@ const toggleImportBtn = document.getElementById("toggleImportBtn");
 
 function setImportVisible(visible) {
     bulkImport.hidden = !visible;
-    document.getElementById("singleSection").hidden = visible;
-    document.getElementById("toggleSingleBtn").setAttribute("aria-expanded", String(!visible));
     toggleImportBtn.setAttribute("aria-expanded", String(visible));
     generateQRCode();
     saveSettings();
 }
 
 toggleImportBtn.addEventListener("click", () => setImportVisible(bulkImport.hidden));
-document.getElementById("toggleSingleBtn").addEventListener("click", () => setImportVisible(!document.getElementById("singleSection").hidden));
+document.getElementById("toggleSingleBtn").addEventListener("click", () => {
+    const section = document.getElementById("singleSection");
+    section.hidden = !section.hidden;
+    document.getElementById("toggleSingleBtn").setAttribute("aria-expanded", String(!section.hidden));
+});
 
 
 dropZone.addEventListener("keydown", event => {
@@ -1245,68 +1248,97 @@ function moveMetric(key, destination, position) {
     [...layoutDialog.querySelectorAll(".metric-handle")].find(handle => handle.dataset.key === key)?.focus();
 }
 function attachMetricDrag(handle, row, key, area, index) {
-    let target = null;
-    let pointer = null;
-    let placeholder, origin, lastTarget;
+    let pointer = null, placeholder, separator, origin, finishing = false;
     let offsetX = 0, offsetY = 0;
-    const clearTarget = () => { target?.classList.remove("drop-target"); target = null; };
+    const containers = [document.getElementById("layoutAbove"), document.getElementById("layoutBelow")];
+    const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const animatedItems = () => [...layoutDialog.querySelectorAll(".metric-row:not(.is-dragging), .metric-add, .metric-placeholder, .qr-edit-button")];
+    const rearrange = change => {
+        const items = animatedItems();
+        const before = new Map(items.map(item => [item, item.getBoundingClientRect()]));
+        for (const item of items) for (const animation of item.getAnimations()) animation.cancel();
+        change();
+        if (reducedMotion()) return;
+        for (const item of items) {
+            const from = before.get(item), to = item.getBoundingClientRect();
+            const dx = from.left - to.left, dy = from.top - to.top;
+            if (dx || dy) item.animate([
+                {transform: `translate(${dx}px, ${dy}px)`}, {transform: "translate(0, 0)"}
+            ], {duration: 240, easing: "cubic-bezier(.2,.8,.2,1)"});
+        }
+    };
+    // Collision tests use final layout positions, not intermediate animated positions.
+    const layoutBounds = item => {
+        const rect = item.getBoundingClientRect();
+        const transform = getComputedStyle(item).transform;
+        const offset = transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m42;
+        return {top: rect.top - offset, bottom: rect.bottom - offset, height: rect.height};
+    };
     handle.addEventListener("pointerdown", event => {
-        if (event.button !== 0) return;
+        if (event.button !== 0 || pointer !== null || finishing) return;
         event.preventDefault();
         pointer = event.pointerId;
-        handle.setPointerCapture(pointer);
         const bounds = row.getBoundingClientRect();
         offsetX = event.clientX - bounds.left; offsetY = event.clientY - bounds.top;
+        separator = row.nextElementSibling;
         origin = document.createComment("drag origin"); row.before(origin);
-        placeholder = document.createElement("div"); placeholder.className = "metric-placeholder"; placeholder.style.height = bounds.height + "px"; row.before(placeholder);
+        placeholder = document.createElement("div");
+        placeholder.className = "metric-placeholder";
+        placeholder.style.height = bounds.height + "px";
+        row.before(placeholder);
         Object.assign(row.style, {position: "fixed", left: bounds.left + "px", top: bounds.top + "px", width: bounds.width + "px", zIndex: "20", pointerEvents: "none"});
         row.classList.add("is-dragging");
+        layoutDialog.append(row);
+        handle.setPointerCapture(pointer);
         layoutDialog.classList.add("is-sorting");
+        document.addEventListener("keydown", cancelWithEscape);
     });
     handle.addEventListener("pointermove", event => {
-        if (pointer !== event.pointerId) return;
+        if (pointer !== event.pointerId || finishing) return;
         row.style.left = event.clientX - offsetX + "px"; row.style.top = event.clientY - offsetY + "px";
-        clearTarget();
         const hit = document.elementFromPoint(event.clientX, event.clientY);
-        target = hit?.closest(".metric-add") || (hit?.closest(".metric-placeholder") ? lastTarget : null);
-        if (!target) {
-            const hitRow = hit?.closest(".metric-row");
-            if (hitRow) target = event.clientY < hitRow.getBoundingClientRect().top + hitRow.offsetHeight / 2
-                ? hitRow.previousElementSibling : hitRow.nextElementSibling;
+        const container = containers.find(item => item.contains(hit));
+        if (container && !placeholder.contains(hit) && !separator.contains(hit)) {
+            const rows = [...container.children].filter(item => item.matches(".metric-row"));
+            const next = rows.find(item => {const bounds = layoutBounds(item); return event.clientY < bounds.top + bounds.height / 2;});
+            // Each row travels with its trailing + line. The leading + stays at the top.
+            const anchor = next || null;
+            const currentNext = separator.nextElementSibling;
+            if (placeholder.parentElement !== container || currentNext !== anchor) rearrange(() => {
+                const pair = document.createDocumentFragment(); pair.append(placeholder, separator);
+                container.insertBefore(pair, anchor);
+            });
         }
-        if (target?.classList.contains("metric-placeholder")) target = target.previousElementSibling;
-        if (target && !target.matches(".metric-add")) target = null;
-        if (target && layoutDialog.contains(target)) {
-            target.classList.add("drop-target");
-            if (lastTarget !== target) {
-                const rows = [...layoutDialog.querySelectorAll(".metric-row:not(.is-dragging)")];
-                const before = new Map(rows.map(item => [item, item.getBoundingClientRect()]));
-                target.after(placeholder); lastTarget = target;
-                if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) for (const item of rows) {
-                    const from = before.get(item), to = item.getBoundingClientRect();
-                    if (from.top !== to.top) item.animate([{transform: 'translateY(' + (from.top-to.top) + 'px)'}, {transform: 'translateY(0)'}], {duration: 180, easing: 'ease-out'});
-                }
-            }
-        } else target = null;
-        const bounds = layoutDialog.getBoundingClientRect();
-        if (event.clientY < bounds.top + 45) layoutDialog.scrollBy(0, -14);
-        if (event.clientY > bounds.bottom - 45) layoutDialog.scrollBy(0, 14);
+        const scrollBody = layoutDialog.querySelector(".modal-scroll-body");
+        const bounds = scrollBody.getBoundingClientRect();
+        if (event.clientY < bounds.top + 45) scrollBody.scrollBy(0, -14);
+        if (event.clientY > bounds.bottom - 45) scrollBody.scrollBy(0, 14);
     });
-    const finish = (event, cancelled) => {
-        if (pointer !== event.pointerId) return;
-        const destination = target?.dataset.area;
-        const position = Number(target?.dataset.index);
-        clearTarget();
-        row.classList.remove("is-dragging");
-        row.removeAttribute("style");
-        origin.after(row); origin.remove(); placeholder.remove(); lastTarget = null;
-        layoutDialog.classList.remove("is-sorting");
+    const finish = async (event, cancelled) => {
+        if (pointer !== event.pointerId || finishing) return;
+        finishing = true;
+        document.removeEventListener("keydown", cancelWithEscape);
+        if (cancelled) rearrange(() => origin.after(placeholder, separator));
+        const destination = placeholder.parentElement.id === "layoutAbove" ? "above" : "below";
+        const next = separator.nextElementSibling;
+        const position = next ? metricLayout[destination].indexOf(next.dataset.key) : metricLayout[destination].length;
+        const to = placeholder.getBoundingClientRect(), from = row.getBoundingClientRect();
+        if (!reducedMotion()) {
+            try { await row.animate([{transform: "translate(0, 0)"}, {transform: `translate(${to.left-from.left}px, ${to.top-from.top}px)`}], {duration: 170, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards"}).finished; } catch { /* Interrupted animation. */ }
+        }
         if (handle.hasPointerCapture(pointer)) handle.releasePointerCapture(pointer);
         pointer = null;
-        if (!cancelled && destination) moveMetric(key, destination, position);
+        for (const item of [...animatedItems(), row]) for (const animation of item.getAnimations()) animation.cancel();
+        placeholder.replaceWith(row); origin.remove();
+        row.classList.remove("is-dragging"); row.removeAttribute("style");
+        layoutDialog.classList.remove("is-sorting");
+        finishing = false;
+        if (!cancelled) moveMetric(key, destination, position);
     };
+    const cancelWithEscape = event => { if (event.key === "Escape") {event.preventDefault(); event.stopPropagation(); finish({pointerId: pointer}, true);} };
     handle.addEventListener("pointerup", event => finish(event, false));
     handle.addEventListener("pointercancel", event => finish(event, true));
+    handle.addEventListener("lostpointercapture", event => { if (!finishing) finish(event, true); });
     handle.addEventListener("keydown", event => {
         if (!["ArrowUp", "ArrowDown"].includes(event.key)) return;
         event.preventDefault();
@@ -1563,7 +1595,7 @@ showBulkPreview.addEventListener("change", () => {
     saveSettings();
 });
 
-generateBtn.addEventListener("click", openLayoutEditor);
+generateBtn.addEventListener("click", generateZip);
 const cancelExportBtn = document.getElementById("cancelExportBtn");
 let cancelExportRequested = false;
 const exportCancelled = new Error("Export abgebrochen");
