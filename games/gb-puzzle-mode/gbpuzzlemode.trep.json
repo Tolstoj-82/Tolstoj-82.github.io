@@ -1,0 +1,246 @@
+{
+  "format": "trep-metadata",
+  "version": 1,
+  "project": "Tetris Lab GB",
+  "generatedFrom": {
+    "symbols": "gbpuzzlemode.sym",
+    "map": "gbpuzzlemode.map"
+  },
+  "tileRegions": [
+    {
+      "name": "ASCII",
+      "symbol": "Gfx_Ascii",
+      "endSymbol": "Gfx_Ascii.end",
+      "bitsPerPixel": 1,
+      "filename": "ascii.png",
+      "width": 13,
+      "show": true,
+      "start": "0x415F",
+      "end": "0x4297",
+      "tileCount": 39
+    },
+    {
+      "name": "Menu Screens",
+      "symbol": "Gfx_MenuScreens",
+      "endSymbol": "Gfx_MenuScreens.end",
+      "bitsPerPixel": 2,
+      "filename": "menuScreens.png",
+      "width": 16,
+      "show": true,
+      "start": "0x323F",
+      "end": "0x3E8F",
+      "tileCount": 197
+    },
+    {
+      "name": "Title Screen",
+      "symbol": "Gfx_TitleScreen",
+      "endSymbol": "Gfx_TitleScreen.end",
+      "bitsPerPixel": 2,
+      "filename": "titleScreen.png",
+      "width": 16,
+      "show": true,
+      "start": "0x4297",
+      "end": "0x4A07",
+      "tileCount": 119
+    },
+    {
+      "name": "Title Screen Menu Prefix",
+      "symbol": "Gfx_TitleScreen",
+      "tileCount": 9,
+      "bitsPerPixel": 2,
+      "show": false,
+      "start": "0x4297",
+      "end": "0x4327"
+    },
+    {
+      "name": "Rocket Scene",
+      "symbol": "Gfx_RocketScene",
+      "endSymbol": "Gfx_RocketScene.end",
+      "bitsPerPixel": 2,
+      "filename": "rocketScene.png",
+      "width": 16,
+      "show": true,
+      "start": "0x55AC",
+      "end": "0x62AC",
+      "tileCount": 208
+    }
+  ],
+  "tileSets": [
+    {
+      "name": "Start-Set",
+      "regions": [
+        "ASCII",
+        "Title Screen"
+      ]
+    },
+    {
+      "name": "Game Play-Set",
+      "regions": [
+        "ASCII",
+        "Title Screen Menu Prefix",
+        "Menu Screens"
+      ]
+    },
+    {
+      "name": "Celebration-Set",
+      "regions": [
+        "Rocket Scene"
+      ]
+    }
+  ],
+  "backgroundMaps": [
+    {
+      "name": "Copyright Screen",
+      "symbol": "Layout_Copyright",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Start-Set",
+      "filename": "layout_copyright.bin",
+      "start": "0x4A07"
+    },
+    {
+      "name": "Title Screen",
+      "symbol": "Layout_TitleScreen",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Start-Set",
+      "filename": "layout_titleScreen.bin",
+      "start": "0x4B6F"
+    },
+    {
+      "name": "Music Type",
+      "symbol": "Layout_GameMusicTypeScreen",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Game Play-Set",
+      "filename": "layout_gameMusicTypeScreen.bin",
+      "start": "0x4CD7"
+    },
+    {
+      "name": "A-Type Select",
+      "symbol": "Layout_ATypeSelectionScreen",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Game Play-Set",
+      "filename": "layout_aTypeSelectionScreen.bin",
+      "start": "0x4E3F"
+    },
+    {
+      "name": "B-Type Select",
+      "symbol": "Layout_BTypeSelectionScreen",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Game Play-Set",
+      "filename": "layout_bTypeSelectionScreen.bin",
+      "start": "0x4FA7"
+    },
+    {
+      "name": "Pause",
+      "symbol": "GameInnerScreenLayout_Pause",
+      "width": 8,
+      "height": 10,
+      "tileSet": "Game Play-Set",
+      "start": "0x2839"
+    },
+    {
+      "name": "Score Counter",
+      "symbol": "GameScreenLayout_ScoreTotals",
+      "width": 10,
+      "height": 18,
+      "fileSize": 181,
+      "tileSet": "Game Play-Set",
+      "filename": "gameScreenLayout_scoreTotals.bin",
+      "start": "0x2889"
+    },
+    {
+      "name": "Game Over",
+      "symbol": "GameInnerScreenLayout_GameOver",
+      "width": 8,
+      "height": 7,
+      "tileSet": "Game Play-Set",
+      "start": "0x293E"
+    },
+    {
+      "name": "A-Playfield",
+      "symbol": "Layout_ATypeInGame",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Game Play-Set",
+      "filename": "layout_aTypeInGame.bin",
+      "start": "0x3E8F"
+    },
+    {
+      "name": "B-Playfield",
+      "symbol": "Layout_BTypeInGame",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Game Play-Set",
+      "filename": "layout_bTypeInGame.bin",
+      "start": "0x3FF7"
+    },
+    {
+      "name": "Celebration",
+      "symbol": "GameScreenLayout_Dancers",
+      "width": 10,
+      "height": 18,
+      "fileSize": 181,
+      "tileSet": "Game Play-Set",
+      "filename": "gameScreenLayout_dancers.bin",
+      "start": "0x510F"
+    },
+    {
+      "name": "Mario & Luigi",
+      "symbol": "Layout_MarioLuigiScreen",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Game Play-Set",
+      "filename": "layout_marioLuigiScreen.bin",
+      "start": "0x5214"
+    },
+    {
+      "name": "2P Playfield",
+      "symbol": "Layout_2PlayerInGame",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Game Play-Set",
+      "filename": "layout_2PlayerInGame.bin",
+      "start": "0x537C"
+    },
+    {
+      "name": "Platform",
+      "symbol": "Layout_RocketScene",
+      "width": 20,
+      "height": 4,
+      "tileSet": "Celebration-Set",
+      "filename": "layout_rocketScene.bin",
+      "start": "0x51C4"
+    },
+    {
+      "name": "Mario Score",
+      "symbol": "Layout_MarioScore",
+      "width": 20,
+      "height": 4,
+      "tileSet": "Celebration-Set",
+      "filename": "layout_marioScore.bin",
+      "start": "0x54E4"
+    },
+    {
+      "name": "Luigi Score",
+      "symbol": "Layout_BricksAndLuigiScore",
+      "width": 20,
+      "height": 6,
+      "tileSet": "Celebration-Set",
+      "filename": "layout_bricksAndLuigiScore.bin",
+      "start": "0x5534"
+    },
+    {
+      "name": "Lab Menu",
+      "symbol": "LabMenuScreen",
+      "width": 20,
+      "height": 18,
+      "tileSet": "Game Play-Set",
+      "filename": "labMenuScreen.bin",
+      "start": "0x9034"
+    }
+  ]
+}

@@ -19,7 +19,7 @@
     "detailsKey": "dm-i-tetris"
   },
   {
-    "image": "games/gb-puzzle-mode/images/title.png",
+    "image": "games/gb-puzzle-mode/images/title.png?v=20260909-26",
     "name": "GB Puzzle Mode",
     "description": "Two-piece Game Boy Tetris puzzles with ideal solutions, half-credit alternatives, and score-dependent endings.",
     "link": "games/gb-puzzle-mode/index.html"

@@ -10,3 +10,20 @@
 .message-list li { break-inside:avoid; padding:4px 0; font-family:Consolas,monospace; font-size:.85rem; }
 .puzzle-spoilers { margin-top:22px; }
 @media(max-width:650px) { .message-list { columns:1; } .puzzle-table th,.puzzle-table td { padding:8px 5px; } .placeholder-label { font-size:.64rem; } }
+
+/* Account for the accordion's 12px content margins on both sides. */
+.puzzle-spoilers > .puzzle-table {
+  width:calc(100% - 24px);
+  min-width:0;
+  table-layout:fixed;
+}
+.puzzle-spoilers > .puzzle-table th,
+.puzzle-spoilers > .puzzle-table td {
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.puzzle-spoilers > .puzzle-table thead th:first-child { width:35%; }
+.game-page-section table {
+  border:1px solid #dbc88d;
+  box-sizing:border-box;
+}
