@@ -1,0 +1,386 @@
+/* logos styles. Shared colors are defined in tokens.css. */
+.logo-controls input {
+  max-width: 100%;
+}
+
+.logo-info {
+  position: relative;
+  display: inline-block;
+}
+
+.logo-info .info-button:hover {
+  background: var(--color-text);
+}
+
+#logoHelp {
+  font-size: 13px;
+  font-weight: normal;
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+  padding: 10px;
+  background: var(--color-text);
+  color: var(--color-surface);
+  border-radius: 6px;
+  text-align: left;
+  z-index: 3;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--color-ink) 20%, transparent);
+}
+
+.logo-info:hover #logoHelp {
+  display: block;
+}
+
+.logo-info:focus-within #logoHelp {
+  display: block;
+}
+
+.saved-logo {
+  position: relative;
+}
+
+.saved-logo .saved-logo-select {
+  margin: 0;
+  padding: 7px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  width: 62px;
+  height: 62px;
+}
+
+.saved-logo-select img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.saved-logo-select[aria-pressed="true"] {
+  outline: 2px solid var(--color-accent);
+}
+
+.logo-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.logo-heading label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.logo-info .info-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--color-text);
+  color: var(--color-surface);
+  font: bold 11px/1 Georgia,
+    serif;
+  padding: 0;
+  vertical-align: middle;
+  margin: 0;
+}
+
+#logoInput {
+  width: 270px;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+#logoInput::file-selector-button {
+  padding: 8px 12px;
+  margin-right: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  font: inherit;
+}
+
+#logoInput::file-selector-button:hover {
+  background: var(--color-page);
+}
+
+#logoStatus:empty {
+  display: none;
+}
+
+@media (max-width: 540px) {
+  #logoHelp {
+    left: auto;
+    right: -30px;
+    transform: none;
+    width: min(250px, calc(100vw - 40px));
+  }
+}
+
+#modalLogoControls {
+  padding-top: 12px;
+}
+
+.saved-logo .saved-logo-delete {
+  top: -7px;
+  right: -7px;
+  margin: 0;
+  padding: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-page);
+  color: var(--color-text);
+  font-size: 0;
+  position: absolute;
+}
+
+.saved-logo-delete::before {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 1.7px;
+  border-radius: 1px;
+  background: currentColor;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.saved-logo-delete::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 1.7px;
+  border-radius: 1px;
+  background: currentColor;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+#logoStatus {
+  font-size: 13px;
+  font-weight: normal;
+  color: var(--color-muted);
+  margin: 8px 0 0;
+  display: none;
+}
+
+.logo-controls {
+  max-width: 480px;
+  border-top: 1px solid var(--color-page);
+  border-bottom: 1px solid var(--color-page);
+  padding: 18px 0;
+  margin: 18px auto;
+}
+
+.logo-upload-row {
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  display: block;
+}
+
+.logo-add {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  padding: 0;
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-size: 0;
+}
+
+.logo-add::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 2px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.logo-add::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 2px;
+  background: currentColor;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.logo-add:hover {
+  background: var(--color-page);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.logo-add:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.empty-logo {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  background: var(--color-surface);
+}
+
+#savedLogos .saved-logo-select.empty-logo {
+  border-style: dashed;
+}
+
+#savedLogos .saved-logo-select {
+  width: 64px;
+  height: 64px;
+  margin: 0;
+  padding: 6px;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+#savedLogos .saved-logo-select[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 13%, transparent);
+}
+
+#savedLogos {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  gap: 14px;
+  align-items: center;
+}
+
+#cropDialog {
+  width: min(540px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 12px;
+}
+
+#cropDialog::backdrop {
+  background: color-mix(in srgb, var(--color-ink) 47%, transparent);
+}
+
+#cropDialog > .preview-header {
+  position: relative;
+  z-index: 30;
+  margin: 0;
+  padding: 24px 24px 14px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-page);
+}
+
+#cropHeading {
+  font-size: 21px;
+  margin: 0;
+}
+
+#cropHelp {
+  font-size: 13px;
+  font-weight: normal;
+  color: var(--color-muted);
+  margin: 0 0 18px;
+}
+
+#cropStage {
+  position: relative;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--color-page);
+}
+
+#cropImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+#cropSelection {
+  position: absolute;
+  border: 2px solid var(--color-surface);
+  outline: 1px solid var(--color-accent);
+  box-shadow: 0 0 0 600px color-mix(in srgb, var(--color-ink) 47%, transparent);
+  cursor: move;
+  touch-action: none;
+}
+
+#cropSelection:focus-visible {
+  outline: 3px solid var(--color-accent);
+}
+
+.crop-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-accent);
+  border-radius: 2px;
+}
+
+.crop-handle[data-corner="nw"] {
+  left: -2px;
+  top: -2px;
+  cursor: nwse-resize;
+}
+
+.crop-handle[data-corner="ne"] {
+  right: -2px;
+  top: -2px;
+  cursor: nesw-resize;
+}
+
+.crop-handle[data-corner="sw"] {
+  left: -2px;
+  bottom: -2px;
+  cursor: nesw-resize;
+}
+
+.crop-handle[data-corner="se"] {
+  right: -2px;
+  bottom: -2px;
+  cursor: nwse-resize;
+}
+
+.crop-size {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0 0;
+  font-size: 13px;
+  text-align: left;
+}
+
+#cropSize {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--color-accent);
+}

@@ -9,8 +9,16 @@
     <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=20261004-logo-crop" />
-    <script defer src="script.js?v=20261004-logo-crop"></script>
+    <link rel="stylesheet" href="styles.css?v=20261008-modules" />
+    <script defer src="script.js?v=20261008-classic"></script>
+    <script defer src="js/translations.js?v=20261008-classic"></script>
+    <script defer src="js/notifications.js?v=20261008-classic"></script>
+    <script defer src="js/i18n.js?v=20261008-classic"></script>
+    <script defer src="js/logo-crop.js?v=20261008-classic"></script>
+    <script defer src="js/qr-renderer.js?v=20261008-classic"></script>
+    <script defer src="js/logos.js?v=20261008-classic"></script>
+    <script defer src="js/templates.js?v=20261008-classic"></script>
+    <script defer src="js/app.js?v=20261008-classic"></script>
     
   </head>
   <body>
@@ -137,6 +145,11 @@
 
 
       <div class="modal-scroll-body">
+      <section class="template-library" aria-label="Template">
+        <label for="templateSelect">Template</label>
+        <div class="template-library-row"><div class="template-combo"><button id="templateSelect" type="button" aria-expanded="false" aria-controls="templateOptions"><span id="templateSelectedName">Template auswählen …</span><span class="template-chevron" aria-hidden="true"></span></button><div id="templateOptions" role="group" aria-label="Template" hidden></div></div><button id="saveTemplateBtn" class="secondary" type="button">Speichern</button></div>
+        <p id="templateStatus" role="status"></p>
+      </section>
       <div class="layout-sheet">
         <div class="ribbon-corner"><button id="layoutRibbon" class="test-ribbon" type="button" aria-label="Eckband ändern">TST</button></div>
         <label class="ribbon-switch" title="Eckband aktivieren"><input id="ribbonEnabled" type="checkbox" role="switch" checked /><span>Eckband</span></label>
@@ -221,6 +234,19 @@
         <label class="crop-size" for="cropSize">Grösse des Ausschnitts<input id="cropSize" type="range" min="1" max="512" /></label>
         <div class="modal-actions"><button id="cancelCropBtn" class="secondary" type="button">Abbrechen</button><button id="applyCropBtn" type="button">Übernehmen</button></div>
       </div>
+    </dialog>
+    <dialog id="saveTemplateDialog" class="compact-dialog" aria-labelledby="saveTemplateHeading">
+      <div class="preview-header"><h2 id="saveTemplateHeading">Als Template speichern?</h2><button id="closeSaveTemplateBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+      <p>Die Gestaltung wurde geändert. Möchten Sie sie als Template speichern?</p>
+      <label for="templateName">Template-Name</label><input id="templateName" type="text" maxlength="80" />
+      <fieldset id="templateSaveMode" hidden><legend>Mit dem neuen Namen</legend><label><input type="radio" name="templateSaveMode" value="copy" checked /> Neues Template erstellen</label><label><input type="radio" name="templateSaveMode" value="rename" /> Bestehendes Template umbenennen und aktualisieren</label></fieldset>
+      <p id="saveTemplateError" role="alert"></p>
+      <div class="modal-actions"><button id="cancelSaveTemplateBtn" class="secondary" type="button">Abbrechen</button><button id="skipSaveTemplateBtn" class="secondary" type="button">Nicht speichern</button><button id="confirmSaveTemplateBtn" type="button">Speichern</button></div>
+    </dialog>
+    <dialog id="deleteConfirmDialog" class="compact-dialog" aria-labelledby="deleteConfirmHeading">
+      <div class="preview-header"><h2 id="deleteConfirmHeading">Löschen bestätigen</h2><button id="closeDeleteConfirmBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+      <p id="deleteConfirmText"></p>
+      <div class="modal-actions"><button id="cancelDeleteConfirmBtn" class="secondary" type="button">Abbrechen</button><button id="confirmDeleteBtn" class="danger-button" type="button">Löschen</button></div>
     </dialog>
     <div id="toast" class="toast" role="status" popover="manual"><span id="toastMessage"></span><button id="toastClose" type="button" aria-label="Meldung schliessen">×</button></div>
   </body>

@@ -1,0 +1,145 @@
+/* base styles. Shared colors are defined in tokens.css. */
+input[type="text"] {
+  padding: 8px;
+  margin: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+}
+
+input[type="range"] {
+  padding: 8px;
+  margin: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+}
+
+input[type="color"] {
+  padding: 0px;
+  margin: 0px;
+  border: none;
+  cursor: pointer;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border-radius: 5px;
+  border: 2px solid var(--color-muted);
+}
+
+button:hover {
+  background: var(--color-accent);
+}
+
+p {
+  font-weight: bold;
+}
+
+label {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+h1 {
+  text-align: center;
+}
+
+button:disabled {
+  background: var(--color-muted);
+  cursor: not-allowed;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+canvas {
+  box-shadow: 5px 5px 15px color-mix(in srgb, var(--color-ink) 30%, transparent);
+  border-radius: 20px;
+  max-width: 100%;
+  height: auto;
+}
+
+button.secondary {
+  background: var(--color-page);
+  color: var(--color-text);
+}
+
+button.secondary:hover {
+  background: var(--color-border);
+}
+
+button.secondary:disabled {
+  color: var(--color-muted);
+  background: var(--color-page);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  background-color: var(--color-page);
+  color: var(--color-text);
+  margin: 0;
+  padding: 32px 20px 48px;
+  line-height: 1.5;
+}
+
+input {
+  font-family: inherit;
+}
+
+select {
+  padding: 8px;
+  margin: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  font-family: inherit;
+}
+
+button {
+  transition: background 0.3s ease-in-out;
+  padding: 12px 25px;
+  border: none;
+  background: var(--color-accent);
+  color: var(--color-surface);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: inherit;
+  margin-top: 0;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+select:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--color-accent);
+}
+
+input[type="radio"] {
+  accent-color: var(--color-accent);
+}
+
+@media (max-width: 540px) {
+  body {
+    padding: 16px 14px 32px;
+  }
+}

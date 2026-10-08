@@ -1,0 +1,233 @@
+/* templates styles. Shared colors are defined in tokens.css. */
+.template-library > label {
+  display: block;
+  font-size: 13px;
+  margin: 0 0 6px;
+}
+
+.template-library select {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  font: inherit;
+  font-size: 13px;
+}
+
+.template-library input {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  font: inherit;
+  font-size: 13px;
+  padding: 8px;
+}
+
+.template-library button {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.template-library .danger {
+  color: var(--color-danger);
+}
+
+#templateStatus {
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--color-muted);
+  margin: 12px 0 0;
+}
+
+#templateStatus:empty {
+  display: none;
+}
+
+#templateStatus.is-error {
+  color: var(--color-danger);
+}
+
+.template-library {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  text-align: left;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.template-library-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  margin-bottom: 0;
+}
+
+.template-combo {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+#templateSelect {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  text-align: left;
+}
+
+#templateSelectedName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.template-chevron {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  margin-right: 3px;
+}
+
+#templateSelect[aria-expanded="true"] {
+  border-radius: 5px 5px 0 0;
+}
+
+#templateOptions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 35;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-top: 0;
+  border-radius: 0 0 5px 5px;
+  background: var(--color-surface);
+  box-shadow: 0 5px 12px color-mix(in srgb, var(--color-ink) 13%, transparent);
+}
+
+.template-option {
+  display: flex;
+  align-items: stretch;
+}
+
+.template-library .template-choice {
+  flex: 1;
+  min-width: 0;
+  border-radius: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-align: left;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  padding: 10px 12px;
+}
+
+.template-library .template-choice:hover {
+  background: var(--color-page);
+}
+
+.template-library .template-choice[aria-pressed="true"] {
+  background: var(--color-page);
+}
+
+.template-library .template-delete {
+  flex: 0 0 36px;
+  padding: 0;
+  border-radius: 0;
+  color: var(--color-danger);
+  background: var(--color-surface);
+  font-size: 22px;
+}
+
+.template-library .template-delete:hover {
+  background: var(--color-page);
+}
+
+.template-empty {
+  display: block;
+  padding: 12px;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.compact-dialog {
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 24px;
+  border: 0;
+  border-radius: 12px;
+}
+
+.compact-dialog::backdrop {
+  background: color-mix(in srgb, var(--color-ink) 40%, transparent);
+}
+
+.compact-dialog h2 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.compact-dialog p {
+  font-size: 14px;
+  font-weight: normal;
+  overflow-wrap: anywhere;
+}
+
+.compact-dialog label {
+  display: block;
+  text-align: left;
+  font-size: 13px;
+}
+
+#templateName {
+  width: 100%;
+  margin: 8px 0 0;
+}
+
+.danger-button {
+  background: var(--color-danger);
+}
+
+.danger-button:hover {
+  background: var(--color-danger);
+}
+
+#templateSaveMode {
+  margin: 16px 0 0;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  text-align: left;
+}
+
+#templateSaveMode legend {
+  font-size: 13px;
+  padding: 0 5px;
+}
+
+#templateSaveMode label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+#templateSaveMode input {
+  margin: 0;
+  flex-shrink: 0;
+}
