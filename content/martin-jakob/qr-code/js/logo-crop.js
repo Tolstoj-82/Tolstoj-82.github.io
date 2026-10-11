@@ -3,7 +3,7 @@
 const cropDialog = document.getElementById("cropDialog");
 const cropStage = document.getElementById("cropStage");
 const cropSelection = document.getElementById("cropSelection");
-const cropSize = document.getElementById("cropSize");
+
 let cropState = null;
 let cropDrag = null;
 function requestLogoCrop(image) {
@@ -21,14 +21,12 @@ function requestLogoCrop(image) {
       resolve,
     };
     const preview = document.getElementById("cropImage");
-    preview.width = width;
-    preview.height = height;
-    preview.getContext("2d").drawImage(image, 0, 0);
+    preview.width = Math.round(width * Math.min(1, 880 / Math.max(width, height)));
+    preview.height = Math.round(height * Math.min(1, 880 / Math.max(width, height)));
+    preview.getContext("2d").drawImage(image, 0, 0, preview.width, preview.height);
     cropStage.style.aspectRatio = width + " / " + height;
     cropStage.style.width =
       "min(100%, " + Math.min(440, (320 * width) / height) + "px)";
-    cropSize.min = String(Math.min(16, size));
-    cropSize.max = String(size);
     updateCrop();
     cropDialog.showModal();
     cropSelection.focus();
@@ -38,7 +36,7 @@ function updateCrop() {
   if (!cropState) return;
   const c = cropState;
   c.size = Math.max(
-    Number(cropSize.min),
+    Math.min(16, cropState.width, cropState.height),
     Math.min(Math.min(c.width, c.height), c.size),
   );
   c.x = Math.max(0, Math.min(c.width - c.size, c.x));
@@ -49,7 +47,6 @@ function updateCrop() {
     width: (c.size / c.width) * 100 + "%",
     height: (c.size / c.height) * 100 + "%",
   });
-  cropSize.value = String(Math.round(c.size));
 }
 function finishLogoCrop(apply) {
   if (!cropState) return;
@@ -96,14 +93,6 @@ cropDialog.addEventListener("cancel", (event) => {
 });
 cropDialog.addEventListener("close", () => {
   if (!cropDialog.open && cropState) finishLogoCrop(false);
-});
-cropSize.addEventListener("input", () => {
-  if (!cropState) return;
-  const delta = cropState.size - Number(cropSize.value);
-  cropState.x += delta / 2;
-  cropState.y += delta / 2;
-  cropState.size = Number(cropSize.value);
-  updateCrop();
 });
 cropSelection.addEventListener("keydown", (event) => {
   if (
@@ -160,7 +149,7 @@ cropSelection.addEventListener("pointermove", (event) => {
       north ? anchorY : cropState.height - anchorY,
     );
     cropState.size = Math.max(
-      Number(cropSize.min),
+      Math.min(16, cropState.width, cropState.height),
       Math.min(limit, start.size + delta),
     );
     cropState.x = west ? anchorX - cropState.size : anchorX;

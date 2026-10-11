@@ -9,23 +9,29 @@
     <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=20261008-modules" />
-    <script defer src="script.js?v=20261008-classic"></script>
-    <script defer src="js/translations.js?v=20261008-classic"></script>
-    <script defer src="js/notifications.js?v=20261008-classic"></script>
-    <script defer src="js/i18n.js?v=20261008-classic"></script>
-    <script defer src="js/logo-crop.js?v=20261008-classic"></script>
-    <script defer src="js/qr-renderer.js?v=20261008-classic"></script>
-    <script defer src="js/logos.js?v=20261008-classic"></script>
-    <script defer src="js/templates.js?v=20261008-classic"></script>
-    <script defer src="js/app.js?v=20261008-classic"></script>
+    <link rel="stylesheet" href="styles.css?v=20261011-cart-scroll" />
+    <script defer src="script.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/translations.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/notifications.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/i18n.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/logo-crop.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/qr-renderer.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/logos.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/template-combo.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/templates.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/qr-presets.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/qr-content.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/cart-appearance.js?v=20261011-cart-scroll"></script>
+    <script defer src="js/app.js?v=20261011-cart-scroll"></script>
     
   </head>
   <body>
     <main class="generator">
     <div class="page-heading"><h1 class="page-title">QR-Code Generator Plus</h1><div class="language-toggle" role="group" aria-label="Sprache"><button type="button" data-language="de" lang="de" aria-pressed="true">Deutsch</button><button type="button" data-language="en" lang="en" aria-pressed="false">English</button></div></div>
-    <button id="toggleSingleBtn" class="section-toggle" type="button" aria-expanded="true" aria-controls="singleSection">Einzelner QR-Code erstellen<span class="accordion-chevron" aria-hidden="true"></span></button>
-    <div id="singleSection">
+    <div class="mode-tabs" role="tablist" aria-label="QR-Code-Modus"><button id="toggleSingleBtn" type="button" role="tab" aria-selected="true" aria-controls="singleSection">Einzelner QR-Code</button><button id="toggleImportBtn" type="button" role="tab" aria-selected="false" aria-controls="bulkImport" tabindex="-1">Massenexport</button><button id="toggleTemplatesBtn" type="button" role="tab" aria-selected="false" aria-controls="templatesSection" tabindex="-1">QR</button><button id="toggleCartsBtn" type="button" role="tab" aria-selected="false" aria-controls="cartsSection" tabindex="-1">Carts</button></div>
+    <section id="templatesSection" role="tabpanel" aria-labelledby="toggleTemplatesBtn" hidden></section>
+    <section id="cartsSection" role="tabpanel" aria-labelledby="toggleCartsBtn" hidden></section>
+    <div id="singleSection" role="tabpanel" aria-labelledby="toggleSingleBtn">
     <section class="settings-panel" aria-label="QR-Code gestalten">
     <div class="address-field">
       <label for="qrInput">Adresse oder Text</label>
@@ -41,6 +47,7 @@
       <div class="shape-color">
       <select id="shapeSelect">
         <option value="square">Eckig</option>
+        <option value="tilted">Leicht gedrehte Quadrate</option>
         <option value="circle">Rund</option>
         <option value="rounded">Abgerundet</option>
         <option value="diamond">Raute</option>
@@ -85,86 +92,119 @@
       <div id="qrSubtitle"></div>
     </div>
 
-    <button id="editSingleTemplateBtn" class="single-preview-button" type="button" aria-label="Template anpassen"><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></button>
-    <p class="customize-hint">Zum Anpassen auf den QR-Code klicken</p>
+    <button id="editSingleTemplateBtn" class="single-preview-button" type="button" aria-label="Cart anpassen"><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></button>
+    <p class="customize-hint">QR-Code anklicken: Gestaltung · Textbereich anklicken: Cart</p>
     <p id="unusedQueryParameters" class="unused-parameters" hidden></p>
-    <button id="singleRibbonBtn" class="secondary" type="button">Eckbänder anpassen<span id="ribbonCount" class="ribbon-count" hidden></span></button>
+    
     <div class="logo-controls">
       <div class="logo-heading"><label for="logoInput">Logo (Quadratisch)</label>
-      <span class="logo-info"><button type="button" class="info-button" aria-label="Hinweise zum Logo" aria-describedby="logoHelp">i</button><span id="logoHelp" role="tooltip">PNG oder JPEG · max. 2 MB / 512 × 512 px. Logo wird am QR-Raster ausgerichtet und auf Lesbarkeit geprüft. Bei Bedarf wird nur das Logo verkleinert oder weggelassen. Scan vor Verwendung testen.</span></span></div>
+      <span class="logo-info"><button type="button" class="info-button" aria-label="Hinweise zum Logo" aria-describedby="logoHelp">i</button><span id="logoHelp" role="tooltip">PNG oder JPEG. Quadratisches Logo; bei anderen Formaten den quadratischen Ausschnitt selbst wählen.</span></span></div>
       <input id="logoInput" type="file" accept="image/png,image/jpeg" multiple aria-describedby="logoHelp" hidden />
       <div id="savedLogos" role="group" aria-label="Gespeicherte Logos"><button id="chooseLogoBtn" class="logo-add" type="button" aria-label="Quadratische Logos hochladen" title="Quadratische Logos hochladen">+</button></div>
       <p id="logoStatus" role="status"></p>
     </div>
 
-    <div class="single-download"><label for="singleFormat">Dateiformat</label><select id="singleFormat"><option value="png">PNG (Bild)</option><option value="svg">SVG (Vektorgrafik)</option></select><button id="downloadBtn" type="button" hidden>Herunterladen</button></div>
+    <div id="singleEditorSlot"><section id="qrSettings" class="settings-panel" hidden>
+      <div class="inline-editor-heading"><h2>QR-Code gestalten</h2><button id="closeQRSettingsBtn" class="action-button secondary" type="button">Fertig</button></div>
+      <div id="qrPresetControls"></div>
+      <div class="appearance-workbench"><figure class="settings-live-preview"><canvas id="settingsQR" aria-label="QR-Code-Vorschau"></canvas></figure><div id="pageAppearanceControls"></div></div>
+      <div id="pageLogoControls"></div><div id="qrPresetSaveControls" class="template-library"></div>
+    </section></div>
+    <div class="single-download"><label for="singleFormat">Dateiformat</label><select id="singleFormat"><option value="png">PNG (Bild)</option><option value="svg">SVG (Vektorgrafik)</option></select><button class="action-button" id="downloadBtn" type="button" hidden>Herunterladen</button></div>
     <p id="renderNotice" role="status"></p>
     <p id="qrError" role="alert"></p>
     </section>
     </div>
-    <div class="import-disclosure">
-      <button id="toggleImportBtn" class="section-toggle" type="button" aria-expanded="false" aria-controls="bulkImport">Massenimport <span class="accordion-chevron" aria-hidden="true"></span></button>
-    </div>
-    <section id="bulkImport" aria-label="Massenimport" hidden>
+
+    <section id="bulkImport" role="tabpanel" aria-labelledby="toggleImportBtn" hidden>
 
 
-    <div id="dropZone" role="button" tabindex="0" aria-label="JSON-Datei importieren">
-    <strong>JSON-Datei hierher ziehen</strong>
+    <div id="dropZone" role="button" tabindex="0" aria-label="JSON- oder CSV-Datei importieren">
+    <strong>JSON- oder CSV-Datei hierher ziehen</strong>
     <span>oder klicken, um eine Datei auszuwählen</span>
 </div>
 
 <input
     type="file"
     id="fileInput"
-    accept=".json"
+    accept=".json,.csv"
     hidden
 >
 
+<div id="bulkLoadedContent" hidden>
 <div id="info" aria-live="polite"></div>
-<button id="editLayoutBtn" class="secondary" type="button">Template anpassen</button>
 
-<p class="preview-option"><label class="preview-switch"><input id="showBulkPreview" type="checkbox" role="switch" checked /> QR-Codes während der Erstellung anzeigen</label></p>
+<button id="bulkPreviewButton" class="single-preview-button" type="button" aria-label="Cart anpassen"><canvas id="bulkPageCanvas"></canvas></button>
+<div class="preview-ribbon-actions"><button id="bulkRibbonBtn" class="action-button secondary" type="button">Eckbänder anpassen<span id="bulkRibbonCount" class="ribbon-count" hidden></span></button></div>
+<div id="bulkEditorSlot"></div>
+<button id="editLayoutBtn" class="action-button secondary" type="button">Cart anpassen</button>
+
+<div class="bulk-export-controls"><p class="preview-option"><label class="preview-switch"><input id="showBulkPreview" type="checkbox" role="switch" checked /> QR-Codes während der Erstellung anzeigen</label></p>
 
 <div class="export-actions">
-<button
+      <div class="export-format"><label for="exportFormat">Dateiformat</label><select id="exportFormat"><option value="png">PNG (Bild)</option><option value="svg">SVG (Vektorgrafik)</option></select></div>
+<button class="action-button"
     id="generateBtn"
     disabled
 >
    Export starten
 </button>
-<button id="cancelExportBtn" class="secondary" type="button" hidden>Export abbrechen</button>
+<button id="cancelExportBtn" class="action-button secondary" type="button" hidden>Export abbrechen</button>
 </div>
 
 
+</div>
+</div>
 <div id="status" role="status"></div>
 
     </section>
     </main>
-    <dialog id="layoutDialog" class="modal-frame" aria-labelledby="layoutHeading">
-      <div class="preview-header"><h2 id="layoutHeading">Template anpassen</h2><button id="closeLayoutBtn" class="modal-close" type="button" aria-label="Layout schliessen">×</button></div>
+    <dialog id="layoutDialog" class="inline-template" aria-labelledby="layoutHeading">
+      <div class="preview-header"><h2 id="layoutHeading">Cart anpassen</h2><button id="closeLayoutBtn" class="modal-close" type="button" aria-label="Layout schliessen">×</button></div>
 
 
       <div class="modal-scroll-body">
-      <section class="template-library" aria-label="Template">
-        <label for="templateSelect">Template</label>
-        <div class="template-library-row"><div class="template-combo"><button id="templateSelect" type="button" aria-expanded="false" aria-controls="templateOptions"><span id="templateSelectedName">Template auswählen …</span><span class="template-chevron" aria-hidden="true"></span></button><div id="templateOptions" role="group" aria-label="Template" hidden></div></div><button id="saveTemplateBtn" class="secondary" type="button">Speichern</button></div>
+      <div class="preview-ribbon-actions"><button id="singleRibbonBtn" class="action-button secondary" type="button">Eckbänder anpassen<span id="ribbonCount" class="ribbon-count" hidden></span></button></div>
+      <section id="cartTemplateControls" class="template-library" aria-label="Cart Template">
+        <label id="textTemplateLabel" for="templateSelect">Cart Template</label>
+        <div class="template-library-row"><div class="template-combo"><input id="templateSelect" type="text" placeholder="Template auswählen oder benennen …" autocomplete="off" maxlength="80" /></div><button id="saveTemplateBtn" class="action-button secondary" type="button">Speichern</button></div>
         <p id="templateStatus" role="status"></p>
       </section>
+      <details id="qrContentEditor" open hidden><summary>QR-Code-Inhalt (Pflichtfeld)</summary><div class="content-editor-body">
+        <label for="qrContentExpression">QR-Code-Inhalt (Pflichtfeld)</label>
+        <p class="content-help">Felder in den Inhalt ziehen. Karten anklicken zum Bearbeiten, ziehen zum Sortieren.</p>
+        <div id="contentCardDrop" class="content-card-drop" aria-label="QR-Code-Inhalt"><div id="contentCards"></div><button id="addContentCard" class="logo-add" type="button" aria-label="Textkarte hinzufügen">+</button></div>
+        <textarea hidden id="qrContentExpression" rows="3" required aria-describedby="qrContentError qrContentPreview" spellcheck="false"></textarea>
+        <div id="qrContentFields" class="content-fields"></div>
+        <p id="qrContentError" role="alert"></p>
+        <div class="content-preview-row"><label for="qrContentPreview">Vorschau: erster Eintrag</label><output id="qrContentPreview"></output></div>
+      </div></details>
+      <div id="templateVariables" class="variable-chips"></div>
       <div class="layout-sheet">
         <div class="ribbon-corner"><button id="layoutRibbon" class="test-ribbon" type="button" aria-label="Eckband ändern">TST</button></div>
         <label class="ribbon-switch" title="Eckband aktivieren"><input id="ribbonEnabled" type="checkbox" role="switch" checked /><span>Eckband</span></label>
-        <div id="layoutTitle"></div><div id="layoutSubtitle"></div>
         <div id="layoutAbove"></div>
-        <button id="editQRStyleBtn" class="qr-edit-button" type="button" aria-label="QR-Code gestalten"><canvas id="layoutQR" aria-label="Beispiel für die Beschriftung"></canvas><span class="qr-edit-hint">QR-Code gestalten</span></button>
-        <div id="layoutBelow"></div>
+        <div class="template-qr-preview"><canvas id="layoutQR" aria-label="QR-Code-Vorschau"></canvas></div>
+        
+        <div id="cartAppearanceHome"><section id="cartAppearance" hidden>
+<p class="cart-qr-help">Neue QR-Code-Templates können Sie hier erstellen und speichern.</p>
+<label for="cartQRTemplate">QR-Code-Template</label><select id="cartQRTemplate"></select>
+<details id="cartQROptions" class="qr-settings-disclosure"><summary><span class="qr-settings-heading"><span>QR-Code-Einstellungen</span><span class="template-chevron" aria-hidden="true"></span></span></summary><div id="cartQRSettingsSlot"></div></details>
+</section></div>
+<div id="layoutBelow"></div>
       </div>
 
       <p id="layoutError" role="status"></p>
       <p id="unusedTemplateParameters" class="unused-parameters" hidden></p>
-      <div class="export-format"><label for="exportFormat">Dateiformat</label><select id="exportFormat"><option value="png">PNG (Bild)</option><option value="svg">SVG (Vektorgrafik)</option></select></div>
-      <div class="modal-actions"><button id="cancelLayoutBtn" class="secondary" type="button" hidden>Abbrechen</button><button id="applyLayoutBtn" type="button">Übernehmen</button><button id="layoutExportBtn" type="button">ZIP-Datei erstellen</button></div>
+
+      <div class="modal-actions"><button id="cancelLayoutBtn" class="action-button secondary" type="button">Abbrechen</button><button class="action-button" id="applyLayoutBtn" type="button">Änderungen übernehmen</button></div>
       </div>
     </dialog>
+    <dialog id="qrAppearanceDialog" class="modal-frame" aria-labelledby="qrAppearanceHeading">
+<div class="preview-header"><h2 id="qrAppearanceHeading">QR-Code-Gestaltung anpassen</h2><button id="closeQRAppearance" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+<div id="qrAppearanceBody" class="modal-scroll-body"><div class="modal-actions"><button id="cancelQRAppearance" class="action-button secondary" type="button">Abbrechen</button><button id="applyQRAppearance" class="action-button" type="button">Änderungen übernehmen</button></div></div>
+</dialog>
+    <dialog id="contentCardDialog" class="compact-dialog" aria-labelledby="contentCardHeading"><div class="preview-header"><h2 id="contentCardHeading">Textkarte bearbeiten</h2><button id="closeContentCard" class="modal-close" type="button" aria-label="Schliessen">×</button></div><label for="contentCardType">Inhalt</label><select id="contentCardType"></select><label id="contentCardValueLabel" for="contentCardValue">Text</label><textarea id="contentCardValue" rows="3"></textarea><div class="modal-actions"><button id="removeContentCard" class="action-button secondary" type="button">Entfernen</button><button class="action-button" id="applyContentCard" type="button">Übernehmen</button></div></dialog>
     <dialog id="ribbonDialog" class="modal-frame" aria-labelledby="ribbonHeading">
       <div class="preview-header"><h2 id="ribbonHeading">Eckband ändern</h2><button id="closeRibbonBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
       <div class="modal-scroll-body">
@@ -172,17 +212,17 @@
       <label class="preview-switch ribbon-master"><input id="ribbonRulesEnabled" type="checkbox" role="switch" checked /><span>Eckband aktivieren</span></label>
       <div id="ribbonRules"></div>
       <div class="metric-add ribbon-add"><button id="addRibbonBtn" class="metric-plus" type="button" aria-label="Eckband hinzufügen">+</button></div>
-      <div class="modal-actions"><button id="applyRibbonBtn" type="button">Übernehmen</button></div>
+      <div class="modal-actions"><button class="action-button" id="applyRibbonBtn" type="button">Übernehmen</button></div>
       </div>
     </dialog>
-    <dialog id="qrStyleDialog" class="modal-frame" aria-labelledby="qrStyleHeading">
-      <div class="preview-header"><h2 id="qrStyleHeading">QR-Code gestalten</h2><button id="closeQRStyleBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
-      <div class="modal-scroll-body">
-      <canvas id="styleQR" aria-label="QR-Code-Vorschau"></canvas>
-      <div id="modalAppearanceControls"></div>
-      <div id="modalLogoControls"></div>
-      <div class="modal-actions"><button id="applyQRStyleBtn" type="button">Übernehmen</button></div>
-      </div>
+    <dialog id="qrUnsavedDialog" class="compact-dialog" aria-labelledby="qrUnsavedHeading" aria-describedby="qrUnsavedText">
+      <div class="preview-header"><h2 id="qrUnsavedHeading">Ungespeicherte Änderungen</h2><button id="closeQRUnsaved" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+      <p id="qrUnsavedText">Ihre Änderungen am QR-Code sind noch nicht als Template gespeichert. Beim Fortfahren gehen sie verloren. Zum Speichern wählen Sie «Weiter bearbeiten» und anschliessend «Speichern».</p>
+      <div class="modal-actions"><button id="keepQREditing" class="action-button secondary" type="button">Weiter bearbeiten</button><button id="discardQREdits" class="action-button" type="button">Änderungen verwerfen</button></div>
+    </dialog>
+    <dialog id="overwriteTemplateDialog" class="compact-dialog" aria-labelledby="overwriteTemplateHeading" aria-describedby="overwriteTemplateText">
+      <div class="preview-header"><h2 id="overwriteTemplateHeading">Template überschreiben</h2><button id="closeOverwriteBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+      <p id="overwriteTemplateText"></p><div class="modal-actions"><button id="cancelOverwriteBtn" class="action-button secondary" type="button">Abbrechen</button><button class="action-button" id="confirmOverwriteBtn" type="button">Überschreiben</button></div>
     </dialog>
     <dialog id="mappingDialog" aria-labelledby="mappingHeading" aria-describedby="mappingHelp">
       <h2 id="mappingHeading">JSON-Felder zuordnen</h2>
@@ -212,7 +252,7 @@
           <label for="mapInterne_ID">ID (bei Basis-URL erforderlich)</label><select id="mapInterne_ID"></select>
         </div>
         <p id="mappingError" role="alert"></p>
-        <div class="modal-actions"><button id="cancelMappingBtn" class="secondary" type="button">Abbrechen</button> <button id="mappingSubmitBtn" type="submit" disabled>Weiter</button></div>
+        <div class="modal-actions"><button id="cancelMappingBtn" class="action-button secondary" type="button">Abbrechen</button> <button class="action-button" id="mappingSubmitBtn" type="submit" disabled>Weiter</button></div>
       </form>
     </dialog>
     <dialog id="bulkPreview" aria-labelledby="previewHeading" aria-describedby="previewHelp">
@@ -231,23 +271,23 @@
       <div class="modal-scroll-body">
         <p id="cropHelp">Quadrat verschieben und an den Ecken vergrössern oder verkleinern. Pfeiltasten verschieben den Ausschnitt.</p>
         <div id="cropStage"><canvas id="cropImage"></canvas><div id="cropSelection" tabindex="0" role="group" aria-label="Quadratischer Bildausschnitt"><span class="crop-handle" data-corner="nw"></span><span class="crop-handle" data-corner="ne"></span><span class="crop-handle" data-corner="sw"></span><span class="crop-handle" data-corner="se"></span></div></div>
-        <label class="crop-size" for="cropSize">Grösse des Ausschnitts<input id="cropSize" type="range" min="1" max="512" /></label>
-        <div class="modal-actions"><button id="cancelCropBtn" class="secondary" type="button">Abbrechen</button><button id="applyCropBtn" type="button">Übernehmen</button></div>
+        <div class="modal-actions"><button id="cancelCropBtn" class="action-button secondary" type="button">Abbrechen</button><button class="action-button" id="applyCropBtn" type="button">Übernehmen</button></div>
       </div>
     </dialog>
     <dialog id="saveTemplateDialog" class="compact-dialog" aria-labelledby="saveTemplateHeading">
       <div class="preview-header"><h2 id="saveTemplateHeading">Als Template speichern?</h2><button id="closeSaveTemplateBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
       <p>Die Gestaltung wurde geändert. Möchten Sie sie als Template speichern?</p>
       <label for="templateName">Template-Name</label><input id="templateName" type="text" maxlength="80" />
-      <fieldset id="templateSaveMode" hidden><legend>Mit dem neuen Namen</legend><label><input type="radio" name="templateSaveMode" value="copy" checked /> Neues Template erstellen</label><label><input type="radio" name="templateSaveMode" value="rename" /> Bestehendes Template umbenennen und aktualisieren</label></fieldset>
       <p id="saveTemplateError" role="alert"></p>
-      <div class="modal-actions"><button id="cancelSaveTemplateBtn" class="secondary" type="button">Abbrechen</button><button id="skipSaveTemplateBtn" class="secondary" type="button">Nicht speichern</button><button id="confirmSaveTemplateBtn" type="button">Speichern</button></div>
+      <div class="modal-actions"><button id="cancelSaveTemplateBtn" class="action-button secondary" type="button">Abbrechen</button><button id="skipSaveTemplateBtn" class="action-button secondary" type="button">Nicht speichern</button><button class="action-button" id="confirmSaveTemplateBtn" type="button">Speichern</button></div>
     </dialog>
     <dialog id="deleteConfirmDialog" class="compact-dialog" aria-labelledby="deleteConfirmHeading">
       <div class="preview-header"><h2 id="deleteConfirmHeading">Löschen bestätigen</h2><button id="closeDeleteConfirmBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
       <p id="deleteConfirmText"></p>
-      <div class="modal-actions"><button id="cancelDeleteConfirmBtn" class="secondary" type="button">Abbrechen</button><button id="confirmDeleteBtn" class="danger-button" type="button">Löschen</button></div>
+      <div id="deleteLogoUsage" hidden><p>Dieses Logo wird in folgenden Templates verwendet:</p><ul id="deleteLogoTemplates"></ul><p>Gespeicherte Templates behalten ihre eigene Logo-Kopie.</p><label class="delete-acknowledgement"><input id="deleteLogoAcknowledgement" type="checkbox" /> Ich habe verstanden</label></div>
+      <div class="modal-actions"><button id="cancelDeleteConfirmBtn" class="action-button secondary" type="button">Abbrechen</button><button id="confirmDeleteBtn" class="danger-button" type="button">Löschen</button></div>
     </dialog>
     <div id="toast" class="toast" role="status" popover="manual"><span id="toastMessage"></span><button id="toastClose" type="button" aria-label="Meldung schliessen">×</button></div>
   </body>
 </html>
+

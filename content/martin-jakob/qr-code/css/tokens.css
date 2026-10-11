@@ -1,5 +1,10 @@
 /* Small shared UI palette. Export colors remain user-controlled. */
 :root {
+  --font-ui-small: 13px;
+  --font-ui-label: 14px;
+  --font-ui-heading: 20px;
+  --font-weight-label: 600;
+  --line-height-ui: 1.5;
   --color-surface: #ffffff;
   --color-page: #f4f4f4;
   --color-border: #d6d6d6;

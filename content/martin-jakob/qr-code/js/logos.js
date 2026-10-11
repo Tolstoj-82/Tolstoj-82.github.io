@@ -3,7 +3,7 @@
 const {t, LocalizedError, setMessage} = window.QRGenerator["i18n"];
 const {requestLogoCrop} = window.QRGenerator["logo-crop"];
 
-function createLogoManager({saveSettings, generateQRCode, confirmDeletion}) {
+function createLogoManager({saveSettings, generateQRCode, confirmDeletion, getLogoTemplates}) {
   const logoState = {image: null, version: 0, data: ""};
 
   const logoInput = document.getElementById("logoInput");
@@ -51,6 +51,18 @@ function createLogoManager({saveSettings, generateQRCode, confirmDeletion}) {
       return true;
     }
   }
+  let draggedLogo = null;
+  savedLogos.addEventListener("dragover", event => {if(draggedLogo)event.preventDefault();});
+  savedLogos.addEventListener("drop", event => {
+    if(!draggedLogo)return;event.preventDefault();draggedLogo.committed=true;
+    const stored = new Set(readSavedLogos().map(item=>item.data));
+    writeSavedLogos([...savedLogos.querySelectorAll(".saved-logo")].map(node=>node.logoItem).filter(item=>stored.has(item.data)));
+  });
+  function reorderLogo(source, target) {
+    const items = [...readSavedLogos()], from = items.findIndex(item => item.data === source), to = items.findIndex(item => item.data === target);
+    if (from < 0 || to < 0 || from === to) return;
+    items.splice(to, 0, items.splice(from, 1)[0]); writeSavedLogos(items); renderSavedLogos();
+  }
   function renderSavedLogos() {
     const items = [...readSavedLogos()];
     if (logoState.data && !items.some(item => item.data === logoState.data)) items.unshift({name: t("Template-Logo"), data: logoState.data});
@@ -67,12 +79,44 @@ function createLogoManager({saveSettings, generateQRCode, confirmDeletion}) {
     for (const item of items) {
       const tile = document.createElement("div");
       tile.className = "saved-logo";
+      tile.draggable = readSavedLogos().some(saved=>saved.data===item.data);
+      tile.logoItem = item;
+      tile.addEventListener("dragstart", event => {
+        draggedLogo = {tile, original: [...savedLogos.querySelectorAll(".saved-logo")], committed: false};
+        event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", "logo");
+        requestAnimationFrame(() => {if(draggedLogo?.tile===tile)tile.classList.add("dragging");});
+      });
+      tile.addEventListener("dragover", event => {
+        if (!draggedLogo || draggedLogo.tile === tile) return;
+        event.preventDefault();event.dataTransfer.dropEffect="move";
+        const nodes=[...savedLogos.querySelectorAll(".saved-logo")], active=draggedLogo.tile;
+        const before=new Map(nodes.map(node=>[node,node.getBoundingClientRect()]));
+        const forward=nodes.indexOf(active)<nodes.indexOf(tile), rect=tile.getBoundingClientRect();
+        if ((forward && event.clientX < rect.left + rect.width / 2) || (!forward && event.clientX > rect.left + rect.width / 2)) return;
+        savedLogos.insertBefore(active, forward ? tile.nextSibling : tile);
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches) for(const node of nodes) {
+          if(node===active)continue;
+          const old=before.get(node), next=node.getBoundingClientRect();
+          node.getAnimations?.().forEach(animation=>animation.cancel());
+          node.animate([{transform: "translate("+(old.left-next.left)+"px,"+(old.top-next.top)+"px)"},{transform:"translate(0,0)"}],{duration:180,easing:"ease-out"});
+        }
+      });
+      tile.addEventListener("dragend", () => {
+        if(draggedLogo && !draggedLogo.committed)for(const node of draggedLogo.original)savedLogos.append(node);
+        draggedLogo=null;tile.classList.remove("dragging");
+      });
       const select = document.createElement("button");
+      select.addEventListener("keydown", event => {
+        if (!event.altKey || !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+        event.preventDefault(); const saved = readSavedLogos(), index = saved.findIndex(entry => entry.data === item.data), target = saved[index + (event.key === "ArrowLeft" ? -1 : 1)];
+        if (target) {reorderLogo(item.data, target.data); [...savedLogos.querySelectorAll(".saved-logo-select")].find(button => button.getAttribute("aria-label") === t("Logo auswählen: ") + item.name)?.focus();}
+      });
       select.type = "button";
       select.className = "saved-logo-select";
       select.setAttribute("aria-label", t("Logo auswählen: ") + item.name);
       select.setAttribute("aria-pressed", String(logoState.data === item.data));
       const thumbnail = document.createElement("img");
+      thumbnail.draggable = false;
       thumbnail.src = item.data;
       thumbnail.alt = item.name;
       select.append(thumbnail);
@@ -114,7 +158,7 @@ function createLogoManager({saveSettings, generateQRCode, confirmDeletion}) {
         t("Gespeichertes Logo löschen: ") + item.name,
       );
       remove.addEventListener("click", async () => {
-      if (!await confirmDeletion()) return;
+      if (!await confirmDeletion(item.name, {kind: "logo", templates: getLogoTemplates(item.data)})) return;
         ++logoState.version;
         if (
           !writeSavedLogos(
@@ -144,9 +188,9 @@ function createLogoManager({saveSettings, generateQRCode, confirmDeletion}) {
         throw new LocalizedError(() =>
           t("Bitte ein PNG- oder JPEG-Bild auswählen."),
         );
-      if (file.size > 2 * 1024 * 1024)
+      if (file.size > 20 * 1024 * 1024)
         throw new LocalizedError(() =>
-          t("Das Bild darf höchstens 2 MB gross sein."),
+          t("Das Bild darf höchstens 20 MB gross sein."),
         );
       objectURL = URL.createObjectURL(file);
       const image = new Image();
@@ -157,9 +201,9 @@ function createLogoManager({saveSettings, generateQRCode, confirmDeletion}) {
         throw new LocalizedError(() =>
           t("Das Bild konnte nicht geladen werden."),
         );
-      if (image.naturalWidth > 512 || image.naturalHeight > 512)
+      if (image.naturalWidth > 8192 || image.naturalHeight > 8192 || image.naturalWidth * image.naturalHeight > 40000000)
         throw new LocalizedError(() =>
-          t("Das Bild darf höchstens 512 × 512 Pixel gross sein."),
+          t("Das Bild darf höchstens 8192 Pixel pro Seite und 40 Megapixel gross sein."),
         );
       let logo;
       if (image.naturalWidth !== image.naturalHeight) {

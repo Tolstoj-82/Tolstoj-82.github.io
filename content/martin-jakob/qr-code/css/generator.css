@@ -59,35 +59,19 @@
 }
 
 .language-toggle button:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-muted);
   outline-offset: 2px;
 }
 
-#toggleImportBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: transparent;
-  color: var(--color-muted);
-  padding: 6px 8px;
-  margin: 0;
-  font: inherit;
-  font-size: 13px;
-  font-weight: normal;
-}
 
-#toggleImportBtn:hover {
-  color: var(--color-text);
-  text-decoration: underline;
-}
 
 #toggleImportBtn:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-muted);
   outline-offset: 3px;
 }
 
 #dropZone:focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 3px solid var(--color-muted);
   outline-offset: 4px;
 }
 
@@ -164,7 +148,7 @@
 }
 
 #savedBaseURLs button:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-muted);
   outline-offset: -2px;
 }
 
@@ -582,9 +566,7 @@
   max-width: none;
   margin: 0;
   padding: 22px 18px;
-  border: 1px solid var(--color-border);
-  border-top: 0;
-  border-radius: 0 0 8px 8px;
+  border: 0;
   background: var(--color-surface);
 }
 
@@ -593,9 +575,7 @@
   max-width: none;
   margin: 0;
   padding: 22px 18px;
-  border: 1px solid var(--color-border);
-  border-top: 0;
-  border-radius: 0 0 8px 8px;
+  border: 0;
   background: var(--color-surface);
 }
 
@@ -774,11 +754,11 @@
 
 .single-preview-button:hover {
   background: var(--color-surface);
-  outline: 2px solid color-mix(in srgb, var(--color-accent) 22%, var(--color-surface));
+  outline: 2px solid color-mix(in srgb, var(--color-muted) 22%, var(--color-surface));
 }
 
 .single-preview-button:focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 3px solid var(--color-muted);
   outline-offset: 4px;
 }
 

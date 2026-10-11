@@ -58,7 +58,7 @@
 }
 
 .saved-logo-select[aria-pressed="true"] {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-muted);
 }
 
 .logo-heading {
@@ -130,7 +130,11 @@
   padding-top: 12px;
 }
 
-.saved-logo .saved-logo-delete {
+.saved-logo .saved-logo-delete,
+.qr-template-card .saved-logo-delete,
+.template-card .saved-logo-delete,
+.content-pill .saved-logo-delete {
+  border:1px solid var(--color-border);
   top: -7px;
   right: -7px;
   margin: 0;
@@ -228,14 +232,15 @@
   transform: translate(-50%, -50%) rotate(90deg);
 }
 
-.logo-add:hover {
+.logo-add:hover,
+.qr-template-new:hover .logo-add {
   background: var(--color-page);
   color: var(--color-accent);
   border-color: var(--color-accent);
 }
 
 .logo-add:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-muted);
   outline-offset: 3px;
 }
 
@@ -262,8 +267,8 @@
 }
 
 #savedLogos .saved-logo-select[aria-pressed="true"] {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 13%, transparent);
+  border-color: var(--color-muted);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-muted) 13%, transparent);
 }
 
 #savedLogos {
@@ -327,14 +332,14 @@
 #cropSelection {
   position: absolute;
   border: 2px solid var(--color-surface);
-  outline: 1px solid var(--color-accent);
+  outline: 1px solid var(--color-muted);
   box-shadow: 0 0 0 600px color-mix(in srgb, var(--color-ink) 47%, transparent);
   cursor: move;
   touch-action: none;
 }
 
 #cropSelection:focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 3px solid var(--color-muted);
 }
 
 .crop-handle {
@@ -368,19 +373,4 @@
   right: -2px;
   bottom: -2px;
   cursor: nwse-resize;
-}
-
-.crop-size {
-  display: grid;
-  gap: 8px;
-  margin: 18px 0 0;
-  font-size: 13px;
-  text-align: left;
-}
-
-#cropSize {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  accent-color: var(--color-accent);
 }

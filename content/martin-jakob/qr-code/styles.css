@@ -1,8 +1,14 @@
 /* Style entry point; keep this order for shared component defaults. */
-@import url("./css/tokens.css");
-@import url("./css/base.css");
-@import url("./css/generator.css");
-@import url("./css/dialogs.css");
-@import url("./css/editor.css");
-@import url("./css/logos.css");
-@import url("./css/templates.css");
+@import url("./css/tokens.css?v=20261011-cart-scroll");
+@import url("./css/base.css?v=20261011-cart-scroll");
+@import url("./css/generator.css?v=20261011-cart-scroll");
+@import url("./css/dialogs.css?v=20261011-cart-scroll");
+@import url("./css/editor.css?v=20261011-cart-scroll");
+@import url("./css/logos.css?v=20261011-cart-scroll");
+@import url("./css/templates.css?v=20261011-cart-scroll");
+@import url("./css/presets.css?v=20261011-cart-scroll");
+
+@import url("./css/buttons.css?v=20261011-cart-scroll");
+
+
+@import url("css/cart-appearance.css?v=20261011-cart-scroll");

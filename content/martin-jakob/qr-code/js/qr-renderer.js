@@ -587,6 +587,13 @@ function drawModule(ctx, shape, x, y, size) {
   const centerY = y + size / 2;
 
   switch (shape) {
+    case "tilted": {
+      // Stable per-cell angles keep previews, PNGs and vectors identical.
+      const hash=Math.sin(Math.round(x/size)*127.1+Math.round(y/size)*311.7)*43758.5453;
+      const angle=((hash-Math.floor(hash))*2-1)*Math.PI/30;
+      ctx.save();ctx.translate(centerX,centerY);ctx.rotate(angle);
+      ctx.fillRect(-size*.45,-size*.45,size*.9,size*.9);ctx.restore();break;
+    }
     case "circle":
       ctx.beginPath();
       ctx.arc(centerX, centerY, size / 2, 0, Math.PI * 2);

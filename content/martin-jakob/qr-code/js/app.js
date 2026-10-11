@@ -26,7 +26,7 @@ const qrSubtitle = document.getElementById("qrSubtitle");
 const ctx = canvas.getContext("2d");
 
 let editorSnapshot = null;
-const {logoState, readSavedLogos, renderSavedLogos} = createLogoManager({saveSettings, generateQRCode, confirmDeletion: (...args) => confirmDeletion(...args)});
+const {logoState, readSavedLogos, renderSavedLogos} = createLogoManager({saveSettings, generateQRCode, confirmDeletion: (...args) => confirmDeletion(...args), getLogoTemplates: data => qrPresets.getLogoUsage(data)});
 
 let loadedData = null;
 let isGenerating = false;
@@ -35,24 +35,232 @@ const bulkImport = document.getElementById("bulkImport");
 const qrError = document.getElementById("qrError");
 const toggleImportBtn = document.getElementById("toggleImportBtn");
 
-function setImportVisible(visible) {
-  bulkImport.hidden = !visible;
-  toggleImportBtn.setAttribute("aria-expanded", String(visible));
-  generateQRCode();
-  saveSettings();
-}
-
-toggleImportBtn.addEventListener("click", () =>
-  setImportVisible(bulkImport.hidden),
-);
-document.getElementById("toggleSingleBtn").addEventListener("click", () => {
-  const section = document.getElementById("singleSection");
-  section.hidden = !section.hidden;
-  document
-    .getElementById("toggleSingleBtn")
-    .setAttribute("aria-expanded", String(!section.hidden));
+const DEMO_QR_CONTENT = 'https://tolstoj-82.github.io/content/martin-jakob/qr-code/index.html';
+let clearedDefaultURL = false;
+qrInput.addEventListener('click',()=>{
+  if(qrInput.value!==DEMO_QR_CONTENT)return;
+  clearedDefaultURL=true;qrInput.value='';generateQRCode();
 });
+qrInput.addEventListener('input',()=>{clearedDefaultURL=false;});
+qrInput.addEventListener('blur',()=>{if(clearedDefaultURL&&qrInput.value===''){qrInput.value=DEMO_QR_CONTENT;generateQRCode();}clearedDefaultURL=false;});
+let templateTestContent = DEMO_QR_CONTENT;
+let activeMode = 'single';
+let galleryVersion = 0;
+let editingCartGallery = false;
+function missingCartKeys(layout,records=loadedData,mode='bulk'){
+  if(!records?.length)return [];
+  const keyFor=key=>key==='heading:title'?(mode==='single'?'title':'Titel'):key==='heading:subtitle'?(mode==='single'?'subtitle':'Untertitel'):key;
+  const keys=[...(layout.above||[]),...(layout.below||[])].filter(key=>key!=='date:current'&&!Object.hasOwn(layout.custom||{},key)).map(keyFor);
+  if(mode==='bulk'){
+    if(Array.isArray(layout.contentCards))keys.push(...layout.contentCards.filter(card=>card.kind==='field').map(card=>card.value));
+    else for(const match of (layout.contentExpression||'').matchAll(/\{\{("(?:\\.|[^"\\])*"|[^{}]*?)\}\}/g)){try{keys.push(match[1].startsWith('"')?JSON.parse(match[1]):match[1].trim());}catch{}}
+  }
+  return [...new Set(keys)].filter(key=>records.some(record=>!Object.hasOwn(record.Raw||record,key)));
+}
+function warnCartCompatibility(layout,name){
+  const missing=missingCartKeys(layout);
+  if(missing.length)toast(t('Cart passt nicht zu den Daten: ')+(name?name+' — ':'')+t('Fehlende Felder: ')+missing.join(', '),'warning');
+  return missing;
+}
+function checkImportedCarts(){
+  const entries=templateLibrary.getEntries().filter(entry=>entry.kind==='bulk');
+  const incompatible=entries.map(entry=>({entry,missing:missingCartKeys(entry.payload.layout||{})})).filter(item=>item.missing.length);
+  if(incompatible.length)toast(t('Nicht passende Carts: ')+incompatible.map(({entry,missing})=>entry.name+' ('+missing.join(', ')+')').join('; '),'warning');
+  const matching=entries.filter(entry=>!missingCartKeys(entry.payload.layout||{}).length);
+  if(matching.length)toast(t('Passende Carts: ')+matching.map(entry=>entry.name).join(', '));
+}
+async function openCartTemplate(entry,kind){
+  if(layoutDialog.open)layoutDialog.close();
+  editingCartGallery=true;
+  await openLayoutEditor(kind);
+  if(entry)await templateLibrary.choose(entry);
+  else {
+    const layout=kind==='single'?singleLayout:bulkLayout;
+    Object.assign(layout,{above:[],below:['heading:title','heading:subtitle'],labels:{},custom:{},styles:{},headingsMovable:true});
+    templateLibrary.createNew();await openLayoutEditor(kind);templateLibrary.markBaseline();
+  }
+}
+let newQRTemplate = false;
+let qrTemplateSearch = '';
+function enableTemplateReordering(grid) {
+  let drag=null;
+  const cards=()=>[...grid.querySelectorAll('.qr-template-card')];
+  const persist=()=>qrPresets.reorder(cards().map(card=>card.dataset.id));
+  const restore=()=>{for(const card of drag.original)grid.insertBefore(card,grid.querySelector('.qr-template-no-results'));};
+  function move(active,target,after) {
+    const nodes=cards(),before=new Map(nodes.map(node=>[node,node.getBoundingClientRect()]));
+    grid.insertBefore(active,after?target.nextSibling:target);
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)for(const node of nodes){
+      if(node===active)continue;
+      const old=before.get(node),next=node.getBoundingClientRect();node.getAnimations?.().forEach(animation=>animation.cancel());
+      node.animate([{transform:`translate(${old.left-next.left}px,${old.top-next.top}px)`},{transform:'translate(0,0)'}],{duration:180,easing:'ease-out'});
+    }
+  }
+  grid.addEventListener('dragstart',event=>{
+    const card=event.target.closest('.qr-template-card');if(!card)return;
+    drag={card,original:cards(),committed:false};event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',card.dataset.id);
+    requestAnimationFrame(()=>{if(drag?.card===card)card.classList.add('dragging');});
+  });
+  grid.addEventListener('dragover',event=>{
+    if(!drag)return;event.preventDefault();event.dataTransfer.dropEffect='move';
+    const bounds=grid.getBoundingClientRect();if(event.clientY<bounds.top+40)grid.scrollTop-=12;else if(event.clientY>bounds.bottom-40)grid.scrollTop+=12;
+    const target=event.target.closest('.qr-template-card');if(!target||target===drag.card)return;
+    const nodes=cards(),forward=nodes.indexOf(drag.card)<nodes.indexOf(target),rect=target.getBoundingClientRect();
+    if((forward&&event.clientX<rect.left+rect.width/2)||(!forward&&event.clientX>rect.left+rect.width/2))return;
+    move(drag.card,target,forward);
+  });
+  grid.addEventListener('drop',event=>{if(!drag)return;event.preventDefault();drag.committed=persist();});
+  grid.addEventListener('dragend',()=>{if(!drag)return;if(!drag.committed)restore();drag.card.classList.remove('dragging');drag=null;});
+  grid.addEventListener('keydown',event=>{
+    if(!event.altKey||!['ArrowLeft','ArrowRight'].includes(event.key))return;
+    const card=event.target.closest('.qr-template-card');if(!card)return;event.preventDefault();
+    const nodes=cards(),forward=event.key==='ArrowRight',target=nodes[nodes.indexOf(card)+(forward?1:-1)];if(!target)return;
+    move(card,target,forward);if(!persist())move(card,target,!forward);card.querySelector('.qr-template-choice').focus();
+  });
+}
+async function renderQRTemplateWorkspace(host, version) {
+  const entries=qrPresets.getEntries();
+  if(!newQRTemplate && !entries.some(entry=>entry.id===qrPresets.getSelected()) && entries.length)await qrPresets.choose(entries[0]);
+  if(version!==galleryVersion || activeMode!=='templates')return;
+  const heading=document.createElement('h2');heading.textContent=t('QR-Code-Templates');
+  const headingRow=document.createElement('div');headingRow.className='template-gallery-heading';
+  const transfer=document.createElement('div');transfer.className='template-transfer';
+  const upload=document.createElement('input');upload.type='file';upload.accept='.json';upload.hidden=true;
+  upload.addEventListener('change',async()=>{if(upload.files[0])await qrPresets.importFile(upload.files[0]);upload.value='';});
+  for(const [direction,label,action] of [['up','QR-Code-Templates importieren',()=>upload.click()],['down','QR-Code-Templates exportieren',()=>qrPresets.exportFile()]]){
+    const button=document.createElement('button');button.type='button';button.title=t(label);button.setAttribute('aria-label',t(label));button.addEventListener('click',action);if(direction==='down')button.disabled=!entries.length;
+    const icon=document.createElementNS('http://www.w3.org/2000/svg','svg');icon.setAttribute('viewBox','0 0 24 24');icon.setAttribute('aria-hidden','true');icon.setAttribute('focusable','false');
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',direction==='up'?'M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5':'M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5');icon.append(path);button.append(icon);transfer.append(button);
+  }
+  transfer.append(upload);headingRow.append(heading,transfer);
+  const workspace=document.createElement('div');workspace.className='qr-template-workspace';
+  const panel=document.getElementById('qrSettings');panel.hidden=false;
+  if(!document.getElementById('templateTestContent')){
+    const testGroup=document.createElement('div');testGroup.className='template-test-content template-library';
+    const label=document.createElement('label');label.htmlFor='templateTestContent';label.textContent=t('Testinhalt');
+    const input=document.createElement('input');input.type='text';input.id='templateTestContent';input.value=templateTestContent;input.placeholder=DEMO_QR_CONTENT;
+    const error=document.createElement('p');error.setAttribute('role','status');
+    let timer;
+    input.addEventListener('input',()=>{templateTestContent=input.value;clearTimeout(timer);timer=setTimeout(()=>{
+      error.textContent='';
+      try {
+        renderQRCode(document.getElementById('settingsQR'),templateTestContent || DEMO_QR_CONTENT,readSettings());
+        for(const canvas of document.querySelectorAll('.qr-template-choice canvas'))if(canvas.templateAppearance)renderQRCode(canvas,templateTestContent || DEMO_QR_CONTENT,canvas.templateAppearance);
+      }catch(problem){error.textContent=problem.message;}
+    },180);});
+    testGroup.append(label,input,error);panel.querySelector('.appearance-workbench').prepend(testGroup);
+  }
+  document.querySelector('.template-test-content label').textContent=t('Testinhalt');
+  const grid=document.createElement('div');grid.className='qr-template-choices';
+  const search=document.createElement('input');search.type='search';search.className='qr-template-search';search.value=qrTemplateSearch;
+  search.id='qrTemplateSearch';
+  const searchGroup=document.createElement('div');searchGroup.className='qr-template-search-group template-library';
+  const searchLabel=document.createElement('label');searchLabel.htmlFor=search.id;searchLabel.textContent=t('Templates suchen');
+  const searchField=document.createElement('div');searchField.className='qr-template-search-field';searchField.append(search);searchGroup.append(searchLabel,searchField);
+  search.placeholder=t('QR-Code-Templates suchen …');search.setAttribute('aria-label',t('QR-Code-Templates suchen …'));
+  const empty=document.createElement('p');empty.className='qr-template-no-results';empty.setAttribute('role','status');empty.textContent=t('Keine passenden Templates.');empty.hidden=true;
+  function filterCards(){
+    const query=qrTemplateSearch.trim().toLocaleLowerCase();let matches=0;
+    for(const card of grid.querySelectorAll('.qr-template-card')){card.hidden=!card.dataset.name.toLocaleLowerCase().includes(query);if(!card.hidden)matches++;}
+    empty.hidden=!query||matches>0;
+  }
+  search.addEventListener('input',()=>{qrTemplateSearch=search.value;filterCards();grid.scrollTop=0;});
+  enableTemplateReordering(grid);
+  const testContentGroup=panel.querySelector('.template-test-content');
+  workspace.append(searchGroup,panel,grid);
+  host.prepend(headingRow,testContentGroup,workspace);
+  generateQRCode();
+  qrPresets.beginEditing();
+  const add=document.createElement('button');add.type='button';add.className='qr-template-new';add.setAttribute('aria-label',t('Neues Template erstellen'));const addIcon=document.createElement('span');addIcon.className='logo-add';addIcon.setAttribute('aria-hidden','true');add.append(addIcon);
+  const createTemplate=async()=>{if(await qrPresets.createNew()===false)return;qrTemplateSearch='';newQRTemplate=true;renderTemplateGallery();};
+  add.addEventListener('click',createTemplate);grid.prepend(add);grid.append(empty);filterCards();
+  for(const entry of entries){
+    const card=document.createElement('article');card.className='qr-template-card';card.classList.toggle('is-selected',entry.id===qrPresets.getSelected());
+    card.dataset.id=entry.id;card.dataset.name=entry.name;card.draggable=true;
+    const select=document.createElement('button');select.type='button';select.className='qr-template-choice';select.setAttribute('aria-pressed',String(entry.id===qrPresets.getSelected()));
+    const preview=document.createElement('canvas');const name=document.createElement('span');name.textContent=entry.name;select.append(preview,name);
+    select.addEventListener('click',async()=>{
+      if(await qrPresets.choose(entry)===false)return;
+      newQRTemplate=false;
+      for(const item of grid.querySelectorAll('.qr-template-card')){
+        const selected=item.dataset.id===qrPresets.getSelected();
+        item.classList.toggle('is-selected',selected);
+        item.querySelector('.qr-template-choice').setAttribute('aria-pressed',String(selected));
+      }
+    });
+    const remove=document.createElement('button');remove.type='button';remove.className='saved-logo-delete';remove.setAttribute('aria-label',t('Template löschen: ')+entry.name);
+    remove.addEventListener('click',async()=>{await qrPresets.remove(entry);if(activeMode==='templates')renderTemplateGallery();});
+    card.append(select,remove);grid.insertBefore(card,empty);filterCards();
+    try{
+      let logo=null;if(entry.payload.logoData){logo=new Image();logo.src=entry.payload.logoData;await logo.decode();}
+      if(version!==galleryVersion)return;
+      preview.templateAppearance={...entry.payload.appearance,size:EXPORT_SIZE,logo};
+      renderQRCode(preview,templateTestContent || DEMO_QR_CONTENT,preview.templateAppearance);
+    }catch{preview.replaceWith(Object.assign(document.createElement('span'),{textContent:t('Vorschau nicht verfügbar.')}));}
+  }
+  const previewHost=panel.querySelector('.settings-live-preview');
+  previewHost.querySelector('.qr-preview-add')?.remove();
+  const previewAdd=document.createElement('button');previewAdd.type='button';previewAdd.className='logo-add qr-preview-add';previewAdd.textContent='+';previewAdd.title=t('Neues Template erstellen');previewAdd.setAttribute('aria-label',t('Neues Template erstellen'));previewAdd.addEventListener('click',createTemplate);previewHost.append(previewAdd);
+}
+document.addEventListener('qr-templates-changed',()=>{newQRTemplate=false;if(activeMode==='templates')renderTemplateGallery();});
+async function renderTemplateGallery() {
+  const version = ++galleryVersion;
+  const host = document.getElementById('templatesSection');
+  const settings=document.getElementById('qrSettings');
+  if(host.contains(settings))document.getElementById('singleEditorSlot').append(settings);
+  host.replaceChildren();
+  await renderQRTemplateWorkspace(host,version);
+  if(version!==galleryVersion || activeMode!=='templates')return;
+}
+function renderCartGallery() {
+  const host=document.getElementById('cartsSection');host.replaceChildren();
+  const groups = [
+    [t('Carts: Einzelner QR-Code'), templateLibrary.getEntries().filter(item=>item.kind==='single'), 'single'],
+    [t('Carts: Massenexport'), templateLibrary.getEntries().filter(item=>item.kind==='bulk'), 'bulk'],
+  ];
+  for (const [title, entries, kind] of groups) {
+    const heading = document.createElement('h2'); heading.textContent = title; host.append(heading);
+    
+    const grid=document.createElement('div');grid.className='template-gallery';host.append(grid);
 
+    for(const entry of entries) {
+      const card=document.createElement('article');card.className='template-card';
+      const preview=document.createElement('canvas');preview.setAttribute('aria-label',entry.name);
+      const name=document.createElement('h3');name.textContent=entry.name;
+      const edit=document.createElement('button');edit.type='button';edit.className='cart-template-choice';edit.setAttribute('aria-label',t('Cart anpassen')+': '+entry.name);edit.append(preview,name);edit.addEventListener('click',()=>openCartTemplate(entry,kind));
+      const remove=document.createElement('button');remove.type='button';remove.className='saved-logo-delete';remove.setAttribute('aria-label',t('Template löschen: ')+entry.name);remove.addEventListener('click',async()=>{await templateLibrary.remove(entry);renderCartGallery();});
+      card.append(edit,remove);grid.append(card);
+      try {
+        let appearance={...cartAppearance.settings(entry.payload.layout),size:360};
+        const qr=document.createElement('canvas');renderQRCode(qr,DEMO_QR_CONTENT,appearance);
+        let result=qr;
+        if(kind!=='qr'){
+          const layout=structuredClone(entry.payload.layout);
+          layout.styles ||= {};layout.custom ||= {};layout.labels ||= {};
+          const record={URL:DEMO_QR_CONTENT,Titel:kind==='single'?'title':'Titel',Untertitel:kind==='single'?'subtitle':'Untertitel',Metrics:{}};
+          for(const key of [...layout.above,...layout.below])record.Metrics[key]=key;
+          result=createLabeledCanvas(qr,record.Titel,record.Untertitel,'','',record,layout);
+        }
+        preview.width=result.width;preview.height=result.height;preview.getContext('2d').drawImage(result,0,0);
+      }catch{preview.replaceWith(Object.assign(document.createElement('p'),{textContent:t('Vorschau nicht verfügbar.')}));}
+    }
+  }
+}
+function setImportVisible(visible) {
+  activeMode = ['templates','carts'].includes(visible) ? visible : visible ? 'bulk' : 'single';
+  const pageURL=new URL(location.href);pageURL.searchParams.set('tab',activeMode);
+  try { history.replaceState(history.state,'',pageURL); } catch { /* Some file:// environments restrict History API updates. */ }
+  document.getElementById('templatesSection').hidden=activeMode!=='templates';document.getElementById('cartsSection').hidden=activeMode!=='carts';
+  bulkImport.hidden = activeMode!=='bulk'; document.getElementById('singleSection').hidden=activeMode!=='single';
+  for(const [id,selected] of [['toggleImportBtn',activeMode==='bulk'],['toggleSingleBtn',activeMode==='single'],['toggleTemplatesBtn',activeMode==='templates'],['toggleCartsBtn',activeMode==='carts']]) {const tab=document.getElementById(id);tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;}
+  if(layoutDialog.open){editorSnapshot=null;layoutDialog.close();saveLayout();}
+  document.getElementById('qrSettings').hidden=true;showMainPreviews();generateQRCode();saveSettings();if(activeMode==='templates')renderTemplateGallery();if(activeMode==='carts')renderCartGallery();
+}
+toggleImportBtn.addEventListener('click',()=>setImportVisible(true));
+document.getElementById('toggleSingleBtn').addEventListener('click',()=>setImportVisible(false));
+document.getElementById('toggleTemplatesBtn').addEventListener('click',()=>setImportVisible('templates'));
+document.getElementById('toggleCartsBtn').addEventListener('click',()=>setImportVisible('carts'));
+document.querySelector('.mode-tabs').addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const modes=['single','bulk','templates','carts'];const index=event.key==='Home'?0:event.key==='End'?3:(modes.indexOf(activeMode)+(event.key==='ArrowRight'?1:3))%4;setImportVisible(index>1?modes[index]:index===1);document.querySelector('.mode-tabs [aria-selected="true"]').focus();});
 dropZone.addEventListener("keydown", (event) => {
   if (event.key === "Enter" || event.key === " ") {
     event.preventDefault();
@@ -298,6 +506,16 @@ function isWebURL(value) {
   }
 }
 
+function flattenMetrics(record, prefix = "", depth = 0) {
+  const result = {};
+  for (const [key, value] of Object.entries(record)) {
+    const path = prefix ? prefix + " > " + key : key;
+    if (value && typeof value === "object" && !Array.isArray(value) && depth < 12) Object.assign(result, flattenMetrics(value, path, depth + 1));
+    else if (Array.isArray(value) && value.some(item => item && typeof item === "object") && depth < 12) Object.assign(result, flattenMetrics(value, path, depth + 1));
+    else result[path] = value;
+  }
+  return result;
+}
 function normalizeRecords(records, mapping, enteredBaseURL = "") {
   if (!mapping.URL && !mapping.Base_URL && !enteredBaseURL.trim())
     throw new LocalizedError(() =>
@@ -379,20 +597,9 @@ function normalizeRecords(records, mapping, enteredBaseURL = "") {
       result[field] = value == null ? "" : String(value).trim();
     }
     result.Linien = formatLines(row.Linien);
-    const excluded = new Set([
-      "URL",
-      "Base_URL",
-      "Titel",
-      "Untertitel",
-      ...Object.values(mapping).filter(Boolean),
-    ]);
-    result.Metrics = Object.fromEntries(
-      Object.entries(row).filter(
-        ([key, value]) => !excluded.has(key) && metricValue(value) !== "",
-      ),
-    );
-    result.Metrics.Interne_ID = result.Interne_ID;
-    result.Metrics.Linien = result.Linien;
+    result.FixedMetrics = [mapping.Titel, mapping.Untertitel].filter(Boolean);
+    result.Metrics = flattenMetrics(Object.fromEntries(Object.entries(row).filter(([key]) => !result.FixedMetrics.includes(key))));
+    if (Object.hasOwn(row, "Linien")) result.Metrics.Linien = result.Linien;
     return result;
   });
 }
@@ -408,11 +615,13 @@ function acceptImport(records, filename) {
       t("Anzahl der Einträge: ") +
       records.length,
   );
-  generateBtn.disabled = false;
+  generateBtn.disabled = true;
   setMessage(statusDiv, () => "");
   pendingImport = null;
   mappingDialog.close();
-  openLayoutEditor();
+  generateQRCode();
+  renderVariableChips();
+  checkImportedCarts();
 }
 
 function selectedMapping() {
@@ -538,69 +747,26 @@ async function loadFile(file) {
   pendingImport = null;
   mappingDialog.close();
   loadedData = null;
+  layoutSample = null;
+  generateQRCode();
   generateBtn.disabled = true;
   setMessage(info, () => "");
-  setMessage(statusDiv, () => t("JSON-Datei wird geladen …"));
+  setMessage(statusDiv, () => t("Datei wird geladen …"));
   try {
-    const data = JSON.parse((await file.text()).replace(/^\uFEFF/, ""));
+    const text=(await file.text()).replace(/^\uFEFF/, ""); const data=/\.csv$/i.test(file.name) ? window.QRGenerator["qr-content"].recordsFromCSV(text) : JSON.parse(text);
     if (version !== fileLoadVersion) return;
-    const records = extractRecords(data);
-    const keys = [...new Set(records.flatMap(Object.keys))].filter((key) =>
-      records.some(
-        (row) => typeof row[key] === "string" || typeof row[key] === "number",
-      ),
-    );
-    if (!keys.length)
-      throw new LocalizedError(() =>
-        t("Es wurden keine verwendbaren Text- oder Zahlenfelder gefunden."),
-      );
-    const mapping = Object.fromEntries(
-      Object.keys(mappingFields).map((key) => [
-        key,
-        keys.includes(key) ? key : "",
-      ]),
-    );
-    const recognized = new Set([
-      "Titel",
-      "Untertitel",
-      "URL",
-      "Base_URL",
-      "Interne_ID",
-      "Hst_SLOID",
-      "Hst_DiDok",
-      "Kt_SLOID",
-      "Interner_Bezeichner",
-      "Linien",
-    ]);
-    let reason = () => "";
-    let normalized;
-    try {
-      normalized = normalizeRecords(records, mapping);
-    } catch (error) {
-      reason = () => error.message;
-    }
-    if (normalized && keys.every((key) => recognized.has(key))) {
-      acceptImport(normalized, file.name);
-    } else {
-      if (!mapping.URL && !mapping.Base_URL) {
-        const candidates = keys.filter((key) =>
-          records.every((row) => isWebURL(row[key])),
-        );
-        if (candidates.length === 1) mapping.URL = candidates[0];
-        if (!candidates.length)
-          reason = () =>
-            t(
-              "Es wurde kein Feld mit gültigen URLs gefunden. Geben Sie unten eine Basis-URL ein und wählen Sie das passende ID-Feld. Alternativ können Sie vorhandene URL-Felder zuordnen.",
-            );
-      }
-      showMapping(records, file.name, keys, mapping, reason);
-    }
+    const rows = window.QRGenerator['qr-content'].recordsFromJSON(data);
+    if (!bulkLayout.contentExpression) bulkLayout.contentExpression = window.QRGenerator['qr-content'].defaultExpression(rows);
+    const records = rows.map(row => ({Raw: row, URL: '', Titel: metricValue(row.Titel), Untertitel: metricValue(row.Untertitel), Interne_ID: metricValue(row.Interne_ID), Linien: formatLines(row.Linien), FixedMetrics: ['Titel','Untertitel'].filter(key=>Object.hasOwn(row,key)), Metrics: Object.fromEntries(Object.entries(row).filter(([key])=>!['Titel','Untertitel'].includes(key)))}));
+    acceptImport(records, file.name);
+    contentEditor.validate();
+    openLayoutEditor('bulk');
   } catch (error) {
     if (version !== fileLoadVersion) return;
     setMessage(
       statusDiv,
       () =>
-        t("Ungültige JSON-Datei: ") +
+        t("Ungültige Datei: ") +
         (error instanceof SyntaxError
           ? t("Ungültige JSON-Syntax. Bitte prüfen Sie die Datei.")
           : error.message),
@@ -744,6 +910,8 @@ let metricLayout = bulkLayout;
 let editorMode = "bulk";
 const layoutStorageKey = "qr-generator.layout.v1";
 function saveLayout() {
+  renderVariableChips();
+  renderBulkPreview();
   if (editorSnapshot) return;
   try {
     localStorage.setItem(layoutStorageKey, JSON.stringify(bulkLayout));
@@ -768,6 +936,10 @@ function restoreLayout() {
         !Array.isArray(saved.below)
       )
         continue;
+      if (layout === bulkLayout && typeof saved.contentExpression === "string") {layout.contentExpression = saved.contentExpression;if(Array.isArray(saved.contentCards))layout.contentCards=saved.contentCards.filter(card=>card&&["free","url","field"].includes(card.kind)&&typeof card.value==="string");}
+      layout.qrAppearance = saved.qrAppearance;
+      layout.qrTemplateId = saved.qrTemplateId;
+      layout.headingsMovable = saved.headingsMovable === true;
       const used = new Set();
       for (const area of ["above", "below"])
         layout[area] = saved[area].filter(
@@ -874,9 +1046,11 @@ function updateRibbonUI() {
   const count = document.getElementById("ribbonCount");
   count.textContent = String(metricLayout.ribbon.rules.length);
   count.hidden = metricLayout.ribbon.rules.length === 0;
+  const bulkCount=document.getElementById("bulkRibbonCount");bulkCount.textContent=count.textContent;bulkCount.hidden=count.hidden;
 }
 const ribbonDialog = document.getElementById("ribbonDialog");
 function openRibbonEditor() {
+  if (!layoutDialog.open) metricLayout = bulkLayout;
   renderRibbonRules();
   ribbonDialog.showModal();
 }
@@ -1118,6 +1292,11 @@ function attachRibbonDrag(handle, row, list) {
   });
 }
 const layoutDialog = document.getElementById("layoutDialog");
+const inlineBody=layoutDialog.querySelector(".modal-scroll-body");
+const ribbonActions=document.createElement('div');ribbonActions.className='cart-ribbon-controls';
+ribbonActions.append(layoutDialog.querySelector('.ribbon-switch'),document.getElementById('singleRibbonBtn'));
+layoutDialog.querySelector('.preview-ribbon-actions').remove();
+layoutDialog.querySelector('.layout-sheet').insertBefore(ribbonActions,document.getElementById('layoutAbove'));
 let layoutSample;
 let availableMetricKeys = [];
 function metricValue(value) {
@@ -1131,6 +1310,7 @@ function metricValue(value) {
   return "";
 }
 function metricLabel(key, layout = metricLayout) {
+  if (["heading:title","heading:subtitle"].includes(key)) return "";
   return Object.hasOwn(layout.labels || {}, key)
     ? layout.labels[key]
     : key === "Interne_ID"
@@ -1147,6 +1327,8 @@ function currentDateText() {
   }).format(new Date());
 }
 function metricValueFor(record, key, layout = metricLayout) {
+  if(key === "heading:title")return record.Titel || "";
+  if(key === "heading:subtitle")return record.Untertitel || "";
   if (key === "date:current") return layout.dateText || currentDateText();
   if (Object.hasOwn(layout.custom || {}, key)) return layout.custom[key];
   return key === "Linien"
@@ -1154,8 +1336,9 @@ function metricValueFor(record, key, layout = metricLayout) {
     : metricValue(record.Metrics?.[key]);
 }
 function metricStyle(key, layout = metricLayout, scale = 1) {
+  ensureMovableHeadings(layout);
   const style = layout.styles?.[key] || {};
-  const size = Math.round((style.large ? 48 : 36) * scale);
+  const size = Math.round((style.large ? (key === 'heading:title' ? 72 : 48) : 36) * scale);
   return {
     font: (style.bold ? "bold " : "") + size + "px Arial",
     lineHeight: Math.ceil(size * 1.4),
@@ -1200,9 +1383,10 @@ function singleRecord() {
     subtitle = metrics.subtitle || "";
   delete metrics.title;
   delete metrics.subtitle;
+  delete metrics.tab;
   if (Object.hasOwn(metrics, "url")) metrics.url = qrInput.value.trim();
   return {
-    URL: qrInput.value.trim() || "https://example.com",
+    URL: qrInput.value.trim() || DEMO_QR_CONTENT,
     Titel: title,
     Untertitel: subtitle,
     Metrics: metrics,
@@ -1210,6 +1394,7 @@ function singleRecord() {
 }
 function updateUnusedParameters() {
   const used = new Set([
+    "tab",
     "url",
     "title",
     "subtitle",
@@ -1229,22 +1414,27 @@ function updateUnusedParameters() {
       : "";
   }
 }
-function openLayoutEditor(mode = "bulk") {
+async function openLayoutEditor(mode = "bulk") {
   if (typeof mode !== "string") mode = "bulk";
+  if (mode === "bulk" && loadedData) contentEditor.validate();
   editorMode = mode;
+  document.getElementById("singleRibbonBtn").parentElement.hidden = false;
+  if(layoutDialog.parentElement!==document.body)document.body.append(layoutDialog);
+  layoutDialog.classList.remove('inline-template');
+  layoutDialog.classList.add('cart-template-modal');
+  document.getElementById("qrSettings").hidden=true;
+  updateCartToggle(mode,true);
   metricLayout = mode === "single" ? singleLayout : bulkLayout;
+  if(!layoutDialog.open)editorSnapshot={layout:structuredClone(metricLayout),singleFormat:document.getElementById("singleFormat").value,bulkFormat:document.getElementById("exportFormat").value};
+  await cartAppearance.attach(metricLayout);
+  templateLibrary.renderTemplates();
+  const cartLabel=document.getElementById("textTemplateLabel");
+  cartLabel.textContent='Cart Template';
+  const cartControls=document.getElementById('cartTemplateControls');
+  layoutDialog.querySelector('.modal-scroll-body').prepend(cartControls);
   if (!layoutDialog.open) templateLibrary.markBaseline();
-  if (mode === "single" && !editorSnapshot)
-    editorSnapshot = {
-      layout: structuredClone(singleLayout),
-      ribbon: structuredClone(bulkLayout.ribbon),
-      settings: readSettings(),
-      logo: logoState.image,
-      logoData: logoState.data,
-      singleFormat: document.getElementById("singleFormat").value,
-    };
   const demo = {
-    URL: "https://mobileinfo.test.bernmobil.ch/stops/BEISPIEL",
+    URL: DEMO_QR_CONTENT,
     Titel: t("Bern, Bahnhof"),
     Untertitel: t("Kante A"),
     Metrics: {
@@ -1264,9 +1454,7 @@ function openLayoutEditor(mode = "bulk") {
       ...new Set(
         loadedData.flatMap((record) => Object.keys(record.Metrics || {})),
       ),
-    ].filter((key) =>
-      loadedData.some((record) => metricValue(record.Metrics[key])),
-    );
+    ];
     const richest = loadedData.reduce((best, record) =>
       Object.values(record.Metrics).filter(metricValue).length >
       Object.values(best.Metrics).filter(metricValue).length
@@ -1278,7 +1466,7 @@ function openLayoutEditor(mode = "bulk") {
       if (!metricValue(layoutSample.Metrics[key]))
         layoutSample.Metrics[key] = loadedData.find((record) =>
           metricValue(record.Metrics[key]),
-        ).Metrics[key];
+        )?.Metrics[key] || "";
     }
     for (const key of ["Titel", "Untertitel"])
       if (!layoutSample[key])
@@ -1289,30 +1477,33 @@ function openLayoutEditor(mode = "bulk") {
     availableMetricKeys = Object.keys(demo.Metrics);
   }
 
-  document.getElementById("layoutExportBtn").disabled =
-    !loadedData || isGenerating;
-  document.getElementById("layoutExportBtn").hidden = mode === "single";
-  document.getElementById("exportFormat").closest(".export-format").hidden =
-    mode === "single";
-  document.getElementById("cancelLayoutBtn").hidden = mode !== "single";
-  document.getElementById("layoutTitle").textContent = layoutSample.Titel;
-  document.getElementById("layoutSubtitle").textContent =
-    layoutSample.Untertitel;
+  if(editingCartGallery){
+    const keys=[...new Set([...metricLayout.above,...metricLayout.below,...(availableMetricKeys||[])])].filter(key=>!key.startsWith('heading:')&&!key.startsWith('custom:')&&key!=='date:current');
+    layoutSample={URL:DEMO_QR_CONTENT,Titel:mode==='single'?'title':'Titel',Untertitel:mode==='single'?'subtitle':'Untertitel',Metrics:Object.fromEntries(keys.map(key=>[key,key]))};availableMetricKeys=keys;
+  }
+  document.getElementById("cancelLayoutBtn").hidden = false;
+  ensureMovableHeadings(metricLayout);
+  availableMetricKeys.push(...["heading:title","heading:subtitle"].filter(key=>metricValueFor(layoutSample,key)));
   updateRibbonUI();
   setMessage(document.getElementById("layoutError"), () => "");
   try {
-    setMessage(document.getElementById("layoutError"), () =>
+    const preview=document.getElementById("layoutQR");preview.width=preview.height=EXPORT_SIZE;preview.getContext("2d").clearRect(0,0,EXPORT_SIZE,EXPORT_SIZE);
+    if (layoutSample.URL) setMessage(document.getElementById("layoutError"), () =>
       renderQRCode(
         document.getElementById("layoutQR"),
         layoutSample.URL,
-        readSettings(),
+        cartAppearance.settings(metricLayout),
       ),
     );
   } catch (error) {
     setMessage(document.getElementById("layoutError"), () => error.message);
   }
+  contentEditor.render(mode);
+  if(editingCartGallery)document.getElementById('qrContentEditor').hidden=true;
+  if (mode === "bulk") {const valid=Boolean(loadedData)&&contentEditor.validate();generateBtn.disabled=!valid||isGenerating;}
   renderMetricEditor();
   if (!layoutDialog.open) layoutDialog.showModal();
+  saveLayout();
 }
 function moveMetric(key, destination, position) {
   const source = ["above", "below"].find((area) =>
@@ -1517,7 +1708,9 @@ function attachMetricDrag(handle, row, key, area, index) {
   });
 }
 function renderMetricEditor() {
+  ensureMovableHeadings(metricLayout);
   updateUnusedParameters();
+  renderVariableChips();
   const used = new Set([...metricLayout.above, ...metricLayout.below]);
   const remaining = availableMetricKeys.filter((key) => !used.has(key));
   for (const [area, target] of [
@@ -1563,7 +1756,7 @@ function renderMetricEditor() {
             ? t("+ Eigener Text")
             : key === "date:current"
               ? t("Aktuelles Datum")
-              : key;
+              : key === "heading:title" ? t("Titel") : key === "heading:subtitle" ? t("Untertitel") : key;
         option.addEventListener("click", () => {
           if ([...metricLayout.above, ...metricLayout.below].includes(key))
             return;
@@ -1616,15 +1809,12 @@ function renderMetricEditor() {
     };
     addControl(0);
     metricLayout[area].forEach((key, index) => {
-      if (
-        !availableMetricKeys.includes(key) &&
-        !Object.hasOwn(metricLayout.custom, key) &&
-        key !== "date:current"
-      )
-        return;
       const row = document.createElement("div");
       row.className = "metric-row";
       row.dataset.key = key;
+      const records=editorMode==='bulk'?loadedData:[{Raw:Object.fromEntries(new URLSearchParams(location.search))}];
+      const missing=missingCartKeys({above:[key],below:[],custom:metricLayout.custom},records,editorMode);
+      if(missing.length){row.classList.add('is-missing');row.title=t('Fehlende Felder: ')+missing.join(', ');}
       const handle = document.createElement("button");
       handle.type = "button";
       handle.className = "metric-handle";
@@ -1645,6 +1835,8 @@ function renderMetricEditor() {
       label.textContent = isCustom
         ? metricLayout.custom[key]
         : metricLabel(key) || t("Beschriftung hinzufügen");
+      const heading = key.startsWith("heading:");
+      if(heading){label.hidden=true;label.disabled=true;}
       label.title = t("Beschriftung ändern");
       label.setAttribute(
         "aria-label",
@@ -1655,6 +1847,7 @@ function renderMetricEditor() {
       value.textContent = isCustom
         ? ""
         : (metricLabel(key) ? ": " : " ") + metricValueFor(layoutSample, key);
+      if(missing.length && !metricValueFor(layoutSample,key))value.textContent=missing[0]+' — '+t('Feld fehlt');
       label.addEventListener("click", () => {
         const input = document.createElement("input");
         input.type = "text";
@@ -1760,7 +1953,7 @@ function renderMetricEditor() {
 }
 document
   .getElementById("editLayoutBtn")
-  .addEventListener("click", openLayoutEditor);
+  .addEventListener("click", () => toggleCartEditor('bulk'));
 document
   .getElementById("closeLayoutBtn")
   .addEventListener("click", () => closeLayoutEditor(false));
@@ -1773,41 +1966,33 @@ layoutDialog.addEventListener("cancel", (event) => {
 });
 document
   .getElementById("editSingleTemplateBtn")
-  .addEventListener("click", () => openLayoutEditor("single"));
+  .addEventListener("click", event => previewClick(event,"single",canvas));
 document
   .getElementById("applyLayoutBtn")
   .addEventListener("click", () => closeLayoutEditor(true));
 async function closeLayoutEditor(apply) {
-  if ((apply || editorMode === "bulk") && templateChanged() && await requestTemplateSave(true) === "cancel") return false;
+  if(apply&&!cartAppearance.validate(metricLayout))return false;
+  if(apply&&editingCartGallery && templateChanged() && await requestTemplateSave(true)==='cancel')return false;
+  if (!editingCartGallery && apply && editorMode === "bulk" && loadedData && !contentEditor.validate()) {document.getElementById("addContentCard").focus();return false;}
+
   if (!apply && editorSnapshot) {
-    Object.assign(singleLayout, editorSnapshot.layout);
-    bulkLayout.ribbon = editorSnapshot.ribbon;
-    singleLayout.ribbon = bulkLayout.ribbon;
-    for (const [key, control] of [
-      ["shape", shapeSelect],
-      ["finderShape", finderShapeSelect],
-      ["color", colorPicker],
-      ["finderColor", finderColorPicker],
-    ])
-      control.value = editorSnapshot.settings[key];
-    ++logoState.version;
-    logoState.image = editorSnapshot.logo;
-    logoState.data = editorSnapshot.logoData;
+    for(const key of Object.keys(metricLayout))delete metricLayout[key];
+    Object.assign(metricLayout, editorSnapshot.layout);
+    document.getElementById("exportFormat").value=editorSnapshot.bulkFormat;
     document.getElementById("singleFormat").value = editorSnapshot.singleFormat;
   }
+  await cartAppearance.detach();
   editorSnapshot = null;
   metricLayout = bulkLayout;
   layoutDialog.close();
+  if(editingCartGallery){editingCartGallery=false;renderCartGallery();}
+  showMainPreviews();
   saveLayout();
   saveSettings();
   renderSavedLogos();
   generateQRCode();
 }
-document.getElementById("layoutExportBtn").addEventListener("click", async () => {
-  if (templateChanged() && await requestTemplateSave(true) === "cancel") return;
-  layoutDialog.close();
-  generateZip();
-});
+
 
 function formatLines(value) {
   const values = Array.isArray(value) ? value : [value];
@@ -1825,6 +2010,14 @@ function formatLines(value) {
     .join(", ");
 }
 
+function ensureMovableHeadings(layout) {
+  if(layout.headingsMovable)return;
+  layout.below=["heading:title","heading:subtitle",...layout.below.filter(key=>!key.startsWith("heading:"))];
+  layout.styles["heading:title"] ||= {bold:true,large:true,black:true};
+  layout.styles["heading:subtitle"] ||= {large:true};
+  layout.headingsMovable=true;
+}
+
 function createLabeledCanvas(
   qrCanvas,
   title,
@@ -1834,6 +2027,7 @@ function createLabeledCanvas(
   record = null,
   layout = metricLayout,
 ) {
+  if(record)ensureMovableHeadings(layout);
   const output = document.createElement("canvas");
   const nativeContext = output.getContext("2d");
   const context = qrCanvas.svgContent
@@ -1846,6 +2040,7 @@ function createLabeledCanvas(
   const subtitleSize = Math.round(48 * scale);
   const idSize = Math.round(36 * scale);
   const idLineHeight = Math.ceil(idSize * 1.4);
+  const titleBlocks = [];
   const blocks = [];
   for (const [text, font, lineHeight, color] of [
     [title, `bold ${titleSize}px Arial`, Math.ceil(titleSize * 1.3), "#222"],
@@ -1858,7 +2053,7 @@ function createLabeledCanvas(
   ]) {
     if (!text.trim()) continue;
     context.font = font;
-    blocks.push({
+    titleBlocks.push({
       font,
       lineHeight,
       color,
@@ -1912,6 +2107,7 @@ function createLabeledCanvas(
           ],
         },
       ].filter((block) => block.lines.length);
+  if(!record)footerBlocks.unshift(...titleBlocks);
   const footerHeight = footerBlocks.length
     ? margin * 2 +
       footerBlocks.reduce(
@@ -1944,6 +2140,7 @@ function createLabeledCanvas(
       y += block.lineHeight;
     }
   }
+  output.qrHitBox={y:headerHeight,height:qrCanvas.height};
   context.drawImage(qrCanvas, 0, headerHeight);
   context.font = `${idSize}px Arial`;
   context.fillStyle = "#666";
@@ -2013,6 +2210,9 @@ function checkExportCancelled() {
 
 async function generateZip() {
   if (!loadedData || isGenerating) return;
+  if (!contentEditor.validate()) {openLayoutEditor("bulk");document.getElementById("addContentCard").focus();return;}
+  try{await cartAppearance.ready(bulkLayout);}catch(error){toast(t("Export fehlgeschlagen: ")+error.message,"warning");return;}
+  if(isGenerating)return;
   isGenerating = true;
   cancelExportRequested = false;
   cancelExportBtn.hidden = false;
@@ -2021,9 +2221,9 @@ async function generateZip() {
   fileInput.disabled = true;
   dropZone.setAttribute("aria-disabled", "true");
   bulkPreview.close();
-  const entries = loadedData.slice();
+  const entries = structuredClone(loadedData);
   const format = document.getElementById("exportFormat").value;
-  const settings = { ...readSettings(), vector: format === "svg" };
+  const settings = { ...cartAppearance.settings(bulkLayout), vector: format === "svg" };
   const exportLayout = {
     ...structuredClone(bulkLayout),
     dateText: currentDateText(),
@@ -2091,9 +2291,7 @@ async function generateZip() {
     );
     checkExportCancelled();
     saveAs(zipBlob, "QR-Codes.zip");
-    loadedData = null;
-    fileInput.value = "";
-    setMessage(info, () => "");
+    renderBulkPreview();
     bulkPreview.close();
     bulkCanvas.width = bulkCanvas.height = 0;
     setMessage(statusDiv, () => "");
@@ -2132,10 +2330,11 @@ function clearQRCode() {
   canvas.height = canvas.width;
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  downloadBtn.hidden = true;
+  downloadBtn.hidden = false;downloadBtn.disabled = true;
 }
 
 function loadQueryParameters() {
+  qrInput.value=DEMO_QR_CONTENT;
   const params = new URLSearchParams(window.location.search);
 
   const url = params.get("url");
@@ -2154,7 +2353,53 @@ function loadQueryParameters() {
   }
 }
 
+
+function renderBulkPreview() {
+  document.getElementById('bulkLoadedContent').hidden=!loadedData?.length;
+  const record = loadedData?.[0] || {URL: DEMO_QR_CONTENT, Titel: "", Untertitel: "", Metrics: {}};
+  const target = document.getElementById("bulkPageCanvas");
+  target.classList.toggle("is-example", !loadedData);
+  if (typeof qrcode !== "function") return;
+  try {
+    if (!record.URL) {target.width=target.height=EXPORT_SIZE;const ctx=target.getContext("2d");ctx.fillStyle="white";ctx.fillRect(0,0,target.width,target.height);return;}
+    const qr = document.createElement("canvas"); renderQRCode(qr, record.URL, cartAppearance.settings(bulkLayout));
+    const image = createLabeledCanvas(qr, record.Titel, record.Untertitel, "", "", record, bulkLayout);
+    target.qrHitBox=image.qrHitBox;
+    target.width = image.width; target.height = image.height; target.getContext("2d").drawImage(image, 0, 0);
+  } catch (error) { setMessage(qrError, () => error.message); }
+}
+function renderVariableChips() {
+  for (const [id, mode] of [["templateVariables", editorMode]]) {
+    const host = document.getElementById(id), layout = mode === "single" ? singleLayout : bulkLayout;
+    const records = mode === "single" ? [singleRecord()] : loadedData || [];
+    const fixed = mode === "single" ? ["title", "subtitle"].filter(key => new URLSearchParams(location.search).has(key)) : [...new Set(records.flatMap(record => record.FixedMetrics || []))];
+    const keys = [...new Set(records.flatMap(record => Object.keys(record.Metrics || {})))];
+    const used = new Set([...layout.above, ...layout.below]);
+    const layoutKey = key => fixed.includes(key) ? (key === 'subtitle' || key === 'Untertitel' ? 'heading:subtitle' : 'heading:title') : key;
+    host.replaceChildren(); host.hidden = !records.length;
+    const legend=document.createElement("span");legend.className="variable-chip-legend";legend.textContent=t("Verfügbare Kategorien");host.append(legend);
+    for (const key of [...fixed, ...keys.filter(key => !fixed.includes(key))].sort((a,b) => Number(used.has(layoutKey(b))) - Number(used.has(layoutKey(a))))) {
+      const targetKey = layoutKey(key);
+      const chip = document.createElement(used.has(targetKey) ? "span" : "button");
+      chip.className = "variable-chip" + (used.has(targetKey) ? " is-used" : "");
+      chip.textContent = (used.has(targetKey) ? "✓ " : "+ ") + key;
+      chip.title=t(used.has(targetKey)?'Bereits verwendet':'Zum Cart hinzufügen');
+      if (!used.has(targetKey)) {
+        chip.type = "button";
+        chip.addEventListener("click", () => {
+          if (![...layout.above,...layout.below].includes(targetKey)) layout.below.push(targetKey);
+          saveLayout(); generateQRCode();
+          if (layoutDialog.open) openLayoutEditor(mode);
+        });
+      }
+      host.append(chip);
+    }
+  }
+}
+
 function generateQRCode() {
+  cartAppearance.refresh();
+  qrInput.classList.toggle("has-content",Boolean(qrInput.value.trim()));
   updateUnusedParameters();
   setMessage(qrError, () => "");
   setMessage(document.getElementById("renderNotice"), () => "");
@@ -2168,7 +2413,7 @@ function generateQRCode() {
   );
 
   const inputText =
-    qrInput.value.trim() || (isExample ? "https://example.com" : "");
+    qrInput.value.trim() || (isExample ? DEMO_QR_CONTENT : "");
   updateRibbonUI();
 
   if (inputText === "") {
@@ -2177,7 +2422,7 @@ function generateQRCode() {
   }
 
   if (typeof qrcode !== "function") {
-    downloadBtn.hidden = true;
+    downloadBtn.hidden = false;downloadBtn.disabled = true;
     clearQRCode();
     setMessage(qrError, () =>
       t(
@@ -2190,7 +2435,12 @@ function generateQRCode() {
   try {
     // Verify off-screen; failed logo checks must not erase the visible preview.
     const nextCanvas = document.createElement("canvas");
-    const adjustment = renderQRCode(nextCanvas, inputText, readSettings());
+    const adjustment = renderQRCode(nextCanvas, inputText, cartAppearance.settings(singleLayout));
+    const settingsCanvas=document.getElementById('settingsQR');
+    const bulkSettings=document.getElementById('bulkEditorSlot').contains(settingsCanvas);
+    const settingsText=cartAppearance.content() || (activeMode==='templates'?(templateTestContent || DEMO_QR_CONTENT):bulkSettings?(loadedData?.[0]?.URL || (!loadedData?DEMO_QR_CONTENT:'')):inputText);
+    if(settingsText)renderQRCode(settingsCanvas,settingsText,readSettings());
+    else {settingsCanvas.width=settingsCanvas.height=EXPORT_SIZE;settingsCanvas.getContext('2d').clearRect(0,0,EXPORT_SIZE,EXPORT_SIZE);}
     setMessage(document.getElementById("renderNotice"), () => adjustment);
     const record = singleRecord();
     const output = createLabeledCanvas(
@@ -2202,24 +2452,22 @@ function generateQRCode() {
       record,
       singleLayout,
     );
+    renderBulkPreview();
+    renderVariableChips();
+    canvas.qrHitBox=output.qrHitBox;
     canvas.width = output.width;
     canvas.height = output.height;
     ctx.drawImage(output, 0, 0);
-    if (layoutDialog.open && layoutSample)
+    if (layoutDialog.open && layoutSample && !layoutSample.URL) {const target=document.getElementById("layoutQR");target.getContext("2d").clearRect(0,0,target.width,target.height);}
+    if (layoutDialog.open && layoutSample?.URL)
       renderQRCode(
         document.getElementById("layoutQR"),
         layoutSample.URL,
-        readSettings(),
+        cartAppearance.settings(metricLayout),
       );
-    if (qrStyleDialog.open)
-      renderQRCode(
-        document.getElementById("styleQR"),
-        layoutSample?.URL || inputText,
-        readSettings(),
-      );
-    downloadBtn.hidden = isExample;
+    downloadBtn.hidden = false;downloadBtn.disabled = isExample;
   } catch (error) {
-    downloadBtn.hidden = true;
+    downloadBtn.hidden = false;downloadBtn.disabled = true;
     setMessage(
       qrError,
       () =>
@@ -2234,12 +2482,13 @@ function generateQRCode() {
 }
 
 async function downloadQRCode() {
-  if (downloadBtn.hidden || !qrInput.value.trim()) return;
+  if (downloadBtn.disabled || !qrInput.value.trim()) return;
   try {
+    await cartAppearance.ready(singleLayout);
     const format = document.getElementById("singleFormat").value;
     const qr = document.createElement("canvas");
     renderQRCode(qr, qrInput.value.trim(), {
-      ...readSettings(),
+      ...cartAppearance.settings(singleLayout),
       vector: format === "svg",
     });
     const record = singleRecord();
@@ -2280,53 +2529,48 @@ async function downloadQRCode() {
 
 downloadBtn.addEventListener("click", downloadQRCode);
 
-const qrStyleDialog = document.getElementById("qrStyleDialog");
 const appearanceControls = document.querySelector(".appearance-fields");
 const logoControls = document.querySelector(".logo-controls");
-const logoAnchor = document.createComment("logo controls");
-logoControls.before(logoAnchor);
-document.getElementById("modalAppearanceControls").append(appearanceControls);
+document.getElementById("pageAppearanceControls").append(appearanceControls);
+document.getElementById("pageLogoControls").append(logoControls);
+
 document.getElementById("labelContainer").hidden = true;
-document.getElementById("editQRStyleBtn").addEventListener("click", () => {
-  document
-    .getElementById("modalAppearanceControls")
-    .append(appearanceControls);
-  document.getElementById("modalLogoControls").append(logoControls);
-  try {
-    renderQRCode(
-      document.getElementById("styleQR"),
-      layoutSample?.URL || qrInput.value.trim() || "https://example.com",
-      readSettings(),
-    );
-  } catch (error) {
-    toast(error.message, true);
-  }
-  qrStyleDialog.showModal();
-});
-function closeStyleEditor() {
-  qrStyleDialog.close();
+function updateCartToggle(mode,editing){
+  const button=document.getElementById(mode==='single'?'singleCartToggle':'editLayoutBtn');if(!button)return;
+  button.setAttribute('aria-pressed',String(editing));button.title=t(editing?'Vorschau anzeigen':'Cart anpassen');button.setAttribute('aria-label',button.title);
+  button.querySelector('.cart-eye').hidden=!editing;button.querySelector('.cart-edit').hidden=editing;
 }
-document
-  .getElementById("closeQRStyleBtn")
-  .addEventListener("click", closeStyleEditor);
-document
-  .getElementById("applyQRStyleBtn")
-  .addEventListener("click", closeStyleEditor);
-qrStyleDialog.addEventListener("close", () => {
-  logoAnchor.after(logoControls);
-  if (layoutSample) {
-    try {
-      renderQRCode(
-        document.getElementById("layoutQR"),
-        layoutSample.URL,
-        readSettings(),
-      );
-    } catch (error) {
-      toast(error.message, true);
+function hideMainPreview(mode){document.getElementById(mode==='single'?'editSingleTemplateBtn':'bulkPreviewButton').hidden=true;updateCartToggle(mode,true);}
+function showMainPreviews(){document.getElementById('editSingleTemplateBtn').hidden=false;document.getElementById('bulkPreviewButton').hidden=false;for(const mode of ['single','bulk'])updateCartToggle(mode,false);}
+async function toggleCartEditor(mode){if(layoutDialog.open&&editorMode===mode)await closeLayoutEditor(true);else openLayoutEditor(mode);}
+function initializeCartPanels(){
+  for(const mode of ['single','bulk']){
+    const preview=document.getElementById(mode==='single'?'editSingleTemplateBtn':'bulkPreviewButton');
+    const card=document.createElement('section');card.className='cart-panel';preview.before(card);
+    const toolbar=document.createElement('div');toolbar.className='cart-panel-toolbar';
+    const button=mode==='bulk'?document.getElementById('editLayoutBtn'):document.createElement('button');button.id=mode==='bulk'?'editLayoutBtn':'singleCartToggle';button.type='button';button.className='cart-view-toggle';button.replaceChildren();button.setAttribute('aria-controls',mode+'EditorSlot');
+    for(const [className,pathData] of [['cart-eye','M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Zm13 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0'],['cart-edit','M14 3H4v18h16V11M7 7h3M7 11h3M7 15h2M12 16l1-4 6-6 3 3-6 6-4 1Z']]){
+      const icon=document.createElement('span');icon.className=className;icon.setAttribute('aria-hidden','true');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',pathData);svg.append(path);icon.append(svg);button.append(icon);
     }
+    if(mode==='single')button.addEventListener('click',()=>toggleCartEditor(mode));
+    toolbar.append(button);card.append(toolbar,preview,document.getElementById(mode+'EditorSlot'));updateCartToggle(mode,false);
   }
-  saveSettings();
-});
+  document.getElementById('bulkRibbonBtn').parentElement.hidden=true;
+}
+function openQRSettings(mode=activeMode){
+  cartAppearance.open(mode==='bulk'?bulkLayout:singleLayout);
+}
+function previewClick(event,mode,target){
+  const rect=target.getBoundingClientRect(),hit=target.qrHitBox;
+  const y=(event.clientY-rect.top)*target.height/rect.height;
+  if(event.detail===0 || (hit&&y>=hit.y&&y<=hit.y+hit.height))openQRSettings(mode);else openLayoutEditor(mode);
+}
+
+document.getElementById('closeQRSettingsBtn').addEventListener('click',()=>{document.getElementById('qrSettings').hidden=true;showMainPreviews();generateQRCode();});
+document.querySelector('.customize-hint').addEventListener('click',()=>openLayoutEditor('single'));
+document.querySelector('.preview-panel').addEventListener('click',event=>{if(event.target===event.currentTarget)openLayoutEditor('single');});
+document.getElementById('bulkRibbonBtn').addEventListener('click',openRibbonEditor);
+document.getElementById('bulkPreviewButton').addEventListener('click',event=>previewClick(event,'bulk',document.getElementById('bulkPageCanvas')));
 document
   .getElementById("exportFormat")
   .addEventListener("change", saveSettings);
@@ -2335,8 +2579,40 @@ document
   .addEventListener("change", saveSettings);
 
 
-const templateLibrary = createTemplateLibrary({readSettings, saveLayout, saveSettings, renderSavedLogos, openLayoutEditor, generateQRCode, bulkLayout, singleLayout, getMode: () => editorMode, getSnapshot: () => editorSnapshot, getLayout: () => metricLayout, getLogoData: () => logoState.data, setLogo: (image, data) => { ++logoState.version; logoState.image = image; logoState.data = data; }});
+const templateLibrary = createTemplateLibrary({validateAppearance:()=>cartAppearance.validate(metricLayout),checkCompatibility:warnCartCompatibility, readSettings, saveLayout, saveSettings, renderSavedLogos, openLayoutEditor, generateQRCode, bulkLayout, singleLayout, getMode: () => editorMode, getSnapshot: () => editorSnapshot, getLayout: () => metricLayout, getLogoData: () => logoState.data, setLogo: (image, data) => { ++logoState.version; logoState.image = image; logoState.data = data; }});
 const {confirmDeletion, templateChanged, requestTemplateSave, renderTemplates} = templateLibrary;
+
+const contentEditor = window.QRGenerator['qr-content'].createContentEditor({
+  confirmDeletion,
+  getRecords: () => loadedData,
+  getExpression: () => bulkLayout.contentExpression || '',
+  getCards: () => bulkLayout.contentCards,
+  setExpression: (value,cards) => {bulkLayout.contentExpression=value;bulkLayout.contentCards=cards;},
+  changed: () => {
+    const valid=contentEditor.validate();generateBtn.disabled=!valid||isGenerating;
+    if(layoutSample?.Raw) {try{layoutSample.URL=window.QRGenerator['qr-content'].resolveContent(bulkLayout.contentExpression,layoutSample.Raw,bulkLayout.contentCards);}catch{layoutSample.URL='';}}
+    saveLayout();generateQRCode();
+  }
+});
+const qrPresets = window.QRGenerator["qr-presets"].createQRPresets({
+  confirmDeletion,
+  read: () => {const {logo,...appearance}=readSettings();return {appearance,logoData:logoState.data,ribbon:structuredClone(bulkLayout.ribbon)};},
+  apply: (payload,image) => {
+    for(const [key,id] of [["shape","shapeSelect"],["finderShape","finderShapeSelect"],["color","colorPicker"],["finderColor","finderColorPicker"]])document.getElementById(id).value=payload.appearance[key];
+    ++logoState.version;logoState.image=image;logoState.data=payload.logoData||"";
+    if(!cartAppearance.active() && payload.ribbon && Array.isArray(payload.ribbon.rules)) {
+      const ribbon={enabled:payload.ribbon.enabled!==false,rules:payload.ribbon.rules.filter(rule=>rule&&typeof rule.text==="string"&&typeof rule.pattern==="string"&&/^#[0-9a-f]{6}$/i.test(rule.color)).map(rule=>({...rule,id:crypto.randomUUID(),text:Array.from(rule.text).slice(0,5).join(""),match:rule.match==="always"?"always":"contains"}))};
+      bulkLayout.ribbon=ribbon;singleLayout.ribbon=ribbon;
+    }
+    saveSettings();saveLayout();renderSavedLogos();generateQRCode();
+  }
+});
+const cartAppearance = window.QRGenerator['cart-appearance'].createCartAppearance({
+  size:EXPORT_SIZE,content:layout=>layout===bulkLayout?(loadedData?.[0]?.URL||DEMO_QR_CONTENT):(qrInput.value.trim()||DEMO_QR_CONTENT),read:()=>{const {logo,...appearance}=readSettings();return {appearance,logoData:logoState.data};},logo:()=>logoState.image,
+  entries:()=>qrPresets.getEntries(),baseline:payload=>qrPresets.syncSelection(payload),confirmDiscard:()=>qrPresets.confirmDiscard(),
+  apply:(payload,image)=>{for(const [key,id] of [["shape","shapeSelect"],["finderShape","finderShapeSelect"],["color","colorPicker"],["finderColor","finderColorPicker"]])document.getElementById(id).value=payload.appearance[key];++logoState.version;logoState.image=image;logoState.data=payload.logoData||'';renderSavedLogos();},
+  refresh:()=>{generateQRCode();if(activeMode==='carts'&&!layoutDialog.open)renderCartGallery();},persist:()=>{saveLayout();saveSettings();}
+});
 
 document.querySelectorAll("[data-language]").forEach((button) =>
   button.addEventListener("click", () => {
@@ -2352,18 +2628,23 @@ document.querySelectorAll("[data-language]").forEach((button) =>
           field === "URL" ? t("URL-Feld auswählen …") : t("Nicht verwenden");
     renderSavedLogos();
     renderTemplates();
+    qrPresets.render();
+    if(activeMode==='templates')renderTemplateGallery();if(activeMode==='carts')renderCartGallery();
     renderSavedBaseURLs();
     if (layoutDialog.open) openLayoutEditor(editorMode);
     if (ribbonDialog.open) renderRibbonRules();
     generateQRCode();
   }),
 );
+initializeCartPanels();
 restoreLayout();
 restoreSettings();
 renderSavedLogos();
 loadQueryParameters();
 
-setImportVisible(false);
+const initialTab=new URLSearchParams(location.search).get('tab');
+setImportVisible(['templates','carts'].includes(initialTab)?initialTab:initialTab==='bulk');
 
 window.QRGenerator["app"] = {};
 })();
+
