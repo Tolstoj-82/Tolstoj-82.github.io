@@ -130,7 +130,7 @@ async function renderQRTemplateWorkspace(host, version) {
   for(const [direction,label,action] of [['up','QR-Code-Templates importieren',()=>upload.click()],['down','QR-Code-Templates exportieren',()=>qrPresets.exportFile()]]){
     const button=document.createElement('button');button.type='button';button.title=t(label);button.setAttribute('aria-label',t(label));button.addEventListener('click',action);if(direction==='down')button.disabled=!entries.length;
     const icon=document.createElementNS('http://www.w3.org/2000/svg','svg');icon.setAttribute('viewBox','0 0 24 24');icon.setAttribute('aria-hidden','true');icon.setAttribute('focusable','false');
-    const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',direction==='up'?'M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5':'M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5');icon.append(path);button.append(icon);transfer.append(button);
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',direction==='up'?'M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5':'M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5');icon.append(path);button.append(icon);transfer.append(button);
   }
   transfer.append(upload);headingRow.append(heading,transfer);
   const workspace=document.createElement('div');workspace.className='qr-template-workspace';
@@ -214,6 +214,13 @@ async function renderTemplateGallery() {
 }
 function renderCartGallery() {
   const host=document.getElementById('cartsSection');host.replaceChildren();
+  const transfer=document.createElement('div');transfer.className='template-transfer cart-transfer';
+  const upload=document.createElement('input');upload.type='file';upload.accept='.json';upload.hidden=true;
+  upload.addEventListener('change',async()=>{if(upload.files[0]){await templateLibrary.importFile(upload.files[0]);renderCartGallery();}});
+  for(const [label,action,pathData] of [['Carts importieren',()=>upload.click(),'M12 3v13m-5-5 5 5 5-5M4 16v5h16v-5'],['Carts exportieren',()=>templateLibrary.exportFile(),'M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5']]){
+    const button=document.createElement('button');button.type='button';button.title=t(label);button.setAttribute('aria-label',t(label));button.addEventListener('click',action);if(label==='Carts exportieren')button.disabled=!templateLibrary.getEntries().length;
+    button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+pathData+'"/></svg>';transfer.append(button);
+  }transfer.append(upload);host.append(transfer);
   const groups = [
     [t('Carts: Einzelner QR-Code'), templateLibrary.getEntries().filter(item=>item.kind==='single'), 'single'],
     [t('Carts: Massenexport'), templateLibrary.getEntries().filter(item=>item.kind==='bulk'), 'bulk'],
@@ -937,6 +944,7 @@ function restoreLayout() {
       )
         continue;
       if (layout === bulkLayout && typeof saved.contentExpression === "string") {layout.contentExpression = saved.contentExpression;if(Array.isArray(saved.contentCards))layout.contentCards=saved.contentCards.filter(card=>card&&["free","url","field"].includes(card.kind)&&typeof card.value==="string");}
+      layout.dateFormat = saved.dateFormat === "us" ? "us" : "eu";
       layout.qrAppearance = saved.qrAppearance;
       layout.qrTemplateId = saved.qrTemplateId;
       layout.headingsMovable = saved.headingsMovable === true;
@@ -1319,17 +1327,17 @@ function metricLabel(key, layout = metricLayout) {
         ? t("Datum")
         : key;
 }
-function currentDateText() {
-  return new Intl.DateTimeFormat(window.QRGenerator.i18n.language === "en" ? "en-GB" : "de-CH", {
-    day: "numeric",
-    month: "numeric",
+function currentDateText(layout = metricLayout) {
+  return new Intl.DateTimeFormat(layout.dateFormat === "us" ? "en-US" : "de-CH", {
+    day: "2-digit",
+    month: "2-digit",
     year: "numeric",
   }).format(new Date());
 }
 function metricValueFor(record, key, layout = metricLayout) {
   if(key === "heading:title")return record.Titel || "";
   if(key === "heading:subtitle")return record.Untertitel || "";
-  if (key === "date:current") return layout.dateText || currentDateText();
+  if (key === "date:current") return layout.dateText || currentDateText(layout);
   if (Object.hasOwn(layout.custom || {}, key)) return layout.custom[key];
   return key === "Linien"
     ? formatLines(record.Metrics?.[key])
@@ -1932,6 +1940,14 @@ function renderMetricEditor() {
         toolbar.append(button);
       }
       refreshStyle();
+      if(key === 'date:current') {
+        const format=document.createElement('select');format.className='metric-date-format';
+        format.setAttribute('aria-label',t('Datumsformat'));format.title=t('Datumsformat');
+        format.add(new Option('EU · 31.12.2026','eu'));format.add(new Option('US · 12/31/2026','us'));
+        format.value=metricLayout.dateFormat==='us'?'us':'eu';
+        format.addEventListener('change',()=>{metricLayout.dateFormat=format.value;delete metricLayout.dateText;saveLayout();renderMetricEditor();generateQRCode();});
+        toolbar.append(format);
+      }
       const remove = document.createElement("button");
       remove.type = "button";
       remove.textContent = "×";
@@ -2226,7 +2242,7 @@ async function generateZip() {
   const settings = { ...cartAppearance.settings(bulkLayout), vector: format === "svg" };
   const exportLayout = {
     ...structuredClone(bulkLayout),
-    dateText: currentDateText(),
+    dateText: currentDateText(bulkLayout),
   };
   // Keep one language throughout this ZIP even if the interface language changes.
   for (const key of [...exportLayout.above, ...exportLayout.below])
@@ -2553,7 +2569,16 @@ function initializeCartPanels(){
       const icon=document.createElement('span');icon.className=className;icon.setAttribute('aria-hidden','true');const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',pathData);svg.append(path);icon.append(svg);button.append(icon);
     }
     if(mode==='single')button.addEventListener('click',()=>toggleCartEditor(mode));
-    toolbar.append(button);card.append(toolbar,preview,document.getElementById(mode+'EditorSlot'));updateCartToggle(mode,false);
+    const qrButton=document.createElement('button');qrButton.type='button';qrButton.className='cart-view-toggle qr-edit-button';qrButton.setAttribute('aria-label',t('QR-Code-Gestaltung anpassen'));qrButton.title=t('QR-Code-Gestaltung anpassen');qrButton.addEventListener('click',()=>openQRSettings(mode));
+    qrButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM14 13h3v4h4v4h-7zM20 12v2M10 12h2M12 19v2"/></svg>';
+    toolbar.append(button,qrButton);card.append(toolbar,preview,document.getElementById(mode+'EditorSlot'));updateCartToggle(mode,false);
+    preview.setAttribute('aria-label',t('QR-Code-Gestaltung anpassen'));
+    const target=preview.querySelector('canvas'),hover=document.createElement('span');hover.className='qr-hover-zone';hover.setAttribute('aria-hidden','true');preview.append(hover);
+    const align=()=>{const hit=target.qrHitBox;if(!hit||!target.height)return;const top=hit.y/target.height*target.clientHeight,height=hit.height/target.height*target.clientHeight;toolbar.style.top=(preview.offsetTop+top+height/2)+'px';hover.style.top=top+'px';hover.style.height=height+'px';};
+    if(window.ResizeObserver)new ResizeObserver(align).observe(target);
+    new MutationObserver(()=>requestAnimationFrame(align)).observe(target,{attributes:true,attributeFilter:['width','height']});
+    preview.addEventListener('pointermove',event=>{const rect=target.getBoundingClientRect(),hit=target.qrHitBox,y=(event.clientY-rect.top)*target.height/rect.height;preview.classList.toggle('qr-is-hovered',Boolean(hit&&y>=hit.y&&y<=hit.y+hit.height));});
+    preview.addEventListener('pointerleave',()=>preview.classList.remove('qr-is-hovered'));requestAnimationFrame(align);
   }
   document.getElementById('bulkRibbonBtn').parentElement.hidden=true;
 }
@@ -2563,12 +2588,12 @@ function openQRSettings(mode=activeMode){
 function previewClick(event,mode,target){
   const rect=target.getBoundingClientRect(),hit=target.qrHitBox;
   const y=(event.clientY-rect.top)*target.height/rect.height;
-  if(event.detail===0 || (hit&&y>=hit.y&&y<=hit.y+hit.height))openQRSettings(mode);else openLayoutEditor(mode);
+  if(event.detail===0 || (hit&&y>=hit.y&&y<=hit.y+hit.height))openQRSettings(mode);
 }
 
 document.getElementById('closeQRSettingsBtn').addEventListener('click',()=>{document.getElementById('qrSettings').hidden=true;showMainPreviews();generateQRCode();});
-document.querySelector('.customize-hint').addEventListener('click',()=>openLayoutEditor('single'));
-document.querySelector('.preview-panel').addEventListener('click',event=>{if(event.target===event.currentTarget)openLayoutEditor('single');});
+
+
 document.getElementById('bulkRibbonBtn').addEventListener('click',openRibbonEditor);
 document.getElementById('bulkPreviewButton').addEventListener('click',event=>previewClick(event,'bulk',document.getElementById('bulkPageCanvas')));
 document

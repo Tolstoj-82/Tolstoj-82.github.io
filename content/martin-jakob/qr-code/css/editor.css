@@ -483,6 +483,22 @@
   flex-shrink: 0;
 }
 
+.metric-toolbar .metric-date-format {
+  width:auto;
+  max-width:150px;
+  min-height:28px;
+  margin:0 4px;
+  padding:3px 6px;
+  border:1px solid var(--color-border);
+  border-radius:5px;
+  background:var(--color-surface);
+  color:var(--color-text);
+  font-family:inherit;
+  font-size:var(--font-ui-small);
+}
+.metric-row:has(.metric-date-format) { flex-wrap:wrap; }
+.metric-toolbar:has(.metric-date-format) { flex-wrap:wrap;flex-shrink:1; }
+
 .metric-toolbar .metric-format {
   display: inline-flex;
   align-items: center;

@@ -9,20 +9,21 @@
     <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css?v=20261011-cart-scroll" />
-    <script defer src="script.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/translations.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/notifications.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/i18n.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/logo-crop.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/qr-renderer.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/logos.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/template-combo.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/templates.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/qr-presets.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/qr-content.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/cart-appearance.js?v=20261011-cart-scroll"></script>
-    <script defer src="js/app.js?v=20261011-cart-scroll"></script>
+    <link rel="stylesheet" href="styles.css?v=20261012-export-picker" />
+    <script defer src="script.js?v=20261012-export-picker"></script>
+    <script defer src="js/translations.js?v=20261012-export-picker"></script>
+    <script defer src="js/notifications.js?v=20261012-export-picker"></script>
+    <script defer src="js/i18n.js?v=20261012-export-picker"></script>
+    <script defer src="js/logo-crop.js?v=20261012-export-picker"></script>
+    <script defer src="js/qr-renderer.js?v=20261012-export-picker"></script>
+    <script defer src="js/logos.js?v=20261012-export-picker"></script>
+    <script defer src="js/template-combo.js?v=20261012-export-picker"></script>
+    <script defer src="js/template-export.js?v=20261012-export-picker"></script>
+    <script defer src="js/templates.js?v=20261012-export-picker"></script>
+    <script defer src="js/qr-presets.js?v=20261012-export-picker"></script>
+    <script defer src="js/qr-content.js?v=20261012-export-picker"></script>
+    <script defer src="js/cart-appearance.js?v=20261012-export-picker"></script>
+    <script defer src="js/app.js?v=20261012-export-picker"></script>
     
   </head>
   <body>
@@ -93,7 +94,6 @@
     </div>
 
     <button id="editSingleTemplateBtn" class="single-preview-button" type="button" aria-label="Cart anpassen"><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></button>
-    <p class="customize-hint">QR-Code anklicken: Gestaltung · Textbereich anklicken: Cart</p>
     <p id="unusedQueryParameters" class="unused-parameters" hidden></p>
     
     <div class="logo-controls">
@@ -170,7 +170,7 @@
         <div class="template-library-row"><div class="template-combo"><input id="templateSelect" type="text" placeholder="Template auswählen oder benennen …" autocomplete="off" maxlength="80" /></div><button id="saveTemplateBtn" class="action-button secondary" type="button">Speichern</button></div>
         <p id="templateStatus" role="status"></p>
       </section>
-      <details id="qrContentEditor" open hidden><summary>QR-Code-Inhalt (Pflichtfeld)</summary><div class="content-editor-body">
+      <section id="qrContentEditor" hidden aria-labelledby="qrContentHeading"><h3 id="qrContentHeading">QR-Code-Inhalt (Pflichtfeld)</h3><div class="content-editor-body">
         <label for="qrContentExpression">QR-Code-Inhalt (Pflichtfeld)</label>
         <p class="content-help">Felder in den Inhalt ziehen. Karten anklicken zum Bearbeiten, ziehen zum Sortieren.</p>
         <div id="contentCardDrop" class="content-card-drop" aria-label="QR-Code-Inhalt"><div id="contentCards"></div><button id="addContentCard" class="logo-add" type="button" aria-label="Textkarte hinzufügen">+</button></div>
@@ -178,7 +178,7 @@
         <div id="qrContentFields" class="content-fields"></div>
         <p id="qrContentError" role="alert"></p>
         <div class="content-preview-row"><label for="qrContentPreview">Vorschau: erster Eintrag</label><output id="qrContentPreview"></output></div>
-      </div></details>
+      </div></section>
       <div id="templateVariables" class="variable-chips"></div>
       <div class="layout-sheet">
         <div class="ribbon-corner"><button id="layoutRibbon" class="test-ribbon" type="button" aria-label="Eckband ändern">TST</button></div>

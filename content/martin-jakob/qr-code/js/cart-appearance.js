@@ -47,6 +47,7 @@
       layout.qrAppearance ||= structuredClone(standard);
       if(target===layout){host.hidden=false;panel.hidden=false;await use(layout.qrAppearance||standard);renderOptions();return;}
       if(target)await detach();
+      document.getElementById('qrPresetSaveControls').classList.remove('needs-save');
       target=layout;globalDraft=payload();
       host.hidden=false;home.append(host);slot.append(panel);panel.hidden=false;
       details.open=false;await use(layout.qrAppearance||standard);renderOptions();
@@ -63,12 +64,16 @@
       if(match){layout.qrTemplateId=match.id;return true;}
       details.open=true;
       window.QRGenerator.notifications.toast(t('Bitte diese QR-Gestaltung zuerst als QR-Code-Template speichern oder ein vorhandenes Template auswählen.'),'warning');
-      document.getElementById('qrPresetSaveName').focus();return false;
+      const save=document.getElementById('qrPresetSaveControls');
+      save.classList.remove('needs-save');void save.offsetWidth;save.classList.add('needs-save');
+      requestAnimationFrame(()=>{save.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});document.getElementById('qrPresetSaveName').focus({preventScroll:true});});
+      return false;
     }
     select.addEventListener('change',async()=>{
       const value=select.value==='standard'?standard:context.entries().find(entry=>entry.id===select.value)?.payload;
       if(!value)return;
       if(!await context.confirmDiscard()){renderOptions();return;}
+      document.getElementById('qrPresetSaveControls').classList.remove('needs-save');
       await use(value);target.qrAppearance=structuredClone(value);target.qrTemplateId=select.value;context.refresh();
     });
     async function open(layout){
@@ -84,7 +89,7 @@
     document.getElementById('applyQRAppearance').addEventListener('click',()=>close(true));
     for(const id of ['cancelQRAppearance','closeQRAppearance'])document.getElementById(id).addEventListener('click',()=>close(false));
     dialog.addEventListener('cancel',event=>{event.preventDefault();close(false);});
-    document.addEventListener('qr-templates-changed',()=>{if(target){capture();renderOptions();}});
+    document.addEventListener('qr-templates-changed',()=>{if(target){capture();renderOptions();document.getElementById('qrPresetSaveControls').classList.remove('needs-save');}});
     return {ready:layout=>imageFor(layout.qrAppearance?.logoData),settings,capture,attach,detach,open,validate,renderOptions,active:()=>Boolean(target),content:()=>target?context.content(target):null,refresh:()=>{if(target){capture();renderOptions();}}};
   }
   window.QRGenerator['cart-appearance']={createCartAppearance};

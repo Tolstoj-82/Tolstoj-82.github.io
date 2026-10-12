@@ -1,0 +1,14 @@
+#qrContentHeading { margin:0 0 10px;font-size:var(--font-ui-label);font-weight:var(--font-weight-label);line-height:var(--line-height-ui); }
+#qrContentEditor { padding:12px;border:1px solid var(--color-border);border-radius:6px; }
+#qrContentEditor .content-editor-body { padding:0; }
+.cart-transfer { justify-content:flex-end;margin-bottom:12px; }
+.cart-panel { position:relative;width:fit-content;max-width:100%;box-sizing:border-box;padding-right:64px; }
+.cart-panel .cart-panel-toolbar { position:absolute;right:8px;top:50%;transform:translateY(-50%);flex-direction:column;gap:8px;margin:0;z-index:1; }
+.cart-panel .single-preview-button { position:relative;cursor:default;max-width:100%; }
+.cart-panel .single-preview-button:hover { outline:none;background:transparent; }
+.cart-panel .single-preview-button.qr-is-hovered { cursor:pointer; }
+.qr-hover-zone { position:absolute;left:0;right:0;pointer-events:none;box-sizing:border-box;border:2px solid transparent;transition:border-color 140ms,background 140ms; }
+.qr-is-hovered .qr-hover-zone { border-color:var(--color-muted);background:color-mix(in srgb,var(--color-ink) 4%,transparent); }
+#qrPresetSaveControls.needs-save { border-radius:6px;background:color-mix(in srgb,var(--color-warning) 14%,var(--color-surface));box-shadow:0 0 0 2px var(--color-warning);padding:12px;scroll-margin:24px; }
+@media (max-width:480px) { .cart-panel { padding-left:0;padding-right:48px; } .cart-panel .cart-panel-toolbar { right:0; } }
+@media (prefers-reduced-motion:reduce) { .qr-hover-zone { transition:none; } }

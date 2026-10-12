@@ -78,8 +78,10 @@
       const previous=entries;entries=ids.map(id=>previous.find(entry=>entry.id===id));
       if(!persist()){entries=previous;return false;}combo.render();return true;
     }
-    function exportFile() {
-      const blob=new Blob([JSON.stringify({format:'qr-generator-templates',version:1,templates:entries},null,2)],{type:'application/json'});
+    async function exportFile() {
+      const selected=await window.QRGenerator['template-export'].choose(entries,'QR-Code-Templates exportieren');
+      if(!selected.length)return;
+      const blob=new Blob([JSON.stringify({format:'qr-generator-templates',version:1,templates:selected},null,2)],{type:'application/json'});
       const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='QR-Code-Templates.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     }
     async function importFile(file) {

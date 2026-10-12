@@ -117,6 +117,7 @@ function createTemplateLibrary(context) {
       if (version !== templateLoadVersion || !layoutDialog.open || mode !== context.getMode()) return;
       if (mode === "bulk") clean.contentExpression = typeof saved.contentExpression === "string" ? saved.contentExpression : context.getLayout().contentExpression || "";
       if(mode === "bulk") clean.contentCards = Array.isArray(saved.contentCards) ? saved.contentCards.filter(card=>card&&["free","url","field"].includes(card.kind)&&typeof card.value==="string") : undefined;
+      clean.dateFormat = saved.dateFormat === "us" ? "us" : "eu";
       clean.qrAppearance = saved.qrAppearance;
       clean.qrTemplateId = saved.qrTemplateId;
       if(saved.ribbon)clean.ribbon=structuredClone(saved.ribbon);
@@ -127,9 +128,44 @@ function createTemplateLibrary(context) {
       saveLayout(); saveSettings(); renderSavedLogos(); await openLayoutEditor(mode); generateQRCode(); templateFeedback("Template angewendet."); templateBaseline = templateSignature(); return true;
     } catch {templateFeedback("Ungültiges Template.", true); return false;}
   }
+  async function exportFile() {
+    const selected=await window.QRGenerator['template-export'].choose(templates,'Carts exportieren');
+    if(!selected.length)return;
+    const blob=new Blob([JSON.stringify({format:'qr-generator-carts',version:1,templates:selected},null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='Carts.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  async function importFile(file) {
+    try {
+      if(file.size>20*1024*1024)throw Error();
+      const data=JSON.parse((await file.text()).replace(/^\uFEFF/,''));
+      if(data.format!=='qr-generator-carts'||data.version!==1||!Array.isArray(data.templates)||!data.templates.length||data.templates.length>200)throw Error();
+      const imported=[];
+      for(const item of data.templates){
+        const layout=item?.payload?.layout;
+        if(!['single','bulk'].includes(item?.kind)||typeof item.name!=='string'||!item.name.trim()||item.name.length>80||!layout)throw Error();
+        for(const area of ['above','below'])if(!Array.isArray(layout[area])||layout[area].length>200||layout[area].some(key=>typeof key!=='string'||key.length>500))throw Error();
+        for(const field of ['labels','custom'])if(layout[field]&&(typeof layout[field]!=='object'||Array.isArray(layout[field])||Object.values(layout[field]).some(value=>typeof value!=='string')))throw Error();
+        if(layout.styles&&(typeof layout.styles!=='object'||Array.isArray(layout.styles)||Object.values(layout.styles).some(value=>!value||typeof value!=='object')))throw Error();
+        if(layout.contentExpression!==undefined&&typeof layout.contentExpression!=='string')throw Error();
+        if(layout.contentCards&&(!Array.isArray(layout.contentCards)||layout.contentCards.some(card=>!card||!['free','field','url'].includes(card.kind)||typeof card.value!=='string')))throw Error();
+        if(layout.ribbon&&(!Array.isArray(layout.ribbon.rules)||layout.ribbon.rules.length>100||layout.ribbon.rules.some(rule=>!rule||typeof rule.text!=='string'||Array.from(rule.text).length>5||typeof rule.pattern!=='string'||!['always','contains'].includes(rule.match)||!/^#[0-9a-f]{6}$/i.test(rule.color))))throw Error();
+        if(layout.qrAppearance){
+          const {appearance,logoData}=layout.qrAppearance;if(!appearance)throw Error();
+          for(const [key,id] of [['shape','shapeSelect'],['finderShape','finderShapeSelect']])if(![...document.getElementById(id).options].some(option=>option.value===appearance[key]))throw Error();
+          for(const key of ['color','finderColor'])if(!/^#[0-9a-f]{6}$/i.test(appearance[key]))throw Error();
+          if(logoData){if(typeof logoData!=='string'||!/^data:image\/png;base64,/.test(logoData)||logoData.length>500000)throw Error();const image=new Image();image.src=logoData;await image.decode();if(image.naturalWidth>256||!image.naturalWidth||image.naturalWidth!==image.naturalHeight)throw Error();}
+        }
+        imported.push({id:crypto.randomUUID(),name:item.name.trim(),kind:item.kind,payload:structuredClone(item.payload)});
+      }
+      // Import is additive. Conflicting names receive a suffix instead of replacing local Carts.
+      const names=new Set(templates.map(item=>item.kind+':'+item.name.toLocaleLowerCase()));
+      for(const item of imported){const base=item.name;let suffix=2;while(names.has(item.kind+':'+item.name.toLocaleLowerCase()))item.name=base.slice(0,70)+' ('+(suffix++)+')';names.add(item.kind+':'+item.name.toLocaleLowerCase());}
+      if(persistTemplates([...templates,...imported],selectedTemplateId,'Carts importiert.'))window.QRGenerator.notifications.toast(t('Carts importiert.'));
+    }catch{window.QRGenerator.notifications.toast(t('Ungültige Cart-Datei.'),'warning');}
+  }
   renderTemplates();
 
-  return {createNew:()=>{selectedTemplateId="";combo.input.value="";templateBaseline="";}, getEntries:()=>templates, choose:item=>combo.choose(item), remove:item=>combo.remove(item), confirmDeletion, templateChanged, requestTemplateSave, renderTemplates, markBaseline: () => { templateBaseline = templateSignature(); }};
+  return {importFile,exportFile,createNew:()=>{selectedTemplateId="";combo.input.value="";templateBaseline="";}, getEntries:()=>templates, choose:item=>combo.choose(item), remove:item=>combo.remove(item), confirmDeletion, templateChanged, requestTemplateSave, renderTemplates, markBaseline: () => { templateBaseline = templateSignature(); }};
 }
 
 window.QRGenerator["templates"] = {createTemplateLibrary};
