@@ -127,10 +127,6 @@
   }
 }
 
-#modalLogoControls {
-  padding-top: 12px;
-}
-
 .saved-logo .saved-logo-delete,
 .qr-template-card .saved-logo-delete,
 .template-card .saved-logo-delete,
@@ -187,14 +183,6 @@
   border-bottom: 1px solid var(--color-page);
   padding: 18px 0;
   margin: 18px auto;
-}
-
-.logo-upload-row {
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  display: block;
 }
 
 .logo-add {

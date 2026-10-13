@@ -8,8 +8,10 @@
         ? value.join(", ")
         : String(value);
   const token = (key) => "{{" + JSON.stringify(key) + "}}";
-  function recordsFromCSV(text) {
+  function recordsFromCSV(text, separator = "") {
     text = text.replace(/^\uFEFF/, "");
+    const directive = text.match(/^sep=(.)\r?\n/i);
+    if (directive) { separator ||= directive[1]; text = text.slice(directive[0].length); }
     const invalid = () =>
       new Error(
         t("Ungültige CSV-Datei. Bitte Spaltenüberschriften und Zeilen prüfen."),
@@ -59,7 +61,7 @@
       return rows;
     }
     const candidates = [];
-    for (const delimiter of [",", ";", "\t"]) {
+    for (const delimiter of separator ? [separator] : [",", ";", "\t", "|", ":", "^", "~"]) {
       try {
         const rows = parse(delimiter);
         if (rows.length > 1) candidates.push(rows);
@@ -78,6 +80,19 @@
     return rows.map((row) =>
       Object.fromEntries(headers.map((key, index) => [key, row[index]])),
     );
+  }
+  async function readTextFile(file, encoding = "auto") {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    let detected = encoding;
+    if (detected === "auto") {
+      if (bytes[0] === 255 && bytes[1] === 254) detected = "utf-16le";
+      else if (bytes[0] === 254 && bytes[1] === 255) detected = "utf-16be";
+      else {
+        try { new TextDecoder("utf-8", {fatal:true}).decode(bytes); detected = "utf-8"; }
+        catch { detected = "windows-1252"; }
+      }
+    }
+    return {text:new TextDecoder(detected, {fatal:true}).decode(bytes).replace(/^\uFEFF/, ""), encoding:detected};
   }
   function recordsFromJSON(data) {
     if (data && !Array.isArray(data) && typeof data === "object") {
@@ -686,6 +701,7 @@
   }
   window.QRGenerator["qr-content"] = {
     recordsFromCSV,
+    readTextFile,
     recordsFromJSON,
     resolveContent,
     defaultExpression,

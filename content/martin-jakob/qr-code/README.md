@@ -79,7 +79,39 @@ Click a source-key badge to change its field, or click the heading label to
 override its displayed text. Choosing another source clears that override.
 Bulk filenames still use the required mapped title field.
 
-The CSV → JSON converter supports column selection, key renaming and a preview.
+The CSV ↔ JSON converter supports column selection, key renaming and a preview.
 CSV values remain strings, preserving leading zeros. Blank or duplicate output
 keys block download. Used keys are saved locally as suggestions and can be
 deleted with confirmation. No CSV content is sent to a server.
+
+
+The converter is shown only in Bulk export. It accepts CSV/TSV or flat JSON,
+lets you rename/select columns, and exports the opposite format. CSV detection
+supports comma, semicolon, tab, pipe, colon, caret and tilde; the converter also
+accepts a custom single-character delimiter. Encoding detection uses UTF-8,
+UTF-16 BOMs and a Windows-1252 fallback. A manual encoding selector is available
+when the source encoding is ambiguous. CSV downloads include a UTF-8 BOM.
+
+URL-driven single QR codes support these query parameters:
+- `url`: QR content; `title` and `subtitle`: optional Cart headings.
+- `qrShape`: square, tilted, circle, rounded, diamond, horizontal, vertical, dot.
+- `qrFinderShape`: square, circle, circular, rounded-square, diamond, ring,
+  square-circle, circle-square.
+- `qrColor` and `qrFinderColor`: six-digit hex colors, without a leading #
+  (or URL-encode # as %23).
+- `qrTemplate`: exact name or ID of a QR template saved in this browser.
+  Explicit appearance parameters override the selected template.
+- `preview=0`: suppress automatic opening of the large preview. Otherwise a
+  link with `url` opens the preview automatically. The eye beside the QR code
+  opens it again after closing. The single-code tab takes priority over `tab`.
+
+Example: `?url=https%3A%2F%2Fexample.org&qrShape=rounded&qrColor=333333&qrFinderShape=circle`.
+Unknown appearance values are ignored. Appearance parameters are not listed as
+unused content fields. Local template names are not portable to other browsers.
+
+The link icon beside each Cart copies a parameterized single-code URL for its
+current preview (the first record in Bulk export). It includes QR content,
+visible title/subtitle, displayed source fields and QR appearance parameters.
+Only fields placed on the Cart are included, not the full imported record.
+Logo/template references require the same locally saved QR template in the
+receiving browser; the link does not embed image data or a complete Cart layout.

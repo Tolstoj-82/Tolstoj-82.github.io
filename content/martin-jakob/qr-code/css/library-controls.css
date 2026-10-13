@@ -71,26 +71,6 @@
   font-weight: 400;
 }
 
-.cart-heading-mapping {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 18px;
-}
-
-.cart-heading-mapping .preview-switch {
-  flex-direction: row;
-  font-weight: 400;
-}
-
-.metric-original-key {
-  display: block;
-  font:
-    400 11px/1.5 Arial,
-    sans-serif;
-  color: var(--color-muted);
-}
-
 .metric-source {
   display: flex;
   align-items: center;
@@ -154,10 +134,7 @@
 }
 
 @media (max-width: 520px) {
-  .cart-heading-mapping {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
+  
   .metric-source {
     flex-wrap: wrap;
   }

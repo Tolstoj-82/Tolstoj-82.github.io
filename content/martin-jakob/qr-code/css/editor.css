@@ -1,13 +1,4 @@
 /* editor styles. Shared colors are defined in tokens.css. */
-#layoutTitle {
-  font-size: 24px;
-  font-weight: 700;
-}
-
-#layoutSubtitle {
-  font-size: 17px;
-  color: var(--color-muted);
-}
 
 .metric-row button {
   padding: 0;
@@ -75,14 +66,6 @@
   background: var(--color-accent);
 }
 
-.metric-add.drop-target::before {
-  background: var(--color-accent);
-}
-
-.metric-add.drop-target::after {
-  background: var(--color-accent);
-}
-
 .metric-add .metric-plus:hover {
   background: var(--color-page);
   color: var(--color-accent);
@@ -90,12 +73,6 @@
 }
 
 .metric-add .metric-plus:focus-visible {
-  background: var(--color-page);
-  color: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
-.metric-add.drop-target .metric-plus {
   background: var(--color-page);
   color: var(--color-accent);
   border-color: var(--color-accent);
@@ -359,27 +336,6 @@
   display: block;
 }
 
-.qr-edit-hint {
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  background: color-mix(in srgb, var(--color-surface) 93%, transparent);
-  border-radius: 4px;
-  padding: 3px 8px;
-  font-size: 11px;
-  opacity: 0;
-}
-
-.qr-edit-button:hover .qr-edit-hint {
-  opacity: 1;
-}
-
-.qr-edit-button:focus-visible .qr-edit-hint {
-  opacity: 1;
-}
-
 .metric-handle::before {
   content: "";
   width: 10px;
@@ -601,7 +557,7 @@
 }
 
 .metric-toolbar .color-toggle[aria-pressed="true"] {
-  color: var(--color-ink);
+  color: var(--color-strong);
 }
 
 #singleRibbonBtn {

@@ -440,129 +440,6 @@
   color: var(--color-text);
 }
 
-.section-toggle {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 16px 18px;
-  margin: 0;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-page);
-  color: var(--color-text);
-  font-size: 16px;
-  font-weight: 600;
-  text-align: left;
-  transition:
-    background 0.2s,
-    border-color 0.2s;
-}
-
-#toggleImportBtn.section-toggle {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 16px 18px;
-  margin: 0;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-page);
-  color: var(--color-text);
-  font-size: 16px;
-  font-weight: 600;
-  text-align: left;
-  transition:
-    background 0.2s,
-    border-color 0.2s;
-}
-
-.section-toggle:hover {
-  background: var(--color-page);
-  border-color: var(--color-border);
-  text-decoration: none;
-}
-
-#toggleImportBtn.section-toggle:hover {
-  background: var(--color-page);
-  border-color: var(--color-border);
-  text-decoration: none;
-}
-
-.section-toggle[aria-expanded="true"] {
-  background: var(--color-page);
-  border-color: var(--color-border);
-  border-radius: 8px 8px 0 0;
-  color: var(--color-text);
-  box-shadow: none;
-}
-
-#toggleImportBtn.section-toggle[aria-expanded="true"] {
-  background: var(--color-page);
-  border-color: var(--color-border);
-  border-radius: 8px 8px 0 0;
-  color: var(--color-text);
-  box-shadow: none;
-}
-
-.section-toggle:focus-visible {
-  outline: 2px solid var(--color-muted);
-  outline-offset: 3px;
-}
-
-.accordion-chevron {
-  display: block;
-  position: relative;
-  flex: 0 0 22px;
-  width: 22px;
-  height: 22px;
-  margin: 0;
-  border: 0;
-  transform: none;
-}
-
-.accordion-chevron::before {
-  content: "";
-  position: absolute;
-  top: 10px;
-  left: 4px;
-  width: 14px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 2px;
-  transition:
-    transform 0.2s,
-    opacity 0.2s;
-}
-
-.accordion-chevron::after {
-  content: "";
-  position: absolute;
-  top: 10px;
-  left: 4px;
-  width: 14px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 2px;
-  transition:
-    transform 0.2s,
-    opacity 0.2s;
-  transform: rotate(90deg);
-}
-
-.section-toggle[aria-expanded="true"] .accordion-chevron {
-  transform: none;
-  margin: 0;
-}
-
-.section-toggle[aria-expanded="true"] .accordion-chevron::after {
-  transform: rotate(0);
-  opacity: 0;
-}
-
 #singleSection {
   width: 100%;
   max-width: none;
@@ -579,11 +456,6 @@
   padding: 22px 18px;
   border: 0;
   background: var(--color-surface);
-}
-
-.import-disclosure {
-  margin-top: 20px;
-  margin: 16px 0 0;
 }
 
 #editLayoutBtn {
@@ -609,15 +481,6 @@
   margin: 0;
 }
 
-#qrStyleHeading {
-  font-size: 21px;
-  margin: 0;
-}
-
-#modalAppearanceControls {
-  text-align: left;
-}
-
 #closeLayoutBtn {
   display: inline-flex;
   position: relative;
@@ -633,27 +496,7 @@
   color: var(--color-muted);
 }
 
-#closeQRStyleBtn {
-  display: inline-flex;
-  position: relative;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  margin: 0;
-  flex-shrink: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--color-muted);
-}
-
 #closeLayoutBtn:hover {
-  background: var(--color-page);
-  color: var(--color-text);
-}
-
-#closeQRStyleBtn:hover {
   background: var(--color-page);
   color: var(--color-text);
 }
@@ -723,18 +566,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .accordion-chevron::before {
-    transition: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .accordion-chevron::after {
-    transition: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
   .preview-switch input {
     transition: none;
   }
@@ -775,13 +606,6 @@
   aspect-ratio: auto;
   height: auto;
   border-radius: 8px;
-}
-
-.customize-hint {
-  font-size: 12px;
-  font-weight: normal;
-  color: var(--color-muted);
-  margin: 12px 0 4px;
 }
 
 .single-download {

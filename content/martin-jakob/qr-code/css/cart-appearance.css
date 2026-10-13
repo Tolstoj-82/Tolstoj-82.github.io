@@ -54,7 +54,7 @@
 }
 
 #cartQROptions > summary:hover {
-  color: var(--color-ink);
+  color: var(--color-strong);
 }
 
 #cartQROptions .template-chevron {

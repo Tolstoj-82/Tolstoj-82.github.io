@@ -1,0 +1,44 @@
+/* Interface theme only: generated QR artwork keeps its own export colors. */
+:root { color-scheme: light; --color-strong: #000000; --color-paper: #ffffff; }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-page: #181a1e;
+  --color-surface: #23262c;
+  --color-border: #484e58;
+  --color-muted: #adb4bf;
+  --color-text: #e6e9ee;
+  --color-strong: #ffffff;
+  --color-accent: #80bfff;
+  --color-success: #78d394;
+  --color-danger: #ff929f;
+  --color-warning: #f2bd62;
+}
+button.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: var(--color-page);
+  color: var(--color-text);
+}
+button.theme-toggle:hover { background: var(--color-surface); border-color: var(--color-muted); }
+.theme-toggle svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.theme-toggle .theme-sun, [data-theme="dark"] .theme-toggle .theme-moon { display: none; }
+[data-theme="dark"] .theme-toggle .theme-sun { display: block; }
+input[type="text"], input[type="search"], input[type="number"], textarea, select, dialog {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+input::placeholder, textarea::placeholder { color: var(--color-muted); opacity: 1; }
+/* Canvas colors, logo thumbnails and crop handles must remain independent of the UI. */
+canvas { color-scheme: light; }
+.saved-logo img { background: var(--color-paper); }
+.crop-selection { border-color: var(--color-paper); }
+.test-ribbon { color: var(--color-paper); }
+[data-theme="dark"] .toast { border-color: var(--color-border); }

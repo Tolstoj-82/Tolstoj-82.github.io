@@ -727,6 +727,7 @@
       activeMode !== "templates";
     document.getElementById("cartsSection").hidden = activeMode !== "carts";
     bulkImport.hidden = activeMode !== "bulk";
+    document.getElementById("openCSVConverter").hidden = activeMode !== "bulk";
     document.getElementById("singleSection").hidden = activeMode !== "single";
     for (const [id, selected] of [
       ["toggleImportBtn", activeMode === "bulk"],
@@ -1285,8 +1286,8 @@
     setMessage(info, () => "");
     setMessage(statusDiv, () => t("Datei wird geladen …"));
     try {
-      const text = (await file.text()).replace(/^\uFEFF/, "");
-      const data = /\.csv$/i.test(file.name)
+      const { text } = await window.QRGenerator["qr-content"].readTextFile(file);
+      const data = /\.(csv|tsv)$/i.test(file.name)
         ? window.QRGenerator["qr-content"].recordsFromCSV(text)
         : JSON.parse(text);
       if (version !== fileLoadVersion) return;
@@ -1993,6 +1994,7 @@
     delete metrics.title;
     delete metrics.subtitle;
     delete metrics.tab;
+    for (const key of ["qrShape", "qrFinderShape", "qrColor", "qrFinderColor", "qrTemplate", "preview"]) delete metrics[key];
     if (Object.hasOwn(metrics, "url")) metrics.url = qrInput.value.trim();
     return {
       URL: qrInput.value.trim() || DEMO_QR_CONTENT,
@@ -2003,7 +2005,7 @@
   }
   function updateUnusedParameters() {
     const used = new Set([
-      "tab",
+      "tab", "qrShape", "qrFinderShape", "qrColor", "qrFinderColor", "qrTemplate", "preview",
       "url",
       "title",
       "subtitle",
@@ -2729,7 +2731,7 @@
           text.style.fontFamily = '"' + (metricLayout.font || 'Roboto') + '"';
           text.style.fontWeight = style.bold ? "700" : "400";
           text.style.fontSize = style.large ? "17px" : "14px";
-          text.style.color = style.black ? "#111" : "#666";
+          text.style.color = style.black ? "var(--color-text)" : "var(--color-muted)";
           for (const [button, property, activeValue] of controls)
             button.setAttribute(
               "aria-pressed",
@@ -3296,6 +3298,17 @@
       qrInput.value = url;
     }
 
+    const preset = qrPresets.getEntries().find(entry => entry.id === params.get('qrTemplate') || entry.name === params.get('qrTemplate'));
+    if (preset) { singleLayout.qrAppearance = structuredClone(preset.payload); singleLayout.qrTemplateId = preset.id; }
+    const appearance = structuredClone(singleLayout.qrAppearance || {appearance:{shape:'square',finderShape:'square',color:'#000000',finderColor:'#000000'},logoData:''});
+    let changed = false;
+    for (const [param,key,control] of [['qrShape','shape',shapeSelect],['qrFinderShape','finderShape',finderShapeSelect]]) {
+      const value=params.get(param);if(value && Array.from(control.options).some(option=>option.value===value)){appearance.appearance[key]=value;changed=true;}
+    }
+    for (const [param,key] of [['qrColor','color'],['qrFinderColor','finderColor']]) {
+      const value=(params.get(param)||'').replace(/^#/, '');if(/^[0-9a-f]{6}$/i.test(value)){appearance.appearance[key]='#'+value;changed=true;}
+    }
+    if(changed){singleLayout.qrAppearance=appearance;singleLayout.qrTemplateId='';}
     qrTitle.textContent = title || "";
     qrSubtitle.textContent = subtitle || "";
 
@@ -3412,6 +3425,11 @@
 
   function generateQRCode() {
     cartAppearance.refresh();
+    document.querySelectorAll('.copy-qr-link').forEach(button => {
+      button.disabled = button.dataset.mode === 'bulk' ? !loadedData?.[0]?.URL : !qrInput.value.trim();
+      button.title = t('Link mit QR-Code-Parametern kopieren');
+      button.setAttribute('aria-label', button.title);
+    });
     qrInput.classList.toggle("has-content", Boolean(qrInput.value.trim()));
     updateUnusedParameters();
     setMessage(qrError, () => "");
@@ -3490,6 +3508,8 @@
       canvas.width = output.width;
       canvas.height = output.height;
       ctx.drawImage(output, 0, 0);
+      const enlarged = document.querySelector('#largeQRPreview[open] canvas');
+      if (enlarged) { enlarged.width = canvas.width; enlarged.height = canvas.height; enlarged.getContext('2d').drawImage(canvas, 0, 0); }
       if (layoutDialog.open && layoutSample && !layoutSample.URL) {
         const target = document.getElementById("layoutQR");
         target.getContext("2d").clearRect(0, 0, target.width, target.height);
@@ -3657,6 +3677,20 @@
       qrButton.innerHTML =
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM14 13h3v4h4v4h-7zM20 12v2M10 12h2M12 19v2"/></svg>';
       toolbar.append(button, qrButton);
+      const copyButton = document.createElement('button');
+      copyButton.type = 'button';
+      copyButton.className = 'cart-view-toggle copy-qr-link';
+      copyButton.dataset.mode = mode;
+      copyButton.title = t('Link mit QR-Code-Parametern kopieren');
+      copyButton.setAttribute('aria-label', copyButton.title);
+      copyButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg>';
+      copyButton.addEventListener('click', () => copyQRLink(mode));
+      toolbar.append(copyButton);
+      if(mode==='single' && new URLSearchParams(location.search).has('url')) {
+        const eye=document.createElement('button');eye.type='button';eye.className='cart-view-toggle';eye.id='largeQRPreviewButton';
+        eye.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Zm13 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/></svg>';
+        eye.addEventListener('click',openLargeQRPreview);toolbar.append(eye);
+      }
       card.append(
         toolbar,
         preview,
@@ -3698,6 +3732,59 @@
       requestAnimationFrame(align);
     }
     document.getElementById("bulkRibbonBtn").parentElement.hidden = true;
+  }
+  function qrShareURL(mode) {
+    const layout = mode === 'bulk' ? bulkLayout : singleLayout;
+    const record = mode === 'bulk' ? loadedData?.[0] : singleRecord();
+    const content = mode === 'bulk' ? record?.URL : qrInput.value.trim();
+    if (!content) return null;
+    const url = new URL(location.href);
+    url.search = ''; url.hash = '';
+    // Only include fields intentionally placed on this Cart, not the whole imported record.
+    for (const key of [...layout.above, ...layout.below]) {
+      if (key.startsWith('heading:') || key.startsWith('custom:') || key === 'date:current' || layout.hiddenFields?.includes(key)) continue;
+      const source = layout.sources?.[key] || key;
+      if (['url','title','subtitle','tab','preview','qrShape','qrFinderShape','qrColor','qrFinderColor','qrTemplate'].includes(source)) continue;
+      url.searchParams.set(source, metricValueFor(record, key, layout));
+    }
+    url.searchParams.set('url', content);
+    for (const [key, param] of [['heading:title','title'],['heading:subtitle','subtitle']]) {
+      if (!layout.hiddenFields?.includes(key)) {
+        const value = metricValueFor(record, key, layout);
+        if (value) url.searchParams.set(param, value);
+      }
+    }
+    const settings = cartAppearance.settings(layout);
+    for (const [param,key] of [['qrShape','shape'],['qrFinderShape','finderShape'],['qrColor','color'],['qrFinderColor','finderColor']])
+      url.searchParams.set(param, settings[key].replace(/^#/, ''));
+    const preset = qrPresets.getEntries().find(entry => entry.id === layout.qrTemplateId);
+    if (preset) url.searchParams.set('qrTemplate', preset.name);
+    url.searchParams.set('preview', '1');
+    return url.href;
+  }
+  async function copyQRLink(mode) {
+    const link = qrShareURL(mode);
+    if (!link) return;
+    try {
+      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(link);
+      else {
+        const field = document.createElement('textarea');
+        field.value = link;field.style.cssText = 'position:fixed;opacity:0;left:0;top:0';
+        const previous = document.activeElement;
+        document.body.append(field);field.select();
+        let copied;
+        try { copied = document.execCommand('copy'); } finally { field.remove();previous?.focus(); }
+        if (!copied) throw new Error('Clipboard unavailable');
+      }
+      toast(t('Link kopiert.'));
+    } catch { toast(t('Der Link konnte nicht kopiert werden. Bitte den Zugriff auf die Zwischenablage erlauben.'), 'warning'); }
+  }
+  function openLargeQRPreview() {
+    let dialog=document.getElementById('largeQRPreview');
+    if(!dialog){dialog=document.createElement('dialog');dialog.id='largeQRPreview';dialog.className='large-qr-preview modal-frame';dialog.innerHTML='<div class="preview-header"><h2></h2><button type="button" class="modal-close">×</button></div><div class="modal-scroll-body"><canvas></canvas></div>';dialog.setAttribute('aria-label',t('QR-Code-Vorschau'));document.body.append(dialog);dialog.querySelector('button').addEventListener('click',()=>dialog.close());}
+    dialog.querySelector('h2').textContent=t('QR-Code-Vorschau');dialog.querySelector('button').setAttribute('aria-label',t('Schliessen'));
+    generateQRCode();const target=dialog.querySelector('canvas');target.width=canvas.width;target.height=canvas.height;target.getContext('2d').drawImage(canvas,0,0);
+    if(!dialog.open)dialog.showModal();
   }
   function openQRSettings(mode = activeMode) {
     cartAppearance.open(mode === "bulk" ? bulkLayout : singleLayout);
@@ -3934,10 +4021,12 @@
 
   const initialTab = new URLSearchParams(location.search).get("tab");
   setImportVisible(
-    ["templates", "carts"].includes(initialTab)
+    new URLSearchParams(location.search).has("url") ? false : ["templates", "carts"].includes(initialTab)
       ? initialTab
       : initialTab === "bulk",
   );
 
+  const largePreviewButton=document.getElementById('largeQRPreviewButton');
+  if(largePreviewButton){largePreviewButton.title=t('QR-Code vergrössern');largePreviewButton.setAttribute('aria-label',largePreviewButton.title);if(new URLSearchParams(location.search).get('preview')!=='0')requestAnimationFrame(openLargeQRPreview);}
   window.QRGenerator["app"] = {};
 })();

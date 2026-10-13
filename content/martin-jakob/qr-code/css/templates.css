@@ -167,31 +167,6 @@
   background: var(--color-danger);
 }
 
-#templateSaveMode {
-  margin: 16px 0 0;
-  padding: 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 7px;
-  text-align: left;
-}
-
-#templateSaveMode legend {
-  font-size: 13px;
-  padding: 0 5px;
-}
-
-#templateSaveMode label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 6px 0;
-}
-
-#templateSaveMode input {
-  margin: 0;
-  flex-shrink: 0;
-}
-
 /* Editable template selectors share the same autosuggest presentation. */
 .template-combo input.template-name-input {
   display: block;

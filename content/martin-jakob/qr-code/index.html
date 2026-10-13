@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QR-Code Generator Plus</title>
+    <script src="js/theme.js?v=20261013-dark-mode"></script>
     <script
       defer
       src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"
@@ -27,35 +28,39 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&amp;family=Merriweather:wght@400;700&amp;family=Montserrat:wght@400;700&amp;family=Open+Sans:wght@400;700&amp;family=Roboto:wght@400;700&amp;family=Source+Sans+3:wght@400;700&amp;display=swap"
     />
-    <link rel="stylesheet" href="styles.css?v=20261013-key-labels" />
-    <script defer src="script.js?v=20261013-key-labels"></script>
-    <script defer src="js/translations.js?v=20261013-key-labels"></script>
-    <script defer src="js/notifications.js?v=20261013-key-labels"></script>
-    <script defer src="js/i18n.js?v=20261013-key-labels"></script>
-    <script defer src="js/logo-crop.js?v=20261013-key-labels"></script>
-    <script defer src="js/qr-renderer.js?v=20261013-key-labels"></script>
-    <script defer src="js/logos.js?v=20261013-key-labels"></script>
-    <script defer src="js/template-combo.js?v=20261013-key-labels"></script>
-    <script defer src="js/template-export.js?v=20261013-key-labels"></script>
-    <script defer src="js/cart-fonts.js?v=20261013-key-labels"></script>
-    <script defer src="js/cart-fields.js?v=20261013-key-labels"></script>
-    <script defer src="js/search-fields.js?v=20261013-key-labels"></script>
-    <script defer src="js/templates.js?v=20261013-key-labels"></script>
-    <script defer src="js/qr-presets.js?v=20261013-key-labels"></script>
-    <script defer src="js/qr-content.js?v=20261013-key-labels"></script>
-    <script defer src="js/cart-appearance.js?v=20261013-key-labels"></script>
+    <link rel="stylesheet" href="styles.css?v=20261013-dark-mode" />
+    <script defer src="script.js?v=20261013-dark-mode"></script>
+    <script defer src="js/translations.js?v=20261013-dark-mode"></script>
+    <script defer src="js/notifications.js?v=20261013-dark-mode"></script>
+    <script defer src="js/i18n.js?v=20261013-dark-mode"></script>
+    <script defer src="js/logo-crop.js?v=20261013-dark-mode"></script>
+    <script defer src="js/qr-renderer.js?v=20261013-dark-mode"></script>
+    <script defer src="js/logos.js?v=20261013-dark-mode"></script>
+    <script defer src="js/template-combo.js?v=20261013-dark-mode"></script>
+    <script defer src="js/template-export.js?v=20261013-dark-mode"></script>
+    <script defer src="js/cart-fonts.js?v=20261013-dark-mode"></script>
+    <script defer src="js/cart-fields.js?v=20261013-dark-mode"></script>
+    <script defer src="js/search-fields.js?v=20261013-dark-mode"></script>
+    <script defer src="js/templates.js?v=20261013-dark-mode"></script>
+    <script defer src="js/qr-presets.js?v=20261013-dark-mode"></script>
+    <script defer src="js/qr-content.js?v=20261013-dark-mode"></script>
+    <script defer src="js/cart-appearance.js?v=20261013-dark-mode"></script>
     <script
       defer
-      src="js/csv-converter.js?v=20261013-key-labels"
+      src="js/csv-converter.js?v=20261013-dark-mode"
     ></script>
-    <script defer src="js/app.js?v=20261013-key-labels"></script>
+    <script defer src="js/app.js?v=20261013-dark-mode"></script>
   </head>
   <body>
     <main class="generator">
       <div class="page-heading">
         <h1 class="page-title">QR-Code Generator Plus</h1>
         <div class="page-utilities">
-          <button id="openCSVConverter" class="converter-link" type="button">CSV → JSON</button>
+          <button id="openCSVConverter" class="converter-link" type="button" hidden>CSV ↔ JSON</button>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Dunkelmodus" aria-pressed="false" title="Dunkelmodus">
+          <svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14A8.5 8.5 0 0 1 10 3.5 8.5 8.5 0 1 0 20.5 14Z"/></svg>
+          <svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
+        </button>
         <div class="language-toggle" role="group" aria-label="Sprache">
           <button
             type="button"
@@ -302,7 +307,7 @@
           <span>oder klicken, um eine Datei auszuwählen</span>
         </div>
 
-        <input type="file" id="fileInput" accept=".json,.csv" hidden />
+        <input type="file" id="fileInput" accept=".json,.csv,.tsv" hidden />
 
         <div id="bulkLoadedContent" hidden>
           <div class="bulk-info-row">

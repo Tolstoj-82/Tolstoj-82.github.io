@@ -66,12 +66,6 @@
   border-radius: 2px;
 }
 
-.qr-settings-end {
-  border: 0;
-  border-top: 1px solid var(--color-border);
-  margin: 16px 0 0;
-}
-
 #qrSettings .appearance-fields {
   margin-top: 20px;
 }
@@ -142,7 +136,6 @@ button.variable-chip:hover {
 }
 
 .variable-chips[hidden],
-.preset-options[hidden],
 #qrSettings[hidden] {
   display: none;
 }
@@ -173,10 +166,6 @@ button.variable-chip:hover {
   color: var(--color-muted);
   font-size: 12px;
   margin-top: 6px;
-}
-
-#qrSettingsControls {
-  min-width: 0;
 }
 
 .template-qr-preview {
@@ -287,20 +276,6 @@ select:focus {
   flex-wrap: wrap;
 }
 
-#contentSnippetCombo {
-  flex: 1 1 200px;
-}
-
-#contentSnippetStatus {
-  font-size: 13px;
-  color: var(--color-danger);
-  font-weight: normal;
-}
-
-#contentSnippetStatus:empty {
-  display: none;
-}
-
 .mode-tabs {
   display: inline-flex;
   flex-wrap: wrap;
@@ -369,17 +344,6 @@ select:focus {
 
 #layoutDialog.inline-template .layout-sheet {
   margin-bottom: 18px;
-}
-
-#editInlineQRBtn {
-  border: 0;
-  padding: 0;
-  background: transparent;
-  margin: 8px auto 14px;
-}
-
-#editInlineQRBtn:hover {
-  outline: 1px solid var(--color-border);
 }
 
 #qrSettings {
@@ -511,11 +475,6 @@ select:focus {
   display: none;
 }
 
-.preview-panel:has(#qrSettings:not([hidden])) > .customize-hint,
-.preview-panel:has(#layoutDialog[open]) > .customize-hint {
-  display: none;
-}
-
 @media (max-width: 520px) {
   .appearance-workbench {
     grid-template-columns: minmax(110px, 0.8fr) minmax(140px, 1fr);
@@ -562,12 +521,6 @@ select:focus {
 .template-card h3 {
   font-size: 15px;
   overflow-wrap: anywhere;
-}
-
-.template-card-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 
 .qr-template-workspace {
