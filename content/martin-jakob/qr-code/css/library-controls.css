@@ -138,7 +138,7 @@
 }
 
 #cartsSection .template-card {
-  align-self: start;
+  align-self: stretch;
 }
 
 #cartsSection .template-card.dragging {
@@ -147,6 +147,10 @@
 
 #cartsSection .template-card .cart-template-choice {
   cursor: grab;
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  box-sizing:border-box;
 }
 
 @media (max-width: 520px) {

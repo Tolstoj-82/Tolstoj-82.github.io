@@ -669,12 +669,12 @@
             layout.labels ||= {};
             const record = {
               URL: DEMO_QR_CONTENT,
-              Titel: kind === "single" ? "title" : "Titel",
-              Untertitel: kind === "single" ? "subtitle" : "Untertitel",
+              Titel: kind === "single" ? "{title}" : "{Titel}",
+              Untertitel: kind === "single" ? "{subtitle}" : "{Untertitel}",
               Metrics: {},
             };
             for (const key of [...layout.above, ...layout.below])
-              record.Metrics[key] = key;
+              record.Metrics[key] = "{" + key + "}";
             record.Raw = Object.fromEntries(
               [
                 ...new Set([
@@ -685,7 +685,7 @@
                 ]),
               ]
                 .filter(Boolean)
-                .map((key) => [key, key]),
+                .map((key) => [key, "{" + key + "}"]),
             );
             result = createLabeledCanvas(
               qr,
@@ -2019,7 +2019,7 @@
         !unused.length ||
         (id === "unusedTemplateParameters" && editorMode !== "single");
       node.textContent = unused.length
-        ? t("Ungenutzte URL-Parameter: ") + unused.join(", ")
+        ? t("Ungenutzte URL-Parameter: ") + unused.map((key) => "{" + key + "}").join(", ")
         : "";
     }
   }
@@ -2109,7 +2109,7 @@
         URL: DEMO_QR_CONTENT,
         Titel: mode === "single" ? "title" : "Titel",
         Untertitel: mode === "single" ? "subtitle" : "Untertitel",
-        Metrics: Object.fromEntries(keys.map((key) => [key, key])),
+        Metrics: Object.fromEntries(keys.map((key) => [key, "{" + key + "}"])),
         Raw: Object.fromEntries(
           [
             ...new Set([
@@ -2120,7 +2120,7 @@
             ]),
           ]
             .filter(Boolean)
-            .map((key) => [key, key]),
+            .map((key) => [key, "{" + key + "}"]),
         ),
       };
       availableMetricKeys = keys;
@@ -2446,7 +2446,7 @@
                   ? t("Titel")
                   : key === "heading:subtitle"
                     ? t("Untertitel")
-                    : key;
+                    : "{" + key + "}";
           option.addEventListener("click", () => {
             if ([...metricLayout.above, ...metricLayout.below].includes(key))
               return;
@@ -2652,7 +2652,7 @@
           const sourceButton = document.createElement("button");
           sourceButton.type = "button";
           sourceButton.className = "metric-source-key";
-          sourceButton.textContent = current || t("Feld auswählen …");
+          sourceButton.textContent = current ? "{" + current + "}" : t("Feld auswählen …");
           sourceButton.title = t("Quellfeld ändern");
           sourceButton.setAttribute("aria-expanded", "false");
           if (heading && editorMode === "bulk")
@@ -2666,7 +2666,7 @@
           const source = document.createElement("select");
           source.setAttribute("aria-label", t("Quellfeld"));
           source.add(new Option(t("Feld auswählen …"), ""));
-          for (const name of keys) source.add(new Option(name, name));
+          for (const name of keys) source.add(new Option("{" + name + "}", name));
           source.value = current;
           source.addEventListener("change", () => {
             (metricLayout.sources ||= {})[key] = source.value;
@@ -2726,7 +2726,7 @@
         const controls = [];
         const refreshStyle = () => {
           const style = metricLayout.styles[key] || {};
-          text.style.fontFamily = metricLayout.font || "Roboto";
+          text.style.fontFamily = '"' + (metricLayout.font || 'Roboto') + '"';
           text.style.fontWeight = style.bold ? "700" : "400";
           text.style.fontSize = style.large ? "17px" : "14px";
           text.style.color = style.black ? "#111" : "#666";
@@ -3391,7 +3391,7 @@
         );
         chip.className =
           "variable-chip" + (used.has(targetKey) ? " is-used" : "");
-        chip.textContent = (used.has(targetKey) ? "✓ " : "+ ") + key;
+        chip.textContent = (used.has(targetKey) ? "✓ " : "+ ") + "{" + key + "}";
         chip.title = t(
           used.has(targetKey) ? "Bereits verwendet" : "Zum Cart hinzufügen",
         );

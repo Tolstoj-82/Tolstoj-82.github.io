@@ -286,7 +286,7 @@
       ]) {
         const option = document.createElement("option");
         option.value = key;
-        option.textContent = label;
+        option.textContent = key.startsWith("field:") ? "{" + label + "}" : label;
         type.append(option);
       }
       type.value = card.kind === "field" ? "field:" + card.value : card.kind;
@@ -352,7 +352,8 @@
       for (const [kind, label] of options) {
         const button = document.createElement("button");
         button.type = "button";
-        button.textContent = label;
+        button.textContent = kind === "field" ? "{" + label + "}" : label;
+        button.className = kind === "field" ? "content-option-field" : "content-option-free";
         button.addEventListener("click", (event) => {
           event.stopPropagation();
           const card = { kind, value: kind === "field" ? label : "" };
@@ -394,7 +395,7 @@
         const button = document.createElement("button");
         button.type = "button";
         button.className = "content-card";
-        button.textContent = card.value || t("Freier Text");
+        button.textContent = card.kind === "field" ? "{" + card.value + "}" : card.value || t("Freier Text");
         button.title = t("Textkarte bearbeiten");
         button.addEventListener("click", (event) => {
           event.stopPropagation();
@@ -663,7 +664,7 @@
         const button = document.createElement("button");
         button.type = "button";
         button.className = "variable-chip";
-        button.textContent = "+ " + key;
+        button.textContent = "+ {" + key + "}";
         button.draggable = true;
         button.addEventListener("dragstart", (event) => {
           event.dataTransfer.setData("application/x-qr-field", key);

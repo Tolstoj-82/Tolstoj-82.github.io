@@ -19,7 +19,7 @@
     function persist(){try{localStorage.setItem(storageKey,JSON.stringify(saved));}catch{window.QRGenerator.notifications.toast(t('Schlüssel konnten nicht gespeichert werden.'),'warning');}}
     function renderSaved(){
       savedHost.replaceChildren();
-      for(const key of saved){const pill=document.createElement('span');pill.className='csv-saved-key';const text=document.createElement('span');text.textContent=key;const remove=document.createElement('button');remove.type='button';remove.className='saved-logo-delete';remove.setAttribute('aria-label',t('Schlüssel löschen: ')+key);remove.addEventListener('click',async()=>{if(!await confirmDeletion(key,{kind:'data'}))return;saved=saved.filter(item=>item!==key);persist();renderSaved();updateSuggestions();});pill.append(text,remove);savedHost.append(pill);}
+      for(const key of saved){const pill=document.createElement('span');pill.className='csv-saved-key';const text=document.createElement('span');text.textContent="{"+key+"}";const remove=document.createElement('button');remove.type='button';remove.className='saved-logo-delete';remove.setAttribute('aria-label',t('Schlüssel löschen: ')+key);remove.addEventListener('click',async()=>{if(!await confirmDeletion(key,{kind:'data'}))return;saved=saved.filter(item=>item!==key);persist();renderSaved();updateSuggestions();});pill.append(text,remove);savedHost.append(pill);}
       if(!saved.length)savedHost.textContent=t('Noch keine gespeicherten Schlüssel.');
     }
     const suggestions=document.createElement('datalist');suggestions.id='csvKeySuggestions';dialog.append(suggestions);
@@ -33,7 +33,7 @@
       list.replaceChildren();
       for(const column of columns){
         const row=document.createElement('div');row.className='csv-column';
-        const include=document.createElement('label');const check=document.createElement('input');check.type='checkbox';check.checked=column.enabled;include.append(check,document.createTextNode(column.key));
+        const include=document.createElement('label');const check=document.createElement('input');check.type='checkbox';check.checked=column.enabled;include.append(check,document.createTextNode("{"+column.key+"}"));
         const name=document.createElement('input');name.type='text';name.value=column.name;name.maxLength=200;name.setAttribute('list','csvKeySuggestions');name.setAttribute('aria-label',t('JSON-Schlüssel für ')+column.key);
         const sample=document.createElement('small');sample.textContent=String(records[0]?.[column.key]??'');sample.title=sample.textContent;
         check.addEventListener('change',()=>{column.enabled=check.checked;name.disabled=!check.checked;refresh();});name.addEventListener('input',()=>{column.name=name.value;refresh();});row.append(include,name,sample);list.append(row);
