@@ -1699,12 +1699,19 @@ function searchAndSelectCell() {
 // Checksums
 function updateChecksums(updateInRom) {
   let headerChecksum = 0;
-  const hexValueCellElements = document.querySelectorAll('.hexValueCell');
+  const hexValueCellElements = document.querySelectorAll('#hexViewer .hexValueCell');
+  const readByte = element => {
+    const value = isProtectedRomAddress(element.id)
+      ? element.getAttribute('data-original-value') || element.textContent
+      : element.textContent.trim() || element.getAttribute('data-previous-value');
+    return parseInt(value, 16);
+  };
 
   hexValueCellElements.forEach(element => {
-    const hexValue = parseInt(element.textContent.trim(), 16);
+    const hexValue = readByte(element);
     if (!isNaN(hexValue)) {
-      if (element.id >= '0134' && element.id <= '014C') { // ignore the global checksum addresses for the header checksum
+      const address = parseInt(element.id, 16);
+      if (address >= 0x0134 && address <= 0x014C) {
         headerChecksum -= hexValue + 1;
       }
     }
@@ -1718,7 +1725,8 @@ function updateChecksums(updateInRom) {
   let globalChecksum = 0;
 
   hexValueCellElements.forEach(element => {
-    const hexValue = parseInt(element.textContent.trim(), 16);
+    // Include the newly calculated header checksum when writing the ROM.
+    const hexValue = updateInRom && element.id === '014D' ? headerChecksum : readByte(element);
     if (!isNaN(hexValue)) {
       if (element.id !== '014E' && element.id !== '014F') {
         globalChecksum += hexValue;
@@ -1953,6 +1961,7 @@ async function validateFile(selectedFiles) {
   }
 
   function createFileFromHexData() {
+    updateChecksums(true);
     const table = document.getElementById('hexViewer');
     const rows = table.rows;
 
