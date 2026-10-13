@@ -8,6 +8,12 @@
     "Montserrat",
     "Source Sans 3",
     "Merriweather",
+    "Inter",
+    "Nunito Sans",
+    "Noto Sans",
+    "PT Sans",
+    "Libre Baskerville",
+    "Roboto Slab",
   ];
   const supported = [
     ...fonts,

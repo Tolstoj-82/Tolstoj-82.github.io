@@ -78,3 +78,16 @@ button.font-picker-toggle { display:block;position:relative;width:100%;margin:0;
 }
 #cartsSection .cart-template-choice h3,.template-suggestions,.csv-preview-label { text-align:left; }
 .metric-row .metric-content .metric-value { text-align:left; }
+/* Keep each navigation group intact when there is no room for one bar. */
+@media (max-width: 640px) {
+  .mode-tabs { display:flex;flex-wrap:wrap;width:100%;gap:12px;padding:0;border:0;background:transparent; }
+  .mode-tabs .mode-tab-group { flex:1 1 220px;display:flex;gap:4px;padding:25px 5px 5px;border:1px solid var(--color-border);border-radius:10px;background:var(--color-page); }
+  .mode-tabs .mode-tab-group + .mode-tab-group { padding-left:5px;border-left:1px solid var(--color-border); }
+  .mode-tabs .tab-group-label, .mode-tabs .mode-tab-group + .mode-tab-group .tab-group-label { left:12px;top:6px; }
+  .mode-tabs .mode-tab-group button { flex:1;min-width:0;white-space:normal; }
+}
+/* Match the exported corner triangle, including its proportions and text position. */
+.layout-sheet { border-radius:0; }
+.ribbon-corner { width:13%;height:auto;aspect-ratio:1;container-type:inline-size;border-radius:0; }
+#layoutRibbon { inset:0;width:100%;height:100%;transform:none;clip-path:polygon(0 0,100% 0,0 100%); }
+#layoutRibbon span { position:absolute;left:32%;top:32%;transform:translate(-50%,-50%) rotate(-45deg);font:bold 12px/1 Arial,sans-serif;font-size:21.538cqw;white-space:nowrap;color:var(--color-paper); }

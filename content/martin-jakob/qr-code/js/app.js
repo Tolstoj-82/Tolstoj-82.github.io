@@ -60,23 +60,24 @@
 
   const DEMO_QR_CONTENT =
     "https://tolstoj-82.github.io/content/martin-jakob/qr-code/index.html";
-  let clearedDefaultURL = false;
-  qrInput.addEventListener("click", () => {
-    if (qrInput.value !== DEMO_QR_CONTENT) return;
-    clearedDefaultURL = true;
-    qrInput.value = "";
-    generateQRCode();
-  });
-  qrInput.addEventListener("input", () => {
-    clearedDefaultURL = false;
-  });
-  qrInput.addEventListener("blur", () => {
-    if (clearedDefaultURL && qrInput.value === "") {
-      qrInput.value = DEMO_QR_CONTENT;
-      generateQRCode();
-    }
-    clearedDefaultURL = false;
-  });
+  function useDefaultContentBehavior(input, refresh) {
+    let clearedDefault = false;
+    input.addEventListener('click', () => {
+      if (input.value !== DEMO_QR_CONTENT) return;
+      input.value = '';
+      refresh();
+      clearedDefault = true;
+    });
+    input.addEventListener('input', () => { clearedDefault = false; });
+    input.addEventListener('blur', () => {
+      if (clearedDefault && input.value === '') {
+        input.value = DEMO_QR_CONTENT;
+        refresh();
+      }
+      clearedDefault = false;
+    });
+  }
+  useDefaultContentBehavior(qrInput, generateQRCode);
   let templateTestContent = DEMO_QR_CONTENT;
   let activeMode = "single";
   let galleryVersion = 0;
@@ -375,6 +376,7 @@
           }
         }, 180);
       });
+      useDefaultContentBehavior(input, () => input.dispatchEvent(new Event('input')));
       testGroup.append(label, input, error);
       panel.querySelector(".appearance-workbench").prepend(testGroup);
     }
@@ -1606,7 +1608,9 @@
     const ribbon = document.getElementById("layoutRibbon");
     const match = matchingRibbon(layoutSample?.URL, metricLayout);
     const fallback = metricLayout.ribbon.rules[0];
-    ribbon.textContent = match?.text || fallback?.text || "+";
+    const ribbonText = document.createElement('span');
+    ribbonText.textContent = match?.text || fallback?.text || '+';
+    ribbon.replaceChildren(ribbonText);
     ribbon.style.backgroundColor = match?.color || fallback?.color || "#888888";
     ribbon.hidden = false;
     ribbon.classList.toggle("inactive", !match);

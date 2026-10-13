@@ -39,6 +39,18 @@ input::placeholder, textarea::placeholder { color: var(--color-muted); opacity: 
 /* Canvas colors, logo thumbnails and crop handles must remain independent of the UI. */
 canvas { color-scheme: light; }
 .saved-logo img { background: var(--color-paper); }
-.crop-selection { border-color: var(--color-paper); }
+#cropSelection { border-color: var(--color-paper); }
 .test-ribbon { color: var(--color-paper); }
 [data-theme="dark"] .toast { border-color: var(--color-border); }
+
+/* Apply one timing to all interface colors only while changing theme. */
+:root.theme-changing, :root.theme-changing *, :root.theme-changing *::before,
+:root.theme-changing *::after, :root.theme-changing dialog::backdrop {
+  transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease,
+    outline-color 220ms ease, box-shadow 220ms ease, fill 220ms ease, stroke 220ms ease !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root.theme-changing, :root.theme-changing *, :root.theme-changing *::before,
+  :root.theme-changing *::after, :root.theme-changing dialog::backdrop { transition: none !important; }
+}
+.crop-handle { background: var(--color-paper); }

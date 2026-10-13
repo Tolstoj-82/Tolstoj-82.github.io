@@ -73,7 +73,7 @@
         String(button.dataset.language === language),
       );
     if (!new URLSearchParams(location.search).get("title"))
-      document.title = t("QR-Code Generator Plus");
+      document.title = t("QR-Coder");
   }
 
   function setLanguage(value) {

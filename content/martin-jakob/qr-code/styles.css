@@ -1,23 +1,23 @@
 /* Style entry point; keep this order for shared component defaults. */
-@import url("./css/tokens.css?v=20261013-dark-mode");
-@import url("./css/base.css?v=20261013-dark-mode");
-@import url("./css/generator.css?v=20261013-dark-mode");
-@import url("./css/dialogs.css?v=20261013-dark-mode");
-@import url("./css/editor.css?v=20261013-dark-mode");
-@import url("./css/logos.css?v=20261013-dark-mode");
-@import url("./css/templates.css?v=20261013-dark-mode");
-@import url("./css/presets.css?v=20261013-dark-mode");
+@import url("./css/tokens.css?v=20261014-ui");
+@import url("./css/base.css?v=20261014-ui");
+@import url("./css/generator.css?v=20261014-ui");
+@import url("./css/dialogs.css?v=20261014-ui");
+@import url("./css/editor.css?v=20261014-ui");
+@import url("./css/logos.css?v=20261014-ui");
+@import url("./css/templates.css?v=20261014-ui");
+@import url("./css/presets.css?v=20261014-ui");
 
-@import url("./css/buttons.css?v=20261013-dark-mode");
+@import url("./css/buttons.css?v=20261014-ui");
 
-@import url("css/cart-appearance.css?v=20261013-dark-mode");
-@import url("./css/typography.css?v=20261013-dark-mode");
-@import url("./css/cart-actions.css?v=20261013-dark-mode");
+@import url("css/cart-appearance.css?v=20261014-ui");
+@import url("./css/typography.css?v=20261014-ui");
+@import url("./css/cart-actions.css?v=20261014-ui");
 
-@import url("./css/template-export.css?v=20261013-dark-mode");
+@import url("./css/template-export.css?v=20261014-ui");
 
-@import url("./css/library-controls.css?v=20261013-dark-mode");
+@import url("./css/library-controls.css?v=20261014-ui");
 
-@import url("./css/compact-editor.css?v=20261013-dark-mode");
+@import url("./css/compact-editor.css?v=20261014-ui");
 
-@import url("./css/theme.css?v=20261013-dark-mode");
+@import url("./css/theme.css?v=20261014-ui");

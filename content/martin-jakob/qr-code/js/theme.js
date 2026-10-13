@@ -8,8 +8,16 @@
     const saved = localStorage.getItem(storageKey);
     if (saved === "light" || saved === "dark") preference = saved;
   } catch { /* The theme also works without browser storage. */ }
+  let transitionTimer;
   function apply() {
-    root.dataset.theme = preference || (system.matches ? "dark" : "light");
+    const next = preference || (system.matches ? "dark" : "light");
+    if (root.dataset.theme && root.dataset.theme !== next) {
+      clearTimeout(transitionTimer);
+      root.classList.add('theme-changing');
+      void root.offsetWidth;
+      transitionTimer = setTimeout(() => root.classList.remove('theme-changing'), 260);
+    }
+    root.dataset.theme = next;
     const button = document.getElementById("themeToggle");
     if (!button) return;
     const label = root.lang === "en" ? "Dark mode" : "Dunkelmodus";

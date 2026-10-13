@@ -1,4 +1,4 @@
-# QR-Code Generator Plus
+# QR-Coder
 
 Static website: open index.html directly or serve this directory over HTTP(S).
 No build step is required. Deferred feature scripts load in the order listed in
@@ -69,7 +69,8 @@ Tilted squares use deterministic angles within +/-6 degrees
 so previews and exports share the same appearance.
 
 Cart fonts include Roboto, Open Sans, Lato, Montserrat, Source Sans 3 and
-Merriweather, loaded through the Google Fonts CSS2 API. PNG rendering waits for
+Merriweather, Inter, Nunito Sans, Noto Sans, PT Sans, Libre Baskerville and
+Roboto Slab, loaded through the Google Fonts CSS2 API. PNG rendering waits for
 the selected font; SVG exports embed its font files (cached for the session).
 An internet connection is needed for the initial font download. Existing
 templates using system fonts continue to work.
@@ -115,3 +116,7 @@ visible title/subtitle, displayed source fields and QR appearance parameters.
 Only fields placed on the Cart are included, not the full imported record.
 Logo/template references require the same locally saved QR template in the
 receiving browser; the link does not embed image data or a complete Cart layout.
+
+The header theme toggle follows the system preference until a light/dark choice
+is saved locally. Theme changes use a shared 220 ms color transition and respect
+reduced-motion settings. QR artwork and exported colors are independent of the UI theme.

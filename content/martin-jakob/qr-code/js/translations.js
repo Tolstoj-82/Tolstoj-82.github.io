@@ -159,7 +159,7 @@
     "Eckband verschieben": "Move ribbon",
     "Eckband entfernen": "Remove ribbon",
     "Speicher voll: Bitte zuerst ein Logo löschen.": "Gallery full: please delete a logo first.",
-    "QR-Code Generator Plus": "QR Code Generator Plus",
+    "QR-Coder": "QR Code Generator Plus",
     "QR-Code gestalten": "Customize QR code",
     "Adresse oder Text": "URL or text",
     "Adresse oder Text eingeben …": "Enter a URL or text …",
