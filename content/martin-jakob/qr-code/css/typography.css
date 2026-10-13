@@ -4,11 +4,15 @@
 .inline-editor-heading h2,
 #templatesSection h2,
 #cartsSection h2 {
-  font-size:var(--font-ui-heading);
-  font-weight:var(--font-weight-label);
-  line-height:1.3;
+  font-size: var(--font-ui-heading);
+  font-weight: var(--font-weight-label);
+  line-height: 1.3;
 }
-.preview-header h2 { margin:0; }
+
+.preview-header h2 {
+  margin: 0;
+}
+
 .template-library > label,
 #templatesSection .template-library > label,
 .settings-panel label,
@@ -20,27 +24,33 @@
 .single-download > label,
 .export-format > label,
 #qrContentEditor > summary {
-  font-size:var(--font-ui-label);
-  font-weight:var(--font-weight-label);
-  line-height:var(--line-height-ui);
+  font-size: var(--font-ui-label);
+  font-weight: var(--font-weight-label);
+  line-height: var(--line-height-ui);
 }
-#cartAppearance > label { display:block;margin:0 0 6px; }
+
+#cartAppearance > label {
+  display: block;
+  margin: 0 0 6px;
+}
+
 .template-library input,
 .template-library select,
 .shape-color select,
 #cartQRTemplate {
-  font-family:inherit;
-  font-size:var(--font-ui-small);
-  font-weight:400;
-  line-height:var(--line-height-ui);
+  font-family: inherit;
+  font-size: var(--font-ui-small);
+  font-weight: 400;
+  line-height: var(--line-height-ui);
 }
+
 .customize-hint,
 .ribbon-help,
 .template-library > p,
 .template-test-content p,
 .preview-option,
 .cart-qr-help {
-  font-size:var(--font-ui-small);
-  font-weight:400;
-  line-height:var(--line-height-ui);
+  font-size: var(--font-ui-small);
+  font-weight: 400;
+  line-height: var(--line-height-ui);
 }

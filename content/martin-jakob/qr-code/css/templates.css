@@ -194,22 +194,57 @@
 
 /* Editable template selectors share the same autosuggest presentation. */
 .template-combo input.template-name-input {
-  display: block; width: 100%; min-height: 38px; margin: 0;
-  padding: 8px 38px 8px 12px; font: inherit; font-size: 13px;
-  background: var(--color-surface); color: var(--color-text);
-  border: 1px solid var(--color-border); border-radius: 5px;
+  display: block;
+  width: 100%;
+  min-height: 38px;
+  margin: 0;
+  padding: 8px 38px 8px 12px;
+  font: inherit;
+  font-size: 13px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
 }
-.template-combo input.template-name-input[aria-expanded="true"] { border-radius: 5px 5px 0 0; }
+
+.template-combo input.template-name-input[aria-expanded="true"] {
+  border-radius: 5px 5px 0 0;
+}
+
 .template-combo .template-dropdown-toggle {
-  position: absolute; right: 1px; top: 1px; bottom: 1px; width: 34px;
-  display: grid; place-items: center; padding: 0; margin: 0;
-  background: transparent; color: var(--color-text); border: 0;
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  width: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: var(--color-text);
+  border: 0;
 }
-.template-combo .template-dropdown-toggle:hover { background: var(--color-page); }
+
+.template-combo .template-dropdown-toggle:hover {
+  background: var(--color-page);
+}
+
 .template-suggestions {
-  position: absolute; top: 100%; left: 0; right: 0; z-index: 35;
-  max-height: 240px; overflow-y: auto; border: 1px solid var(--color-border);
-  border-top: 0; border-radius: 0 0 5px 5px; background: var(--color-surface);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 35;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-top: 0;
+  border-radius: 0 0 5px 5px;
+  background: var(--color-surface);
   box-shadow: 0 5px 12px color-mix(in srgb, var(--color-ink) 13%, transparent);
 }
-#qrPresetControls > p:empty { display: none; }
+
+#qrPresetControls > p:empty {
+  display: none;
+}

@@ -63,8 +63,6 @@
   outline-offset: 2px;
 }
 
-
-
 #toggleImportBtn:focus-visible {
   outline: 2px solid var(--color-muted);
   outline-offset: 3px;
@@ -457,7 +455,8 @@
   font-size: 16px;
   font-weight: 600;
   text-align: left;
-  transition: background 0.2s,
+  transition:
+    background 0.2s,
     border-color 0.2s;
 }
 
@@ -476,7 +475,8 @@
   font-size: 16px;
   font-weight: 600;
   text-align: left;
-  transition: background 0.2s,
+  transition:
+    background 0.2s,
     border-color 0.2s;
 }
 
@@ -533,7 +533,8 @@
   height: 2px;
   background: currentColor;
   border-radius: 2px;
-  transition: transform 0.2s,
+  transition:
+    transform 0.2s,
     opacity 0.2s;
 }
 
@@ -546,7 +547,8 @@
   height: 2px;
   background: currentColor;
   border-radius: 2px;
-  transition: transform 0.2s,
+  transition:
+    transform 0.2s,
     opacity 0.2s;
   transform: rotate(90deg);
 }
@@ -687,7 +689,8 @@
   position: relative;
   cursor: pointer;
   margin: 0;
-  transition: background 0.2s,
+  transition:
+    background 0.2s,
     border-color 0.2s;
   box-sizing: border-box;
 }
@@ -754,7 +757,8 @@
 
 .single-preview-button:hover {
   background: var(--color-surface);
-  outline: 2px solid color-mix(in srgb, var(--color-muted) 22%, var(--color-surface));
+  outline: 2px solid
+    color-mix(in srgb, var(--color-muted) 22%, var(--color-surface));
 }
 
 .single-preview-button:focus-visible {
@@ -812,7 +816,8 @@
   font-weight: normal;
   color: var(--color-accent);
   background: var(--color-page);
-  border: 1px solid color-mix(in srgb, var(--color-accent) 22%, var(--color-surface));
+  border: 1px solid
+    color-mix(in srgb, var(--color-accent) 22%, var(--color-surface));
   border-radius: 7px;
   padding: 12px 14px;
   overflow-wrap: anywhere;
@@ -830,7 +835,8 @@
   border-radius: 50%;
   background: var(--color-accent);
   color: var(--color-surface);
-  font: bold 12px Georgia,
+  font:
+    bold 12px Georgia,
     serif;
 }
 

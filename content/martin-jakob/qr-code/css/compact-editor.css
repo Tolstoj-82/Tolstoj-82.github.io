@@ -1,0 +1,39 @@
+.mode-tabs { align-items:stretch;gap:14px;padding:8px 12px; }
+.mode-tab-group { display:flex;align-items:center;gap:4px;position:relative;padding-top:19px; }
+.mode-tab-group + .mode-tab-group { border-left:1px solid var(--color-border);padding-left:14px; }
+.tab-group-label { position:absolute;top:0;left:8px;font-size:11px;line-height:1.3;color:var(--color-muted); }
+.mode-tab-group + .mode-tab-group .tab-group-label { left:22px; }
+.page-utilities { display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap; }
+button.converter-link { margin:0;padding:6px 4px;border:0;border-radius:4px;background:transparent;color:var(--color-muted);font:inherit;font-size:12px;white-space:nowrap;cursor:pointer; }
+button.converter-link:hover { background:var(--color-page);color:var(--color-text); }
+button.converter-link:focus-visible { outline:2px solid var(--color-muted);outline-offset:2px; }
+.cart-field-settings,#cartQROptions[open] > #cartQRSettingsSlot,#qrSettings,.variable-chips { border:1px solid var(--color-border); }
+.metric-row { padding:6px 8px;gap:6px; }
+.metric-row .metric-content { position:relative;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px 6px; }
+.metric-row .metric-label { padding:2px 4px; }
+.metric-source-wrap { position:relative;display:inline-flex;max-width:100%; }
+.metric-row .metric-source-key { width:auto;height:auto;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:400 11px/1.4 Arial,sans-serif;padding:2px 6px;margin:0;border:1px solid var(--color-border);border-radius:4px;background:var(--color-page);color:var(--color-muted); }
+.metric-source-key:hover { color:var(--color-text)!important;border-color:var(--color-muted)!important; }
+.metric-source-menu { position:absolute;top:100%;left:0;z-index:30;min-width:190px;max-width:calc(100vw - 100px);padding:8px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:5px;box-shadow:0 4px 12px #0002; }
+.metric-source-menu select { width:100%;min-width:0;margin:0;font:400 13px/1.5 Arial,sans-serif; }
+.metric-visibility { margin:0 5px 0 0!important; }
+.metric-visibility input { flex:0 0 32px;width:32px;height:20px; }
+.metric-visibility input::after { width:14px;height:14px;top:2px;left:2px; }
+.metric-visibility input:checked::after { transform:translateX(12px); }
+.csv-converter-dialog { width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 32px);padding:0;border:0;border-radius:10px;overflow:hidden; }
+.csv-converter-dialog > .preview-header { margin:0;padding:18px 22px;background:var(--color-surface);border-bottom:1px solid var(--color-border); }
+.csv-converter-dialog::backdrop { background:color-mix(in srgb,var(--color-ink) 45%,transparent); }
+.csv-drop-zone { display:block;padding:24px;text-align:center;border:2px dashed var(--color-border);border-radius:8px;cursor:pointer; }
+.csv-drop-zone:hover,.csv-drop-zone.dragover { background:var(--color-page); }
+.csv-column { display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--color-border); }
+.csv-column label { display:flex;align-items:center;gap:8px;margin:0;overflow-wrap:anywhere; }
+.csv-column input[type="text"] { margin:0;min-width:0;width:100%;box-sizing:border-box; }
+.csv-column small { overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--color-muted); }
+.csv-saved-keys { margin-top:16px;border:1px solid var(--color-border);border-radius:6px;background:var(--color-page);padding:10px; }
+.csv-saved-keys summary { cursor:pointer;font-size:var(--font-ui-label); }
+.csv-saved-keys > div { display:flex;gap:14px;flex-wrap:wrap;padding-top:14px; }
+.csv-saved-key { position:relative;padding:5px 10px;border:1px solid var(--color-border);border-radius:5px;background:var(--color-surface);font-size:13px;overflow-wrap:anywhere; }
+.csv-error { color:var(--color-danger);font-weight:400; }
+.csv-json-preview { white-space:pre-wrap;overflow-wrap:anywhere;max-height:240px;overflow:auto;background:var(--color-page);border:1px solid var(--color-border);border-radius:6px;padding:12px;font-size:12px; }
+.csv-file-info,.csv-preview-label { font-size:var(--font-ui-small);font-weight:400;color:var(--color-muted); }
+@media(max-width:560px){.mode-tabs{gap:6px;padding:6px;flex-wrap:wrap;}.mode-tabs button{padding:7px 9px;}.mode-tab-group+.mode-tab-group{padding-left:8px;}.csv-column{grid-template-columns:1fr 1fr;}.csv-column small{grid-column:1/-1;}.metric-row .metric-content{flex-basis:50%;}}

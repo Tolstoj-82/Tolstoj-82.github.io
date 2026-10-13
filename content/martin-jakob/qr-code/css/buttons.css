@@ -18,38 +18,64 @@ button.action-button {
   text-align: center;
   white-space: normal;
   cursor: pointer;
-  transition: background 140ms, border-color 140ms, color 140ms;
+  transition:
+    background 140ms,
+    border-color 140ms,
+    color 140ms;
 }
+
 button.action-button:hover {
   background: color-mix(in srgb, var(--color-accent) 85%, var(--color-ink));
   border-color: color-mix(in srgb, var(--color-accent) 85%, var(--color-ink));
 }
+
 button.action-button.secondary {
   background: var(--color-surface);
   color: var(--color-text);
   border-color: var(--color-muted);
 }
+
 button.action-button.secondary:hover {
   background: var(--color-text);
   color: var(--color-surface);
   border-color: var(--color-text);
 }
+
 button.action-button:disabled {
   background: var(--color-page);
   color: var(--color-muted);
   border-color: var(--color-border);
   cursor: not-allowed;
 }
+
 button.action-button:focus-visible {
   outline: 2px solid var(--color-muted);
   outline-offset: 3px;
 }
+
 #confirmDeleteBtn:disabled {
   color: var(--color-muted);
   background: var(--color-page);
   cursor: not-allowed;
 }
-#deleteLogoUsage { text-align: left; }
-#deleteLogoUsage ul { padding-left: 22px; overflow-wrap: anywhere; }
-#deleteLogoUsage .delete-acknowledgement { display: flex; align-items: center; gap: 8px; margin: 16px 0; }
-#deleteLogoAcknowledgement { margin: 0; accent-color: var(--color-text); }
+
+#deleteLogoUsage {
+  text-align: left;
+}
+
+#deleteLogoUsage ul {
+  padding-left: 22px;
+  overflow-wrap: anywhere;
+}
+
+#deleteLogoUsage .delete-acknowledgement {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+#deleteLogoAcknowledgement {
+  margin: 0;
+  accent-color: var(--color-text);
+}

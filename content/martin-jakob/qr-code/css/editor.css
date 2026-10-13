@@ -325,7 +325,8 @@
   width: 100px;
   transform: rotate(-45deg);
   color: var(--color-surface);
-  font: bold 12px/24px Arial,
+  font:
+    bold 12px/24px Arial,
     sans-serif;
   text-align: center;
   pointer-events: none;
@@ -346,7 +347,8 @@
 
 .qr-edit-button:hover {
   background: var(--color-surface);
-  outline: 2px solid color-mix(in srgb, var(--color-muted) 22%, var(--color-surface));
+  outline: 2px solid
+    color-mix(in srgb, var(--color-muted) 22%, var(--color-surface));
 }
 
 #layoutQR {
@@ -396,13 +398,15 @@
   min-height: 0;
   font-size: 12px;
   cursor: pointer;
-  transition: filter 0.15s,
+  transition:
+    filter 0.15s,
     opacity 0.15s;
 }
 
 #layoutRibbon:hover {
   filter: brightness(1.2);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-surface) 53%, transparent);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--color-surface) 53%, transparent);
 }
 
 #layoutRibbon.inactive {
@@ -432,7 +436,8 @@
   position: relative;
   cursor: pointer;
   margin: 0;
-  transition: background 0.2s,
+  transition:
+    background 0.2s,
     border-color 0.2s;
   box-sizing: border-box;
 }
@@ -484,20 +489,25 @@
 }
 
 .metric-toolbar .metric-date-format {
-  width:auto;
-  max-width:150px;
-  min-height:28px;
-  margin:0 4px;
-  padding:3px 6px;
-  border:1px solid var(--color-border);
-  border-radius:5px;
-  background:var(--color-surface);
-  color:var(--color-text);
-  font-family:inherit;
-  font-size:var(--font-ui-small);
+  width: auto;
+  max-width: 150px;
+  min-height: 28px;
+  margin: 0 4px;
+  padding: 3px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-ui-small);
 }
-.metric-row:has(.metric-date-format) { flex-wrap:wrap; }
-.metric-toolbar:has(.metric-date-format) { flex-wrap:wrap;flex-shrink:1; }
+.metric-row:has(.metric-date-format) {
+  flex-wrap: wrap;
+}
+.metric-toolbar:has(.metric-date-format) {
+  flex-wrap: wrap;
+  flex-shrink: 1;
+}
 
 .metric-toolbar .metric-format {
   display: inline-flex;

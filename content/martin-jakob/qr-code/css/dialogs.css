@@ -1,5 +1,9 @@
 /* dialogs styles. Shared colors are defined in tokens.css. */
-@supports not (scrollbar-gutter: stable) {html {overflow-y: scroll;}}
+@supports not (scrollbar-gutter: stable) {
+  html {
+    overflow-y: scroll;
+  }
+}
 
 #bulkPreview {
   box-sizing: border-box;
@@ -293,7 +297,8 @@
   transform: translate(-50%, 18px) scale(0.96);
   overflow: hidden;
   pointer-events: none;
-  transition: opacity 0.3s ease,
+  transition:
+    opacity 0.3s ease,
     transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   background: var(--color-page);
   color: var(--color-success);
@@ -316,7 +321,11 @@
 }
 
 .toast.warning {
-  background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface));
+  background: color-mix(
+    in srgb,
+    var(--color-warning) 12%,
+    var(--color-surface)
+  );
   color: var(--color-warning);
   --toast-accent: var(--color-warning);
 }
@@ -355,9 +364,13 @@
   animation: toast-progress 3500ms linear forwards;
 }
 
-@keyframes toast-progress { 
-  from {transform: scaleX(1);} 
-  to {transform: scaleX(0);} 
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -447,4 +460,3 @@
   border-radius: 12px;
   width: min(620px, calc(100vw - 32px));
 }
-

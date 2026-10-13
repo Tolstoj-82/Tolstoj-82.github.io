@@ -1,293 +1,993 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QR-Code Generator Plus</title>
-    <script defer src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-    
-    <link rel="stylesheet" href="styles.css?v=20261012-export-picker" />
-    <script defer src="script.js?v=20261012-export-picker"></script>
-    <script defer src="js/translations.js?v=20261012-export-picker"></script>
-    <script defer src="js/notifications.js?v=20261012-export-picker"></script>
-    <script defer src="js/i18n.js?v=20261012-export-picker"></script>
-    <script defer src="js/logo-crop.js?v=20261012-export-picker"></script>
-    <script defer src="js/qr-renderer.js?v=20261012-export-picker"></script>
-    <script defer src="js/logos.js?v=20261012-export-picker"></script>
-    <script defer src="js/template-combo.js?v=20261012-export-picker"></script>
-    <script defer src="js/template-export.js?v=20261012-export-picker"></script>
-    <script defer src="js/templates.js?v=20261012-export-picker"></script>
-    <script defer src="js/qr-presets.js?v=20261012-export-picker"></script>
-    <script defer src="js/qr-content.js?v=20261012-export-picker"></script>
-    <script defer src="js/cart-appearance.js?v=20261012-export-picker"></script>
-    <script defer src="js/app.js?v=20261012-export-picker"></script>
-    
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"
+    ></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&amp;family=Merriweather:wght@400;700&amp;family=Montserrat:wght@400;700&amp;family=Open+Sans:wght@400;700&amp;family=Roboto:wght@400;700&amp;family=Source+Sans+3:wght@400;700&amp;display=swap"
+    />
+    <link rel="stylesheet" href="styles.css?v=20261013-header-converter" />
+    <script defer src="script.js?v=20261013-header-converter"></script>
+    <script defer src="js/translations.js?v=20261013-header-converter"></script>
+    <script defer src="js/notifications.js?v=20261013-header-converter"></script>
+    <script defer src="js/i18n.js?v=20261013-header-converter"></script>
+    <script defer src="js/logo-crop.js?v=20261013-header-converter"></script>
+    <script defer src="js/qr-renderer.js?v=20261013-header-converter"></script>
+    <script defer src="js/logos.js?v=20261013-header-converter"></script>
+    <script defer src="js/template-combo.js?v=20261013-header-converter"></script>
+    <script defer src="js/template-export.js?v=20261013-header-converter"></script>
+    <script defer src="js/cart-fonts.js?v=20261013-header-converter"></script>
+    <script defer src="js/cart-fields.js?v=20261013-header-converter"></script>
+    <script defer src="js/search-fields.js?v=20261013-header-converter"></script>
+    <script defer src="js/templates.js?v=20261013-header-converter"></script>
+    <script defer src="js/qr-presets.js?v=20261013-header-converter"></script>
+    <script defer src="js/qr-content.js?v=20261013-header-converter"></script>
+    <script defer src="js/cart-appearance.js?v=20261013-header-converter"></script>
+    <script
+      defer
+      src="js/csv-converter.js?v=20261013-header-converter"
+    ></script>
+    <script defer src="js/app.js?v=20261013-header-converter"></script>
   </head>
   <body>
     <main class="generator">
-    <div class="page-heading"><h1 class="page-title">QR-Code Generator Plus</h1><div class="language-toggle" role="group" aria-label="Sprache"><button type="button" data-language="de" lang="de" aria-pressed="true">Deutsch</button><button type="button" data-language="en" lang="en" aria-pressed="false">English</button></div></div>
-    <div class="mode-tabs" role="tablist" aria-label="QR-Code-Modus"><button id="toggleSingleBtn" type="button" role="tab" aria-selected="true" aria-controls="singleSection">Einzelner QR-Code</button><button id="toggleImportBtn" type="button" role="tab" aria-selected="false" aria-controls="bulkImport" tabindex="-1">Massenexport</button><button id="toggleTemplatesBtn" type="button" role="tab" aria-selected="false" aria-controls="templatesSection" tabindex="-1">QR</button><button id="toggleCartsBtn" type="button" role="tab" aria-selected="false" aria-controls="cartsSection" tabindex="-1">Carts</button></div>
-    <section id="templatesSection" role="tabpanel" aria-labelledby="toggleTemplatesBtn" hidden></section>
-    <section id="cartsSection" role="tabpanel" aria-labelledby="toggleCartsBtn" hidden></section>
-    <div id="singleSection" role="tabpanel" aria-labelledby="toggleSingleBtn">
-    <section class="settings-panel" aria-label="QR-Code gestalten">
-    <div class="address-field">
-      <label for="qrInput">Adresse oder Text</label>
-      <input
-        type="text"
-        id="qrInput"
-        placeholder="Adresse oder Text eingeben …"
-      />
-    </div>
-    <div class="appearance-fields">
-    <div class="appearance-field">
-      <label for="shapeSelect">QR-Code</label>
-      <div class="shape-color">
-      <select id="shapeSelect">
-        <option value="square">Eckig</option>
-        <option value="tilted">Leicht gedrehte Quadrate</option>
-        <option value="circle">Rund</option>
-        <option value="rounded">Abgerundet</option>
-        <option value="diamond">Raute</option>
-        <option value="horizontal">Horizontal</option>
-        <option value="vertical">Vertikal</option>
-        <option value="dot">Kleinere Punkte</option>
-      </select>
-      <input
-        type="color"
-        id="colorPicker"
-        value="#000000"
-        aria-label="Farbe des QR-Codes"
-      />
+      <div class="page-heading">
+        <h1 class="page-title">QR-Code Generator Plus</h1>
+        <div class="page-utilities">
+          <button id="openCSVConverter" class="converter-link" type="button">CSV → JSON</button>
+        <div class="language-toggle" role="group" aria-label="Sprache">
+          <button
+            type="button"
+            data-language="de"
+            lang="de"
+            aria-pressed="true"
+          >
+            Deutsch</button
+          ><button
+            type="button"
+            data-language="en"
+            lang="en"
+            aria-pressed="false"
+          >
+            English
+          </button>
+        </div>
+        </div>
       </div>
-    </div>
-    <div class="appearance-field">
-      <label for="finderShapeSelect">Positionsmarkierungen</label>
-      <div class="shape-color">
-      <select id="finderShapeSelect">
-        <option value="square">Eckig</option>
-        <option value="circle">Rund</option>
-        <option value="circular">Kreisförmig</option>
-        <option value="rounded-square">Abgerundetes Quadrat</option>
-        <option value="diamond">Raute</option>
-        <option value="ring">Ring</option>
-        <option value="square-circle">Quadrat mit Kreis</option>
-        <option value="circle-square">Kreis mit Quadrat</option>
-      </select>
-      <input
-        type="color"
-        id="finderColorPicker"
-        value="#000000"
-        aria-label="Farbe der Positionsmarkierungen"
-      />
+      <div class="mode-tabs" role="tablist" aria-label="QR-Code-Modus">
+        <span class="mode-tab-group"
+          ><span class="tab-group-label">QR-Codes</span
+          ><button
+            id="toggleSingleBtn"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="singleSection"
+          >
+            Einzelner QR-Code</button
+          ><button
+            id="toggleImportBtn"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="bulkImport"
+            tabindex="-1"
+          >
+            Massenexport
+          </button></span
+        ><span class="mode-tab-group"
+          ><span class="tab-group-label">Templates</span
+          ><button
+            id="toggleTemplatesBtn"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="templatesSection"
+            tabindex="-1"
+          >
+            QR</button
+          ><button
+            id="toggleCartsBtn"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="cartsSection"
+            tabindex="-1"
+          >
+            Carts
+          </button></span
+        >
       </div>
-    </div>
-    </div>
-    </section>
-    <section class="preview-panel" aria-label="Vorschau und Download">
-<div id="labelContainer">
-      <div id="qrTitle"></div>
-      <div id="qrSubtitle"></div>
-    </div>
+      <section
+        id="templatesSection"
+        role="tabpanel"
+        aria-labelledby="toggleTemplatesBtn"
+        hidden
+      ></section>
+      <section
+        id="cartsSection"
+        role="tabpanel"
+        aria-labelledby="toggleCartsBtn"
+        hidden
+      ></section>
+      <div id="singleSection" role="tabpanel" aria-labelledby="toggleSingleBtn">
+        <section class="settings-panel" aria-label="QR-Code gestalten">
+          <div class="address-field">
+            <label for="qrInput">Adresse oder Text</label>
+            <input
+              type="text"
+              id="qrInput"
+              placeholder="Adresse oder Text eingeben …"
+            />
+          </div>
+          <div class="appearance-fields">
+            <div class="appearance-field">
+              <label for="shapeSelect">QR-Code</label>
+              <div class="shape-color">
+                <select id="shapeSelect">
+                  <option value="square">Eckig</option>
+                  <option value="tilted">Leicht gedrehte Quadrate</option>
+                  <option value="circle">Rund</option>
+                  <option value="rounded">Abgerundet</option>
+                  <option value="diamond">Raute</option>
+                  <option value="horizontal">Horizontal</option>
+                  <option value="vertical">Vertikal</option>
+                  <option value="dot">Kleinere Punkte</option>
+                </select>
+                <input
+                  type="color"
+                  id="colorPicker"
+                  value="#000000"
+                  aria-label="Farbe des QR-Codes"
+                />
+              </div>
+            </div>
+            <div class="appearance-field">
+              <label for="finderShapeSelect">Positionsmarkierungen</label>
+              <div class="shape-color">
+                <select id="finderShapeSelect">
+                  <option value="square">Eckig</option>
+                  <option value="circle">Rund</option>
+                  <option value="circular">Kreisförmig</option>
+                  <option value="rounded-square">Abgerundetes Quadrat</option>
+                  <option value="diamond">Raute</option>
+                  <option value="ring">Ring</option>
+                  <option value="square-circle">Quadrat mit Kreis</option>
+                  <option value="circle-square">Kreis mit Quadrat</option>
+                </select>
+                <input
+                  type="color"
+                  id="finderColorPicker"
+                  value="#000000"
+                  aria-label="Farbe der Positionsmarkierungen"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="preview-panel" aria-label="Vorschau und Download">
+          <div id="labelContainer">
+            <div id="qrTitle"></div>
+            <div id="qrSubtitle"></div>
+          </div>
 
-    <button id="editSingleTemplateBtn" class="single-preview-button" type="button" aria-label="Cart anpassen"><canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas></button>
-    <p id="unusedQueryParameters" class="unused-parameters" hidden></p>
-    
-    <div class="logo-controls">
-      <div class="logo-heading"><label for="logoInput">Logo (Quadratisch)</label>
-      <span class="logo-info"><button type="button" class="info-button" aria-label="Hinweise zum Logo" aria-describedby="logoHelp">i</button><span id="logoHelp" role="tooltip">PNG oder JPEG. Quadratisches Logo; bei anderen Formaten den quadratischen Ausschnitt selbst wählen.</span></span></div>
-      <input id="logoInput" type="file" accept="image/png,image/jpeg" multiple aria-describedby="logoHelp" hidden />
-      <div id="savedLogos" role="group" aria-label="Gespeicherte Logos"><button id="chooseLogoBtn" class="logo-add" type="button" aria-label="Quadratische Logos hochladen" title="Quadratische Logos hochladen">+</button></div>
-      <p id="logoStatus" role="status"></p>
-    </div>
+          <button
+            id="editSingleTemplateBtn"
+            class="single-preview-button"
+            type="button"
+            aria-label="Cart anpassen"
+          >
+            <canvas id="qrCanvas" aria-label="Erstellter QR-Code"></canvas>
+          </button>
+          <p id="unusedQueryParameters" class="unused-parameters" hidden></p>
 
-    <div id="singleEditorSlot"><section id="qrSettings" class="settings-panel" hidden>
-      <div class="inline-editor-heading"><h2>QR-Code gestalten</h2><button id="closeQRSettingsBtn" class="action-button secondary" type="button">Fertig</button></div>
-      <div id="qrPresetControls"></div>
-      <div class="appearance-workbench"><figure class="settings-live-preview"><canvas id="settingsQR" aria-label="QR-Code-Vorschau"></canvas></figure><div id="pageAppearanceControls"></div></div>
-      <div id="pageLogoControls"></div><div id="qrPresetSaveControls" class="template-library"></div>
-    </section></div>
-    <div class="single-download"><label for="singleFormat">Dateiformat</label><select id="singleFormat"><option value="png">PNG (Bild)</option><option value="svg">SVG (Vektorgrafik)</option></select><button class="action-button" id="downloadBtn" type="button" hidden>Herunterladen</button></div>
-    <p id="renderNotice" role="status"></p>
-    <p id="qrError" role="alert"></p>
-    </section>
-    </div>
+          <div class="logo-controls">
+            <div class="logo-heading">
+              <label for="logoInput">Logo (Quadratisch)</label>
+              <span class="logo-info"
+                ><button
+                  type="button"
+                  class="info-button"
+                  aria-label="Hinweise zum Logo"
+                  aria-describedby="logoHelp"
+                >
+                  i</button
+                ><span id="logoHelp" role="tooltip"
+                  >PNG oder JPEG. Quadratisches Logo; bei anderen Formaten den
+                  quadratischen Ausschnitt selbst wählen.</span
+                ></span
+              >
+            </div>
+            <input
+              id="logoInput"
+              type="file"
+              accept="image/png,image/jpeg"
+              multiple
+              aria-describedby="logoHelp"
+              hidden
+            />
+            <div id="savedLogos" role="group" aria-label="Gespeicherte Logos">
+              <button
+                id="chooseLogoBtn"
+                class="logo-add"
+                type="button"
+                aria-label="Quadratische Logos hochladen"
+                title="Quadratische Logos hochladen"
+              >
+                +
+              </button>
+            </div>
+            <p id="logoStatus" role="status"></p>
+          </div>
 
-    <section id="bulkImport" role="tabpanel" aria-labelledby="toggleImportBtn" hidden>
+          <div id="singleEditorSlot">
+            <section id="qrSettings" class="settings-panel" hidden>
+              <div class="inline-editor-heading">
+                <h2>QR-Code gestalten</h2>
+                <button
+                  id="closeQRSettingsBtn"
+                  class="action-button secondary"
+                  type="button"
+                >
+                  Fertig
+                </button>
+              </div>
+              <div id="qrPresetControls"></div>
+              <div class="appearance-workbench">
+                <figure class="settings-live-preview">
+                  <canvas
+                    id="settingsQR"
+                    aria-label="QR-Code-Vorschau"
+                  ></canvas>
+                </figure>
+                <div id="pageAppearanceControls"></div>
+              </div>
+              <div id="pageLogoControls"></div>
+              <div id="qrPresetSaveControls" class="template-library"></div>
+            </section>
+          </div>
+          <div class="single-download">
+            <label for="singleFormat">Dateiformat</label
+            ><select id="singleFormat">
+              <option value="png">PNG (Bild)</option>
+              <option value="svg">SVG (Vektorgrafik)</option></select
+            ><button
+              class="action-button"
+              id="downloadBtn"
+              type="button"
+              hidden
+            >
+              Herunterladen
+            </button>
+          </div>
+          <p id="renderNotice" role="status"></p>
+          <p id="qrError" role="alert"></p>
+        </section>
+      </div>
 
+      <section
+        id="bulkImport"
+        role="tabpanel"
+        aria-labelledby="toggleImportBtn"
+        hidden
+      >
+        <div
+          id="dropZone"
+          role="button"
+          tabindex="0"
+          aria-label="JSON- oder CSV-Datei importieren"
+        >
+          <strong>JSON- oder CSV-Datei hierher ziehen</strong>
+          <span>oder klicken, um eine Datei auszuwählen</span>
+        </div>
 
-    <div id="dropZone" role="button" tabindex="0" aria-label="JSON- oder CSV-Datei importieren">
-    <strong>JSON- oder CSV-Datei hierher ziehen</strong>
-    <span>oder klicken, um eine Datei auszuwählen</span>
-</div>
+        <input type="file" id="fileInput" accept=".json,.csv" hidden />
 
-<input
-    type="file"
-    id="fileInput"
-    accept=".json,.csv"
-    hidden
->
+        <div id="bulkLoadedContent" hidden>
+          <div class="bulk-info-row">
+            <div id="info" aria-live="polite"></div>
+            <button
+              id="clearBulkData"
+              class="modal-close"
+              type="button"
+              aria-label="Importierte Daten entfernen"
+              hidden
+            >
+              ×
+            </button>
+          </div>
 
-<div id="bulkLoadedContent" hidden>
-<div id="info" aria-live="polite"></div>
+          <button
+            id="bulkPreviewButton"
+            class="single-preview-button"
+            type="button"
+            aria-label="Cart anpassen"
+          >
+            <canvas id="bulkPageCanvas"></canvas>
+          </button>
+          <div class="preview-ribbon-actions">
+            <button
+              id="bulkRibbonBtn"
+              class="action-button secondary"
+              type="button"
+            >
+              Eckbänder anpassen<span
+                id="bulkRibbonCount"
+                class="ribbon-count"
+                hidden
+              ></span>
+            </button>
+          </div>
+          <div id="bulkEditorSlot"></div>
+          <button
+            id="editLayoutBtn"
+            class="action-button secondary"
+            type="button"
+          >
+            Cart anpassen
+          </button>
 
-<button id="bulkPreviewButton" class="single-preview-button" type="button" aria-label="Cart anpassen"><canvas id="bulkPageCanvas"></canvas></button>
-<div class="preview-ribbon-actions"><button id="bulkRibbonBtn" class="action-button secondary" type="button">Eckbänder anpassen<span id="bulkRibbonCount" class="ribbon-count" hidden></span></button></div>
-<div id="bulkEditorSlot"></div>
-<button id="editLayoutBtn" class="action-button secondary" type="button">Cart anpassen</button>
+          <div class="bulk-export-controls">
+            <p class="preview-option">
+              <label class="preview-switch"
+                ><input
+                  id="showBulkPreview"
+                  type="checkbox"
+                  role="switch"
+                  checked
+                />
+                QR-Codes während der Erstellung anzeigen</label
+              >
+            </p>
 
-<div class="bulk-export-controls"><p class="preview-option"><label class="preview-switch"><input id="showBulkPreview" type="checkbox" role="switch" checked /> QR-Codes während der Erstellung anzeigen</label></p>
-
-<div class="export-actions">
-      <div class="export-format"><label for="exportFormat">Dateiformat</label><select id="exportFormat"><option value="png">PNG (Bild)</option><option value="svg">SVG (Vektorgrafik)</option></select></div>
-<button class="action-button"
-    id="generateBtn"
-    disabled
->
-   Export starten
-</button>
-<button id="cancelExportBtn" class="action-button secondary" type="button" hidden>Export abbrechen</button>
-</div>
-
-
-</div>
-</div>
-<div id="status" role="status"></div>
-
-    </section>
-    </main>
-    <dialog id="layoutDialog" class="inline-template" aria-labelledby="layoutHeading">
-      <div class="preview-header"><h2 id="layoutHeading">Cart anpassen</h2><button id="closeLayoutBtn" class="modal-close" type="button" aria-label="Layout schliessen">×</button></div>
-
-
-      <div class="modal-scroll-body">
-      <div class="preview-ribbon-actions"><button id="singleRibbonBtn" class="action-button secondary" type="button">Eckbänder anpassen<span id="ribbonCount" class="ribbon-count" hidden></span></button></div>
-      <section id="cartTemplateControls" class="template-library" aria-label="Cart Template">
-        <label id="textTemplateLabel" for="templateSelect">Cart Template</label>
-        <div class="template-library-row"><div class="template-combo"><input id="templateSelect" type="text" placeholder="Template auswählen oder benennen …" autocomplete="off" maxlength="80" /></div><button id="saveTemplateBtn" class="action-button secondary" type="button">Speichern</button></div>
-        <p id="templateStatus" role="status"></p>
+            <div class="export-actions">
+              <div class="export-format">
+                <label for="exportFormat">Dateiformat</label
+                ><select id="exportFormat">
+                  <option value="png">PNG (Bild)</option>
+                  <option value="svg">SVG (Vektorgrafik)</option>
+                </select>
+              </div>
+              <button class="action-button" id="generateBtn" disabled>
+                Export starten
+              </button>
+              <button
+                id="cancelExportBtn"
+                class="action-button secondary"
+                type="button"
+                hidden
+              >
+                Export abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="status" role="status"></div>
       </section>
-      <section id="qrContentEditor" hidden aria-labelledby="qrContentHeading"><h3 id="qrContentHeading">QR-Code-Inhalt (Pflichtfeld)</h3><div class="content-editor-body">
-        <label for="qrContentExpression">QR-Code-Inhalt (Pflichtfeld)</label>
-        <p class="content-help">Felder in den Inhalt ziehen. Karten anklicken zum Bearbeiten, ziehen zum Sortieren.</p>
-        <div id="contentCardDrop" class="content-card-drop" aria-label="QR-Code-Inhalt"><div id="contentCards"></div><button id="addContentCard" class="logo-add" type="button" aria-label="Textkarte hinzufügen">+</button></div>
-        <textarea hidden id="qrContentExpression" rows="3" required aria-describedby="qrContentError qrContentPreview" spellcheck="false"></textarea>
-        <div id="qrContentFields" class="content-fields"></div>
-        <p id="qrContentError" role="alert"></p>
-        <div class="content-preview-row"><label for="qrContentPreview">Vorschau: erster Eintrag</label><output id="qrContentPreview"></output></div>
-      </div></section>
-      <div id="templateVariables" class="variable-chips"></div>
-      <div class="layout-sheet">
-        <div class="ribbon-corner"><button id="layoutRibbon" class="test-ribbon" type="button" aria-label="Eckband ändern">TST</button></div>
-        <label class="ribbon-switch" title="Eckband aktivieren"><input id="ribbonEnabled" type="checkbox" role="switch" checked /><span>Eckband</span></label>
-        <div id="layoutAbove"></div>
-        <div class="template-qr-preview"><canvas id="layoutQR" aria-label="QR-Code-Vorschau"></canvas></div>
-        
-        <div id="cartAppearanceHome"><section id="cartAppearance" hidden>
-<p class="cart-qr-help">Neue QR-Code-Templates können Sie hier erstellen und speichern.</p>
-<label for="cartQRTemplate">QR-Code-Template</label><select id="cartQRTemplate"></select>
-<details id="cartQROptions" class="qr-settings-disclosure"><summary><span class="qr-settings-heading"><span>QR-Code-Einstellungen</span><span class="template-chevron" aria-hidden="true"></span></span></summary><div id="cartQRSettingsSlot"></div></details>
-</section></div>
-<div id="layoutBelow"></div>
+    </main>
+    <dialog
+      id="layoutDialog"
+      class="inline-template"
+      aria-labelledby="layoutHeading"
+    >
+      <div class="preview-header">
+        <h2 id="layoutHeading">Cart anpassen</h2>
+        <button
+          id="closeLayoutBtn"
+          class="modal-close"
+          type="button"
+          aria-label="Layout schliessen"
+        >
+          ×
+        </button>
       </div>
 
-      <p id="layoutError" role="status"></p>
-      <p id="unusedTemplateParameters" class="unused-parameters" hidden></p>
-
-      <div class="modal-actions"><button id="cancelLayoutBtn" class="action-button secondary" type="button">Abbrechen</button><button class="action-button" id="applyLayoutBtn" type="button">Änderungen übernehmen</button></div>
-      </div>
-    </dialog>
-    <dialog id="qrAppearanceDialog" class="modal-frame" aria-labelledby="qrAppearanceHeading">
-<div class="preview-header"><h2 id="qrAppearanceHeading">QR-Code-Gestaltung anpassen</h2><button id="closeQRAppearance" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
-<div id="qrAppearanceBody" class="modal-scroll-body"><div class="modal-actions"><button id="cancelQRAppearance" class="action-button secondary" type="button">Abbrechen</button><button id="applyQRAppearance" class="action-button" type="button">Änderungen übernehmen</button></div></div>
-</dialog>
-    <dialog id="contentCardDialog" class="compact-dialog" aria-labelledby="contentCardHeading"><div class="preview-header"><h2 id="contentCardHeading">Textkarte bearbeiten</h2><button id="closeContentCard" class="modal-close" type="button" aria-label="Schliessen">×</button></div><label for="contentCardType">Inhalt</label><select id="contentCardType"></select><label id="contentCardValueLabel" for="contentCardValue">Text</label><textarea id="contentCardValue" rows="3"></textarea><div class="modal-actions"><button id="removeContentCard" class="action-button secondary" type="button">Entfernen</button><button class="action-button" id="applyContentCard" type="button">Übernehmen</button></div></dialog>
-    <dialog id="ribbonDialog" class="modal-frame" aria-labelledby="ribbonHeading">
-      <div class="preview-header"><h2 id="ribbonHeading">Eckband ändern</h2><button id="closeRibbonBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
       <div class="modal-scroll-body">
-      <p class="ribbon-help">Das erste passende Eckband wird verwendet. Gross- und Kleinschreibung werden ignoriert.</p>
-      <label class="preview-switch ribbon-master"><input id="ribbonRulesEnabled" type="checkbox" role="switch" checked /><span>Eckband aktivieren</span></label>
-      <div id="ribbonRules"></div>
-      <div class="metric-add ribbon-add"><button id="addRibbonBtn" class="metric-plus" type="button" aria-label="Eckband hinzufügen">+</button></div>
-      <div class="modal-actions"><button class="action-button" id="applyRibbonBtn" type="button">Übernehmen</button></div>
+        <div class="preview-ribbon-actions">
+          <button
+            id="singleRibbonBtn"
+            class="action-button secondary"
+            type="button"
+          >
+            Eckbänder anpassen<span
+              id="ribbonCount"
+              class="ribbon-count"
+              hidden
+            ></span>
+          </button>
+        </div>
+        <section
+          id="cartTemplateControls"
+          class="template-library"
+          aria-label="Cart Template"
+        >
+          <label id="textTemplateLabel" for="templateSelect"
+            >Cart Template</label
+          >
+          <div class="template-library-row">
+            <div class="template-combo">
+              <input
+                id="templateSelect"
+                type="text"
+                placeholder="Template auswählen oder benennen …"
+                autocomplete="off"
+                maxlength="80"
+              />
+            </div>
+            <button
+              id="saveTemplateBtn"
+              class="action-button secondary"
+              type="button"
+            >
+              Speichern
+            </button>
+          </div>
+          <p id="templateStatus" role="status"></p>
+        </section>
+        <section id="qrContentEditor" hidden aria-labelledby="qrContentHeading">
+          <h3 id="qrContentHeading">QR-Code-Inhalt (Pflichtfeld)</h3>
+          <div class="content-editor-body">
+            <label for="qrContentExpression"
+              >QR-Code-Inhalt (Pflichtfeld)</label
+            >
+            <p class="content-help">
+              Felder in den Inhalt ziehen. Karten anklicken zum Bearbeiten,
+              ziehen zum Sortieren.
+            </p>
+            <div
+              id="contentCardDrop"
+              class="content-card-drop"
+              aria-label="QR-Code-Inhalt"
+            >
+              <div id="contentCards"></div>
+              <button
+                id="addContentCard"
+                class="logo-add"
+                type="button"
+                aria-label="Textkarte hinzufügen"
+              >
+                +
+              </button>
+            </div>
+            <textarea
+              hidden
+              id="qrContentExpression"
+              rows="3"
+              required
+              aria-describedby="qrContentError qrContentPreview"
+              spellcheck="false"
+            ></textarea>
+            <div id="qrContentFields" class="content-fields"></div>
+            <p id="qrContentError" role="alert"></p>
+            <div class="content-preview-row">
+              <label for="qrContentPreview">Vorschau: erster Eintrag</label
+              ><output id="qrContentPreview"></output>
+            </div>
+          </div>
+        </section>
+        <section id="cartFieldSettings" class="cart-field-settings"></section>
+        <div id="templateVariables" class="variable-chips"></div>
+        <div class="layout-sheet">
+          <div class="ribbon-corner">
+            <button
+              id="layoutRibbon"
+              class="test-ribbon"
+              type="button"
+              aria-label="Eckband ändern"
+            >
+              TST
+            </button>
+          </div>
+          <label class="ribbon-switch" title="Eckband aktivieren"
+            ><input
+              id="ribbonEnabled"
+              type="checkbox"
+              role="switch"
+              checked
+            /><span>Eckband</span></label
+          >
+          <div id="layoutAbove"></div>
+          <div class="template-qr-preview">
+            <canvas id="layoutQR" aria-label="QR-Code-Vorschau"></canvas>
+          </div>
+
+          <div id="cartAppearanceHome">
+            <section id="cartAppearance" hidden>
+              <p class="cart-qr-help">
+                Neue QR-Code-Templates können Sie hier erstellen und speichern.
+              </p>
+              <label for="cartQRTemplate">QR-Code-Template</label
+              ><select id="cartQRTemplate"></select>
+              <details id="cartQROptions" class="qr-settings-disclosure">
+                <summary>
+                  <span class="qr-settings-heading"
+                    ><span>QR-Code-Einstellungen</span
+                    ><span class="template-chevron" aria-hidden="true"></span
+                  ></span>
+                </summary>
+                <div id="cartQRSettingsSlot"></div>
+              </details>
+            </section>
+          </div>
+          <div id="layoutBelow"></div>
+        </div>
+
+        <p id="layoutError" role="status"></p>
+        <p id="unusedTemplateParameters" class="unused-parameters" hidden></p>
+
+        <div class="modal-actions">
+          <button
+            id="cancelLayoutBtn"
+            class="action-button secondary"
+            type="button"
+          >
+            Abbrechen</button
+          ><button class="action-button" id="applyLayoutBtn" type="button">
+            Änderungen übernehmen
+          </button>
+        </div>
       </div>
     </dialog>
-    <dialog id="qrUnsavedDialog" class="compact-dialog" aria-labelledby="qrUnsavedHeading" aria-describedby="qrUnsavedText">
-      <div class="preview-header"><h2 id="qrUnsavedHeading">Ungespeicherte Änderungen</h2><button id="closeQRUnsaved" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
-      <p id="qrUnsavedText">Ihre Änderungen am QR-Code sind noch nicht als Template gespeichert. Beim Fortfahren gehen sie verloren. Zum Speichern wählen Sie «Weiter bearbeiten» und anschliessend «Speichern».</p>
-      <div class="modal-actions"><button id="keepQREditing" class="action-button secondary" type="button">Weiter bearbeiten</button><button id="discardQREdits" class="action-button" type="button">Änderungen verwerfen</button></div>
+    <dialog
+      id="qrAppearanceDialog"
+      class="modal-frame"
+      aria-labelledby="qrAppearanceHeading"
+    >
+      <div class="preview-header">
+        <h2 id="qrAppearanceHeading">QR-Code-Gestaltung anpassen</h2>
+        <button
+          id="closeQRAppearance"
+          class="modal-close"
+          type="button"
+          aria-label="Schliessen"
+        >
+          ×
+        </button>
+      </div>
+      <div id="qrAppearanceBody" class="modal-scroll-body">
+        <div class="modal-actions">
+          <button
+            id="cancelQRAppearance"
+            class="action-button secondary"
+            type="button"
+          >
+            Abbrechen</button
+          ><button id="applyQRAppearance" class="action-button" type="button">
+            Änderungen übernehmen
+          </button>
+        </div>
+      </div>
     </dialog>
-    <dialog id="overwriteTemplateDialog" class="compact-dialog" aria-labelledby="overwriteTemplateHeading" aria-describedby="overwriteTemplateText">
-      <div class="preview-header"><h2 id="overwriteTemplateHeading">Template überschreiben</h2><button id="closeOverwriteBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
-      <p id="overwriteTemplateText"></p><div class="modal-actions"><button id="cancelOverwriteBtn" class="action-button secondary" type="button">Abbrechen</button><button class="action-button" id="confirmOverwriteBtn" type="button">Überschreiben</button></div>
+    <dialog
+      id="contentCardDialog"
+      class="compact-dialog"
+      aria-labelledby="contentCardHeading"
+    >
+      <div class="preview-header">
+        <h2 id="contentCardHeading">Textkarte bearbeiten</h2>
+        <button
+          id="closeContentCard"
+          class="modal-close"
+          type="button"
+          aria-label="Schliessen"
+        >
+          ×
+        </button>
+      </div>
+      <label for="contentCardType">Inhalt</label
+      ><select id="contentCardType"></select
+      ><label id="contentCardValueLabel" for="contentCardValue">Text</label
+      ><textarea id="contentCardValue" rows="3"></textarea>
+      <div class="modal-actions">
+        <button
+          id="removeContentCard"
+          class="action-button secondary"
+          type="button"
+        >
+          Entfernen</button
+        ><button class="action-button" id="applyContentCard" type="button">
+          Übernehmen
+        </button>
+      </div>
     </dialog>
-    <dialog id="mappingDialog" aria-labelledby="mappingHeading" aria-describedby="mappingHelp">
+    <dialog
+      id="ribbonDialog"
+      class="modal-frame"
+      aria-labelledby="ribbonHeading"
+    >
+      <div class="preview-header">
+        <h2 id="ribbonHeading">Eckband ändern</h2>
+        <button
+          id="closeRibbonBtn"
+          class="modal-close"
+          type="button"
+          aria-label="Schliessen"
+        >
+          ×
+        </button>
+      </div>
+      <div class="modal-scroll-body">
+        <p class="ribbon-help">
+          Das erste passende Eckband wird verwendet. Gross- und Kleinschreibung
+          werden ignoriert.
+        </p>
+        <label class="preview-switch ribbon-master"
+          ><input
+            id="ribbonRulesEnabled"
+            type="checkbox"
+            role="switch"
+            checked
+          /><span>Eckband aktivieren</span></label
+        >
+        <div id="ribbonRules"></div>
+        <div class="metric-add ribbon-add">
+          <button
+            id="addRibbonBtn"
+            class="metric-plus"
+            type="button"
+            aria-label="Eckband hinzufügen"
+          >
+            +
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button class="action-button" id="applyRibbonBtn" type="button">
+            Übernehmen
+          </button>
+        </div>
+      </div>
+    </dialog>
+    <dialog
+      id="qrUnsavedDialog"
+      class="compact-dialog"
+      aria-labelledby="qrUnsavedHeading"
+      aria-describedby="qrUnsavedText"
+    >
+      <div class="preview-header">
+        <h2 id="qrUnsavedHeading">Ungespeicherte Änderungen</h2>
+        <button
+          id="closeQRUnsaved"
+          class="modal-close"
+          type="button"
+          aria-label="Schliessen"
+        >
+          ×
+        </button>
+      </div>
+      <p id="qrUnsavedText">
+        Ihre Änderungen am QR-Code sind noch nicht als Template gespeichert.
+        Beim Fortfahren gehen sie verloren. Zum Speichern wählen Sie «Weiter
+        bearbeiten» und anschliessend «Speichern».
+      </p>
+      <div class="modal-actions">
+        <button
+          id="keepQREditing"
+          class="action-button secondary"
+          type="button"
+        >
+          Weiter bearbeiten</button
+        ><button id="discardQREdits" class="action-button" type="button">
+          Änderungen verwerfen
+        </button>
+      </div>
+    </dialog>
+    <dialog
+      id="overwriteTemplateDialog"
+      class="compact-dialog"
+      aria-labelledby="overwriteTemplateHeading"
+      aria-describedby="overwriteTemplateText"
+    >
+      <div class="preview-header">
+        <h2 id="overwriteTemplateHeading">Template überschreiben</h2>
+        <button
+          id="closeOverwriteBtn"
+          class="modal-close"
+          type="button"
+          aria-label="Schliessen"
+        >
+          ×
+        </button>
+      </div>
+      <p id="overwriteTemplateText"></p>
+      <div class="modal-actions">
+        <button
+          id="cancelOverwriteBtn"
+          class="action-button secondary"
+          type="button"
+        >
+          Abbrechen</button
+        ><button class="action-button" id="confirmOverwriteBtn" type="button">
+          Überschreiben
+        </button>
+      </div>
+    </dialog>
+    <dialog
+      id="mappingDialog"
+      aria-labelledby="mappingHeading"
+      aria-describedby="mappingHelp"
+    >
       <h2 id="mappingHeading">JSON-Felder zuordnen</h2>
-      <p id="mappingHelp">Wählen Sie genau eine der drei Möglichkeiten für die URL. Titel und Untertitel sind optional.</p>
+      <p id="mappingHelp">
+        Wählen Sie genau eine der drei Möglichkeiten für die URL. Titel und
+        Untertitel sind optional.
+      </p>
       <form id="mappingForm">
         <fieldset id="urlModeChoices">
           <legend>URL-Quelle – genau eine Option auswählen</legend>
-          <label><input type="radio" name="urlMode" id="urlModeFull" value="full" /> Vollständige URL aus der JSON-Datei</label>
-          <label><input type="radio" name="urlMode" id="urlModeBase" value="base" /> Basis-URL aus der JSON-Datei + ID</label>
-          <label><input type="radio" name="urlMode" id="urlModeManual" value="manual" /> Basis-URL eingeben + ID</label>
+          <label
+            ><input type="radio" name="urlMode" id="urlModeFull" value="full" />
+            Vollständige URL aus der JSON-Datei</label
+          >
+          <label
+            ><input type="radio" name="urlMode" id="urlModeBase" value="base" />
+            Basis-URL aus der JSON-Datei + ID</label
+          >
+          <label
+            ><input
+              type="radio"
+              name="urlMode"
+              id="urlModeManual"
+              value="manual"
+            />
+            Basis-URL eingeben + ID</label
+          >
         </fieldset>
-        <div id="fullURLGroup"><label for="mapURL">Feld mit der vollständigen URL</label><select id="mapURL"></select></div>
-        <div id="baseURLGroup"><label for="mapBase_URL">Feld mit der Basis-URL</label><select id="mapBase_URL"></select></div>
+        <div id="fullURLGroup">
+          <label for="mapURL">Feld mit der vollständigen URL</label
+          ><select id="mapURL"></select>
+        </div>
+        <div id="baseURLGroup">
+          <label for="mapBase_URL">Feld mit der Basis-URL</label
+          ><select id="mapBase_URL"></select>
+        </div>
         <div id="manualBaseURLGroup">
           <label for="manualBaseURL">Basis-URL</label>
           <div id="baseURLCombo">
-          <input id="manualBaseURL" type="url" placeholder="https://example.com/stop/" autocomplete="off" aria-expanded="false" aria-controls="savedBaseURLs" aria-describedby="manualBaseURLHelp" />
-          <button id="baseURLDropdownBtn" type="button" aria-label="Gespeicherte Basis-URLs anzeigen" aria-controls="savedBaseURLs" hidden><span aria-hidden="true"></span></button>
-          <div id="savedBaseURLs" role="group" aria-label="Gespeicherte Basis-URLs" hidden></div>
+            <input
+              id="manualBaseURL"
+              type="url"
+              placeholder="https://example.com/stop/"
+              autocomplete="off"
+              aria-expanded="false"
+              aria-controls="savedBaseURLs"
+              aria-describedby="manualBaseURLHelp"
+            />
+            <button
+              id="baseURLDropdownBtn"
+              type="button"
+              aria-label="Gespeicherte Basis-URLs anzeigen"
+              aria-controls="savedBaseURLs"
+              hidden
+            >
+              <span aria-hidden="true"></span>
+            </button>
+            <div
+              id="savedBaseURLs"
+              role="group"
+              aria-label="Gespeicherte Basis-URLs"
+              hidden
+            ></div>
           </div>
           <p id="baseURLStorageStatus" role="status"></p>
-          <p id="manualBaseURLHelp">Die Basis-URL wird mit der ID jedes Eintrags kombiniert.</p>
+          <p id="manualBaseURLHelp">
+            Die Basis-URL wird mit der ID jedes Eintrags kombiniert.
+          </p>
         </div>
         <div id="recordMappingFields">
-          <label for="mapTitel">Titel (optional)</label><select id="mapTitel"></select>
-          <label for="mapUntertitel">Untertitel (optional)</label><select id="mapUntertitel"></select>
-          <label for="mapInterne_ID">ID (bei Basis-URL erforderlich)</label><select id="mapInterne_ID"></select>
+          <label for="mapTitel">Titel (optional)</label
+          ><select id="mapTitel"></select>
+          <label for="mapUntertitel">Untertitel (optional)</label
+          ><select id="mapUntertitel"></select>
+          <label for="mapInterne_ID">ID (bei Basis-URL erforderlich)</label
+          ><select id="mapInterne_ID"></select>
         </div>
         <p id="mappingError" role="alert"></p>
-        <div class="modal-actions"><button id="cancelMappingBtn" class="action-button secondary" type="button">Abbrechen</button> <button class="action-button" id="mappingSubmitBtn" type="submit" disabled>Weiter</button></div>
+        <div class="modal-actions">
+          <button
+            id="cancelMappingBtn"
+            class="action-button secondary"
+            type="button"
+          >
+            Abbrechen
+          </button>
+          <button
+            class="action-button"
+            id="mappingSubmitBtn"
+            type="submit"
+            disabled
+          >
+            Weiter
+          </button>
+        </div>
       </form>
     </dialog>
-    <dialog id="bulkPreview" aria-labelledby="previewHeading" aria-describedby="previewHelp">
+    <dialog
+      id="bulkPreview"
+      aria-labelledby="previewHeading"
+      aria-describedby="previewHelp"
+    >
       <div class="preview-header">
         <h2 id="previewHeading">QR-Code-Vorschau</h2>
-        <button id="closePreviewBtn" type="button" aria-label="Vorschau schliessen" title="Vorschau schliessen" autofocus><span aria-hidden="true">×</span></button>
+        <button
+          id="closePreviewBtn"
+          type="button"
+          aria-label="Vorschau schliessen"
+          title="Vorschau schliessen"
+          autofocus
+        >
+          <span aria-hidden="true">×</span>
+        </button>
       </div>
-      <p id="previewHelp">Sie können dieses Fenster schliessen, ohne die Verarbeitung abzubrechen. Ohne Vorschau werden die QR-Codes schneller erstellt.</p>
-      <div class="preview-image"><canvas id="bulkCanvas" aria-label="Vorschau des aktuellen QR-Codes"></canvas></div>
+      <p id="previewHelp">
+        Sie können dieses Fenster schliessen, ohne die Verarbeitung abzubrechen.
+        Ohne Vorschau werden die QR-Codes schneller erstellt.
+      </p>
+      <div class="preview-image">
+        <canvas
+          id="bulkCanvas"
+          aria-label="Vorschau des aktuellen QR-Codes"
+        ></canvas>
+      </div>
       <p id="previewStatus" role="status"></p>
     </dialog>
 
-
-    <dialog id="cropDialog" class="modal-frame" aria-labelledby="cropHeading" aria-describedby="cropHelp">
-      <div class="preview-header"><h2 id="cropHeading">Logo zuschneiden</h2><button id="closeCropBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+    <dialog
+      id="cropDialog"
+      class="modal-frame"
+      aria-labelledby="cropHeading"
+      aria-describedby="cropHelp"
+    >
+      <div class="preview-header">
+        <h2 id="cropHeading">Logo zuschneiden</h2>
+        <button
+          id="closeCropBtn"
+          class="modal-close"
+          type="button"
+          aria-label="Schliessen"
+        >
+          ×
+        </button>
+      </div>
       <div class="modal-scroll-body">
-        <p id="cropHelp">Quadrat verschieben und an den Ecken vergrössern oder verkleinern. Pfeiltasten verschieben den Ausschnitt.</p>
-        <div id="cropStage"><canvas id="cropImage"></canvas><div id="cropSelection" tabindex="0" role="group" aria-label="Quadratischer Bildausschnitt"><span class="crop-handle" data-corner="nw"></span><span class="crop-handle" data-corner="ne"></span><span class="crop-handle" data-corner="sw"></span><span class="crop-handle" data-corner="se"></span></div></div>
-        <div class="modal-actions"><button id="cancelCropBtn" class="action-button secondary" type="button">Abbrechen</button><button class="action-button" id="applyCropBtn" type="button">Übernehmen</button></div>
+        <p id="cropHelp">
+          Quadrat verschieben und an den Ecken vergrössern oder verkleinern.
+          Pfeiltasten verschieben den Ausschnitt.
+        </p>
+        <div id="cropStage">
+          <canvas id="cropImage"></canvas>
+          <div
+            id="cropSelection"
+            tabindex="0"
+            role="group"
+            aria-label="Quadratischer Bildausschnitt"
+          >
+            <span class="crop-handle" data-corner="nw"></span
+            ><span class="crop-handle" data-corner="ne"></span
+            ><span class="crop-handle" data-corner="sw"></span
+            ><span class="crop-handle" data-corner="se"></span>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button
+            id="cancelCropBtn"
+            class="action-button secondary"
+            type="button"
+          >
+            Abbrechen</button
+          ><button class="action-button" id="applyCropBtn" type="button">
+            Übernehmen
+          </button>
+        </div>
       </div>
     </dialog>
-    <dialog id="saveTemplateDialog" class="compact-dialog" aria-labelledby="saveTemplateHeading">
-      <div class="preview-header"><h2 id="saveTemplateHeading">Als Template speichern?</h2><button id="closeSaveTemplateBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
-      <p>Die Gestaltung wurde geändert. Möchten Sie sie als Template speichern?</p>
-      <label for="templateName">Template-Name</label><input id="templateName" type="text" maxlength="80" />
+    <dialog
+      id="saveTemplateDialog"
+      class="compact-dialog"
+      aria-labelledby="saveTemplateHeading"
+    >
+      <div class="preview-header">
+        <h2 id="saveTemplateHeading">Als Template speichern?</h2>
+        <button
+          id="closeSaveTemplateBtn"
+          class="modal-close"
+          type="button"
+          aria-label="Schliessen"
+        >
+          ×
+        </button>
+      </div>
+      <p>
+        Die Gestaltung wurde geändert. Möchten Sie sie als Template speichern?
+      </p>
+      <label for="templateName">Template-Name</label
+      ><input id="templateName" type="text" maxlength="80" />
       <p id="saveTemplateError" role="alert"></p>
-      <div class="modal-actions"><button id="cancelSaveTemplateBtn" class="action-button secondary" type="button">Abbrechen</button><button id="skipSaveTemplateBtn" class="action-button secondary" type="button">Nicht speichern</button><button class="action-button" id="confirmSaveTemplateBtn" type="button">Speichern</button></div>
+      <div class="modal-actions">
+        <button
+          id="cancelSaveTemplateBtn"
+          class="action-button secondary"
+          type="button"
+        >
+          Abbrechen</button
+        ><button
+          id="skipSaveTemplateBtn"
+          class="action-button secondary"
+          type="button"
+        >
+          Nicht speichern</button
+        ><button
+          class="action-button"
+          id="confirmSaveTemplateBtn"
+          type="button"
+        >
+          Speichern
+        </button>
+      </div>
     </dialog>
-    <dialog id="deleteConfirmDialog" class="compact-dialog" aria-labelledby="deleteConfirmHeading">
-      <div class="preview-header"><h2 id="deleteConfirmHeading">Löschen bestätigen</h2><button id="closeDeleteConfirmBtn" class="modal-close" type="button" aria-label="Schliessen">×</button></div>
+    <dialog
+      id="deleteConfirmDialog"
+      class="compact-dialog"
+      aria-labelledby="deleteConfirmHeading"
+    >
+      <div class="preview-header">
+        <h2 id="deleteConfirmHeading">Löschen bestätigen</h2>
+        <button
+          id="closeDeleteConfirmBtn"
+          class="modal-close"
+          type="button"
+          aria-label="Schliessen"
+        >
+          ×
+        </button>
+      </div>
       <p id="deleteConfirmText"></p>
-      <div id="deleteLogoUsage" hidden><p>Dieses Logo wird in folgenden Templates verwendet:</p><ul id="deleteLogoTemplates"></ul><p>Gespeicherte Templates behalten ihre eigene Logo-Kopie.</p><label class="delete-acknowledgement"><input id="deleteLogoAcknowledgement" type="checkbox" /> Ich habe verstanden</label></div>
-      <div class="modal-actions"><button id="cancelDeleteConfirmBtn" class="action-button secondary" type="button">Abbrechen</button><button id="confirmDeleteBtn" class="danger-button" type="button">Löschen</button></div>
+      <div id="deleteLogoUsage" hidden>
+        <p>Dieses Logo wird in folgenden Templates verwendet:</p>
+        <ul id="deleteLogoTemplates"></ul>
+        <p>Gespeicherte Templates behalten ihre eigene Logo-Kopie.</p>
+        <label class="delete-acknowledgement"
+          ><input id="deleteLogoAcknowledgement" type="checkbox" /> Ich habe
+          verstanden</label
+        >
+      </div>
+      <div class="modal-actions">
+        <button
+          id="cancelDeleteConfirmBtn"
+          class="action-button secondary"
+          type="button"
+        >
+          Abbrechen</button
+        ><button id="confirmDeleteBtn" class="danger-button" type="button">
+          Löschen
+        </button>
+      </div>
     </dialog>
-    <div id="toast" class="toast" role="status" popover="manual"><span id="toastMessage"></span><button id="toastClose" type="button" aria-label="Meldung schliessen">×</button></div>
+    <div id="toast" class="toast" role="status" popover="manual">
+      <span id="toastMessage"></span
+      ><button id="toastClose" type="button" aria-label="Meldung schliessen">
+        ×
+      </button>
+    </div>
   </body>
 </html>
-

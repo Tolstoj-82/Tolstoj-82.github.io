@@ -1,169 +1,175 @@
 (() => {
-"use strict";
-const cropDialog = document.getElementById("cropDialog");
-const cropStage = document.getElementById("cropStage");
-const cropSelection = document.getElementById("cropSelection");
+  "use strict";
+  const cropDialog = document.getElementById("cropDialog");
+  const cropStage = document.getElementById("cropStage");
+  const cropSelection = document.getElementById("cropSelection");
 
-let cropState = null;
-let cropDrag = null;
-function requestLogoCrop(image) {
-  return new Promise((resolve) => {
-    const width = image.naturalWidth,
-      height = image.naturalHeight;
-    const size = Math.min(width, height);
-    cropState = {
-      image,
-      width,
-      height,
-      size,
-      x: (width - size) / 2,
-      y: (height - size) / 2,
-      resolve,
-    };
-    const preview = document.getElementById("cropImage");
-    preview.width = Math.round(width * Math.min(1, 880 / Math.max(width, height)));
-    preview.height = Math.round(height * Math.min(1, 880 / Math.max(width, height)));
-    preview.getContext("2d").drawImage(image, 0, 0, preview.width, preview.height);
-    cropStage.style.aspectRatio = width + " / " + height;
-    cropStage.style.width =
-      "min(100%, " + Math.min(440, (320 * width) / height) + "px)";
-    updateCrop();
-    cropDialog.showModal();
-    cropSelection.focus();
-  });
-}
-function updateCrop() {
-  if (!cropState) return;
-  const c = cropState;
-  c.size = Math.max(
-    Math.min(16, cropState.width, cropState.height),
-    Math.min(Math.min(c.width, c.height), c.size),
-  );
-  c.x = Math.max(0, Math.min(c.width - c.size, c.x));
-  c.y = Math.max(0, Math.min(c.height - c.size, c.y));
-  Object.assign(cropSelection.style, {
-    left: (c.x / c.width) * 100 + "%",
-    top: (c.y / c.height) * 100 + "%",
-    width: (c.size / c.width) * 100 + "%",
-    height: (c.size / c.height) * 100 + "%",
-  });
-}
-function finishLogoCrop(apply) {
-  if (!cropState) return;
-  const c = cropState;
-  let result = null;
-  if (apply) {
-    result = document.createElement("canvas");
-    result.width = result.height = Math.min(
-      256,
-      Math.max(1, Math.round(c.size)),
-    );
-    result
-      .getContext("2d")
-      .drawImage(
-        c.image,
-        c.x,
-        c.y,
-        c.size,
-        c.size,
-        0,
-        0,
-        result.width,
-        result.height,
+  let cropState = null;
+  let cropDrag = null;
+  function requestLogoCrop(image) {
+    return new Promise((resolve) => {
+      const width = image.naturalWidth,
+        height = image.naturalHeight;
+      const size = Math.min(width, height);
+      cropState = {
+        image,
+        width,
+        height,
+        size,
+        x: (width - size) / 2,
+        y: (height - size) / 2,
+        resolve,
+      };
+      const preview = document.getElementById("cropImage");
+      preview.width = Math.round(
+        width * Math.min(1, 880 / Math.max(width, height)),
       );
+      preview.height = Math.round(
+        height * Math.min(1, 880 / Math.max(width, height)),
+      );
+      preview
+        .getContext("2d")
+        .drawImage(image, 0, 0, preview.width, preview.height);
+      cropStage.style.aspectRatio = width + " / " + height;
+      cropStage.style.width =
+        "min(100%, " + Math.min(440, (320 * width) / height) + "px)";
+      updateCrop();
+      cropDialog.showModal();
+      cropSelection.focus();
+    });
   }
-  if (cropDrag && cropSelection.hasPointerCapture(cropDrag.pointer))
-    cropSelection.releasePointerCapture(cropDrag.pointer);
-  cropDrag = null;
-  cropState = null;
-  cropDialog.close();
-  document.getElementById("cropImage").width = 0;
-  c.resolve(result);
-}
-document
-  .getElementById("applyCropBtn")
-  .addEventListener("click", () => finishLogoCrop(true));
-for (const id of ["cancelCropBtn", "closeCropBtn"])
-  document
-    .getElementById(id)
-    .addEventListener("click", () => finishLogoCrop(false));
-cropDialog.addEventListener("cancel", (event) => {
-  event.preventDefault();
-  finishLogoCrop(false);
-});
-cropDialog.addEventListener("close", () => {
-  if (!cropDialog.open && cropState) finishLogoCrop(false);
-});
-cropSelection.addEventListener("keydown", (event) => {
-  if (
-    !cropState ||
-    !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)
-  )
-    return;
-  event.preventDefault();
-  const step = event.shiftKey ? 10 : 1;
-  cropState.x +=
-    event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0;
-  cropState.y +=
-    event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0;
-  updateCrop();
-});
-cropSelection.addEventListener("pointerdown", (event) => {
-  if (!cropState || event.button !== 0) return;
-  event.preventDefault();
-  cropSelection.focus();
-  cropDrag = {
-    pointer: event.pointerId,
-    corner: event.target.dataset.corner,
-    clientX: event.clientX,
-    clientY: event.clientY,
-    x: cropState.x,
-    y: cropState.y,
-    size: cropState.size,
-  };
-  cropSelection.setPointerCapture(event.pointerId);
-});
-cropSelection.addEventListener("pointermove", (event) => {
-  if (!cropState || !cropDrag || cropDrag.pointer !== event.pointerId) return;
-  const rect = cropStage.getBoundingClientRect();
-  if (!rect.width || !rect.height) return;
-  const dx =
-    ((event.clientX - cropDrag.clientX) * cropState.width) / rect.width;
-  const dy =
-    ((event.clientY - cropDrag.clientY) * cropState.height) / rect.height;
-  const start = cropDrag;
-  if (!start.corner) {
-    cropState.x = start.x + dx;
-    cropState.y = start.y + dy;
-  } else {
-    const west = start.corner.includes("w"),
-      north = start.corner.includes("n");
-    const anchorX = start.x + (west ? start.size : 0),
-      anchorY = start.y + (north ? start.size : 0);
-    const delta =
-      Math.abs(dx) > Math.abs(dy)
-        ? dx * (west ? -1 : 1)
-        : dy * (north ? -1 : 1);
-    const limit = Math.min(
-      west ? anchorX : cropState.width - anchorX,
-      north ? anchorY : cropState.height - anchorY,
-    );
-    cropState.size = Math.max(
+  function updateCrop() {
+    if (!cropState) return;
+    const c = cropState;
+    c.size = Math.max(
       Math.min(16, cropState.width, cropState.height),
-      Math.min(limit, start.size + delta),
+      Math.min(Math.min(c.width, c.height), c.size),
     );
-    cropState.x = west ? anchorX - cropState.size : anchorX;
-    cropState.y = north ? anchorY - cropState.size : anchorY;
+    c.x = Math.max(0, Math.min(c.width - c.size, c.x));
+    c.y = Math.max(0, Math.min(c.height - c.size, c.y));
+    Object.assign(cropSelection.style, {
+      left: (c.x / c.width) * 100 + "%",
+      top: (c.y / c.height) * 100 + "%",
+      width: (c.size / c.width) * 100 + "%",
+      height: (c.size / c.height) * 100 + "%",
+    });
   }
-  updateCrop();
-});
-for (const type of ["pointerup", "pointercancel", "lostpointercapture"])
-  cropSelection.addEventListener(type, (event) => {
-    if (cropDrag?.pointer !== event.pointerId) return;
+  function finishLogoCrop(apply) {
+    if (!cropState) return;
+    const c = cropState;
+    let result = null;
+    if (apply) {
+      result = document.createElement("canvas");
+      result.width = result.height = Math.min(
+        256,
+        Math.max(1, Math.round(c.size)),
+      );
+      result
+        .getContext("2d")
+        .drawImage(
+          c.image,
+          c.x,
+          c.y,
+          c.size,
+          c.size,
+          0,
+          0,
+          result.width,
+          result.height,
+        );
+    }
+    if (cropDrag && cropSelection.hasPointerCapture(cropDrag.pointer))
+      cropSelection.releasePointerCapture(cropDrag.pointer);
     cropDrag = null;
-    if (cropSelection.hasPointerCapture(event.pointerId))
-      cropSelection.releasePointerCapture(event.pointerId);
+    cropState = null;
+    cropDialog.close();
+    document.getElementById("cropImage").width = 0;
+    c.resolve(result);
+  }
+  document
+    .getElementById("applyCropBtn")
+    .addEventListener("click", () => finishLogoCrop(true));
+  for (const id of ["cancelCropBtn", "closeCropBtn"])
+    document
+      .getElementById(id)
+      .addEventListener("click", () => finishLogoCrop(false));
+  cropDialog.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    finishLogoCrop(false);
   });
+  cropDialog.addEventListener("close", () => {
+    if (!cropDialog.open && cropState) finishLogoCrop(false);
+  });
+  cropSelection.addEventListener("keydown", (event) => {
+    if (
+      !cropState ||
+      !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)
+    )
+      return;
+    event.preventDefault();
+    const step = event.shiftKey ? 10 : 1;
+    cropState.x +=
+      event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0;
+    cropState.y +=
+      event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0;
+    updateCrop();
+  });
+  cropSelection.addEventListener("pointerdown", (event) => {
+    if (!cropState || event.button !== 0) return;
+    event.preventDefault();
+    cropSelection.focus();
+    cropDrag = {
+      pointer: event.pointerId,
+      corner: event.target.dataset.corner,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      x: cropState.x,
+      y: cropState.y,
+      size: cropState.size,
+    };
+    cropSelection.setPointerCapture(event.pointerId);
+  });
+  cropSelection.addEventListener("pointermove", (event) => {
+    if (!cropState || !cropDrag || cropDrag.pointer !== event.pointerId) return;
+    const rect = cropStage.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const dx =
+      ((event.clientX - cropDrag.clientX) * cropState.width) / rect.width;
+    const dy =
+      ((event.clientY - cropDrag.clientY) * cropState.height) / rect.height;
+    const start = cropDrag;
+    if (!start.corner) {
+      cropState.x = start.x + dx;
+      cropState.y = start.y + dy;
+    } else {
+      const west = start.corner.includes("w"),
+        north = start.corner.includes("n");
+      const anchorX = start.x + (west ? start.size : 0),
+        anchorY = start.y + (north ? start.size : 0);
+      const delta =
+        Math.abs(dx) > Math.abs(dy)
+          ? dx * (west ? -1 : 1)
+          : dy * (north ? -1 : 1);
+      const limit = Math.min(
+        west ? anchorX : cropState.width - anchorX,
+        north ? anchorY : cropState.height - anchorY,
+      );
+      cropState.size = Math.max(
+        Math.min(16, cropState.width, cropState.height),
+        Math.min(limit, start.size + delta),
+      );
+      cropState.x = west ? anchorX - cropState.size : anchorX;
+      cropState.y = north ? anchorY - cropState.size : anchorY;
+    }
+    updateCrop();
+  });
+  for (const type of ["pointerup", "pointercancel", "lostpointercapture"])
+    cropSelection.addEventListener(type, (event) => {
+      if (cropDrag?.pointer !== event.pointerId) return;
+      cropDrag = null;
+      if (cropSelection.hasPointerCapture(event.pointerId))
+        cropSelection.releasePointerCapture(event.pointerId);
+    });
 
-window.QRGenerator["logo-crop"] = {requestLogoCrop};
+  window.QRGenerator["logo-crop"] = { requestLogoCrop };
 })();

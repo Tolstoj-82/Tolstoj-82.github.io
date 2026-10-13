@@ -67,3 +67,19 @@ the loaded data and settings for another export. Export starts only from the mai
 page, with the format selector next to Start export below the preview toggle.
 Tilted squares use deterministic angles within +/-6 degrees
 so previews and exports share the same appearance.
+
+Cart fonts include Roboto, Open Sans, Lato, Montserrat, Source Sans 3 and
+Merriweather, loaded through the Google Fonts CSS2 API. PNG rendering waits for
+the selected font; SVG exports embed its font files (cached for the session).
+An internet connection is needed for the initial font download. Existing
+templates using system fonts continue to work.
+
+Title/subtitle source selection and visibility live on their draggable rows.
+Click a source-key badge to change its field, or click the heading label to
+override its displayed text. Choosing another source clears that override.
+Bulk filenames still use the required mapped title field.
+
+The CSV → JSON converter supports column selection, key renaming and a preview.
+CSV values remain strings, preserving leading zeros. Blank or duplicate output
+keys block download. Used keys are saved locally as suggestions and can be
+deleted with confirmation. No CSV content is sent to a server.

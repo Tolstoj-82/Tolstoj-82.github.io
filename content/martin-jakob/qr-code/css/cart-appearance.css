@@ -1,27 +1,146 @@
-.bulk-export-controls { flex-direction:column; }
-.bulk-export-controls .export-actions { display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap; }
-.bulk-export-controls .export-format { display:flex;align-items:center;gap:8px;margin:0; }
-.bulk-export-controls .export-format label { margin:0; }
-#cartAppearance { margin:16px 0;text-align:left; }
-#cartAppearance .cart-qr-help { font-size:var(--font-ui-small);font-weight:400;line-height:var(--line-height-ui);color:var(--color-muted);margin:0 0 10px; }
-#cartQRTemplate { width:100%; }
-#cartQROptions { margin:16px 0 0; }
-#cartQROptions[open] { border-bottom:1px solid var(--color-border); }
-#cartQROptions > summary { padding:12px 0;font-size:var(--font-ui-label);font-weight:var(--font-weight-label);line-height:var(--line-height-ui); }
-#cartQROptions > summary:hover { color:var(--color-ink); }
-#cartQROptions .template-chevron { flex:none;transition:transform 180ms ease; }
-#cartQROptions .qr-settings-heading { gap:12px; }
-@media (prefers-reduced-motion:reduce) { #cartQROptions .template-chevron { transition:none; } }
-#cartQROptions[open] > #cartQRSettingsSlot { padding:16px;background:color-mix(in srgb,var(--color-page) 60%,var(--color-surface)); }
-#cartQRSettingsSlot #qrSettings { display:block;margin:0;padding:0;border:0; }
-#cartQRSettingsSlot .inline-editor-heading,#cartQRSettingsSlot #qrPresetControls,#cartQRSettingsSlot .settings-live-preview { display:none; }
-#cartQRSettingsSlot .appearance-workbench { display:block; }
-#cartQRSettingsSlot .appearance-fields { display:grid;grid-template-columns:1fr;gap:16px; }
-#cartQRSettingsSlot #pageLogoControls { margin-top:18px; }
-#cartQRSettingsSlot #qrPresetSaveControls { margin:16px 0 0; }
-#qrAppearanceDialog { width:min(720px,calc(100vw - 24px));max-height:calc(100dvh - 32px);padding:0;border:0;border-radius:10px;overflow:hidden; }
-#qrAppearanceDialog > .preview-header { margin:0;padding:18px 22px;background:var(--color-surface);border-bottom:1px solid var(--color-border); }
-#qrAppearanceDialog::backdrop { background:color-mix(in srgb,var(--color-ink) 45%,transparent); }
-#qrAppearanceDialog .settings-live-preview { position:static;width:min(280px,100%);margin:0 auto 18px; }
-#qrAppearanceDialog .settings-live-preview canvas { display:block;width:100%;height:auto;border-radius:0; }
-#cartAppearance .qr-preview-add { display:none; }
+.bulk-export-controls {
+  flex-direction: column;
+}
+
+.bulk-export-controls .export-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bulk-export-controls .export-format {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.bulk-export-controls .export-format label {
+  margin: 0;
+}
+
+#cartAppearance {
+  margin: 16px 0;
+  text-align: left;
+}
+
+#cartAppearance .cart-qr-help {
+  font-size: var(--font-ui-small);
+  font-weight: 400;
+  line-height: var(--line-height-ui);
+  color: var(--color-muted);
+  margin: 0 0 10px;
+}
+
+#cartQRTemplate {
+  width: 100%;
+}
+
+#cartQROptions {
+  margin: 16px 0 0;
+}
+
+#cartQROptions[open] {
+  border-bottom: 1px solid var(--color-border);
+}
+
+#cartQROptions > summary {
+  padding: 12px 0;
+  font-size: var(--font-ui-label);
+  font-weight: var(--font-weight-label);
+  line-height: var(--line-height-ui);
+}
+
+#cartQROptions > summary:hover {
+  color: var(--color-ink);
+}
+
+#cartQROptions .template-chevron {
+  flex: none;
+  transition: transform 180ms ease;
+}
+
+#cartQROptions .qr-settings-heading {
+  gap: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #cartQROptions .template-chevron {
+    transition: none;
+  }
+}
+
+#cartQROptions[open] > #cartQRSettingsSlot {
+  padding: 16px;
+  background: color-mix(in srgb, var(--color-page) 60%, var(--color-surface));
+}
+
+#cartQRSettingsSlot #qrSettings {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+#cartQRSettingsSlot .inline-editor-heading,
+#cartQRSettingsSlot #qrPresetControls,
+#cartQRSettingsSlot .settings-live-preview {
+  display: none;
+}
+
+#cartQRSettingsSlot .appearance-workbench {
+  display: block;
+}
+
+#cartQRSettingsSlot .appearance-fields {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+#cartQRSettingsSlot #pageLogoControls {
+  margin-top: 18px;
+}
+
+#cartQRSettingsSlot #qrPresetSaveControls {
+  margin: 16px 0 0;
+}
+
+#qrAppearanceDialog {
+  width: min(720px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#qrAppearanceDialog > .preview-header {
+  margin: 0;
+  padding: 18px 22px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+#qrAppearanceDialog::backdrop {
+  background: color-mix(in srgb, var(--color-ink) 45%, transparent);
+}
+
+#qrAppearanceDialog .settings-live-preview {
+  position: static;
+  width: min(280px, 100%);
+  margin: 0 auto 18px;
+}
+
+#qrAppearanceDialog .settings-live-preview canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0;
+}
+
+#cartAppearance .qr-preview-add {
+  display: none;
+}
