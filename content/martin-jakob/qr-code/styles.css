@@ -1,23 +1,23 @@
 /* Style entry point; keep this order for shared component defaults. */
-@import url("./css/tokens.css?v=20261014-single-actions");
-@import url("./css/base.css?v=20261014-single-actions");
-@import url("./css/generator.css?v=20261014-single-actions");
-@import url("./css/dialogs.css?v=20261014-single-actions");
-@import url("./css/editor.css?v=20261014-single-actions");
-@import url("./css/logos.css?v=20261014-single-actions");
-@import url("./css/templates.css?v=20261014-single-actions");
-@import url("./css/presets.css?v=20261014-single-actions");
+@import url("./css/tokens.css?v=20261014-heading-placement");
+@import url("./css/base.css?v=20261014-heading-placement");
+@import url("./css/generator.css?v=20261014-heading-placement");
+@import url("./css/dialogs.css?v=20261014-heading-placement");
+@import url("./css/editor.css?v=20261014-heading-placement");
+@import url("./css/logos.css?v=20261014-heading-placement");
+@import url("./css/templates.css?v=20261014-heading-placement");
+@import url("./css/presets.css?v=20261014-heading-placement");
 
-@import url("./css/buttons.css?v=20261014-single-actions");
+@import url("./css/buttons.css?v=20261014-heading-placement");
 
-@import url("css/cart-appearance.css?v=20261014-single-actions");
-@import url("./css/typography.css?v=20261014-single-actions");
-@import url("./css/cart-actions.css?v=20261014-single-actions");
+@import url("css/cart-appearance.css?v=20261014-heading-placement");
+@import url("./css/typography.css?v=20261014-heading-placement");
+@import url("./css/cart-actions.css?v=20261014-heading-placement");
 
-@import url("./css/template-export.css?v=20261014-single-actions");
+@import url("./css/template-export.css?v=20261014-heading-placement");
 
-@import url("./css/library-controls.css?v=20261014-single-actions");
+@import url("./css/library-controls.css?v=20261014-heading-placement");
 
-@import url("./css/compact-editor.css?v=20261014-single-actions");
+@import url("./css/compact-editor.css?v=20261014-heading-placement");
 
-@import url("./css/theme.css?v=20261014-single-actions");
+@import url("./css/theme.css?v=20261014-heading-placement");

@@ -2899,11 +2899,13 @@
 
   function ensureMovableHeadings(layout) {
     if (layout.headingsMovable) return;
-    layout.below = [
-      "heading:title",
-      "heading:subtitle",
-      ...layout.below.filter((key) => !key.startsWith("heading:")),
-    ];
+    const placed = new Set([...layout.above, ...layout.below]);
+    // Older templates may already contain headings without the migration flag.
+    // Keep their saved side and position; supply only genuinely missing headings.
+    const missing = ["heading:title", "heading:subtitle"].filter(
+      (key) => !placed.has(key),
+    );
+    layout.below = [...missing, ...layout.below];
     layout.styles["heading:title"] ||= { bold: true, large: true, black: true };
     layout.styles["heading:subtitle"] ||= { large: true };
     layout.headingsMovable = true;
