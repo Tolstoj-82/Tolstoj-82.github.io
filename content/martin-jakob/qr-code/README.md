@@ -120,3 +120,12 @@ receiving browser; the link does not embed image data or a complete Cart layout.
 The header theme toggle follows the system preference until a light/dark choice
 is saved locally. Theme changes use a shared 220 ms color transition and respect
 reduced-motion settings. QR artwork and exported colors are independent of the UI theme.
+
+Single-code Simple mode keeps live shape, finder, color and logo controls open.
+Its mode and appearance are stored separately under `qr-generator.simple-mode.v1`;
+Cart templates are unchanged. Simple PNG/SVG downloads contain just the QR code.
+On desktop, the Cart editor's cog opens an animated settings panel alongside the
+QR preview; its close control restores the centered preview. On mobile, these
+settings remain below the draggable fields. Reduced-motion preferences are respected.
+Toasts follow the most recently opened modal and are raised in the browser top
+layer, retaining their queue order and remaining display time.

@@ -35,7 +35,10 @@
   const ctx = canvas.getContext("2d");
 
   let editorSnapshot = null;
-  const { logoState, readSavedLogos, renderSavedLogos, addTemplateLogos } =
+  let simpleEditor = null;
+  let cartDock = null;
+  const currentSingleLayout = () => simpleEditor?.enabled ? simpleEditor.layout : singleLayout;
+  const { logoState, readSavedLogos, renderSavedLogos, addTemplateLogos, uploadLogos, saveLogoOrder, removeSavedLogo } =
     createLogoManager({
       saveSettings,
       generateQRCode,
@@ -713,6 +716,7 @@
     }
   }
   function setImportVisible(visible) {
+    if (simpleEditor?.enabled) visible = false;
     activeMode = ["templates", "carts"].includes(visible)
       ? visible
       : visible
@@ -2047,6 +2051,7 @@
         singleFormat: document.getElementById("singleFormat").value,
         bulkFormat: document.getElementById("exportFormat").value,
       };
+    if (!layoutDialog.open) cartDock?.reset();
     await cartAppearance.attach(metricLayout);
     templateLibrary.renderTemplates();
     const cartLabel = document.getElementById("textTemplateLabel");
@@ -3476,7 +3481,7 @@
       const adjustment = renderQRCode(
         nextCanvas,
         inputText,
-        cartAppearance.settings(singleLayout),
+        cartAppearance.settings(currentSingleLayout()),
       );
       const settingsCanvas = document.getElementById("settingsQR");
       const bulkSettings = document
@@ -3499,18 +3504,18 @@
       }
       setMessage(document.getElementById("renderNotice"), () => adjustment);
       const record = singleRecord();
-      const output = createLabeledCanvas(
+      const output = simpleEditor?.enabled ? nextCanvas : createLabeledCanvas(
         nextCanvas,
         record.Titel,
         record.Untertitel,
         "",
         "",
         record,
-        singleLayout,
+        currentSingleLayout(),
       );
       renderBulkPreview();
       renderVariableChips();
-      canvas.qrHitBox = output.qrHitBox;
+      canvas.qrHitBox = output.qrHitBox || {y:0,height:output.height};
       canvas.width = output.width;
       canvas.height = output.height;
       ctx.drawImage(output, 0, 0);
@@ -3547,16 +3552,16 @@
   async function downloadQRCode() {
     if (downloadBtn.disabled || !qrInput.value.trim()) return;
     try {
-      await cartAppearance.ready(singleLayout);
-      await window.QRGenerator["cart-fonts"].ready(singleLayout.font);
+      await cartAppearance.ready(currentSingleLayout());
+      if (!simpleEditor?.enabled) await window.QRGenerator["cart-fonts"].ready(singleLayout.font);
       const format = document.getElementById("singleFormat").value;
       const qr = document.createElement("canvas");
       renderQRCode(qr, qrInput.value.trim(), {
-        ...cartAppearance.settings(singleLayout),
+        ...cartAppearance.settings(currentSingleLayout()),
         vector: format === "svg",
       });
       const record = singleRecord();
-      const output = createLabeledCanvas(
+      const output = simpleEditor?.enabled ? qr : createLabeledCanvas(
         qr,
         record.Titel,
         record.Untertitel,
@@ -3565,7 +3570,7 @@
         record,
         singleLayout,
       );
-      if(format === "svg")output.svgContent=(await window.QRGenerator['cart-fonts'].svgStyle(singleLayout.font))+output.svgContent;
+      if(format === "svg" && !simpleEditor?.enabled)output.svgContent=(await window.QRGenerator['cart-fonts'].svgStyle(singleLayout.font))+output.svgContent;
       const blob =
         format === "svg"
           ? new Blob([toSVG(output)], { type: "image/svg+xml;charset=utf-8" })
@@ -3741,7 +3746,7 @@
     document.getElementById("bulkRibbonBtn").parentElement.hidden = true;
   }
   function qrShareURL(mode) {
-    const layout = mode === 'bulk' ? bulkLayout : singleLayout;
+    const layout = mode === 'bulk' ? bulkLayout : currentSingleLayout();
     const record = mode === 'bulk' ? loadedData?.[0] : singleRecord();
     const content = mode === 'bulk' ? record?.URL : qrInput.value.trim();
     if (!content) return null;
@@ -3756,7 +3761,7 @@
     }
     url.searchParams.set('url', content);
     for (const [key, param] of [['heading:title','title'],['heading:subtitle','subtitle']]) {
-      if (!layout.hiddenFields?.includes(key)) {
+      if (!(mode === 'single' && simpleEditor?.enabled) && !layout.hiddenFields?.includes(key)) {
         const value = metricValueFor(record, key, layout);
         if (value) url.searchParams.set(param, value);
       }
@@ -3794,9 +3799,11 @@
     if(!dialog.open)dialog.showModal();
   }
   function openQRSettings(mode = activeMode) {
+    if (mode === "single" && simpleEditor?.enabled) { simpleEditor.focus(); return; }
     cartAppearance.open(mode === "bulk" ? bulkLayout : singleLayout);
   }
   function previewClick(event, mode, target) {
+    if (mode === "single" && simpleEditor?.enabled) return;
     const rect = target.getBoundingClientRect(),
       hit = target.qrHitBox;
     const y = ((event.clientY - rect.top) * target.height) / rect.height;
@@ -3981,6 +3988,7 @@
       setLanguage(button.dataset.language);
       // Updating in place preserves imported records, user input and all open dialogs.
       translateInterface();
+      simpleEditor?.render();
       for (const [node, render] of localizedMessages)
         if (node.isConnected) node.textContent = render();
       for (const [field, select] of Object.entries(mappingFields))
@@ -4024,6 +4032,8 @@
   }
   renderSavedLogos();
   loadQueryParameters();
+  cartDock = window.QRGenerator["cart-dock"].initialize();
+  simpleEditor = window.QRGenerator["simple-mode"].create({activate:()=>setImportVisible(false),refresh:generateQRCode,logos:readSavedLogos,saveLogoOrder,removeLogo:removeSavedLogo,upload:uploadLogos,logoData:()=>logoState.data,initialAppearance:["qrShape","qrFinderShape","qrColor","qrFinderColor","qrTemplate"].some(key=>new URLSearchParams(location.search).has(key))?singleLayout.qrAppearance:null});
   document.fonts?.ready.then(() => generateQRCode());
 
   const initialTab = new URLSearchParams(location.search).get("tab");

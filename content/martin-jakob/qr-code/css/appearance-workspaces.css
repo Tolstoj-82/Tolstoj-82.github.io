@@ -1,0 +1,43 @@
+/* Cart appearance is an optional workspace beside the QR preview on desktop. */
+.cart-qr-stage { display:grid;grid-template-columns:minmax(0,1fr) 0fr;align-items:start;transition:grid-template-columns 240ms ease; }
+.cart-qr-stage .template-qr-preview { position:relative;min-width:0;align-items:flex-start;padding:0 44px;transition:padding 240ms ease; }
+.cart-qr-stage #layoutQR { width:100%;max-width:360px;transition:max-width 240ms ease; }
+.cart-qr-cog { position:absolute;right:0;top:12px; }
+.cart-qr-settings-pane { position:relative;min-width:0;max-height:0;overflow:hidden;visibility:hidden;opacity:0;transition:opacity 180ms ease,visibility 240ms; }
+.cart-qr-settings-pane #cartAppearanceHome { min-width:0;padding:32px 4px 4px 16px; }
+.cart-qr-close { position:absolute;top:0;right:0; }
+.cart-qr-stage.settings-open { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+.cart-qr-stage.settings-open .cart-qr-settings-pane { visibility:visible;opacity:1;max-height:none;overflow:visible; }
+.cart-qr-stage.settings-open .template-qr-preview { padding-right:16px; }
+.cart-qr-settings-pane #cartQRTemplate { margin-left:0;margin-right:0; }
+@media(max-width:760px){.cart-qr-stage{display:block;}.cart-qr-settings-pane{display:none;}.cart-qr-stage .template-qr-preview{padding:0;}}
+@media(prefers-reduced-motion:reduce){.cart-qr-stage,.cart-qr-stage #layoutQR,.cart-qr-stage .template-qr-preview,.cart-qr-settings-pane{transition:none;}}
+/* Simple mode has live appearance controls and no Cart/template editing. */
+.simple-mode-switch { margin:0;white-space:nowrap; }
+.simple-qr-tools { width:min(600px,100%);margin:18px auto;padding:18px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-page);text-align:left; }
+.simple-qr-tools .appearance-fields { display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px; }
+.simple-qr-tools label { display:flex;flex-direction:column;gap:6px;margin:0;font-size:var(--font-ui-label);font-weight:600; }
+.simple-qr-tools select { width:100%;min-width:0;margin:0; }
+.simple-qr-tools input[type="color"] { height:38px;width:44px; }
+.simple-logo-list { display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--color-border);margin-top:18px;padding-top:16px; }
+.simple-mode #singleCartToggle,.simple-mode .qr-edit-button,.simple-mode #unusedQueryParameters { display:none!important; }
+#toast { z-index:2147483647; }
+#toast::backdrop { background:transparent;pointer-events:none; }
+
+.simple-mode > .settings-panel { display:none; }
+.simple-qr-tools .address-field { display:block;margin:0 0 18px; }
+.simple-qr-tools #qrInput { width:100%;box-sizing:border-box;margin:6px 0 0; }
+.simple-qr-tools .cart-panel { margin:0 auto 24px; }
+.simple-qr-tools .single-download { margin-bottom:0; }
+
+.page-title-group { display:flex;align-items:center;gap:20px;flex-wrap:wrap; }
+.simple-mode-active .mode-tabs { display:none; }
+.simple-mode .copy-qr-link { display:none; }
+.simple-mode #editSingleTemplateBtn:disabled { background:transparent;cursor:default;pointer-events:none; }
+.simple-mode .qr-hover-zone { display:none; }
+.simple-mode .cart-panel:not(:has(#largeQRPreviewButton)) { padding-right:0; }
+.cart-qr-stage .template-qr-preview { flex-direction:column;align-items:center; }
+.cart-qr-template-below { width:100%;max-width:360px;margin-top:18px;text-align:left; }
+.cart-qr-template-below #cartQRTemplate { width:100%;margin:6px 0 0; }
+.cart-qr-template-below .cart-qr-help { color:var(--color-muted);font-size:var(--font-ui-small);font-weight:400; }
+@media(max-width:540px){.page-title-group{gap:10px 16px;}.page-title-group .page-title{text-align:left;}}

@@ -1,6 +1,9 @@
 (() => {
   "use strict";
   const english = {
+    "Einfach": "Simple",
+    "Kein Logo": "No logo",
+    "Logo hochladen": "Upload logo",
     "Dunkelmodus": "Dark mode",
     "Link mit QR-Code-Parametern kopieren": "Copy link with QR code parameters",
     "Link kopiert.": "Link copied.",
@@ -159,7 +162,7 @@
     "Eckband verschieben": "Move ribbon",
     "Eckband entfernen": "Remove ribbon",
     "Speicher voll: Bitte zuerst ein Logo löschen.": "Gallery full: please delete a logo first.",
-    "QR-Coder": "QR Code Generator Plus",
+    "QR-Coder": "QR Coder",
     "QR-Code gestalten": "Customize QR code",
     "Adresse oder Text": "URL or text",
     "Adresse oder Text eingeben …": "Enter a URL or text …",

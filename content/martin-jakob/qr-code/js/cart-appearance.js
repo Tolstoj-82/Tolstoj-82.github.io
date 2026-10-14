@@ -158,6 +158,7 @@
         return true;
       }
       details.open = true;
+      document.getElementById("layoutDialog").dispatchEvent(new Event("show-qr-settings"));
       window.QRGenerator.notifications.toast(
         t(
           "Bitte diese QR-Gestaltung zuerst als QR-Code-Template speichern oder ein vorhandenes Template auswählen.",

@@ -226,14 +226,14 @@ button.variable-chip:hover {
   min-height: 36px;
 }
 
-#savedLogos .saved-logo-delete {
+:is(#savedLogos, .simple-logo-list) .saved-logo-delete {
   transition:
     background 140ms,
     color 140ms,
     transform 140ms;
 }
 
-#savedLogos .saved-logo-delete:hover {
+:is(#savedLogos, .simple-logo-list) .saved-logo-delete:hover {
   color: var(--color-surface);
   background: var(--color-danger);
   transform: scale(1.08);

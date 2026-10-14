@@ -241,11 +241,11 @@
   background: var(--color-surface);
 }
 
-#savedLogos .saved-logo-select.empty-logo {
+:is(#savedLogos, .simple-logo-list) .saved-logo-select.empty-logo {
   border-style: dashed;
 }
 
-#savedLogos .saved-logo-select {
+:is(#savedLogos, .simple-logo-list) .saved-logo-select {
   width: 64px;
   height: 64px;
   margin: 0;
@@ -255,7 +255,7 @@
   background: var(--color-surface);
 }
 
-#savedLogos .saved-logo-select[aria-pressed="true"] {
+:is(#savedLogos, .simple-logo-list) .saved-logo-select[aria-pressed="true"] {
   border-color: var(--color-muted);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-muted) 13%, transparent);
 }

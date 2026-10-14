@@ -3,6 +3,110 @@
   const { t, LocalizedError, setMessage } = window.QRGenerator["i18n"];
   const { requestLogoCrop } = window.QRGenerator["logo-crop"];
 
+  function createLogoReordering(host, readItems, writeItems, renderItems) {
+    let draggedLogo = null;
+    host.addEventListener("dragover", (event) => {
+      if (draggedLogo) event.preventDefault();
+    });
+    host.addEventListener("drop", (event) => {
+      if (!draggedLogo) return;
+      event.preventDefault();
+      draggedLogo.committed = true;
+      const stored = new Set(readItems().map((item) => item.data));
+      writeItems(
+        [...host.querySelectorAll(".saved-logo")]
+          .map((node) => node.logoItem)
+          .filter((item) => stored.has(item.data)),
+      );
+    });
+    function reorderLogo(source, target) {
+      const items = [...readItems()],
+        from = items.findIndex((item) => item.data === source),
+        to = items.findIndex((item) => item.data === target);
+      if (from < 0 || to < 0 || from === to) return;
+      items.splice(to, 0, items.splice(from, 1)[0]);
+      writeItems(items);
+      renderItems();
+    }
+    return { bind(tile, select, item) {
+        tile.addEventListener("dragstart", (event) => {
+          draggedLogo = {
+            tile,
+            original: [...host.querySelectorAll(".saved-logo")],
+            committed: false,
+          };
+          event.dataTransfer.effectAllowed = "move";
+          event.dataTransfer.setData("text/plain", "logo");
+          requestAnimationFrame(() => {
+            if (draggedLogo?.tile === tile) tile.classList.add("dragging");
+          });
+        });
+        tile.addEventListener("dragover", (event) => {
+          if (!draggedLogo || draggedLogo.tile === tile) return;
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "move";
+          const nodes = [...host.querySelectorAll(".saved-logo")],
+            active = draggedLogo.tile;
+          const before = new Map(
+            nodes.map((node) => [node, node.getBoundingClientRect()]),
+          );
+          const forward = nodes.indexOf(active) < nodes.indexOf(tile),
+            rect = tile.getBoundingClientRect();
+          if (
+            (forward && event.clientX < rect.left + rect.width / 2) ||
+            (!forward && event.clientX > rect.left + rect.width / 2)
+          )
+            return;
+          host.insertBefore(active, forward ? tile.nextSibling : tile);
+          if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+            for (const node of nodes) {
+              if (node === active) continue;
+              const old = before.get(node),
+                next = node.getBoundingClientRect();
+              node.getAnimations?.().forEach((animation) => animation.cancel());
+              node.animate(
+                [
+                  {
+                    transform:
+                      "translate(" +
+                      (old.left - next.left) +
+                      "px," +
+                      (old.top - next.top) +
+                      "px)",
+                  },
+                  { transform: "translate(0,0)" },
+                ],
+                { duration: 180, easing: "ease-out" },
+              );
+            }
+        });
+        tile.addEventListener("dragend", () => {
+          if (draggedLogo && !draggedLogo.committed)
+            for (const node of draggedLogo.original) host.append(node);
+          draggedLogo = null;
+          tile.classList.remove("dragging");
+        });
+        select.addEventListener("keydown", (event) => {
+          if (!event.altKey || !["ArrowLeft", "ArrowRight"].includes(event.key))
+            return;
+          event.preventDefault();
+          const saved = readItems(),
+            index = saved.findIndex((entry) => entry.data === item.data),
+            target = saved[index + (event.key === "ArrowLeft" ? -1 : 1)];
+          if (target) {
+            reorderLogo(item.data, target.data);
+            [...host.querySelectorAll(".saved-logo-select")]
+              .find(
+                (button) =>
+                  button.getAttribute("aria-label") ===
+                  t("Logo auswählen: ") + item.name,
+              )
+              ?.focus();
+          }
+        });
+    } };
+  }
+
   function createLogoManager({
     saveSettings,
     generateQRCode,
@@ -58,30 +162,7 @@
         return true;
       }
     }
-    let draggedLogo = null;
-    savedLogos.addEventListener("dragover", (event) => {
-      if (draggedLogo) event.preventDefault();
-    });
-    savedLogos.addEventListener("drop", (event) => {
-      if (!draggedLogo) return;
-      event.preventDefault();
-      draggedLogo.committed = true;
-      const stored = new Set(readSavedLogos().map((item) => item.data));
-      writeSavedLogos(
-        [...savedLogos.querySelectorAll(".saved-logo")]
-          .map((node) => node.logoItem)
-          .filter((item) => stored.has(item.data)),
-      );
-    });
-    function reorderLogo(source, target) {
-      const items = [...readSavedLogos()],
-        from = items.findIndex((item) => item.data === source),
-        to = items.findIndex((item) => item.data === target);
-      if (from < 0 || to < 0 || from === to) return;
-      items.splice(to, 0, items.splice(from, 1)[0]);
-      writeSavedLogos(items);
-      renderSavedLogos();
-    }
+    const reordering = createLogoReordering(savedLogos, readSavedLogos, writeSavedLogos, renderSavedLogos);
     function renderSavedLogos() {
       for (const button of document.querySelectorAll(
         ".logo-transfer button[data-label]",
@@ -109,82 +190,8 @@
           (saved) => saved.data === item.data,
         );
         tile.logoItem = item;
-        tile.addEventListener("dragstart", (event) => {
-          draggedLogo = {
-            tile,
-            original: [...savedLogos.querySelectorAll(".saved-logo")],
-            committed: false,
-          };
-          event.dataTransfer.effectAllowed = "move";
-          event.dataTransfer.setData("text/plain", "logo");
-          requestAnimationFrame(() => {
-            if (draggedLogo?.tile === tile) tile.classList.add("dragging");
-          });
-        });
-        tile.addEventListener("dragover", (event) => {
-          if (!draggedLogo || draggedLogo.tile === tile) return;
-          event.preventDefault();
-          event.dataTransfer.dropEffect = "move";
-          const nodes = [...savedLogos.querySelectorAll(".saved-logo")],
-            active = draggedLogo.tile;
-          const before = new Map(
-            nodes.map((node) => [node, node.getBoundingClientRect()]),
-          );
-          const forward = nodes.indexOf(active) < nodes.indexOf(tile),
-            rect = tile.getBoundingClientRect();
-          if (
-            (forward && event.clientX < rect.left + rect.width / 2) ||
-            (!forward && event.clientX > rect.left + rect.width / 2)
-          )
-            return;
-          savedLogos.insertBefore(active, forward ? tile.nextSibling : tile);
-          if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
-            for (const node of nodes) {
-              if (node === active) continue;
-              const old = before.get(node),
-                next = node.getBoundingClientRect();
-              node.getAnimations?.().forEach((animation) => animation.cancel());
-              node.animate(
-                [
-                  {
-                    transform:
-                      "translate(" +
-                      (old.left - next.left) +
-                      "px," +
-                      (old.top - next.top) +
-                      "px)",
-                  },
-                  { transform: "translate(0,0)" },
-                ],
-                { duration: 180, easing: "ease-out" },
-              );
-            }
-        });
-        tile.addEventListener("dragend", () => {
-          if (draggedLogo && !draggedLogo.committed)
-            for (const node of draggedLogo.original) savedLogos.append(node);
-          draggedLogo = null;
-          tile.classList.remove("dragging");
-        });
         const select = document.createElement("button");
-        select.addEventListener("keydown", (event) => {
-          if (!event.altKey || !["ArrowLeft", "ArrowRight"].includes(event.key))
-            return;
-          event.preventDefault();
-          const saved = readSavedLogos(),
-            index = saved.findIndex((entry) => entry.data === item.data),
-            target = saved[index + (event.key === "ArrowLeft" ? -1 : 1)];
-          if (target) {
-            reorderLogo(item.data, target.data);
-            [...savedLogos.querySelectorAll(".saved-logo-select")]
-              .find(
-                (button) =>
-                  button.getAttribute("aria-label") ===
-                  t("Logo auswählen: ") + item.name,
-              )
-              ?.focus();
-          }
-        });
+        reordering.bind(tile, select, item);
         select.type = "button";
         select.className = "saved-logo-select";
         select.setAttribute("aria-label", t("Logo auswählen: ") + item.name);
@@ -238,33 +245,26 @@
           "aria-label",
           t("Gespeichertes Logo löschen: ") + item.name,
         );
-        remove.addEventListener("click", async () => {
-          if (
-            !(await confirmDeletion(item.name, {
-              kind: "logo",
-              templates: getLogoTemplates(item.data),
-            }))
-          )
-            return;
-          ++logoState.version;
-          if (
-            !writeSavedLogos(
-              readSavedLogos().filter((saved) => saved.data !== item.data),
-            )
-          )
-            return;
-          if (logoState.data === item.data) {
-            logoState.image = null;
-            logoState.data = "";
-            generateQRCode();
-          }
-          saveSettings();
-          setMessage(logoStatus, () => t("Gespeichertes Logo gelöscht."));
-          renderSavedLogos();
-        });
+        remove.addEventListener("click", () => removeSavedLogo(item));
         tile.append(select, remove);
         savedLogos.append(tile);
       }
+    }
+    async function removeSavedLogo(item) {
+      if (!(await confirmDeletion(item.name, {
+        kind: "logo", templates: getLogoTemplates(item.data),
+      }))) return false;
+      ++logoState.version;
+      if (!writeSavedLogos(readSavedLogos().filter(saved => saved.data !== item.data))) return false;
+      if (logoState.data === item.data) {
+        logoState.image = null;
+        logoState.data = "";
+        generateQRCode();
+      }
+      saveSettings();
+      setMessage(logoStatus, () => t("Gespeichertes Logo gelöscht."));
+      renderSavedLogos();
+      return true;
     }
     async function uploadLogo(file) {
       if (!file) return;
@@ -479,8 +479,8 @@
     }
     transfers.append(upload);
     document.querySelector(".logo-heading").append(transfers);
-    return { logoState, readSavedLogos, renderSavedLogos, addTemplateLogos };
+    return { logoState, readSavedLogos, renderSavedLogos, addTemplateLogos, uploadLogos, removeSavedLogo, saveLogoOrder(items) { writeSavedLogos(items); renderSavedLogos(); } };
   }
 
-  window.QRGenerator["logos"] = { createLogoManager };
+  window.QRGenerator["logos"] = { createLogoManager, createLogoReordering };
 })();
