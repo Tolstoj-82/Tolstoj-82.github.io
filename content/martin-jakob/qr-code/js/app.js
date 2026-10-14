@@ -3680,7 +3680,8 @@
       qrButton.addEventListener("click", () => openQRSettings(mode));
       qrButton.innerHTML =
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM14 13h3v4h4v4h-7zM20 12v2M10 12h2M12 19v2"/></svg>';
-      toolbar.append(button, qrButton);
+      if (mode === "single") toolbar.append(qrButton, button);
+      else toolbar.append(button, qrButton);
       const copyButton = document.createElement('button');
       copyButton.type = 'button';
       copyButton.className = 'cart-view-toggle copy-qr-link';
