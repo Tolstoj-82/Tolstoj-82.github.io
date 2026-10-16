@@ -562,9 +562,6 @@
 
 #singleRibbonBtn {
   position: relative;
-  margin: 4px 0 8px;
-  font-size: 12px;
-  padding: 6px 10px;
 }
 
 .ribbon-count {

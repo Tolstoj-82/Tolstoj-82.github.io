@@ -1,4 +1,5 @@
-/* Shared visual treatment for conventional primary and secondary actions only. */
+/* Regular text actions: .action-button is primary; add .secondary for secondary.
+   Icon buttons, menus, tabs, toggles and selectors use their own components. */
 button.action-button {
   display: inline-flex;
   align-items: center;
@@ -12,12 +13,13 @@ button.action-button {
   background: var(--color-accent);
   color: var(--color-surface);
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-ui-label);
+  font-weight: var(--font-weight-label);
   line-height: 1.4;
   text-align: center;
   white-space: normal;
   cursor: pointer;
+  box-shadow: none;
   transition:
     background 140ms,
     border-color 140ms,
@@ -32,13 +34,13 @@ button.action-button:hover {
 button.action-button.secondary {
   background: var(--color-surface);
   color: var(--color-text);
-  border-color: var(--color-muted);
+  border-color: var(--color-border);
 }
 
 button.action-button.secondary:hover {
-  background: var(--color-text);
-  color: var(--color-surface);
-  border-color: var(--color-text);
+  background: var(--color-page);
+  color: var(--color-text);
+  border-color: var(--color-muted);
 }
 
 button.action-button:disabled {
@@ -51,12 +53,6 @@ button.action-button:disabled {
 button.action-button:focus-visible {
   outline: 2px solid var(--color-muted);
   outline-offset: 3px;
-}
-
-#confirmDeleteBtn:disabled {
-  color: var(--color-muted);
-  background: var(--color-page);
-  cursor: not-allowed;
 }
 
 #deleteLogoUsage {

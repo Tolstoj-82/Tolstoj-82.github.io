@@ -733,7 +733,6 @@
       activeMode !== "templates";
     document.getElementById("cartsSection").hidden = activeMode !== "carts";
     bulkImport.hidden = activeMode !== "bulk";
-    document.getElementById("openCSVConverter").hidden = activeMode !== "bulk";
     document.getElementById("singleSection").hidden = activeMode !== "single";
     for (const [id, selected] of [
       ["toggleImportBtn", activeMode === "bulk"],

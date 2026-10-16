@@ -64,20 +64,6 @@ canvas {
   height: auto;
 }
 
-button.secondary {
-  background: var(--color-page);
-  color: var(--color-text);
-}
-
-button.secondary:hover {
-  background: var(--color-border);
-}
-
-button.secondary:disabled {
-  color: var(--color-muted);
-  background: var(--color-page);
-}
-
 * {
   box-sizing: border-box;
 }

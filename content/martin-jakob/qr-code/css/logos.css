@@ -12,7 +12,7 @@
   background: var(--color-text);
 }
 
-#logoHelp {
+:is(#logoHelp, #qrReaderHelp) {
   font-size: 13px;
   font-weight: normal;
   display: none;
@@ -30,11 +30,11 @@
   box-shadow: 0 3px 10px color-mix(in srgb, var(--color-ink) 20%, transparent);
 }
 
-.logo-info:hover #logoHelp {
+.logo-info:hover :is(#logoHelp, #qrReaderHelp) {
   display: block;
 }
 
-.logo-info:focus-within #logoHelp {
+.logo-info:focus-within :is(#logoHelp, #qrReaderHelp) {
   display: block;
 }
 
@@ -119,7 +119,7 @@
 }
 
 @media (max-width: 540px) {
-  #logoHelp {
+  :is(#logoHelp, #qrReaderHelp) {
     left: auto;
     right: -30px;
     transform: none;

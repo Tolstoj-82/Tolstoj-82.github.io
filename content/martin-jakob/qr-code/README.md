@@ -86,7 +86,7 @@ keys block download. Used keys are saved locally as suggestions and can be
 deleted with confirmation. No CSV content is sent to a server.
 
 
-The converter is shown only in Bulk export. It accepts CSV/TSV or flat JSON,
+The converter is available in the header Tools menu. It accepts CSV/TSV or flat JSON,
 lets you rename/select columns, and exports the opposite format. CSV detection
 supports comma, semicolon, tab, pipe, colon, caret and tilde; the converter also
 accepts a custom single-character delimiter. Encoding detection uses UTF-8,
@@ -129,3 +129,16 @@ QR preview; its close control restores the centered preview. On mobile, these
 settings remain below the draggable fields. Reduced-motion preferences are respected.
 Toasts follow the most recently opened modal and are raised in the browser top
 layer, retaining their queue order and remaining display time.
+
+
+The hammer menu contains CSV ↔ JSON and QR codes → table. The QR reader accepts
+PNG, JPEG, WebP, GIF (first frame), BMP and SVG images, individually or inside ZIPs.
+It processes locally, including up to 32 QR symbols per image, and keeps filenames,
+decoded text and a status for unreadable/unsupported inputs. Nested ZIPs are not
+expanded. Limits are 20 MB per image, 50 MB per ZIP, 500 files per batch and
+200 MB of image data in a batch (including decompressed entries); images are
+limited to 8192 pixels per side and 40 megapixels. Closing/cancelling stops after
+the current decoding step and retains completed results for reopening.
+CSV exports use semicolons and UTF-8 with BOM; clipboard output is tab-separated
+with quoted multiline cells for spreadsheets. Formula-like spreadsheet values
+receive a leading apostrophe. JSON preserves the original decoded text exactly.

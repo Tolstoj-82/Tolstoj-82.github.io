@@ -58,7 +58,7 @@
     const comboHost = document.createElement("div");
     const save = document.createElement("button");
     save.type = "button";
-    save.className = "action-button secondary";
+    save.className = "action-button";
     row.append(comboHost);
     host.append(label, row);
     const saveHost = document.getElementById("qrPresetSaveControls"),

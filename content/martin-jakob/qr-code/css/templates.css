@@ -22,7 +22,7 @@
   padding: 8px;
 }
 
-.template-library button {
+.template-library button:not(.action-button) {
   margin: 0;
   padding: 8px 10px;
   font-size: 12px;
@@ -157,14 +157,6 @@
 #templateName {
   width: 100%;
   margin: 8px 0 0;
-}
-
-.danger-button {
-  background: var(--color-danger);
-}
-
-.danger-button:hover {
-  background: var(--color-danger);
 }
 
 /* Editable template selectors share the same autosuggest presentation. */

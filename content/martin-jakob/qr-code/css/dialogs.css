@@ -1,4 +1,15 @@
 /* dialogs styles. Shared colors are defined in tokens.css. */
+/* Lock the page until the last modal closes, including nested dialogs. */
+html:has(dialog:modal),
+body:has(dialog:modal) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
 @supports not (scrollbar-gutter: stable) {
   html {
     overflow-y: scroll;

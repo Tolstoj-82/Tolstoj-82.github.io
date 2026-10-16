@@ -1,25 +1,29 @@
 /* Style entry point; keep this order for shared component defaults. */
-@import url("./css/tokens.css?v=20261014-logo-delete");
-@import url("./css/base.css?v=20261014-logo-delete");
-@import url("./css/generator.css?v=20261014-logo-delete");
-@import url("./css/dialogs.css?v=20261014-logo-delete");
-@import url("./css/editor.css?v=20261014-logo-delete");
-@import url("./css/logos.css?v=20261014-logo-delete");
-@import url("./css/templates.css?v=20261014-logo-delete");
-@import url("./css/presets.css?v=20261014-logo-delete");
+@import url("./css/tokens.css?v=20261016-tools");
+@import url("./css/base.css?v=20261016-button-system");
+@import url("./css/generator.css?v=20261016-tools");
+@import url("./css/dialogs.css?v=20261016-modal-scroll-lock");
+@import url("./css/editor.css?v=20261016-button-system");
+@import url("./css/logos.css?v=20261016-reader-tooltip");
+@import url("./css/templates.css?v=20261016-button-system");
+@import url("./css/presets.css?v=20261016-tools");
 
-@import url("./css/buttons.css?v=20261014-logo-delete");
 
-@import url("css/cart-appearance.css?v=20261014-logo-delete");
-@import url("./css/typography.css?v=20261014-logo-delete");
-@import url("./css/cart-actions.css?v=20261014-logo-delete");
+@import url("css/cart-appearance.css?v=20261016-tools");
+@import url("./css/typography.css?v=20261016-tools");
+@import url("./css/cart-actions.css?v=20261016-tools");
 
-@import url("./css/template-export.css?v=20261014-logo-delete");
+@import url("./css/template-export.css?v=20261016-tools");
 
-@import url("./css/library-controls.css?v=20261014-logo-delete");
+@import url("./css/library-controls.css?v=20261016-tools");
 
-@import url("./css/compact-editor.css?v=20261014-logo-delete");
+@import url("./css/compact-editor.css?v=20261016-tools");
 
-@import url("./css/theme.css?v=20261014-logo-delete");
+@import url("./css/theme.css?v=20261016-tools");
 
-@import url("./css/appearance-workspaces.css?v=20261014-logo-delete");
+@import url("./css/appearance-workspaces.css?v=20261016-tools");
+
+@import url("./css/tools.css?v=20261016-reader-height");
+
+/* Keep regular action buttons consistent across all feature panels. */
+@import url("./css/buttons.css?v=20261016-button-system");
