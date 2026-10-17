@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const $=id=>document.getElementById(id),time=$('time'),start=$('start'),s1=$('s1'),s2=$('s2'),s3=$('s3'),avg=$('avg');
-const saved=window.qualState||{};let total=Number(saved.total)||5400,remaining=Number(saved.remaining??total),running=false,paused=!!saved.paused,pauseUsed=Number(saved.pauseUsed)||0,deadline=0,wallDeadline=0,pauseStarted=performance.now(),interval=null,alarmPlayed=false;
+let total=5400,remaining=5400,running=false,paused=false,pauseUsed=0,deadline=0,pauseStarted=performance.now(),interval=null,alarmPlayed=false;
 const limit=()=>Math.max(1,Math.min(120,Number(window.qualAppearance?.pauseMinutes)||5))*60;
 const enabled=()=>window.qualAppearance?.pauseEnabled!==false;
 const used=()=>pauseUsed+(paused?(performance.now()-pauseStarted)/1000:0);
@@ -11,10 +11,10 @@ function parse(v){const m=/^(\d{1,3}):(\d{2}):(\d{2})$/.exec(v.trim());return m?
 function stop(){running=false;paused=false;if(interval!==null){clearInterval(interval);interval=null}}
 function schedule(){if(interval===null)interval=setInterval(tick,100)}
 window.qualIsTimerRunning=()=>running;window.qualSettingsLocked=()=>running||paused;
-function render(){const settingsButton=$('openSettings');settingsButton.disabled=running||paused;settingsButton.title=running||paused?'Reset or finish the timer to open settings':'Open settings';if((running||paused)&&$('settings').open)$('settings').close();const blocked=running&&!canPause();start.disabled=blocked;$('modalStart').disabled=blocked;start.textContent=running?'Ⅱ PAUSE':paused?'▶ RESUME':'▶ START';$('modalStart').textContent=running?'Pause timer':paused?'Resume timer':'Start timer';time.readOnly=running&&!canPause();time.setAttribute('aria-readonly',String(time.readOnly));if(document.activeElement!==time)time.value=fmt(remaining);const label=$('pauseStatus');label.hidden=!paused;$('pauseRemaining').textContent=fmt(Math.max(0,limit()-used())).replace(/^0:/,'');window.qualPlacePause?.();window.qualSaveTimer?.({total,remaining,running,paused,pauseUsed:used(),pausedAt:paused?Date.now():null,wallDeadline:running?wallDeadline:null})}
+function render(){const settingsButton=$('openSettings');settingsButton.disabled=running||paused;settingsButton.title=running||paused?'Reset or finish the timer to open settings':'Open settings';if((running||paused)&&$('settings').open)$('settings').close();const blocked=running&&!canPause();start.disabled=blocked;$('modalStart').disabled=blocked;start.textContent=running?'Ⅱ PAUSE':paused?'▶ RESUME':'▶ START';$('modalStart').textContent=running?'Pause timer':paused?'Resume timer':'Start timer';time.readOnly=running&&!canPause();time.setAttribute('aria-readonly',String(time.readOnly));if(document.activeElement!==time)time.value=fmt(remaining);const label=$('pauseStatus');label.hidden=!paused;$('pauseRemaining').textContent=fmt(Math.max(0,limit()-used())).replace(/^0:/,'');window.qualPlacePause?.();window.qualTimerSnapshot={total,remaining,running,paused,pauseUsed:used()}}
 function sound(){window.qualAudio?.play(window.qualAppearance).catch(()=>{})}
 function done(){stop();remaining=0;if(!alarmPlayed){alarmPlayed=true;sound();time.classList.remove('flash');void time.offsetWidth;time.classList.add('flash')}render()}
-function resume(at=performance.now()){if(paused)pauseUsed=Math.min(limit(),used());paused=false;running=true;deadline=at+remaining*1000;wallDeadline=Date.now()+(deadline-performance.now());schedule();tick()}
+function resume(at=performance.now()){if(paused)pauseUsed=Math.min(limit(),used());paused=false;running=true;deadline=at+remaining*1000;schedule();tick()}
 function pauseTimer(){if(!running||!canPause())return;remaining=Math.max(0,(deadline-performance.now())/1000);if(remaining<=0){done();return}running=false;paused=true;pauseStarted=performance.now();schedule();render()}
 function tick(){if(paused){const expires=pauseStarted+Math.max(0,limit()-pauseUsed)*1000;if(!enabled()||performance.now()>=expires){resume(enabled()?expires:performance.now());return}render();return}if(!running)return;remaining=Math.max(0,(deadline-performance.now())/1000);if(remaining<=0)done();else render()}
 function commit(){const n=parse(time.value);if(n!==null){total=n;remaining=n;alarmPlayed=false;time.classList.remove('flash')}render()}
@@ -37,7 +37,8 @@ document.addEventListener('keydown',e=>{if(e.repeat||e.ctrlKey||e.metaKey||e.alt
 document.addEventListener('visibilitychange',()=>{if(running||paused)tick()});
 function calc(){for(const x of [s1,s2,s3]){const old=x.value,caret=x.selectionStart||0,before=old.slice(0,caret).replace(/\D/g,'').length,digits=old.replace(/\D/g,'').slice(0,7);x.value=digits?Number(digits).toLocaleString('en-US'):'';let p=0,n=0;while(p<x.value.length&&n<before){if(/\d/.test(x.value[p]))n++;p++}if(document.activeElement===x)x.setSelectionRange(p,p)}const count=Number(window.qualAppearance?.scoreCount)===3?3:2;const scores=[s1,s2,s3].slice(0,count);$('score3Row').hidden=count!==3;$('averageLabel').textContent='AO'+count+':';avg.textContent=scores.every(x=>x.value!=='')?(scores.reduce((sum,x)=>sum+Number(x.value.replace(/,/g,'')),0)/count).toLocaleString('en-US',{maximumFractionDigits:1}):'—';$('pauseAverageLabel').textContent='AO'+count+' AVERAGE';$('pauseAverage').textContent=avg.textContent;window.qualPlacePause?.()}window.qualRecalculate=calc;s1.addEventListener('input',calc);s2.addEventListener('input',calc);s3.addEventListener('input',calc);
 calc();
-if(paused){pauseUsed+=Math.max(0,(Date.now()-Number(saved.pausedAt||Date.now()))/1000);pauseStarted=performance.now();if(pauseUsed>=limit()||!enabled()){const overdue=enabled()?Math.max(0,pauseUsed-limit()):0;pauseUsed=Math.min(limit(),pauseUsed);remaining=Math.max(0,remaining-overdue);paused=false;if(remaining>0)resume();else done()}else{schedule();render()}}
-else if(saved.running&&Number(saved.wallDeadline)){remaining=Math.max(0,(saved.wallDeadline-Date.now())/1000);if(remaining>0)resume();else done()}else render();
+render();
+window.addEventListener('beforeunload',event=>{event.preventDefault();event.returnValue=''});
+window.addEventListener('pageshow',event=>{for(const score of [s1,s2,s3])score.value='';if(event.persisted)resetDuration(5400);calc();window.qualScoreEditorSync?.()});
 })();
 
