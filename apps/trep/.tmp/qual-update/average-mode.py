@@ -1,0 +1,21 @@
+from pathlib import Path
+root=Path('../qual-timer');stage=Path('.tmp/qual-update')
+s=(root/'settings.js').read_text(encoding='utf-8').replace("title:'GBTDC Qual',", "title:'GBTDC Qual',scoreCount:2,")
+s=s.replace("['s1','s2']", "['s1','s2','s3']")
+s=s.replace('window.qualAppearance=appearance;state.appearance=appearance;', "appearance.scoreCount=Number(appearance.scoreCount)===3?3:2;window.qualAppearance=appearance;window.qualRecalculate?.();state.appearance=appearance;")
+s=s.replace("field('Timer heading','title');", "field('Average mode','scoreCount','text',[['2','AO2 — average of 2 scores'],['3','AO3 — average of 3 scores']]);field('Timer heading','title');")
+(stage/'settings.js').write_text(s,encoding='utf-8')
+s=(root/'index.html').read_text(encoding='utf-8')
+s=s.replace('<div class="score-row" style="border-bottom:0"><span>AVERAGE:</span>', '<div class="score-row" id="score3Row" hidden><label for="s3">SCORE 3:</label><input id="s3" type="text" inputmode="numeric" placeholder="0"></div><div class="score-row" style="border-bottom:0"><span id="averageLabel">AO2:</span>')
+s=s.replace("s2=$('s2'),avg=", "s2=$('s2'),s3=$('s3'),avg=")
+s=s.replace('for(const x of [s1,s2])', 'for(const x of [s1,s2,s3])')
+a=s.index('avg.textContent=s1.value&&s2.value?')
+b=s.index("s1.addEventListener('input',calc)",a)
+s=s[:a]+"const count=Number(window.qualAppearance?.scoreCount)===3?3:2;const scores=[s1,s2,s3].slice(0,count);$('score3Row').hidden=count!==3;$('averageLabel').textContent='AO'+count+':';avg.textContent=scores.every(x=>x.value!=='')?(scores.reduce((sum,x)=>sum+Number(x.value.replace(/,/g,'')),0)/count).toLocaleString('en-US',{maximumFractionDigits:1}):'—'}window.qualRecalculate=calc;"+s[b:]
+s=s.replace("s2.addEventListener('input',calc);", "s2.addEventListener('input',calc);s3.addEventListener('input',calc);")
+(stage/'index.html').write_text(s,encoding='utf-8')
+(stage/'timer-inline.js').write_text(s.split('<script>')[1].split('</script>')[0],encoding='utf-8')
+s=(root/'timer.css').read_text(encoding='utf-8')+'\n.score-row[hidden]{display:none}\n'
+(stage/'timer.css').write_text(s,encoding='utf-8')
+s=Path('../../index.html').read_text(encoding='utf-8').replace('qualification timer with two scores and their average.', 'qualification timer with two or three scores and their average.')
+(stage/'site-index.html').write_text(s,encoding='utf-8')
