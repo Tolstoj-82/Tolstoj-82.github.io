@@ -79,3 +79,16 @@ dialog{border:1px solid #b7b9ae;border-radius:16px;width:min(620px,calc(100vw - 
 .heading[contenteditable]{cursor:text;overflow-wrap:anywhere;min-width:0}
 .heading[contenteditable]:hover{background:color-mix(in srgb,var(--screen),white 8%)}
 .heading[contenteditable]:focus{background:color-mix(in srgb,var(--screen),white 12%);outline:2px dashed color-mix(in srgb,var(--ink),transparent 35%);outline-offset:3px}
+
+.time-field{position:relative;min-width:0}.time-field .time{display:block}
+.lcd{position:relative}
+#pauseStatus{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(86%,360px);z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,2cqh,18px);padding:clamp(12px,3cqw,24px);background:#faf9f2;color:#34402e;border:1px solid #c3c6b8;border-radius:14px;box-shadow:0 8px 28px #23301c35,0 2px 5px #23301c20;text-align:center;font-family:system-ui,sans-serif}
+.pause-heading{font-size:clamp(24px,7cqw,42px);line-height:1;letter-spacing:.08em}
+#pauseRemaining{font-size:clamp(38px,12cqw,72px);font-weight:750;font-variant-numeric:tabular-nums;line-height:1.1;letter-spacing:.02em}
+#pauseResume{border:1px solid #a8b29b;border-radius:7px;background:#e6ebdf;color:#34402e;padding:9px 16px;font:600 14px system-ui;cursor:pointer}
+#pauseResume:hover{background:#dbe4d1}
+#pauseStatus[hidden]{display:none}
+.frame .name:focus,.frame .time:focus,.frame .score-row input:focus,.frame .heading[contenteditable]:focus{background:color-mix(in srgb,var(--screen),white 38%);color:var(--ink);outline:1px solid var(--ink);outline-offset:0;border-radius:3px;box-shadow:inset 0 1px 3px #0003}
+.frame .name:focus{background:color-mix(in srgb,var(--bezel),white 18%);color:white;outline-color:#ddd}
+.frame .time[readonly]{cursor:default}.actions button:disabled{opacity:.55;cursor:default;transform:none}
+.template-settings{display:grid;gap:12px;margin:0 0 8px;padding:0 0 20px;border-bottom:1px solid #e0e4da}.template-settings h3,.template-settings p{margin:0}.template-actions{display:flex;gap:8px;flex-wrap:wrap}
