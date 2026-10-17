@@ -1,0 +1,11 @@
+from pathlib import Path
+root=Path('../qual-timer');p=Path('.tmp/qual-update')
+s=(root/'index.html').read_text(encoding='utf-8').replace('<script src="timer.js">','<script src="pause-window.js"></script><script src="timer.js">')
+(p/'index.html').write_text(s,encoding='utf-8')
+s=(root/'timer.js').read_text(encoding='utf-8').replace("window.qualSaveTimer?.({total,remaining,", "window.qualPlacePause?.();window.qualSaveTimer?.({total,remaining,")
+(p/'timer.js').write_text(s,encoding='utf-8')
+s=(root/'score-editor.js').read_text(encoding='utf-8')
+s=s.replace("panel.style.top=(beside?Math.max(76,rect.top)+scrollY:rect.bottom+gap+scrollY)+'px';", "let top=beside?Math.max(76,rect.top)+scrollY:rect.bottom+gap+scrollY;const popup=document.getElementById('pauseStatus');if(!beside&&popup&&!popup.hidden&&popup.dataset.position==='below')top=Math.max(top,popup.getBoundingClientRect().bottom+scrollY+gap);panel.style.top=top+'px';")
+(p/'score-editor.js').write_text(s,encoding='utf-8')
+s=(root/'timer.css').read_text(encoding='utf-8').replace('left:50%;top:50%;transform:translate(-50%,-50%);width:min(86%,360px)', 'left:20px;top:20px;width:300px').replace('gap:clamp(8px,2cqh,18px);padding:clamp(12px,3cqw,24px)', 'gap:14px;padding:20px').replace('font-size:clamp(24px,7cqw,42px)', 'font-size:32px').replace('font-size:clamp(38px,12cqw,72px)', 'font-size:64px')
+(p/'timer.css').write_text(s,encoding='utf-8')
