@@ -8,8 +8,8 @@
     choose,
     remove,
     save,
-    placeholder = "Template auswählen oder benennen …",
-    emptyText = "Neuer Name – mit Speichern als Template anlegen.",
+    placeholder = "Template auswählen …",
+    emptyText = "Keine passenden Templates.",
     removeLabel = "Template löschen: ",
   }) {
     host.replaceChildren();
@@ -114,7 +114,8 @@
       if (event.key === "Enter" && event.target === input) {
         event.preventDefault();
         close();
-        save();
+        const match = getItems().find(item => item.name.toLocaleLowerCase() === input.value.trim().toLocaleLowerCase());
+        if (match) Promise.resolve(choose(match)).then(result => { if(result !== false) input.value=match.name; });
       }
     });
     host.addEventListener("focusout", (event) => {
@@ -136,6 +137,36 @@
       },
       remove,
     };
+  }
+  // Naming is separate from selection and shared by QR and Cart templates.
+  let naming = null;
+  function requestTemplateName(initial = "", names = []) {
+    if (naming) return Promise.resolve(null);
+    const dialog=document.createElement('dialog');
+    dialog.className='compact-dialog';
+    dialog.innerHTML='<div class="preview-header"><h2></h2><button type="button" class="modal-close">×</button></div><form><label for="newTemplateName"></label><input id="newTemplateName" type="text" maxlength="80" required autocomplete="off"><p role="alert"></p><div class="modal-actions"><button type="button" class="action-button secondary"></button><button type="submit" class="action-button"></button></div></form>';
+    document.body.append(dialog);
+    const input=dialog.querySelector('input'),error=dialog.querySelector('[role="alert"]');
+    dialog.querySelector('h2').textContent=t('Template speichern unter …');
+    dialog.querySelector('label').textContent=t('Template-Name');
+    dialog.querySelector('.modal-close').setAttribute('aria-label',t('Schliessen'));
+    dialog.querySelector('.secondary').textContent=t('Abbrechen');
+    dialog.querySelector('[type="submit"]').textContent=t('Speichern');
+    input.value=initial;
+    return new Promise(resolve=>{
+      naming=dialog;
+      const finish=value=>{const toast=dialog.querySelector('#toast');if(toast)document.body.append(toast);dialog.close();dialog.remove();naming=null;resolve(value);};
+      dialog.querySelector('.modal-close').onclick=()=>finish(null);
+      dialog.querySelector('.secondary').onclick=()=>finish(null);
+      dialog.addEventListener('cancel',event=>{event.preventDefault();finish(null);});
+      dialog.querySelector('form').onsubmit=event=>{
+        event.preventDefault();const value=input.value.trim();
+        if(!value){error.textContent=t('Bitte einen Template-Namen eingeben.');input.focus();return;}
+        if(names.some(name=>name.toLocaleLowerCase()===value.toLocaleLowerCase())){error.textContent=t('Dieser Name ist bereits vergeben. Bitte einen neuen Namen wählen.');input.focus();return;}
+        finish(value);
+      };
+      dialog.showModal();input.focus();input.select();
+    });
   }
   let pending = null;
   function confirmOverwrite(name) {
@@ -168,6 +199,7 @@
     });
   window.QRGenerator["template-combo"] = {
     createTemplateCombo,
+    requestTemplateName,
     confirmOverwrite,
   };
 })();

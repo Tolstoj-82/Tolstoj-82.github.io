@@ -17,7 +17,7 @@
     close.textContent='×';pane.append(close);
     const host=document.getElementById('cartAppearance');
     const details=document.getElementById('cartQROptions');
-    const templateControls=[host.querySelector('.cart-qr-help'),host.querySelector('label[for="cartQRTemplate"]'),document.getElementById('cartQRTemplate')];
+    const templateControls=[host.querySelector('label[for="cartQRTemplate"]'),document.getElementById('cartQRTemplate'),document.getElementById('qrPresetSaveControls')];
     const templateBlock=document.createElement('div');templateBlock.className='cart-qr-template-below';preview.append(templateBlock);
     const dialog=document.getElementById('layoutDialog');
     const desktop=matchMedia('(min-width: 761px)');let expanded=false;
@@ -31,6 +31,7 @@
       const separate=desktop.matches&&dialog.open&&home.contains(host);
       templateBlock.hidden=!separate;
       for(const control of templateControls){
+        if(control.id==='qrPresetSaveControls'&&!host.contains(control)&&!templateBlock.contains(control))continue;
         if(separate){if(control.parentElement!==templateBlock)templateBlock.append(control);}
         else if(control.parentElement!==host)host.insertBefore(control,details);
       }

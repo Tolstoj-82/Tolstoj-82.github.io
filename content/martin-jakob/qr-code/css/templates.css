@@ -215,3 +215,16 @@
 #qrPresetControls > p:empty {
   display: none;
 }
+
+/* Template selection, then explicit Save / Save as actions. */
+#qrPresetSaveControls .template-library-row { display:flex;flex-wrap:wrap;gap:8px; }
+#qrPresetSaveName { flex:1 1 140px;min-width:0; }
+#cartAppearance > #qrPresetSaveControls, .cart-qr-template-below > #qrPresetSaveControls { margin:12px 0; }
+#cartAppearance > #qrPresetSaveControls > label, .cart-qr-template-below > #qrPresetSaveControls > label,
+#cartAppearance #qrPresetSaveName, .cart-qr-template-below #qrPresetSaveName { display:none; }
+#newTemplateName { width:100%;margin:8px 0; }
+
+@media(max-width:540px) {
+  .template-library-row { flex-wrap:wrap; }
+  .template-library-row > .template-combo { flex-basis:100%; }
+}

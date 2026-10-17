@@ -3681,8 +3681,8 @@
       const qrButton = document.createElement("button");
       qrButton.type = "button";
       qrButton.className = "cart-view-toggle qr-edit-button";
-      qrButton.setAttribute("aria-label", t("QR-Code-Gestaltung anpassen"));
-      qrButton.title = t("QR-Code-Gestaltung anpassen");
+      qrButton.setAttribute("aria-label", t("Aussehen des QR-Codes ändern"));
+      qrButton.title = t("Aussehen des QR-Codes ändern");
       qrButton.addEventListener("click", () => openQRSettings(mode));
       qrButton.innerHTML =
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM14 13h3v4h4v4h-7zM20 12v2M10 12h2M12 19v2"/></svg>';
@@ -3708,7 +3708,7 @@
         document.getElementById(mode + "EditorSlot"),
       );
       updateCartToggle(mode, false);
-      preview.setAttribute("aria-label", t("QR-Code-Gestaltung anpassen"));
+      preview.setAttribute("aria-label", t("Aussehen des QR-Codes ändern"));
       const target = preview.querySelector("canvas"),
         hover = document.createElement("span");
       hover.className = "qr-hover-zone";

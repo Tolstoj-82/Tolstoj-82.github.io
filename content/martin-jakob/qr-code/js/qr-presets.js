@@ -35,7 +35,7 @@
     }
     const host = document.getElementById("qrPresetControls");
     host.classList.add("template-library");
-    const { createTemplateCombo, confirmOverwrite } =
+    const { createTemplateCombo, confirmOverwrite, requestTemplateName } =
       window.QRGenerator["template-combo"];
     const error = document.createElement("p");
     error.setAttribute("role", "status");
@@ -68,6 +68,9 @@
     saveName.id = "qrPresetSaveName";
     saveName.type = "text";
     saveName.maxLength = 80;
+    saveName.readOnly = true;
+    const saveAs=document.createElement("button");saveAs.type="button";saveAs.className="action-button secondary";
+    saveAs.addEventListener("click",()=>saveTemplate(true));
     let baseline = null,
       pendingDiscard = null;
     const signature = () =>
@@ -108,7 +111,7 @@
     });
     const saveRow = document.createElement("div");
     saveRow.className = "template-library-row";
-    saveRow.append(saveName, save);
+    saveRow.append(saveName, save, saveAs);
     saveHost.append(saveLabel, saveRow, error);
     const combo = createTemplateCombo({
       host: comboHost,
@@ -176,14 +179,11 @@
       save: () => saveTemplate(),
     });
     let saving = false;
-    async function saveTemplate() {
+    async function saveTemplate(asNew = false) {
       if (saving) return;
-      const name = saveName.value.trim();
-      if (!name) {
-        error.textContent = t("Bitte einen Template-Namen eingeben.");
-        saveName.focus();
-        return;
-      }
+      const current=entries.find(item=>item.id===selected);
+      const name=asNew||!current ? await requestTemplateName(asNew&&current?current.name+' '+t('Kopie'):'',entries.map(item=>item.name)) : current.name;
+      if(!name)return;
       saving = true;
       try {
         const existing = entries.find(
@@ -375,10 +375,12 @@
         );
       }
     }
-    save.addEventListener("click", saveTemplate);
+    save.addEventListener("click", () => saveTemplate());
     function render() {
       label.textContent = t("QR-Code-Template");
-      saveLabel.textContent = t("Template speichern");
+      saveLabel.textContent = t("Aktuelles Template");
+      saveName.placeholder=t("Noch nicht gespeichert");
+      saveAs.textContent=t("Speichern unter …");
       save.textContent = t("Speichern");
       combo.render();
     }
@@ -432,7 +434,7 @@
           null,
         );
         markBaseline();
-        saveName.focus();
+        save.focus();
         return true;
       },
       getEntries: () => entries,

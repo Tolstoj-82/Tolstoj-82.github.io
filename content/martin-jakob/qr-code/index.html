@@ -28,32 +28,32 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;family=Nunito+Sans:wght@400;700&amp;family=Noto+Sans:wght@400;700&amp;family=PT+Sans:wght@400;700&amp;family=Libre+Baskerville:wght@400;700&amp;family=Roboto+Slab:wght@400;700&amp;family=Lato:wght@400;700&amp;family=Merriweather:wght@400;700&amp;family=Montserrat:wght@400;700&amp;family=Open+Sans:wght@400;700&amp;family=Roboto:wght@400;700&amp;family=Source+Sans+3:wght@400;700&amp;display=swap"
     />
-    <link rel="stylesheet" href="styles.css?v=20261016-button-system" />
+    <link rel="stylesheet" href="styles.css?v=20261017-hover-delete" />
     <script defer src="script.js?v=20261016-tools"></script>
-    <script defer src="js/translations.js?v=20261016-reader-tooltip"></script>
+    <script defer src="js/translations.js?v=20261017-appearance-wording"></script>
     <script defer src="js/notifications.js?v=20261016-tools"></script>
     <script defer src="js/i18n.js?v=20261016-tools"></script>
     <script defer src="js/logo-crop.js?v=20261016-tools"></script>
     <script defer src="js/qr-renderer.js?v=20261016-tools"></script>
     <script defer src="js/logos.js?v=20261016-tools"></script>
-    <script defer src="js/template-combo.js?v=20261016-tools"></script>
+    <script defer src="js/template-combo.js?v=20261017-template-workflow"></script>
     <script defer src="js/template-export.js?v=20261016-tools"></script>
     <script defer src="js/cart-fonts.js?v=20261016-tools"></script>
     <script defer src="js/cart-fields.js?v=20261016-tools"></script>
     <script defer src="js/search-fields.js?v=20261016-tools"></script>
-    <script defer src="js/templates.js?v=20261016-tools"></script>
-    <script defer src="js/qr-presets.js?v=20261016-button-system"></script>
+    <script defer src="js/templates.js?v=20261017-template-workflow"></script>
+    <script defer src="js/qr-presets.js?v=20261017-template-workflow"></script>
     <script defer src="js/qr-content.js?v=20261016-tools"></script>
-    <script defer src="js/cart-appearance.js?v=20261016-tools"></script>
+    <script defer src="js/cart-appearance.js?v=20261017-appearance-wording"></script>
     <script
       defer
       src="js/csv-converter.js?v=20261016-tools"
     ></script>
-    <script defer src="js/cart-dock.js?v=20261016-tools"></script>
+    <script defer src="js/cart-dock.js?v=20261017-appearance-wording"></script>
     <script defer src="js/simple-mode.js?v=20261016-tools"></script>
     <script defer src="js/qr-reader.js?v=20261016-image-filenames"></script>
     <script defer src="js/tools-menu.js?v=20261016-focus-fix"></script>
-    <script defer src="js/app.js?v=20261016-tools"></script>
+    <script defer src="js/app.js?v=20261017-appearance-wording"></script>
   </head>
   <body>
     <main class="generator">
@@ -532,9 +532,6 @@
           <div id="layoutBelow"></div>
           <div id="cartAppearanceHome">
             <section id="cartAppearance" hidden>
-              <p class="cart-qr-help">
-                Neue QR-Code-Templates können Sie hier erstellen und speichern.
-              </p>
               <label for="cartQRTemplate">QR-Code-Template</label
               ><select id="cartQRTemplate"></select>
               <details id="cartQROptions" class="qr-settings-disclosure">
@@ -573,7 +570,7 @@
       aria-labelledby="qrAppearanceHeading"
     >
       <div class="preview-header">
-        <h2 id="qrAppearanceHeading">QR-Code-Gestaltung anpassen</h2>
+        <h2 id="qrAppearanceHeading">Aussehen des QR-Codes ändern</h2>
         <button
           id="closeQRAppearance"
           class="modal-close"
@@ -936,7 +933,7 @@
         </button>
       </div>
       <p>
-        Die Gestaltung wurde geändert. Möchten Sie sie als Template speichern?
+        Das Aussehen wurde geändert. Möchten Sie es als Template speichern?
       </p>
       <label for="templateName">Template-Name</label
       ><input id="templateName" type="text" maxlength="80" />

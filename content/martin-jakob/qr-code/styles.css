@@ -4,13 +4,13 @@
 @import url("./css/generator.css?v=20261016-tools");
 @import url("./css/dialogs.css?v=20261016-modal-scroll-lock");
 @import url("./css/editor.css?v=20261016-button-system");
-@import url("./css/logos.css?v=20261016-reader-tooltip");
-@import url("./css/templates.css?v=20261016-button-system");
+@import url("./css/logos.css?v=20261017-hover-delete");
+@import url("./css/templates.css?v=20261017-template-workflow");
 @import url("./css/presets.css?v=20261016-tools");
 
 
-@import url("css/cart-appearance.css?v=20261016-tools");
-@import url("./css/typography.css?v=20261016-tools");
+@import url("css/cart-appearance.css?v=20261017-appearance-wording");
+@import url("./css/typography.css?v=20261017-appearance-wording");
 @import url("./css/cart-actions.css?v=20261016-tools");
 
 @import url("./css/template-export.css?v=20261016-tools");
@@ -21,7 +21,7 @@
 
 @import url("./css/theme.css?v=20261016-tools");
 
-@import url("./css/appearance-workspaces.css?v=20261016-tools");
+@import url("./css/appearance-workspaces.css?v=20261017-appearance-wording");
 
 @import url("./css/tools.css?v=20261016-reader-height");
 

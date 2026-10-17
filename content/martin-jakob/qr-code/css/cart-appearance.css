@@ -26,14 +26,6 @@
   text-align: left;
 }
 
-#cartAppearance .cart-qr-help {
-  font-size: var(--font-ui-small);
-  font-weight: 400;
-  line-height: var(--line-height-ui);
-  color: var(--color-muted);
-  margin: 0 0 10px;
-}
-
 #cartQRTemplate {
   width: 100%;
 }

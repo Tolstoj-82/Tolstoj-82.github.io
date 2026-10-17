@@ -145,6 +145,27 @@
   position: absolute;
 }
 
+/* Reveal corner delete actions without shifting the item or its neighbours. */
+@media (hover: hover) and (pointer: fine) {
+  :is(.saved-logo, .qr-template-card, .template-card, .content-pill) > .saved-logo-delete {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  :is(.saved-logo, .qr-template-card, .template-card, .content-pill):is(:hover, :focus-within) > .saved-logo-delete {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Hybrid devices must also expose the action when operated by touch. */
+@media (any-pointer: coarse) {
+  :is(.saved-logo, .qr-template-card, .template-card, .content-pill) > .saved-logo-delete {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 .saved-logo-delete::before {
   content: "";
   position: absolute;

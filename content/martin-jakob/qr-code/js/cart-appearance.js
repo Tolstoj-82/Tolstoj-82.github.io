@@ -27,6 +27,9 @@
     const home = document.getElementById("cartAppearanceHome"),
       cache = new Map(),
       pending = new Map();
+    const templateActions=document.getElementById('qrPresetSaveControls');
+    const actionsHome=document.createComment('QR template actions home');
+    templateActions.before(actionsHome);
     let target = null,
       snapshot = null,
       globalDraft = null,
@@ -89,7 +92,7 @@
         .find((entry) => signature(entry.payload) === signature(current));
       const id =
         signature(current) === signature(standard) ? "standard" : match?.id;
-      if (!id) select.add(new Option(t("Ungespeicherte Gestaltung"), ""));
+      if (!id) select.add(new Option(t("Nicht gespeichertes Aussehen"), ""));
       select.value = id || "";
       if (target) target.qrTemplateId = id || "";
     }
@@ -123,6 +126,7 @@
       host.hidden = false;
       home.append(host);
       slot.append(panel);
+      host.insertBefore(templateActions,details);
       panel.hidden = false;
       details.open = false;
       await use(layout.qrAppearance || standard);
@@ -130,6 +134,7 @@
     }
     async function detach() {
       target = null;
+      actionsHome.after(templateActions);
       panel
         .querySelector(".appearance-workbench")
         .prepend(document.querySelector(".settings-live-preview"));
@@ -161,7 +166,7 @@
       document.getElementById("layoutDialog").dispatchEvent(new Event("show-qr-settings"));
       window.QRGenerator.notifications.toast(
         t(
-          "Bitte diese QR-Gestaltung zuerst als QR-Code-Template speichern oder ein vorhandenes Template auswählen.",
+          "Bitte dieses Aussehen zuerst als QR-Code-Template speichern oder ein vorhandenes Template auswählen.",
         ),
         "warning",
       );
@@ -177,7 +182,7 @@
             : "smooth",
         });
         document
-          .getElementById("qrPresetSaveName")
+          .querySelector("#qrPresetSaveControls .action-button")
           .focus({ preventScroll: true });
       });
       return false;

@@ -47,8 +47,7 @@
 .ribbon-help,
 .template-library > p,
 .template-test-content p,
-.preview-option,
-.cart-qr-help {
+.preview-option {
   font-size: var(--font-ui-small);
   font-weight: 400;
   line-height: var(--line-height-ui);

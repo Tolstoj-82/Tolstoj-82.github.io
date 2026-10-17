@@ -18,7 +18,7 @@
       finderColorPicker = document.getElementById("finderColorPicker"),
       layoutDialog = document.getElementById("layoutDialog");
     const templateStorageKey = "qr-generator.text-templates.v2";
-    const { createTemplateCombo, confirmOverwrite } =
+    const { createTemplateCombo, confirmOverwrite, requestTemplateName } =
       window.QRGenerator["template-combo"];
     const templateName = document.getElementById("templateName");
     let templates = [];
@@ -149,12 +149,22 @@
         )
           combo.input.value = "";
       },
-      save: () => saveNamedTemplate(combo.input.value),
+      save: () => saveCurrentTemplate(),
     });
+    const saveAs=document.createElement('button');saveAs.type='button';saveAs.className='action-button secondary';
+    document.getElementById('saveTemplateBtn').after(saveAs);
+    saveAs.addEventListener('click',()=>saveCurrentTemplate(true));
+    async function saveCurrentTemplate(asNew=false){
+      if(!context.validateAppearance())return false;
+      const current=templates.find(item=>item.id===selectedTemplateId&&item.kind===context.getMode());
+      const name=asNew||!current ? await requestTemplateName(asNew&&current?current.name+' '+t('Kopie'):'',templates.filter(item=>item.kind===context.getMode()).map(item=>item.name)) : current.name;
+      return name?saveNamedTemplate(name):false;
+    }
     function closeTemplateOptions() {
       combo.close();
     }
     function renderTemplates(selected = selectedTemplateId) {
+      saveAs.textContent=t("Speichern unter …");
       const mode = context.getMode();
       if (mode !== currentMode) {
         selectedByMode[currentMode] = selectedTemplateId;
@@ -256,7 +266,7 @@
     function requestTemplateSave(automatic = false) {
       if (saveTemplateResolve) return Promise.resolve("cancel");
       closeTemplateOptions();
-      templateName.value = combo.input.value;
+      templateName.value = templates.find(item=>item.id===selectedTemplateId)?.name || "";
       document.getElementById("skipSaveTemplateBtn").hidden = !automatic;
       setMessage(document.getElementById("saveTemplateError"), () => "");
       saveTemplateDialog.showModal();
@@ -273,7 +283,7 @@
     }
     document
       .getElementById("saveTemplateBtn")
-      .addEventListener("click", () => saveNamedTemplate(combo.input.value));
+      .addEventListener("click", () => saveCurrentTemplate());
     for (const id of ["cancelSaveTemplateBtn", "closeSaveTemplateBtn"])
       document
         .getElementById(id)
