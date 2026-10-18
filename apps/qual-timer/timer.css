@@ -1,4 +1,4 @@
-*{box-sizing:border-box}body{--page:#e5e3d9;--shell:#cecdc2;--screen:#acbf87;--ink:#293f24;--bezel:#575967;--accent:#2563eb;background:var(--page);padding:24px;overflow:auto}.frame{position:relative;width:680px;height:460px;max-width:none;flex-shrink:0;display:flex;flex-direction:column;background:var(--shell);padding:18px;container-type:size;
+*{box-sizing:border-box}body{--page:#e5e3d9;--shell:#cecdc2;--screen:#acbf87;--ink:#293f24;--bezel:#575967;--accent:#9b2257;background:var(--page);padding:24px;overflow:auto}.frame{position:relative;width:680px;height:460px;max-width:none;flex-shrink:0;display:flex;flex-direction:column;background:var(--shell);padding:18px;container-type:size;
 --shell-edge:color-mix(in srgb,var(--shell),black 25%);
 --shell-highlight:color-mix(in srgb,var(--shell),white 40%);
 border-color:color-mix(in srgb,var(--shell),black 15%);
@@ -215,3 +215,18 @@ dialog{border:1px solid #b7b9ae;border-radius:16px;width:min(620px,calc(100vw - 
 .pause-average{flex-direction:row;align-items:baseline;justify-content:center;gap:8px;flex-wrap:nowrap;white-space:nowrap}
 #pauseAverageLabel{flex:none;font:600 11px/1.4 system-ui,sans-serif;letter-spacing:.03em;white-space:nowrap}
 #pauseAverage{flex:none;max-width:none;font:700 20px/1.4 system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:0;white-space:nowrap;overflow-wrap:normal;color:inherit}
+
+.timer-control{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.timer-control svg{display:block;flex:none;width:17px;height:17px}
+.timer-control span{font-family:Arial,Helvetica,sans-serif}
+
+.score-editor p:empty{display:none}
+
+.actions button{color:var(--accent-text,#fff)}
+.actions button:hover:not(:disabled){color:var(--accent-hover-text,var(--accent-text,#fff))}
+
+.actions button{--button-edge:color-mix(in srgb,var(--accent),black 30%);transition:transform 100ms ease-out,box-shadow 100ms ease-out,background-color 100ms ease-out}
+body:not(.flat) .actions button:hover:not(:disabled){transform:translateY(1px);box-shadow:inset 0 1px 0 #ffffff30,0 2px 0 var(--button-edge)}
+body:not(.flat) .actions button:active:not(:disabled){transform:translateY(3px);box-shadow:inset 0 2px 4px #0004,0 0 0 var(--button-edge)}
+body.flat .actions button,body.flat .actions button:hover,body.flat .actions button:active{transform:none;box-shadow:none}
+@media(prefers-reduced-motion:reduce){.actions button{transition:none}}
