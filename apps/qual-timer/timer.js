@@ -38,7 +38,7 @@ document.addEventListener('visibilitychange',()=>{if(running||paused)tick()});
 function calc(){for(const x of [s1,s2,s3]){const old=x.value,caret=x.selectionStart||0,before=old.slice(0,caret).replace(/\D/g,'').length,digits=old.replace(/\D/g,'').slice(0,7);x.value=digits?Number(digits).toLocaleString('en-US'):'';let p=0,n=0;while(p<x.value.length&&n<before){if(/\d/.test(x.value[p]))n++;p++}if(document.activeElement===x)x.setSelectionRange(p,p)}const count=Number(window.qualAppearance?.scoreCount)===3?3:2;const scores=[s1,s2,s3].slice(0,count);$('score3Row').hidden=count!==3;$('averageLabel').textContent='AO'+count+':';avg.textContent=scores.every(x=>x.value!=='')?(scores.reduce((sum,x)=>sum+Number(x.value.replace(/,/g,'')),0)/count).toLocaleString('en-US',{maximumFractionDigits:1}):'—';$('pauseAverageLabel').textContent='AO'+count+' AVERAGE';$('pauseAverage').textContent=avg.textContent;window.qualPlacePause?.()}window.qualRecalculate=calc;s1.addEventListener('input',calc);s2.addEventListener('input',calc);s3.addEventListener('input',calc);
 calc();
 render();
-window.addEventListener('beforeunload',event=>{event.preventDefault();event.returnValue=''});
+window.addEventListener('beforeunload',event=>{if(!running)return;event.preventDefault();event.returnValue=''});
 window.addEventListener('pageshow',event=>{for(const score of [s1,s2,s3])score.value='';if(event.persisted)resetDuration(5400);calc();window.qualScoreEditorSync?.()});
 })();
 
