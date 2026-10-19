@@ -3434,6 +3434,7 @@
   }
 
   function generateQRCode() {
+    document.getElementById("singleFilename").placeholder = suggestedSingleFilename();
     cartAppearance.refresh();
     document.querySelectorAll('.copy-qr-link').forEach(button => {
       button.disabled = button.dataset.mode === 'bulk' ? !loadedData?.[0]?.URL : !qrInput.value.trim();
@@ -3548,12 +3549,32 @@
     }
   }
 
+  function suggestedSingleFilename() {
+    const content = qrInput.value.trim();
+    let description = content;
+    try {
+      const url = new URL(content);
+      if (['http:', 'https:'].includes(url.protocol)) {
+        description = url.hostname + decodeURIComponent(url.pathname).replace(/\/$/, '');
+      }
+    } catch { /* Plain text is also valid QR content. */ }
+    return sanitizeFilename('QR-' + (description.slice(0, 100) || new Date().toISOString().slice(0, 10)));
+  }
+
+  function singleDownloadFilename(format) {
+    const entered = document.getElementById('singleFilename').value.trim().replace(/\.(png|svg)$/i, '');
+    let name = sanitizeFilename(entered || suggestedSingleFilename());
+    if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name)) name = 'QR-' + name;
+    return name + '.' + format;
+  }
+
   async function downloadQRCode() {
     if (downloadBtn.disabled || !qrInput.value.trim()) return;
+    const format = document.getElementById("singleFormat").value;
+    const filename = singleDownloadFilename(format);
     try {
       await cartAppearance.ready(currentSingleLayout());
       if (!simpleEditor?.enabled) await window.QRGenerator["cart-fonts"].ready(singleLayout.font);
-      const format = document.getElementById("singleFormat").value;
       const qr = document.createElement("canvas");
       renderQRCode(qr, qrInput.value.trim(), {
         ...cartAppearance.settings(currentSingleLayout()),
@@ -3576,7 +3597,7 @@
           : await toPNG(output);
       saveAs(
         blob,
-        sanitizeFilename(qrTitle.textContent || t("QR-Code")) + "." + format,
+        filename,
       );
     } catch (error) {
       setMessage(qrError, () => t("Export fehlgeschlagen: ") + error.message);

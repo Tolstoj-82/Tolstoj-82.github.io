@@ -671,3 +671,5 @@
 #saveTemplateError:empty {
   display: none;
 }
+
+#singleFilename { width:220px;max-width:100%;margin:0; }
