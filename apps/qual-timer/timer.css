@@ -484,3 +484,27 @@ body.no-stripeTop .purple,body.no-stripeBottom .blue{visibility:hidden}
 .sound-controls-disabled{opacity:.45}
 .sound-controls-disabled input,.sound-controls-disabled button,.sound-controls-disabled .sound-dropzone{cursor:not-allowed!important}
 #settings .sound-controls-disabled button:disabled{opacity:1}
+
+.frame .rule{background:var(--dividerColor,#829969)}
+.frame .score-row{border-bottom-color:var(--dividerColor,#829969)}
+.frame .lcd{border-color:color-mix(in srgb,var(--screen),black 28%);box-shadow:inset 3px 4px 9px color-mix(in srgb,var(--screen),black 35%)}
+body.flat .frame .lcd{box-shadow:none}
+
+.preview-divider-highlight{position:relative}
+.rule.preview-divider-highlight::after,.score-row.preview-divider-highlight::after{content:'';position:absolute;left:0;right:0;height:3px;background:#0057ff;box-shadow:0 0 0 1px #fff,0 0 5px 2px #0057ff99;pointer-events:none;z-index:10}
+.rule.preview-divider-highlight::after{top:50%;transform:translateY(-50%)}
+.score-row.preview-divider-highlight::after{bottom:-2px}
+
+body.no-dividerColor .frame .rule{visibility:hidden}
+body.no-dividerColor .frame .score-row{border-bottom-color:transparent}
+
+body.hide-name .frame .name-picker{display:none}
+#settings #settingsFields .typography-settings .typography-visibility{position:absolute;right:-5px;top:-5px;z-index:3;display:flex;align-items:center;justify-content:center;box-sizing:border-box;flex:none;width:19px;height:19px;min-width:19px;min-height:19px;padding:0;border:1px solid #94a3b8;border-radius:50%;background:#fff;color:#475569;box-shadow:0 1px 3px #0002;cursor:pointer}
+.typography-visibility svg{display:block;width:12px;height:12px}.typography-visibility.is-off svg{transform:rotate(45deg)}
+#settings #settingsFields .typography-settings .typography-visibility:hover{background:#eff6ff;border-color:#2563eb;color:#2563eb}
+.typography-tile-wrap.is-hidden-text>.typography-tile{background-image:repeating-linear-gradient(135deg,transparent 0 7px,#94a3b830 7px 9px)!important}
+
+body.hide-name .frame .stripe{gap:0}
+body.hide-name .frame .stripe>.lines:first-child{display:none}
+
+body.hide-name .frame .stripe{min-height:var(--name-row-height,32px)}
