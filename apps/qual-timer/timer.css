@@ -480,3 +480,7 @@ body.no-stripeTop .purple,body.no-stripeBottom .blue{visibility:hidden}
 .final-combo-arrow svg{display:block;width:16px;height:16px}
 .final-options{box-sizing:border-box;z-index:1000;font:13px/1.4 system-ui;color:#334155}.final-options[hidden]{display:none!important}.final-options .sound-option-name{display:block;width:100%;padding:10px;border:0;border-radius:4px;background:white;color:#334155;text-align:left;font:inherit;cursor:pointer}.final-options .sound-option-name:hover,.final-options .sound-option-name:focus{outline:none;background:#eff6ff}.final-options .sound-option-name[aria-selected=true]{background:#dbeafe}
 #settingsFields .marker-final-panel .final-char-limit{grid-column:1/-1;justify-self:end;font-size:11px}
+
+.sound-controls-disabled{opacity:.45}
+.sound-controls-disabled input,.sound-controls-disabled button,.sound-controls-disabled .sound-dropzone{cursor:not-allowed!important}
+#settings .sound-controls-disabled button:disabled{opacity:1}
