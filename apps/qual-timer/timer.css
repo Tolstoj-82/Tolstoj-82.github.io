@@ -438,3 +438,10 @@ body.no-stripeTop .purple,body.no-stripeBottom .blue{visibility:hidden}
 .language-tabs button:focus-visible{outline:2px solid #2563eb;outline-offset:1px}
 #settings #settingsFields #averageRounding{font-weight:700;text-decoration-line:underline;text-decoration-style:dotted;text-underline-offset:3px;color:#475569}
 #settings #settingsFields #averageRounding:not(:disabled):hover{color:#2563eb;background:transparent}
+
+.font-color-picker{box-sizing:border-box;width:min(350px,calc(100vw - 32px));padding:22px;border:1px solid #cbd5e1;border-radius:14px;background:#fff;color:#334155;font:13px system-ui}
+.font-color-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.font-color-header h3{margin:0;font-size:16px}.font-color-header button{border:0;padding:0 4px;background:transparent;color:#64748b;font:24px system-ui}
+.font-color-picker canvas{display:block;width:100%;height:auto;border-radius:8px;cursor:crosshair;touch-action:none}
+.font-color-picker label{display:grid;gap:7px;margin-top:14px}.font-color-hue{width:100%;accent-color:#2563eb;cursor:pointer}
+.font-color-value{display:flex;align-items:flex-end;gap:12px}.font-color-value label{flex:1;min-width:0}.font-color-sample{width:38px;height:38px;border:1px solid #cbd5e1;border-radius:8px}
+.font-color-hex{width:100%;height:38px;padding:8px 10px;border:2px solid #cbd5e1;border-radius:8px;color:#334155;font:13px system-ui}.font-color-hex:focus{outline:none;border-color:#2563eb;background:#eff6ff}.font-color-done{display:block;margin:18px 0 0 auto;padding:9px 20px;border:2px solid #2563eb;border-radius:8px;background:#2563eb;color:white;font:600 13px system-ui}
