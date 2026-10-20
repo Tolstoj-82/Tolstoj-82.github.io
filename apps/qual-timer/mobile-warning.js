@@ -1,0 +1,8 @@
+(()=>{
+'use strict';
+const warning=document.createElement('dialog');warning.className='mobile-warning';warning.setAttribute('aria-labelledby','mobileWarningTitle');warning.setAttribute('aria-describedby','mobileWarningText');warning.innerHTML='<h2 id="mobileWarningTitle">Mobile is not supported</h2><p id="mobileWarningText">Qual Timer is designed for desktop. On mobile, some features may not work correctly. You can continue anyway.</p><button type="button">Continue anyway</button>';document.body.append(warning);let shown=false;
+function position(){const viewport=window.visualViewport,width=viewport?.width||document.documentElement.clientWidth,height=viewport?.height||innerHeight,left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0;warning.style.left=(left+width/2)+'px';warning.style.top=(top+height/2)+'px';warning.style.width=Math.min(420,Math.max(0,width-32))+'px';warning.style.maxHeight=Math.max(0,height-32)+'px'}
+warning.querySelector('button').onclick=()=>warning.close();
+function check(){if(shown||!(innerWidth<=767||window.matchMedia?.('(hover: none) and (pointer: coarse)').matches)||document.querySelector('dialog[open]'))return;shown=true;position();warning.showModal();position()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',check);else check();window.addEventListener('resize',()=>{check();if(warning.open)position()});window.visualViewport?.addEventListener('resize',()=>{if(warning.open)position()});window.visualViewport?.addEventListener('scroll',()=>{if(warning.open)position()});document.addEventListener('close',check,true);
+})();

@@ -2001,7 +2001,7 @@
     delete metrics.title;
     delete metrics.subtitle;
     delete metrics.tab;
-    for (const key of ["qrShape", "qrFinderShape", "qrColor", "qrFinderColor", "qrTemplate", "preview"]) delete metrics[key];
+    for (const key of ["qrShape", "qrFinderShape", "qrColor", "qrFinderColor", "qrTemplate", "preview", "simple"]) delete metrics[key];
     if (Object.hasOwn(metrics, "url")) metrics.url = qrInput.value.trim();
     return {
       URL: qrInput.value.trim() || DEMO_QR_CONTENT,
@@ -3312,6 +3312,12 @@
     if (preset) { singleLayout.qrAppearance = structuredClone(preset.payload); singleLayout.qrTemplateId = preset.id; }
     const appearance = structuredClone(singleLayout.qrAppearance || {appearance:{shape:'square',finderShape:'square',color:'#000000',finderColor:'#000000'},logoData:''});
     let changed = false;
+    if(params.get('simple')==='1'){
+      appearance.logoData='';
+      const sharedLogo=new URLSearchParams(location.hash.slice(1)).get('qrLogo');
+      if(sharedLogo && sharedLogo.length<500000 && /^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(sharedLogo))appearance.logoData=sharedLogo;
+      changed=true;
+    }
     for (const [param,key,control] of [['qrShape','shape',shapeSelect],['qrFinderShape','finderShape',finderShapeSelect]]) {
       const value=params.get(param);if(value && Array.from(control.options).some(option=>option.value===value)){appearance.appearance[key]=value;changed=true;}
     }
@@ -3434,7 +3440,6 @@
   }
 
   function generateQRCode() {
-    document.getElementById("singleFilename").placeholder = suggestedSingleFilename();
     cartAppearance.refresh();
     document.querySelectorAll('.copy-qr-link').forEach(button => {
       button.disabled = button.dataset.mode === 'bulk' ? !loadedData?.[0]?.URL : !qrInput.value.trim();
@@ -3549,30 +3554,44 @@
     }
   }
 
-  function suggestedSingleFilename() {
-    const content = qrInput.value.trim();
-    let description = content;
-    try {
-      const url = new URL(content);
-      if (['http:', 'https:'].includes(url.protocol)) {
-        description = url.hostname + decodeURIComponent(url.pathname).replace(/\/$/, '');
-      }
-    } catch { /* Plain text is also valid QR content. */ }
-    return sanitizeFilename('QR-' + (description.slice(0, 100) || new Date().toISOString().slice(0, 10)));
+  function requestDownloadName() {
+    const dialog=document.createElement('dialog');
+    dialog.className='compact-dialog';
+    dialog.setAttribute('aria-labelledby','downloadNameTitle');
+    dialog.innerHTML='<div class="preview-header"><h2 id="downloadNameTitle"></h2><button type="button" class="modal-close">×</button></div><form><label for="downloadName"></label><input id="downloadName" type="text" maxlength="120" required autocomplete="off"><div class="modal-actions"><button type="button" class="action-button secondary"></button><button type="submit" class="action-button"></button></div></form>';
+    document.body.append(dialog);
+    const input=dialog.querySelector('input');input.value='QR-Code';
+    dialog.querySelector('h2').textContent=t('Dateiname');
+    dialog.querySelector('label').textContent=t('Dateiname');
+    dialog.querySelector('.modal-close').setAttribute('aria-label',t('Schliessen'));
+    dialog.querySelector('.secondary').textContent=t('Abbrechen');
+    dialog.querySelector('[type="submit"]').textContent=t('Herunterladen');
+    input.addEventListener('click',()=>{if(input.value==='QR-Code')input.value='';});
+    return new Promise(resolve=>{
+      const finish=value=>{const toast=dialog.querySelector('#toast');if(toast)document.body.append(toast);dialog.close();dialog.remove();resolve(value);};
+      dialog.querySelector('.modal-close').onclick=()=>finish(null);
+      dialog.querySelector('.secondary').onclick=()=>finish(null);
+      dialog.addEventListener('cancel',event=>{event.preventDefault();finish(null);});
+      dialog.querySelector('form').onsubmit=event=>{event.preventDefault();if(input.value.trim())finish(input.value.trim());else input.focus();};
+      dialog.showModal();input.focus();input.select();
+    });
   }
-
-  function singleDownloadFilename(format) {
-    const entered = document.getElementById('singleFilename').value.trim().replace(/\.(png|svg)$/i, '');
-    let name = sanitizeFilename(entered || suggestedSingleFilename());
-    if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name)) name = 'QR-' + name;
-    return name + '.' + format;
-  }
+  let singleDownloadPending=false;
 
   async function downloadQRCode() {
-    if (downloadBtn.disabled || !qrInput.value.trim()) return;
+    if (singleDownloadPending || downloadBtn.disabled || !qrInput.value.trim()) return;
+    singleDownloadPending=true;
     const format = document.getElementById("singleFormat").value;
-    const filename = singleDownloadFilename(format);
     try {
+      const layout=currentSingleLayout();
+      const placed=[...(layout.above||[]),...(layout.below||[])];
+      let name=!simpleEditor?.enabled && placed.includes('heading:title') && !(layout.hiddenFields||[]).includes('heading:title')
+        ? String(metricValueFor(singleRecord(),'heading:title',layout)||'').trim() : '';
+      if(!name || /^(?:https?:\/\/|www\.)/i.test(name))name=await requestDownloadName();
+      if(name===null)return;
+      name=sanitizeFilename(name.replace(/\.(png|svg)$/i,''));
+      if(/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name))name='QR-'+name;
+      const filename=name+'.'+format;
       await cartAppearance.ready(currentSingleLayout());
       if (!simpleEditor?.enabled) await window.QRGenerator["cart-fonts"].ready(singleLayout.font);
       const qr = document.createElement("canvas");
@@ -3601,7 +3620,7 @@
       );
     } catch (error) {
       setMessage(qrError, () => t("Export fehlgeschlagen: ") + error.message);
-    }
+    } finally { singleDownloadPending=false; }
   }
 
   [
@@ -3776,7 +3795,7 @@
     for (const key of [...layout.above, ...layout.below]) {
       if (key.startsWith('heading:') || key.startsWith('custom:') || key === 'date:current' || layout.hiddenFields?.includes(key)) continue;
       const source = layout.sources?.[key] || key;
-      if (['url','title','subtitle','tab','preview','qrShape','qrFinderShape','qrColor','qrFinderColor','qrTemplate'].includes(source)) continue;
+      if (['url','title','subtitle','tab','preview','qrShape','qrFinderShape','qrColor','qrFinderColor','qrTemplate','simple'].includes(source)) continue;
       url.searchParams.set(source, metricValueFor(record, key, layout));
     }
     url.searchParams.set('url', content);
@@ -3790,7 +3809,10 @@
     for (const [param,key] of [['qrShape','shape'],['qrFinderShape','finderShape'],['qrColor','color'],['qrFinderColor','finderColor']])
       url.searchParams.set(param, settings[key].replace(/^#/, ''));
     const preset = qrPresets.getEntries().find(entry => entry.id === layout.qrTemplateId);
-    if (preset) url.searchParams.set('qrTemplate', preset.name);
+    if (mode === 'single' && simpleEditor?.enabled) {
+      url.searchParams.set('simple','1');
+      if(layout.qrAppearance?.logoData)url.hash=new URLSearchParams({qrLogo:layout.qrAppearance.logoData}).toString();
+    } else if (preset) url.searchParams.set('qrTemplate', preset.name);
     url.searchParams.set('preview', '1');
     return url.href;
   }
@@ -4053,7 +4075,7 @@
   renderSavedLogos();
   loadQueryParameters();
   cartDock = window.QRGenerator["cart-dock"].initialize();
-  simpleEditor = window.QRGenerator["simple-mode"].create({activate:()=>setImportVisible(false),refresh:generateQRCode,logos:readSavedLogos,saveLogoOrder,removeLogo:removeSavedLogo,upload:uploadLogos,logoData:()=>logoState.data,initialAppearance:["qrShape","qrFinderShape","qrColor","qrFinderColor","qrTemplate"].some(key=>new URLSearchParams(location.search).has(key))?singleLayout.qrAppearance:null});
+  simpleEditor = window.QRGenerator["simple-mode"].create({activate:()=>setImportVisible(false),refresh:generateQRCode,logos:readSavedLogos,saveLogoOrder,removeLogo:removeSavedLogo,upload:uploadLogos,logoData:()=>logoState.data,initialAppearance:["qrShape","qrFinderShape","qrColor","qrFinderColor","qrTemplate","simple"].some(key=>new URLSearchParams(location.search).has(key))?singleLayout.qrAppearance:null});
   document.fonts?.ready.then(() => generateQRCode());
 
   const initialTab = new URLSearchParams(location.search).get("tab");

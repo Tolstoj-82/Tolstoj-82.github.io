@@ -672,4 +672,4 @@
   display: none;
 }
 
-#singleFilename { width:220px;max-width:100%;margin:0; }
+#downloadName { width:100%;margin:8px 0 16px; }

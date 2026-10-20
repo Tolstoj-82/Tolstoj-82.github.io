@@ -1,7 +1,7 @@
 /* Style entry point; keep this order for shared component defaults. */
 @import url("./css/tokens.css?v=20261016-tools");
 @import url("./css/base.css?v=20261016-button-system");
-@import url("./css/generator.css?v=20261019-download-filename");
+@import url("./css/generator.css?v=20261020-filename-dialog");
 @import url("./css/dialogs.css?v=20261016-modal-scroll-lock");
 @import url("./css/editor.css?v=20261016-button-system");
 @import url("./css/logos.css?v=20261017-hover-delete");
@@ -21,7 +21,7 @@
 
 @import url("./css/theme.css?v=20261016-tools");
 
-@import url("./css/appearance-workspaces.css?v=20261017-appearance-wording");
+@import url("./css/appearance-workspaces.css?v=20261020-simple-sharing");
 
 @import url("./css/tools.css?v=20261016-reader-height");
 

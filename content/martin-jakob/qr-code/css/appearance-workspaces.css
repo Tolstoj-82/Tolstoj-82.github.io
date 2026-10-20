@@ -32,10 +32,10 @@
 
 .page-title-group { display:flex;align-items:center;gap:20px;flex-wrap:wrap; }
 .simple-mode-active .mode-tabs { display:none; }
-.simple-mode .copy-qr-link { display:none; }
+
 .simple-mode #editSingleTemplateBtn:disabled { background:transparent;cursor:default;pointer-events:none; }
 .simple-mode .qr-hover-zone { display:none; }
-.simple-mode .cart-panel:not(:has(#largeQRPreviewButton)) { padding-right:0; }
+
 .cart-qr-stage .template-qr-preview { flex-direction:column;align-items:center; }
 .cart-qr-template-below { width:100%;max-width:360px;margin-top:18px;text-align:left; }
 .cart-qr-template-below #cartQRTemplate { width:100%;margin:6px 0 0; }

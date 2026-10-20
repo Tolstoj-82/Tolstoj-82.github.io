@@ -5,7 +5,7 @@
     const key='qr-generator.simple-mode.v1';
     let saved={};try{saved=JSON.parse(localStorage.getItem(key)||'{}')||{};}catch{}
     if (context.initialAppearance) saved={...saved,...context.initialAppearance};
-    let enabled=saved.enabled===true;
+    let enabled=new URLSearchParams(location.search).get('simple')==='1'||saved.enabled===true;
     const appearance={shape:'square',finderShape:'square',color:'#000000',finderColor:'#000000'};
     const controls=new Map();
     const layout={above:[],below:[],headingsMovable:true,styles:{},labels:{},custom:{},ribbon:{enabled:false,rules:[]},qrAppearance:{appearance,logoData:''}};
