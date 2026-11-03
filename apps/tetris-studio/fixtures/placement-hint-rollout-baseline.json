@@ -1,0 +1,118 @@
+{
+  "scope": "Local strategy diagnostics only; StackRabbit was not executed.",
+  "model": "Fixed level-0 gravity; current and visible next only; 60-piece limit; LFSR seed resets per sequence.",
+  "results": [
+    {
+      "seed": "123456",
+      "placed": 60,
+      "lines": 18,
+      "clears": {
+        "single": 2,
+        "double": 0,
+        "triple": 0,
+        "tetris": 4
+      },
+      "peakHeight": 11,
+      "finalHeight": 8,
+      "finalHoles": 0,
+      "stoppedWithoutHint": false,
+      "firstHoles": {
+        "afterPiece": 55,
+        "current": "T",
+        "next": "I",
+        "placement": {
+          "type": "T",
+          "x": 4,
+          "y": 12,
+          "rotation": 1
+        },
+        "board": [
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          ".....T...Z",
+          "....TTOOZZ",
+          ".....TOOZZ",
+          ".JJTTTOOZZ",
+          ".JOOTTOOZI",
+          ".JOOTTOOII"
+        ],
+        "holes": 1,
+        "height": 6
+      }
+    },
+    {
+      "seed": "000001",
+      "placed": 60,
+      "lines": 19,
+      "clears": {
+        "single": 2,
+        "double": 1,
+        "triple": 1,
+        "tetris": 3
+      },
+      "peakHeight": 15,
+      "finalHeight": 6,
+      "finalHoles": 1,
+      "stoppedWithoutHint": false,
+      "firstHoles": {
+        "afterPiece": 27,
+        "current": "S",
+        "next": "I",
+        "placement": {
+          "type": "S",
+          "x": 8,
+          "y": 7,
+          "rotation": 1
+        },
+        "board": [
+          "..........",
+          "..........",
+          "..........",
+          ".....OO...",
+          ".OO..OO...",
+          ".OO..OO...",
+          ".OO..OO...",
+          ".OO..OOLS.",
+          ".OO.TOOLSS",
+          ".OOTTTTLLS",
+          ".OOOOTTTT.",
+          ".OOOOZZTTT",
+          ".OOOOSZZOO",
+          ".OOOOSSJOO",
+          ".OOJJJSJOO",
+          ".OOJJJJJOO",
+          ".OOJOOOOOO",
+          ".OOJOOOOOO"
+        ],
+        "holes": 1,
+        "height": 15
+      }
+    },
+    {
+      "seed": "ABCDEF",
+      "placed": 60,
+      "lines": 20,
+      "clears": {
+        "single": 0,
+        "double": 0,
+        "triple": 0,
+        "tetris": 5
+      },
+      "peakHeight": 11,
+      "finalHeight": 5,
+      "finalHoles": 0,
+      "stoppedWithoutHint": false,
+      "firstHoles": null
+    }
+  ]
+}

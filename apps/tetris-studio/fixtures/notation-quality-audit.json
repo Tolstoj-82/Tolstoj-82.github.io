@@ -1,0 +1,881 @@
+{
+  "version": 1,
+  "seed": "0x5eeda11",
+  "profile": {
+    "maxHeight": 9,
+    "maxJaggedness": 14,
+    "maxStep": 2,
+    "minInitialCoverage": 5,
+    "minFinalCoverage": 7,
+    "maxDependencies": 0,
+    "minFutureCoverage": 6,
+    "minScore": 80
+  },
+  "entries": 78,
+  "practiceEntries": 69,
+  "templates": [
+    {
+      "spec": [
+        [
+          "L",
+          0,
+          2
+        ]
+      ],
+      "tested": 83,
+      "duplicates": 0,
+      "rejected": {
+        "initial: odd mino count": 36,
+        "final: odd mino count": 36,
+        "initial: steep step": 39,
+        "initial: separated surface": 39,
+        "final: steep step": 39,
+        "final: separated surface": 39,
+        "final: piece dependency": 23,
+        "final: quality score": 29,
+        "final: missing accommodation: Z": 8,
+        "initial: column 10 below column 9": 29,
+        "final: column 10 below column 9": 29,
+        "final: missing accommodation: S": 9,
+        "final: missing accommodation: Z, S": 2
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "L",
+          1,
+          7
+        ]
+      ],
+      "tested": 172,
+      "duplicates": 0,
+      "rejected": {
+        "initial: column 10 below column 9": 72,
+        "initial: steep step": 133,
+        "initial: separated surface": 133,
+        "final: column 10 below column 9": 72,
+        "final: piece dependency": 66,
+        "initial: odd mino count": 79,
+        "final: odd mino count": 79,
+        "final: steep step": 75,
+        "final: separated surface": 75,
+        "final: quality score": 68,
+        "final: missing accommodation: S": 12,
+        "initial: jaggedness": 18,
+        "final: missing accommodation: Z": 14,
+        "initial: missing accommodation: Z, S, T": 6,
+        "final: missing accommodation: Z, S": 3,
+        "initial: missing accommodation: J, O, S": 1
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "L",
+          2,
+          2
+        ]
+      ],
+      "tested": 125,
+      "duplicates": 2,
+      "rejected": {
+        "initial: column 10 below column 9": 45,
+        "final: column 10 below column 9": 45,
+        "final: piece dependency": 44,
+        "final: quality score": 38,
+        "initial: odd mino count": 68,
+        "initial: steep step": 67,
+        "initial: separated surface": 67,
+        "final: odd mino count": 68,
+        "final: steep step": 56,
+        "final: separated surface": 56,
+        "final: jaggedness": 1
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "L",
+          3,
+          7
+        ]
+      ],
+      "tested": 362,
+      "duplicates": 1,
+      "rejected": {
+        "initial: odd mino count": 182,
+        "initial: steep step": 302,
+        "initial: separated surface": 302,
+        "final: odd mino count": 182,
+        "final: missing accommodation: O": 32,
+        "final: quality score": 228,
+        "initial: column 10 below column 9": 131,
+        "initial: jaggedness": 41,
+        "final: column 10 below column 9": 131,
+        "final: steep step": 207,
+        "final: separated surface": 207,
+        "final: piece dependency": 166,
+        "final: missing accommodation: Z": 35,
+        "final: missing accommodation: S": 47,
+        "final: jaggedness": 30,
+        "final: missing accommodation: O, S": 3,
+        "final: missing accommodation: J, O": 6,
+        "initial: missing accommodation: Z, S, T": 10,
+        "final: missing accommodation: Z, S": 7,
+        "final: missing accommodation: J, O, Z": 1,
+        "final: missing accommodation: J, O, S": 1,
+        "final: missing accommodation: O, Z": 4,
+        "final: missing accommodation: Z, S, T": 11
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "J",
+          0,
+          2
+        ]
+      ],
+      "tested": 145,
+      "duplicates": 2,
+      "rejected": {
+        "initial: column 10 below column 9": 46,
+        "final: column 10 below column 9": 46,
+        "initial: steep step": 85,
+        "initial: separated surface": 85,
+        "final: steep step": 64,
+        "final: separated surface": 64,
+        "final: piece dependency": 51,
+        "initial: odd mino count": 70,
+        "final: odd mino count": 70,
+        "final: missing accommodation: Z, S": 7,
+        "final: quality score": 51,
+        "final: missing accommodation: Z": 19,
+        "final: missing accommodation: S": 9,
+        "initial: jaggedness": 1
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "J",
+          1,
+          7
+        ]
+      ],
+      "tested": 330,
+      "duplicates": 0,
+      "rejected": {
+        "initial: column 10 below column 9": 109,
+        "initial: steep step": 281,
+        "initial: separated surface": 281,
+        "final: column 10 below column 9": 109,
+        "final: steep step": 189,
+        "final: separated surface": 189,
+        "final: piece dependency": 159,
+        "final: quality score": 203,
+        "final: missing accommodation: S": 26,
+        "initial: odd mino count": 181,
+        "final: odd mino count": 181,
+        "final: missing accommodation: Z, S": 8,
+        "initial: jaggedness": 43,
+        "final: jaggedness": 25,
+        "final: missing accommodation: Z": 25,
+        "final: missing accommodation: L, O": 7,
+        "final: missing accommodation: O": 31,
+        "final: missing accommodation: Z, S, T": 7,
+        "final: missing accommodation: O, Z, S, T": 1,
+        "final: missing accommodation: O, S": 6,
+        "initial: missing accommodation: Z, S, T": 7,
+        "final: missing accommodation: O, Z": 5
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "J",
+          2,
+          2
+        ]
+      ],
+      "tested": 90,
+      "duplicates": 1,
+      "rejected": {
+        "initial: column 10 below column 9": 30,
+        "initial: steep step": 46,
+        "initial: separated surface": 46,
+        "final: column 10 below column 9": 30,
+        "final: steep step": 36,
+        "final: separated surface": 36,
+        "final: piece dependency": 25,
+        "final: quality score": 20,
+        "initial: odd mino count": 41,
+        "final: odd mino count": 41,
+        "initial: jaggedness": 1,
+        "final: jaggedness": 1
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "J",
+          3,
+          7
+        ]
+      ],
+      "tested": 325,
+      "duplicates": 0,
+      "rejected": {
+        "initial: odd mino count": 163,
+        "initial: steep step": 248,
+        "initial: separated surface": 248,
+        "final: odd mino count": 163,
+        "final: steep step": 156,
+        "final: separated surface": 156,
+        "initial: column 10 below column 9": 132,
+        "final: column 10 below column 9": 132,
+        "initial: jaggedness": 67,
+        "final: piece dependency": 142,
+        "final: quality score": 131,
+        "final: missing accommodation: Z, S": 8,
+        "final: missing accommodation: S": 14,
+        "initial: missing accommodation: Z, S, T": 10,
+        "final: missing accommodation: Z": 14,
+        "initial: missing accommodation: L, O, Z": 2,
+        "initial: missing accommodation: L, O, S": 1,
+        "final: jaggedness": 3,
+        "final: missing accommodation: Z, S, T": 2
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "I",
+          0,
+          2
+        ]
+      ],
+      "tested": 130,
+      "duplicates": 1,
+      "rejected": {
+        "initial: column 10 below column 9": 55,
+        "initial: steep step": 49,
+        "initial: separated surface": 49,
+        "final: column 10 below column 9": 55,
+        "final: steep step": 49,
+        "final: separated surface": 49,
+        "final: missing accommodation: Z, S": 11,
+        "final: piece dependency": 45,
+        "final: quality score": 49,
+        "initial: odd mino count": 63,
+        "final: odd mino count": 63,
+        "final: missing accommodation: Z": 20,
+        "final: missing accommodation: S": 12
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "I",
+          1,
+          7
+        ]
+      ],
+      "tested": 1489,
+      "duplicates": 11,
+      "rejected": {
+        "initial: jaggedness": 720,
+        "initial: steep step": 1464,
+        "initial: separated surface": 1464,
+        "final: missing accommodation: Z": 81,
+        "final: quality score": 800,
+        "initial: odd mino count": 769,
+        "final: odd mino count": 769,
+        "initial: column 10 below column 9": 576,
+        "final: column 10 below column 9": 576,
+        "final: steep step": 743,
+        "final: separated surface": 743,
+        "final: piece dependency": 583,
+        "final: missing accommodation: S": 72,
+        "final: missing accommodation: O": 88,
+        "final: jaggedness": 70,
+        "final: missing accommodation: Z, S": 14,
+        "initial: missing accommodation: J, O, S": 11,
+        "initial: missing accommodation: Z, S, T": 55,
+        "final: missing accommodation: L, O": 17,
+        "final: missing accommodation: J, O": 20,
+        "initial: missing accommodation: L, J, O, Z": 2,
+        "final: missing accommodation: L, J, O": 7,
+        "final: missing accommodation: Z, S, T": 10,
+        "final: missing accommodation: J, O, S": 3,
+        "initial: missing accommodation: L, O, Z": 7,
+        "final: missing accommodation: O, Z": 15,
+        "initial: missing accommodation: L, J, O": 11,
+        "initial: missing accommodation: J, O, Z": 4,
+        "final: missing accommodation: O, S": 6,
+        "final: missing accommodation: L, O, Z": 2,
+        "initial: missing accommodation: O, Z, S, T": 5,
+        "initial: missing accommodation: J, O, Z, S, T": 1,
+        "final: missing accommodation: J, O, Z": 1,
+        "final: missing accommodation: L, J, O, Z": 1
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "O",
+          0,
+          2
+        ]
+      ],
+      "tested": 136,
+      "duplicates": 1,
+      "rejected": {
+        "initial: odd mino count": 68,
+        "final: odd mino count": 68,
+        "initial: column 10 below column 9": 50,
+        "final: column 10 below column 9": 50,
+        "final: piece dependency": 60,
+        "initial: steep step": 84,
+        "initial: separated surface": 84,
+        "final: steep step": 72,
+        "final: separated surface": 72,
+        "final: quality score": 62,
+        "initial: missing accommodation: Z, S, T": 5,
+        "final: missing accommodation: Z": 6,
+        "final: missing accommodation: Z, S": 5,
+        "final: missing accommodation: S": 8,
+        "final: missing accommodation: Z, S, T": 2,
+        "initial: jaggedness": 2
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "Z",
+          0,
+          2
+        ]
+      ],
+      "tested": 75,
+      "duplicates": 0,
+      "rejected": {
+        "initial: jaggedness": 2,
+        "initial: steep step": 42,
+        "initial: separated surface": 42,
+        "final: steep step": 28,
+        "final: separated surface": 28,
+        "final: missing accommodation: Z": 9,
+        "final: piece dependency": 25,
+        "final: quality score": 19,
+        "initial: odd mino count": 35,
+        "initial: column 10 below column 9": 23,
+        "final: odd mino count": 35,
+        "final: column 10 below column 9": 23,
+        "final: jaggedness": 1
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "Z",
+          1,
+          7
+        ]
+      ],
+      "tested": 266,
+      "duplicates": 0,
+      "rejected": {
+        "initial: steep step": 218,
+        "initial: separated surface": 218,
+        "final: steep step": 119,
+        "final: separated surface": 119,
+        "initial: odd mino count": 131,
+        "final: odd mino count": 131,
+        "initial: column 10 below column 9": 96,
+        "final: column 10 below column 9": 96,
+        "final: piece dependency": 97,
+        "final: quality score": 121,
+        "initial: jaggedness": 30,
+        "initial: missing accommodation: J, O, S": 2,
+        "final: missing accommodation: J, O": 7,
+        "final: missing accommodation: O": 18,
+        "final: missing accommodation: S": 21,
+        "final: jaggedness": 7,
+        "final: missing accommodation: O, S": 2,
+        "initial: missing accommodation: L, J, O": 2,
+        "final: missing accommodation: J, O, S": 2,
+        "initial: missing accommodation: L, O, S": 1,
+        "final: missing accommodation: L, J, O": 1,
+        "final: missing accommodation: L, O": 2
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "S",
+          0,
+          2
+        ]
+      ],
+      "tested": 99,
+      "duplicates": 1,
+      "rejected": {
+        "initial: odd mino count": 41,
+        "initial: column 10 below column 9": 41,
+        "final: odd mino count": 41,
+        "final: column 10 below column 9": 41,
+        "final: piece dependency": 46,
+        "initial: steep step": 47,
+        "initial: separated surface": 47,
+        "final: steep step": 47,
+        "final: separated surface": 47,
+        "final: quality score": 42,
+        "final: missing accommodation: S": 12,
+        "final: jaggedness": 1
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "S",
+          1,
+          7
+        ]
+      ],
+      "tested": 180,
+      "duplicates": 0,
+      "rejected": {
+        "initial: odd mino count": 90,
+        "initial: column 10 below column 9": 72,
+        "initial: steep step": 145,
+        "initial: separated surface": 145,
+        "final: odd mino count": 90,
+        "final: column 10 below column 9": 72,
+        "final: piece dependency": 64,
+        "final: quality score": 75,
+        "final: steep step": 75,
+        "final: separated surface": 75,
+        "final: missing accommodation: L, O": 5,
+        "final: missing accommodation: Z": 11,
+        "initial: missing accommodation: L, J, O": 3,
+        "final: missing accommodation: L, J, O": 3,
+        "final: missing accommodation: O": 7,
+        "initial: jaggedness": 17,
+        "final: missing accommodation: O, Z": 5,
+        "initial: missing accommodation: J, O, Z": 2,
+        "final: missing accommodation: J, O": 4,
+        "final: jaggedness": 3
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "T",
+          0,
+          2
+        ]
+      ],
+      "tested": 91,
+      "duplicates": 0,
+      "rejected": {
+        "initial: steep step": 47,
+        "initial: separated surface": 47,
+        "final: steep step": 47,
+        "final: separated surface": 47,
+        "final: missing accommodation: Z, S": 8,
+        "final: piece dependency": 32,
+        "final: quality score": 33,
+        "initial: column 10 below column 9": 29,
+        "final: column 10 below column 9": 29,
+        "initial: odd mino count": 43,
+        "initial: missing accommodation: L, J, O": 2,
+        "final: odd mino count": 43,
+        "final: missing accommodation: Z": 12,
+        "final: missing accommodation: S": 6,
+        "initial: jaggedness": 1
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "T",
+          1,
+          7
+        ]
+      ],
+      "tested": 188,
+      "duplicates": 0,
+      "rejected": {
+        "initial: odd mino count": 93,
+        "final: odd mino count": 93,
+        "initial: steep step": 136,
+        "initial: separated surface": 136,
+        "initial: column 10 below column 9": 79,
+        "final: column 10 below column 9": 79,
+        "final: steep step": 83,
+        "final: separated surface": 83,
+        "final: missing accommodation: S": 12,
+        "final: piece dependency": 67,
+        "final: quality score": 84,
+        "initial: jaggedness": 21,
+        "initial: missing accommodation: J, O, Z": 1,
+        "final: jaggedness": 4,
+        "final: missing accommodation: J, O, S": 1,
+        "final: missing accommodation: O": 13,
+        "initial: missing accommodation: L, J, O": 2,
+        "final: missing accommodation: J, O": 6,
+        "final: missing accommodation: L, O": 2,
+        "initial: missing accommodation: L, O, Z": 1,
+        "final: missing accommodation: O, S": 1,
+        "final: missing accommodation: L, J, O": 3
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "T",
+          2,
+          2
+        ]
+      ],
+      "tested": 195,
+      "duplicates": 2,
+      "rejected": {
+        "initial: steep step": 115,
+        "initial: separated surface": 115,
+        "final: steep step": 89,
+        "final: separated surface": 89,
+        "final: piece dependency": 67,
+        "final: quality score": 78,
+        "initial: odd mino count": 98,
+        "final: odd mino count": 98,
+        "initial: column 10 below column 9": 84,
+        "final: column 10 below column 9": 84,
+        "final: missing accommodation: O": 12,
+        "final: missing accommodation: L, J, O": 4,
+        "final: jaggedness": 7,
+        "final: missing accommodation: L, O": 12,
+        "initial: jaggedness": 2,
+        "final: missing accommodation: J, O": 5
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "T",
+          3,
+          7
+        ]
+      ],
+      "tested": 208,
+      "duplicates": 0,
+      "rejected": {
+        "initial: odd mino count": 104,
+        "initial: steep step": 162,
+        "initial: separated surface": 162,
+        "final: odd mino count": 104,
+        "initial: column 10 below column 9": 73,
+        "final: column 10 below column 9": 73,
+        "final: steep step": 102,
+        "final: separated surface": 102,
+        "final: piece dependency": 77,
+        "final: quality score": 91,
+        "final: missing accommodation: O": 10,
+        "initial: jaggedness": 25,
+        "final: missing accommodation: Z": 17,
+        "initial: missing accommodation: L, J, O": 2,
+        "initial: missing accommodation: L, O, S": 2,
+        "initial: missing accommodation: J, O, S": 1,
+        "final: missing accommodation: L, O, Z": 1,
+        "final: jaggedness": 4,
+        "final: missing accommodation: J, O": 3,
+        "final: missing accommodation: O, Z": 1,
+        "final: missing accommodation: L, O": 4
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "L",
+          0,
+          2
+        ],
+        [
+          "T",
+          3,
+          8
+        ]
+      ],
+      "tested": 268,
+      "duplicates": 56,
+      "rejected": {
+        "final: column 10 below column 9": 72,
+        "initial: odd mino count": 141,
+        "initial: steep step": 201,
+        "initial: separated surface": 201,
+        "intermediate: odd mino count": 141,
+        "intermediate: steep step": 188,
+        "intermediate: separated surface": 188,
+        "final: odd mino count": 141,
+        "final: steep step": 51,
+        "final: separated surface": 51,
+        "final: missing accommodation: Z": 34,
+        "final: piece dependency": 20,
+        "final: quality score": 36,
+        "initial: jaggedness": 11,
+        "intermediate: jaggedness": 2
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "J",
+          2,
+          2
+        ],
+        [
+          "L",
+          1,
+          7
+        ]
+      ],
+      "tested": 168,
+      "duplicates": 16,
+      "rejected": {
+        "initial: column 10 below column 9": 66,
+        "initial: steep step": 132,
+        "initial: separated surface": 132,
+        "intermediate: column 10 below column 9": 66,
+        "intermediate: steep step": 118,
+        "intermediate: separated surface": 118,
+        "final: column 10 below column 9": 66,
+        "final: steep step": 64,
+        "final: separated surface": 64,
+        "final: piece dependency": 54,
+        "final: quality score": 39,
+        "initial: odd mino count": 79,
+        "intermediate: odd mino count": 79,
+        "final: odd mino count": 79,
+        "initial: jaggedness": 7,
+        "intermediate: jaggedness": 7
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "I",
+          1,
+          2
+        ],
+        [
+          "O",
+          0,
+          7
+        ]
+      ],
+      "tested": 1413,
+      "duplicates": 87,
+      "rejected": {
+        "initial: odd mino count": 724,
+        "initial: steep step": 1398,
+        "initial: separated surface": 1398,
+        "intermediate: odd mino count": 724,
+        "intermediate: steep step": 1359,
+        "intermediate: separated surface": 1359,
+        "final: odd mino count": 724,
+        "final: steep step": 884,
+        "final: separated surface": 884,
+        "initial: jaggedness": 876,
+        "final: piece dependency": 458,
+        "final: quality score": 755,
+        "initial: missing accommodation: Z, S, T": 152,
+        "intermediate: jaggedness": 398,
+        "final: missing accommodation: S": 115,
+        "initial: column 10 below column 9": 545,
+        "intermediate: column 10 below column 9": 545,
+        "final: column 10 below column 9": 545,
+        "intermediate: missing accommodation: Z, S, T": 75,
+        "final: jaggedness": 30,
+        "final: missing accommodation: Z, S, T": 25,
+        "final: missing accommodation: Z": 108,
+        "final: missing accommodation: Z, S": 52
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "Z",
+          0,
+          2
+        ],
+        [
+          "S",
+          1,
+          7
+        ]
+      ],
+      "tested": 190,
+      "duplicates": 24,
+      "rejected": {
+        "initial: steep step": 150,
+        "initial: separated surface": 150,
+        "intermediate: steep step": 137,
+        "intermediate: separated surface": 137,
+        "initial: column 10 below column 9": 60,
+        "intermediate: column 10 below column 9": 60,
+        "final: column 10 below column 9": 60,
+        "final: steep step": 73,
+        "final: separated surface": 73,
+        "final: piece dependency": 38,
+        "final: quality score": 45,
+        "initial: odd mino count": 95,
+        "intermediate: odd mino count": 95,
+        "final: odd mino count": 95,
+        "initial: jaggedness": 7,
+        "intermediate: jaggedness": 3,
+        "final: jaggedness": 1,
+        "final: missing accommodation: Z": 13
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "T",
+          1,
+          7
+        ]
+      ],
+      "tested": 287,
+      "duplicates": 0,
+      "rejected": {
+        "initial: odd mino count": 153,
+        "initial: steep step": 235,
+        "initial: separated surface": 235,
+        "final: odd mino count": 153,
+        "final: steep step": 144,
+        "final: separated surface": 144,
+        "final: missing accommodation: O": 24,
+        "final: quality score": 137,
+        "final: piece dependency": 113,
+        "initial: column 10 below column 9": 117,
+        "final: column 10 below column 9": 117,
+        "final: missing accommodation: S": 25,
+        "initial: jaggedness": 37,
+        "final: missing accommodation: L, O": 3,
+        "final: jaggedness": 10,
+        "final: missing accommodation: O, S": 5,
+        "initial: missing accommodation: L, J, O": 4,
+        "final: missing accommodation: J, O": 8,
+        "initial: missing accommodation: J, O, Z": 3,
+        "final: missing accommodation: J, O, S": 3,
+        "final: missing accommodation: L, J, O": 2,
+        "initial: missing accommodation: L, O, Z": 1
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "I",
+          0,
+          7
+        ]
+      ],
+      "tested": 48,
+      "duplicates": 1,
+      "rejected": {
+        "initial: odd mino count": 22,
+        "final: odd mino count": 22,
+        "final: missing accommodation: Z, S": 2,
+        "initial: steep step": 16,
+        "initial: separated surface": 16,
+        "final: steep step": 16,
+        "final: separated surface": 16,
+        "final: missing accommodation: S": 5,
+        "final: piece dependency": 5,
+        "final: quality score": 10,
+        "final: missing accommodation: Z": 3
+      },
+      "approved": 3,
+      "exhausted": false
+    },
+    {
+      "spec": [
+        [
+          "O",
+          0,
+          9
+        ]
+      ],
+      "tested": 78,
+      "duplicates": 0,
+      "rejected": {
+        "initial: steep step": 44,
+        "initial: separated surface": 44,
+        "final: steep step": 38,
+        "final: separated surface": 38,
+        "initial: odd mino count": 35,
+        "final: odd mino count": 35,
+        "final: missing accommodation: S": 9,
+        "final: quality score": 21,
+        "final: piece dependency": 16,
+        "initial: jaggedness": 2,
+        "final: missing accommodation: Z": 2,
+        "final: missing accommodation: Z, S": 1,
+        "final: jaggedness": 1,
+        "final: missing accommodation: Z, S, T": 1
+      },
+      "approved": 3,
+      "exhausted": false
+    }
+  ]
+}

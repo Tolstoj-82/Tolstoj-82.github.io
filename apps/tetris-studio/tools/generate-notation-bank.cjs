@@ -1,0 +1,7 @@
+const fs=require('fs'),path=require('path'),G=require('../js/stack-generator'),Q=require('../js/stack-quality');
+const specs=[];for(const type of Q.TYPES)for(let r=0;r<Q.STATES[type];r++)specs.push({spec:[[type,r,r%2?7:2]],practice:true});
+for(const spec of [[['L',0,2],['T',3,8]],[['J',2,2],['L',1,7]],[['I',1,2],['O',0,7]],[['Z',0,2],['S',1,7]]])specs.push({spec,practice:true});
+for(const spec of [[['T',1,7]],[['I',0,7]],[['O',0,9]]])specs.push({spec,practice:false});
+const entries=[],audits=[],random=G.seeded();for(const {spec,practice}of specs){const result=G.generate(spec,{random});if(result.entries.length!==3)throw Error('Insufficient approved surfaces for '+JSON.stringify(spec));entries.push(...result.entries.map(e=>({...e,practice})));audits.push({spec,...result.audit});}
+const base=path.resolve(__dirname,'..');fs.writeFileSync(path.join(base,'js/notation-bank.js'),'(function(root){const bank='+JSON.stringify(entries)+';if(typeof module!=="undefined")module.exports=bank;else root.TetrisNotationBank=bank;})(globalThis);\n');
+fs.writeFileSync(path.join(base,'fixtures/notation-quality-audit.json'),JSON.stringify({version:1,seed:'0x5eeda11',profile:Q.PROFILES.notation,entries:entries.length,practiceEntries:entries.filter(e=>e.practice).length,templates:audits},null,2));console.log('Approved '+entries.length+' surfaces ('+entries.filter(e=>e.practice).length+' practice variants).');

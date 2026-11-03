@@ -1,0 +1,713 @@
+{
+  "adjustment": [
+    {
+      "sourceTitle": "L-J Koryan Thing",
+      "nextType": "L",
+      "name": "001-l-j-koryan-thing"
+    },
+    {
+      "sourceTitle": "S-Z Koryan Thing",
+      "nextType": "S",
+      "name": "002-s-z-koryan-thing"
+    },
+    {
+      "sourceTitle": "Hook",
+      "nextType": "I",
+      "name": "003-hook"
+    },
+    {
+      "sourceTitle": "Pullback L (Richard L)",
+      "nextType": "I",
+      "name": "004-pullback-l-richard-l"
+    },
+    {
+      "sourceTitle": "Pullback L (for tetris)",
+      "nextType": "I",
+      "name": "005-pullback-l-for-tetris"
+    },
+    {
+      "sourceTitle": "Blue Sponge",
+      "nextType": "Z",
+      "name": "006-blue-sponge-next-z"
+    },
+    {
+      "sourceTitle": "Blue Sponge",
+      "nextType": "T",
+      "name": "007-blue-sponge-next-t"
+    },
+    {
+      "sourceTitle": "Red Sponge",
+      "nextType": "S",
+      "name": "008-red-sponge-next-s"
+    },
+    {
+      "sourceTitle": "Red Sponge",
+      "nextType": "T",
+      "name": "009-red-sponge-next-t"
+    },
+    {
+      "sourceTitle": "OL adjustment (Ori: Oj)",
+      "nextType": "L",
+      "name": "010-ol-adjustment-ori-oj"
+    },
+    {
+      "sourceTitle": "O for L/J: 3-wide hole",
+      "nextType": "J",
+      "name": "011-o-for-l-j-3-wide-hole-next-j"
+    },
+    {
+      "sourceTitle": "O for L/J: 3-wide hole",
+      "nextType": "L",
+      "name": "012-o-for-l-j-3-wide-hole-next-l"
+    },
+    {
+      "sourceTitle": "O for J dependency: Below and six (Ori: O for L)",
+      "nextType": "J",
+      "name": "013-o-for-j-dependency-below-and-six-ori-o-for-l"
+    },
+    {
+      "sourceTitle": "O for L dependency: Below and five (Ori: O for J)",
+      "nextType": "L",
+      "name": "014-o-for-l-dependency-below-and-five-ori-o-for-j"
+    },
+    {
+      "sourceTitle": "S/Z Shadow T adjustment",
+      "nextType": "S",
+      "name": "015-s-z-shadow-t-adjustment"
+    },
+    {
+      "sourceTitle": "Kofi 1.37: level 25 adjustment (Lorange juice)",
+      "nextType": "L",
+      "name": "016-kofi-1-37-level-25-adjustment-lorange-juice"
+    },
+    {
+      "sourceTitle": "Waterfall: tall water",
+      "nextType": "L",
+      "name": "017-waterfall-tall-water-next-l"
+    },
+    {
+      "sourceTitle": "L pullback for I dependency (Ori: J pullback)",
+      "nextType": "I",
+      "name": "019-l-pullback-for-i-dependency-ori-j-pullback"
+    },
+    {
+      "sourceTitle": "T pullback for I dependency",
+      "nextType": "I",
+      "name": "020-t-pullback-for-i-dependency"
+    },
+    {
+      "sourceTitle": "Double Bar",
+      "nextType": "I",
+      "name": "021-double-bar"
+    },
+    {
+      "sourceTitle": "[Koryan] Double L (Ori: Double J)",
+      "nextType": "L",
+      "name": "022-koryan-double-l-ori-double-j"
+    },
+    {
+      "sourceTitle": "Pump Fake Passer Upper",
+      "nextType": "L",
+      "name": "023-pump-fake-passer-upper"
+    },
+    {
+      "sourceTitle": "Blank Thing",
+      "nextType": "L",
+      "name": "024-blank-thing"
+    },
+    {
+      "sourceTitle": "Joseph Saelee 2018 Adjustment",
+      "nextType": "O",
+      "name": "025-joseph-saelee-2018-adjustment"
+    },
+    {
+      "sourceTitle": "Luke Anderson 26",
+      "nextType": "O",
+      "name": "026-luke-anderson-26"
+    },
+    {
+      "sourceTitle": "J/L for T adjustment: Jonas Neubauer",
+      "nextType": "T",
+      "name": "027-j-l-for-t-adjustment-jonas-neubauer"
+    },
+    {
+      "sourceTitle": "J vert for Z vert (Ori: L vert for S vert)",
+      "nextType": "Z",
+      "name": "028-j-vert-for-z-vert-ori-l-vert-for-s-vert"
+    },
+    {
+      "sourceTitle": "Water: T for L/J",
+      "nextType": "J",
+      "name": "029-water-t-for-l-j-next-j"
+    },
+    {
+      "sourceTitle": "Water: T for L/J",
+      "nextType": "L",
+      "name": "030-water-t-for-l-j-next-l"
+    },
+    {
+      "sourceTitle": "VITS: Palito Tuck",
+      "nextType": "I",
+      "name": "031-vits-palito-tuck"
+    },
+    {
+      "sourceTitle": "O for Z vert: Sisyphus (Ori: O for S vert)",
+      "nextType": "Z",
+      "name": "032-o-for-z-vert-sisyphus-ori-o-for-s-vert-next-z"
+    },
+    {
+      "sourceTitle": "Spocket",
+      "nextType": "Z",
+      "name": "034-spocket"
+    },
+    {
+      "sourceTitle": "5 and beside",
+      "nextType": "O",
+      "name": "035-5-and-beside"
+    },
+    {
+      "sourceTitle": "L for T: Hanging Feet Dangler (Ori: J for T)",
+      "nextType": "T",
+      "name": "036-l-for-t-hanging-feet-dangler-ori-j-for-t"
+    },
+    {
+      "sourceTitle": "Thomas Jefferson 1",
+      "nextType": "L",
+      "name": "037-thomas-jefferson-1"
+    },
+    {
+      "sourceTitle": "Thomas Jefferson 2: Declaration of Independence",
+      "nextType": "L",
+      "name": "038-thomas-jefferson-2-declaration-of-independence"
+    },
+    {
+      "sourceTitle": "Basic T-spin adjustment",
+      "nextType": "T",
+      "name": "039-basic-t-spin-adjustment"
+    },
+    {
+      "sourceTitle": "ST Tuck: Handstand (Ori: ZT Tuck)",
+      "nextType": "T",
+      "name": "040-st-tuck-handstand-ori-zt-tuck"
+    },
+    {
+      "sourceTitle": "T flip for S/Z vert: LeBron",
+      "nextType": "Z",
+      "name": "041-t-flip-for-s-z-vert-lebron-next-z"
+    },
+    {
+      "sourceTitle": "T flip for S/Z vert: LeBron",
+      "nextType": "S",
+      "name": "042-t-flip-for-s-z-vert-lebron-next-s"
+    },
+    {
+      "sourceTitle": "First ever",
+      "nextType": "O",
+      "name": "043-first-ever"
+    },
+    {
+      "sourceTitle": "Unnamed: S/J",
+      "nextType": "J",
+      "name": "044-unnamed-s-j"
+    },
+    {
+      "sourceTitle": "Key tuck setup",
+      "nextType": "L",
+      "name": "045-key-tuck-setup"
+    },
+    {
+      "sourceTitle": "3 piece",
+      "nextType": "I",
+      "name": "046-3-piece"
+    },
+    {
+      "sourceTitle": "JO and Below (Ori: LO and Below)",
+      "nextType": "O",
+      "name": "047-jo-and-below-ori-lo-and-below"
+    },
+    {
+      "sourceTitle": "Z flat for S tuck: Jigsaw (Ori: S flat for Z tuck)",
+      "nextType": "S",
+      "name": "048-z-flat-for-s-tuck-jigsaw-ori-s-flat-for-z-tuck"
+    },
+    {
+      "sourceTitle": "I for J: High Rise (Ori: I for L)",
+      "nextType": "J",
+      "name": "049-i-for-j-high-rise-ori-i-for-l"
+    },
+    {
+      "sourceTitle": "Gun",
+      "nextType": "J",
+      "name": "050-gun"
+    },
+    {
+      "sourceTitle": "Preserving square hole",
+      "nextType": "O",
+      "name": "051-preserving-square-hole"
+    },
+    {
+      "sourceTitle": "Double Z Start (Ori: Double S Start)",
+      "nextType": "Z",
+      "name": "052-double-z-start-ori-double-s-start"
+    },
+    {
+      "sourceTitle": "Tournament Organizer",
+      "nextType": "O",
+      "name": "053-tournament-organizer"
+    },
+    {
+      "sourceTitle": "Z for S spin: High Chair (Ori: S for Z spin)",
+      "nextType": "S",
+      "name": "054-z-for-s-spin-high-chair-ori-s-for-z-spin"
+    },
+    {
+      "sourceTitle": "JD spin adjustment",
+      "nextType": "O",
+      "name": "055-jd-spin-adjustment"
+    },
+    {
+      "sourceTitle": "Boiler spin adjustment",
+      "nextType": "O",
+      "name": "056-boiler-spin-adjustment"
+    },
+    {
+      "sourceTitle": "Nenu thing",
+      "nextType": "T",
+      "name": "057-nenu-thing"
+    },
+    {
+      "sourceTitle": "T flip for L spawn: Twister (Ori: T flip for J spawn)",
+      "nextType": "L",
+      "name": "058-t-flip-for-l-spawn-twister-ori-t-flip-for-j-spawn"
+    },
+    {
+      "sourceTitle": "Z flat for L dependency: Sled (Ori: S flat for J dependency)",
+      "nextType": "L",
+      "name": "059-z-flat-for-l-dependency-sled-ori-s-flat-for-j-dependency"
+    },
+    {
+      "sourceTitle": "Boomerang",
+      "nextType": "O",
+      "name": "060-boomerang"
+    },
+    {
+      "sourceTitle": "Z for T tuck: Street (Ori: S for T tuck)",
+      "nextType": "T",
+      "name": "061-z-for-t-tuck-street-ori-s-for-t-tuck"
+    },
+    {
+      "sourceTitle": "L pullback for Z/T (Ori: J pullback for S/T)",
+      "nextType": "Z",
+      "name": "062-l-pullback-for-z-t-ori-j-pullback-for-s-t-next-z"
+    },
+    {
+      "sourceTitle": "L pullback for Z/T (Ori: J pullback for S/T)",
+      "nextType": "T",
+      "name": "063-l-pullback-for-z-t-ori-j-pullback-for-s-t-next-t"
+    },
+    {
+      "sourceTitle": "Noro PC burn: Sodium Big Brain",
+      "nextType": "T",
+      "name": "064-noro-pc-burn-sodium-big-brain"
+    },
+    {
+      "sourceTitle": "Vertical S for L: 89 (Ori: Vert Z for J)",
+      "nextType": "L",
+      "name": "065-vertical-s-for-l-89-ori-vert-z-for-j"
+    },
+    {
+      "sourceTitle": "Zvert (Ori: Svert)",
+      "nextType": "Z",
+      "name": "066-zvert-ori-svert"
+    },
+    {
+      "sourceTitle": "O for S/Z flat: Manners / Wok / Swipe to unlock",
+      "nextType": "S",
+      "name": "067-o-for-s-z-flat-manners-wok-swipe-to-unlock"
+    },
+    {
+      "sourceTitle": "JS Tristop thing (Ori: LZ Tristop thing)",
+      "nextType": "S",
+      "name": "068-js-tristop-thing-ori-lz-tristop-thing"
+    },
+    {
+      "sourceTitle": "ZT Tristop thing: secondary (Ori: ST Tristop thing)",
+      "nextType": "T",
+      "name": "069-zt-tristop-thing-secondary-ori-st-tristop-thing"
+    },
+    {
+      "sourceTitle": "Center Stack S spin (Ori: Center Stack Z spins)",
+      "nextType": "S",
+      "name": "070-center-stack-s-spin-ori-center-stack-z-spins"
+    },
+    {
+      "sourceTitle": "L Spuck (Ori: J Spuck)",
+      "nextType": "L",
+      "name": "071-l-spuck-ori-j-spuck"
+    },
+    {
+      "sourceTitle": "Significant Other: Sodium thing",
+      "nextType": "O",
+      "name": "072-significant-other-sodium-thing"
+    },
+    {
+      "sourceTitle": "L tap over for O: Stepback (Ori: J tap over for O)",
+      "nextType": "O",
+      "name": "073-l-tap-over-for-o-stepback-ori-j-tap-over-for-o"
+    },
+    {
+      "sourceTitle": "SO tuck: Zuke Anderson (Ori: ZO tuck)",
+      "nextType": "O",
+      "name": "074-so-tuck-zuke-anderson-ori-zo-tuck"
+    },
+    {
+      "sourceTitle": "234",
+      "nextType": "L",
+      "name": "075-234"
+    },
+    {
+      "sourceTitle": "S for L dependency: Zip (Ori: Z for J dependency)",
+      "nextType": "L",
+      "name": "076-s-for-l-dependency-zip-ori-z-for-j-dependency"
+    },
+    {
+      "sourceTitle": "ST reverse Tristop: Nenu thing (Ori: ZT reverse Tristop)",
+      "nextType": "T",
+      "name": "077-st-reverse-tristop-nenu-thing-ori-zt-reverse-tristop"
+    },
+    {
+      "sourceTitle": "Z flat for O: ZO Opener (Ori: S flat for O)",
+      "nextType": "O",
+      "name": "078-z-flat-for-o-zo-opener-ori-s-flat-for-o"
+    },
+    {
+      "sourceTitle": "Eli Markstrom T: GarbageEgg T",
+      "nextType": "O",
+      "name": "079-eli-markstrom-t-garbageegg-t"
+    },
+    {
+      "sourceTitle": "Nice adjustment 1.0",
+      "nextType": "O",
+      "name": "080-nice-adjustment-1-0"
+    },
+    {
+      "sourceTitle": "Vischer Thing",
+      "nextType": "S",
+      "name": "081-vischer-thing"
+    },
+    {
+      "sourceTitle": "J upright for Z: Situp (Ori: L upright for S)",
+      "nextType": "Z",
+      "name": "082-j-upright-for-z-situp-ori-l-upright-for-s"
+    },
+    {
+      "sourceTitle": "Jarbage Egg",
+      "nextType": "O",
+      "name": "083-jarbage-egg"
+    },
+    {
+      "sourceTitle": "Dengler: Choke thing",
+      "nextType": "S",
+      "name": "084-dengler-choke-thing"
+    },
+    {
+      "sourceTitle": "Amogus / Dengler thing",
+      "nextType": "J",
+      "name": "085-amogus-dengler-thing"
+    },
+    {
+      "sourceTitle": "Five and Below",
+      "nextType": "O",
+      "name": "086-five-and-below"
+    },
+    {
+      "sourceTitle": "Australian tucks",
+      "nextType": "O",
+      "name": "087-australian-tucks"
+    },
+    {
+      "sourceTitle": "L doubletuck (Ori: J doubletuck)",
+      "nextType": "L",
+      "name": "088-l-doubletuck-ori-j-doubletuck"
+    },
+    {
+      "sourceTitle": "Noro JL burn (Ori: Noro LJ burn)",
+      "nextType": "L",
+      "name": "089-noro-jl-burn-ori-noro-lj-burn"
+    },
+    {
+      "sourceTitle": "Null Adjustment",
+      "nextType": "J",
+      "name": "090-null-adjustment"
+    },
+    {
+      "sourceTitle": "Bar in 1: Dog bar (Ori: Bar in 10)",
+      "nextType": "I",
+      "name": "091-bar-in-1-dog-bar-ori-bar-in-10"
+    },
+    {
+      "sourceTitle": "Bar Vits",
+      "nextType": "I",
+      "name": "092-bar-vits"
+    },
+    {
+      "sourceTitle": "Gerald Tuck",
+      "nextType": "O",
+      "name": "093-gerald-tuck"
+    },
+    {
+      "sourceTitle": "VITS: L North",
+      "nextType": "I",
+      "name": "094-vits-l-north"
+    },
+    {
+      "sourceTitle": "VITS: L South",
+      "nextType": "I",
+      "name": "095-vits-l-south"
+    },
+    {
+      "sourceTitle": "VITS: L West",
+      "nextType": "I",
+      "name": "096-vits-l-west"
+    },
+    {
+      "sourceTitle": "VITS: Australian: L West",
+      "nextType": "I",
+      "name": "097-vits-australian-l-west"
+    },
+    {
+      "sourceTitle": "VITS: Australian: L East",
+      "nextType": "I",
+      "name": "098-vits-australian-l-east"
+    },
+    {
+      "sourceTitle": "VITS: Australian: L South",
+      "nextType": "I",
+      "name": "099-vits-australian-l-south"
+    },
+    {
+      "sourceTitle": "VITS: Australian: L North",
+      "nextType": "I",
+      "name": "100-vits-australian-l-north"
+    },
+    {
+      "sourceTitle": "VITS: J South",
+      "nextType": "I",
+      "name": "101-vits-j-south"
+    },
+    {
+      "sourceTitle": "VITS: J West",
+      "nextType": "I",
+      "name": "102-vits-j-west"
+    },
+    {
+      "sourceTitle": "VITS: J North",
+      "nextType": "I",
+      "name": "103-vits-j-north"
+    },
+    {
+      "sourceTitle": "VITS: J East",
+      "nextType": "I",
+      "name": "104-vits-j-east"
+    },
+    {
+      "sourceTitle": "VITS: S North",
+      "nextType": "I",
+      "name": "105-vits-s-north"
+    },
+    {
+      "sourceTitle": "VITS: S East",
+      "nextType": "I",
+      "name": "106-vits-s-east"
+    },
+    {
+      "sourceTitle": "VITS: Z East",
+      "nextType": "I",
+      "name": "107-vits-z-east"
+    },
+    {
+      "sourceTitle": "VITS: Z North",
+      "nextType": "I",
+      "name": "108-vits-z-north"
+    },
+    {
+      "sourceTitle": "VITS: T West",
+      "nextType": "I",
+      "name": "109-vits-t-west"
+    },
+    {
+      "sourceTitle": "VITS: T North",
+      "nextType": "I",
+      "name": "110-vits-t-north"
+    },
+    {
+      "sourceTitle": "VITS: T East",
+      "nextType": "I",
+      "name": "111-vits-t-east"
+    },
+    {
+      "sourceTitle": "VITS: T South",
+      "nextType": "I",
+      "name": "112-vits-t-south"
+    },
+    {
+      "sourceTitle": "VITS: O North",
+      "nextType": "I",
+      "name": "113-vits-o-north"
+    }
+  ],
+  "spin": [
+    {
+      "sourceTitle": "L-Spin (optimal, left)",
+      "nextType": "",
+      "name": "001-l-spin-optimal-left"
+    },
+    {
+      "sourceTitle": "L-Spin (optimal, right)",
+      "nextType": "",
+      "name": "002-l-spin-optimal-right"
+    },
+    {
+      "sourceTitle": "L-Spin (suboptimal, left)",
+      "nextType": "",
+      "name": "003-l-spin-suboptimal-left"
+    },
+    {
+      "sourceTitle": "L-Spin (suboptimal, right)",
+      "nextType": "",
+      "name": "004-l-spin-suboptimal-right"
+    },
+    {
+      "sourceTitle": "J-Spin (well)",
+      "nextType": "",
+      "name": "005-j-spin-well"
+    },
+    {
+      "sourceTitle": "J-Spin (center)",
+      "nextType": "",
+      "name": "006-j-spin-center"
+    },
+    {
+      "sourceTitle": "J-Spin (suboptimal, well)",
+      "nextType": "",
+      "name": "007-j-spin-suboptimal-well"
+    },
+    {
+      "sourceTitle": "J-Spin (suboptimal, center)",
+      "nextType": "",
+      "name": "008-j-spin-suboptimal-center"
+    },
+    {
+      "sourceTitle": "I-Spin (well)",
+      "nextType": "",
+      "name": "009-i-spin-well"
+    },
+    {
+      "sourceTitle": "I-Spin (ledge)",
+      "nextType": "",
+      "name": "010-i-spin-ledge"
+    },
+    {
+      "sourceTitle": "I-Spin (cross)",
+      "nextType": "",
+      "name": "011-i-spin-cross"
+    },
+    {
+      "sourceTitle": "I-Spin (offset)",
+      "nextType": "",
+      "name": "012-i-spin-offset"
+    },
+    {
+      "sourceTitle": "I-Spin (open pocket)",
+      "nextType": "",
+      "name": "013-i-spin-open-pocket"
+    },
+    {
+      "sourceTitle": "Z-Spin (well)",
+      "nextType": "",
+      "name": "014-z-spin-well"
+    },
+    {
+      "sourceTitle": "Z-Spin (center)",
+      "nextType": "",
+      "name": "015-z-spin-center"
+    },
+    {
+      "sourceTitle": "S-Spin (well)",
+      "nextType": "",
+      "name": "016-s-spin-well"
+    },
+    {
+      "sourceTitle": "S-Spin (center)",
+      "nextType": "",
+      "name": "017-s-spin-center"
+    },
+    {
+      "sourceTitle": "T-Spin (CCW)",
+      "nextType": "",
+      "name": "018-t-spin-ccw"
+    },
+    {
+      "sourceTitle": "T-Spin (CW)",
+      "nextType": "",
+      "name": "019-t-spin-cw"
+    },
+    {
+      "sourceTitle": "JD spin (left)",
+      "nextType": "",
+      "name": "020-jd-spin-left"
+    },
+    {
+      "sourceTitle": "JD spin (right)",
+      "nextType": "",
+      "name": "021-jd-spin-right"
+    }
+  ],
+  "spuck": [
+    {
+      "sourceTitle": "L Spuck (Ori: J Spuck)",
+      "nextType": "",
+      "name": "001-l-spuck-ori-j-spuck"
+    },
+    {
+      "sourceTitle": "Z-Spuck (well)",
+      "nextType": "",
+      "name": "002-z-spuck-well"
+    },
+    {
+      "sourceTitle": "Z-Spuck (center)",
+      "nextType": "",
+      "name": "003-z-spuck-center"
+    },
+    {
+      "sourceTitle": "S-Spuck (well)",
+      "nextType": "",
+      "name": "004-s-spuck-well"
+    },
+    {
+      "sourceTitle": "S-Spuck (center)",
+      "nextType": "",
+      "name": "005-s-spuck-center"
+    },
+    {
+      "sourceTitle": "T-Spuck (right tuck)",
+      "nextType": "",
+      "name": "006-t-spuck-right-tuck"
+    },
+    {
+      "sourceTitle": "T-Spuck (left tuck)",
+      "nextType": "",
+      "name": "007-t-spuck-left-tuck"
+    },
+    {
+      "sourceTitle": "T-Spuck (suboptimal, right tuck)",
+      "nextType": "",
+      "name": "008-t-spuck-suboptimal-right-tuck"
+    },
+    {
+      "sourceTitle": "T-Spuck (suboptimal, left tuck)",
+      "nextType": "",
+      "name": "009-t-spuck-suboptimal-left-tuck"
+    }
+  ]
+}

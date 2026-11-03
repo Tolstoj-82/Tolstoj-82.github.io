@@ -1,0 +1,1800 @@
+{
+  "sourceImage": "codex-clipboard-ea89880a-d75a-43de-829d-0ad4400b0744.png",
+  "description": "Eight cell centres extracted from each supplied NES diagram, horizontally mirrored. Colors identify NES piece families, not placement order. I/I uses the separately authored Game Boy placement.",
+  "charts": [
+    {
+      "source": "IO",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "IL",
+      "alternate": false,
+      "points": [
+        {
+          "x": 1,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "IJ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "IT",
+      "alternate": false,
+      "points": [
+        {
+          "x": 4,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "IS",
+      "alternate": false,
+      "points": [
+        {
+          "x": 5,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 4,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "IZ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 6,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 5,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "OO",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "OL",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 1,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "OJ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 2,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 1,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "OT",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "OS",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 5,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "source": "OZ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 6,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "LL",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 1,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "LJ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 1,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "LT",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "LS",
+      "alternate": false,
+      "points": [
+        {
+          "x": 4,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 3,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 1,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "LZ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "JJ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 1,
+          "y": 15,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 1,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "source": "JT",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 5,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "JS",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 14,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 15,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 15,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "source": "JZ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "TT",
+      "alternate": false,
+      "points": [
+        {
+          "x": 9,
+          "y": 15,
+          "color": "white"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "TS",
+      "alternate": false,
+      "points": [
+        {
+          "x": 8,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "TZ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 8,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "SJ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 1,
+          "y": 15,
+          "color": "blue"
+        },
+        {
+          "x": 3,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 2,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 1,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "source": "SS",
+      "alternate": false,
+      "points": [
+        {
+          "x": 8,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 5,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "source": "SZ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 8,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "source": "ZI",
+      "alternate": false,
+      "points": [
+        {
+          "x": 5,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 4,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "ZL",
+      "alternate": false,
+      "points": [
+        {
+          "x": 5,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 5,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "ZJ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 5,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 5,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "ZT",
+      "alternate": false,
+      "points": [
+        {
+          "x": 4,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 3,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 2,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "ZZ",
+      "alternate": false,
+      "points": [
+        {
+          "x": 8,
+          "y": 13,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 14,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 14,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "IL",
+      "alternate": true,
+      "points": [
+        {
+          "x": 9,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "IS",
+      "alternate": true,
+      "points": [
+        {
+          "x": 8,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    },
+    {
+      "source": "JJ",
+      "alternate": true,
+      "points": [
+        {
+          "x": 9,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "source": "ZI",
+      "alternate": true,
+      "points": [
+        {
+          "x": 3,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 2,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "ZL",
+      "alternate": true,
+      "points": [
+        {
+          "x": 7,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 5,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "color": "red"
+        }
+      ]
+    },
+    {
+      "source": "ZJ",
+      "alternate": true,
+      "points": [
+        {
+          "x": 8,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 7,
+          "y": 15,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "blue"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "blue"
+        }
+      ]
+    },
+    {
+      "source": "ZT",
+      "alternate": true,
+      "points": [
+        {
+          "x": 8,
+          "y": 15,
+          "color": "red"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "color": "red"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "color": "white"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "color": "red"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "color": "white"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "color": "white"
+        }
+      ]
+    }
+  ]
+}

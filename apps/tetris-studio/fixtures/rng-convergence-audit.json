@@ -1,0 +1,111 @@
+{
+  "model": "uniform candidate OR-rejection Markov chain; same initial hidden queue as cartridge",
+  "seed": 71236781,
+  "reps": 12000,
+  "target": [
+    0.10740213324398115,
+    0.1368443749495845,
+    0.13684437494958454,
+    0.16068824730242076,
+    0.1368443749495845,
+    0.16068824730242076,
+    0.16068824730242076
+  ],
+  "rows": [
+    {
+      "n": 1,
+      "expectedMatch": 0.1488255920765471,
+      "probabilityWithin5TV": 0
+    },
+    {
+      "n": 10,
+      "expectedMatch": 0.7020449090103602,
+      "probabilityWithin5TV": 0
+    },
+    {
+      "n": 25,
+      "expectedMatch": 0.8196030389212658,
+      "probabilityWithin5TV": 0.002
+    },
+    {
+      "n": 50,
+      "expectedMatch": 0.8735477459104543,
+      "probabilityWithin5TV": 0.016
+    },
+    {
+      "n": 100,
+      "expectedMatch": 0.9103602447160165,
+      "probabilityWithin5TV": 0.06541666666666666
+    },
+    {
+      "n": 200,
+      "expectedMatch": 0.9366249586004008,
+      "probabilityWithin5TV": 0.25708333333333333
+    },
+    {
+      "n": 300,
+      "expectedMatch": 0.9484342557328126,
+      "probabilityWithin5TV": 0.49116666666666664
+    },
+    {
+      "n": 400,
+      "expectedMatch": 0.9553045012877802,
+      "probabilityWithin5TV": 0.6725
+    },
+    {
+      "n": 500,
+      "expectedMatch": 0.9599727936064723,
+      "probabilityWithin5TV": 0.7981666666666667
+    },
+    {
+      "n": 600,
+      "expectedMatch": 0.9633466491843614,
+      "probabilityWithin5TV": 0.8730833333333333
+    },
+    {
+      "n": 700,
+      "expectedMatch": 0.966014149252324,
+      "probabilityWithin5TV": 0.9258333333333333
+    },
+    {
+      "n": 800,
+      "expectedMatch": 0.9682722680570255,
+      "probabilityWithin5TV": 0.9570833333333333
+    },
+    {
+      "n": 900,
+      "expectedMatch": 0.9701047604392232,
+      "probabilityWithin5TV": 0.9761666666666666
+    },
+    {
+      "n": 1000,
+      "expectedMatch": 0.9716201462463443,
+      "probabilityWithin5TV": 0.98725
+    },
+    {
+      "n": 1200,
+      "expectedMatch": 0.9741391540125477,
+      "probabilityWithin5TV": 0.9949166666666667
+    },
+    {
+      "n": 1500,
+      "expectedMatch": 0.9769211354994617,
+      "probabilityWithin5TV": 0.9990833333333333
+    },
+    {
+      "n": 2000,
+      "expectedMatch": 0.9799915731658325,
+      "probabilityWithin5TV": 1
+    },
+    {
+      "n": 3000,
+      "expectedMatch": 0.9836606884872267,
+      "probabilityWithin5TV": 1
+    },
+    {
+      "n": 5000,
+      "expectedMatch": 0.9873312951509781,
+      "probabilityWithin5TV": 1
+    }
+  ]
+}

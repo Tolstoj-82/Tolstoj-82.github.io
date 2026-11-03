@@ -1,0 +1,21 @@
+# Limits manoeuvres, first lesson draft
+
+Open Basics > Limits > Introduction (lesson=limits-introduction), Fixed-orientation limits (lesson=limits), or Pole vaults and somersaults (lesson=limits-manoeuvres). Individual examples use a stable case=manoeuvre-NNN parameter.
+
+The names pole vault, full somersault and partial somersault are course working definitions, not Nintendo move categories. A pole vault turns out and back, with direction input to clear a crest; full somersaults use four continuous quarter-turns for L/J/T; partial cycles finish after two or three such turns. I/S/Z have two physical states; their shown two-toggle vaults also work with the other rotation button. O has one unchanged footprint and no geometric vault gain.
+
+Research found community usage for pole vault in NES play, but no authoritative complete Game Boy nomenclature/catalogue. Generic SRS kick or NES geometry claims were not imported. Primary implementation checks use the supplied v1.1 ROM, SHA1 74591cc9501af93873f9a5d3eb12da12c0723bbc. Bytes at 0x1BDE call the rotation/input routine (0x24BB), then falling (0x209C). The input routine completes rotation/collision first, then horizontal checks beginning at 0x2509. The local disassembly zip corroborates these addresses. The existing native ROM shape and turn fixtures supply all geometry; there are no invented kicks or anchor lifts.
+
+The reproducible catalogue has 311 verified routes: 144 pole vaults, 94 full somersaults and 73 partial cycles. 292 have clean landing supports. The other 19 are visibly labelled recovery-only because they leave holes. The search audits 2,856 cases and 12,855 obstacle heights. Its domain is every piece and unique orientation, both directions, seven existing Limits speed presets, two one-column crest positions per start/end footprint, and heights 1 through 16. It retains the highest successful example per case. No arbitrary-stack or unlimited-chain completeness claim is made.
+
+All displayed manoeuvres start in the actual native spawn orientation and include opening preparation turns. Searches allow monotone directional taps, waits, and the selected rotation pattern. At most one rotation and one directional press are sampled per tapping-cadence slot. When combined, rotation is applied first, as in the cartridge. Gravity runs on every native frame. The fixed-orientation benchmark is deliberately stronger: it starts already prepared, and checks both intended pre- and post-manoeuvre orientations. Candidates also exclude shortest preparation-only routes from native spawn. Thus an unnecessary flourish after a straightforward crossing is not counted as a gain. A fixed posture that cannot even reach an empty side is labelled new reach, not a numeric height improvement.
+
+Matching landing supports are added only after native replay succeeds and the resulting stack has no holes; they cannot be assumed legal from a picture alone. Each final board is replayed again and has no pre-completed rows. The isolated hurdle diagrams teach recovery, not desirable stack construction.
+
+The viewer separates same-frame rotation and shift into inspectable teaching steps, while labelling their common native frame. It shows the original 4x4 sprite matrix, the pivot reference, current minos and previous-orientation ghost, and compares fixed movement on the identical board. Playback is slowed for explanation. O and empty filter combinations show explicit explanations. Matrix and pivot overlays can be toggled; keyboard arrows step the focused board. Leaving cancels playback.
+
+Spuck chains are discussed with links to the existing T/S/Z lessons. They are not mislabelled as a universally enumerated extension of these crossings: overhangs, reversals, soft drop, charged DAS phases and arbitrary chains require their own search domain and validation.
+
+Rebuild: node tools/discover-manoeuvres.cjs. It writes fixtures/manoeuvres.json and js/manoeuvre-data.js. The latter is a classic script and needs no fetch or server. Verify with node tests/manoeuvres.test.cjs. Browser-simulated lesson checks live in tests/app.test.cjs.
+
+Primary mechanics reference: https://github.com/kaspermeerts/tetris/blob/master/tetris.asm. Community terminology lead (not a GB mechanics authority): https://www.reddit.com/r/Tetris/comments/gwk59v/.

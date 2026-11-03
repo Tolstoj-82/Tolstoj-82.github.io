@@ -1,0 +1,118 @@
+{
+  "scope": "Local strategy diagnostics only; StackRabbit was not executed.",
+  "model": "Fixed level-0 gravity; current and visible next only; 60-piece limit; LFSR seed resets per sequence.",
+  "results": [
+    {
+      "seed": "123456",
+      "placed": 60,
+      "lines": 20,
+      "clears": {
+        "single": 2,
+        "double": 0,
+        "triple": 2,
+        "tetris": 3
+      },
+      "peakHeight": 10,
+      "finalHeight": 6,
+      "finalHoles": 0,
+      "stoppedWithoutHint": false,
+      "firstHoles": null
+    },
+    {
+      "seed": "000001",
+      "placed": 60,
+      "lines": 18,
+      "clears": {
+        "single": 3,
+        "double": 0,
+        "triple": 1,
+        "tetris": 3
+      },
+      "peakHeight": 14,
+      "finalHeight": 10,
+      "finalHoles": 0,
+      "stoppedWithoutHint": false,
+      "firstHoles": {
+        "afterPiece": 26,
+        "current": "L",
+        "next": "S",
+        "placement": {
+          "type": "L",
+          "x": 0,
+          "y": 7,
+          "rotation": 2
+        },
+        "board": [
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "........OO",
+          "......OOOO",
+          "......OOOO",
+          "..L...OOOO",
+          "LLLT.TOOOO",
+          "..TTTTTTOO",
+          ".OOOOTTTOO",
+          ".OOOOZZTOO",
+          ".OOOOSZZOO",
+          ".OOOOSSJOO",
+          ".OOJJJSJOO",
+          ".OOJJJJJOO",
+          ".OOJOOOOOO",
+          ".OOJOOOOOO"
+        ],
+        "holes": 10,
+        "height": 14
+      }
+    },
+    {
+      "seed": "ABCDEF",
+      "placed": 60,
+      "lines": 21,
+      "clears": {
+        "single": 5,
+        "double": 0,
+        "triple": 0,
+        "tetris": 4
+      },
+      "peakHeight": 8,
+      "finalHeight": 5,
+      "finalHoles": 0,
+      "stoppedWithoutHint": false,
+      "firstHoles": {
+        "afterPiece": 11,
+        "current": "I",
+        "next": "T",
+        "placement": {
+          "type": "I",
+          "x": 3,
+          "y": 11,
+          "rotation": 0
+        },
+        "board": [
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "..........",
+          "........T.",
+          ".......TTI",
+          "...IIIISTI",
+          "..SS..SSSI",
+          ".SSSSZSSSI",
+          ".JSSZZTSOO",
+          ".JJJZTTTOO"
+        ],
+        "holes": 2,
+        "height": 7
+      }
+    }
+  ]
+}
