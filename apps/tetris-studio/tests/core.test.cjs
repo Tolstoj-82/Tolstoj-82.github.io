@@ -74,7 +74,7 @@ test('bottom alignment and transparent fragments compose correctly',()=>{const s
 test('empty, null, zero and space normalize to empty cells',()=>{const s=C.normalize({title:'Empty',frames:[{board:[[null,0,' ','.','.','.','.','.','.','.']]}]});assert.equal(s.frames[0].board[0],'..........');});
 test('active piece overlays four cells',()=>{const s=C.normalize({title:'Piece',height:5,frames:[{active:{type:'T',x:2,y:1,rotation:2}}]});assert.equal(C.compose(s.frames[0],5).flat().filter(c=>c==='T').length,4);});
 test('invalid bounds, cells, durations, inputs, and statistics are rejected',()=>{const valid={title:'Validation',height:4,frames:[{}]};for(const bad of [{height:19},{frames:[]},{title:''},{frames:[{ticks:0}]},{frames:[{ticks:1.5}]},{frames:[{buttons:['Fire']}]},{frames:[{board:['..........','..........','..........','..........','..........']}]},{frames:[{board:['GGGGGGGGGG']}]},{frames:[{parts:[{x:9,y:0,rows:['OO']}]}]},{frames:[{active:{type:'I',x:8,y:0}}]},{frames:[{score:-1}]},{frames:[{next:'X'}]}])assert.throws(()=>C.normalize({...valid,...bad}));});
-test('collection formats and exported round trips preserve data',()=>{const demo=C.demos();assert.equal(C.parseCollection(demo[0]).length,1);assert.equal(C.parseCollection(demo).length,266);assert.deepEqual(C.parseCollection(JSON.parse(JSON.stringify({situations:demo}))),demo);});
+test('collection formats and exported round trips preserve data',()=>{const demo=C.demos();assert.equal(C.parseCollection(demo[0]).length,1);assert.equal(C.parseCollection(demo).length,demo.length);assert.deepEqual(C.parseCollection(JSON.parse(JSON.stringify({situations:demo}))),demo);});
 test('every tetromino orientation has four distinct minos',()=>{for(const rotations of Object.values(C.SHAPES))for(const shape of rotations)assert.equal(new Set(shape.map(p=>p.join(','))).size,4);});
 test('curtain ends with a complete background board',()=>{const s=C.normalize({title:'Curtain',frames:[{board:Array(18).fill('XXXXXXXXXX')}]});assert(C.compose(s.frames.at(-1),s.height).flat().every(c=>c==='X'));});
 
@@ -263,3 +263,16 @@ test('JD spins turn twice, tuck before their final rotation and fit both mirrore
 });
 
 test('every spin input produces the illustrated orientation with the piece in the same position',()=>{const {Attempt}=require('../js/playable.js'),fp=a=>C.cells(a.type,a.rotation).map(([x,y])=>[x+a.x,y+a.y].join(',')).sort().join(';'),spins=C.demos().filter(s=>/^[LJIZST]-Spin/.test(s.title));assert.equal(spins.length,19);for(const s of spins){const input=s.frames.find(f=>f.reveal==='input'),result=s.frames.find(f=>f.reveal==='spin'),valid=[];for(const button of ['A','B']){const a=new Attempt(s);a.board=C.compose({...input,active:undefined},18);a.active=C.clone(input.active);if(a.input(button.toLowerCase())&&fp(a.active)===fp(result.active))valid.push(button);}assert.deepEqual([...(input.buttonOptions||input.buttons)].sort(),valid,s.title);assert(valid.length>0);assert.equal(input.active.x,result.active.x);assert.equal(input.active.y,result.active.y);assert.equal(s.frames.find(f=>f.reveal==='trigger').trigger.button,input.buttons[0]);}});
+
+
+test('Playback samples every read-only lesson frame without mutating its source',()=>{
+ const freeze=value=>{if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;};
+ for(const scene of C.demos()){
+  const snapshot=JSON.stringify(scene);freeze(scene);
+  for(const frame of scene.frames)for(const tick of [0,Math.floor(frame.ticks/2),frame.ticks]){
+   const view=C.frameAt(frame,tick);
+   if(frame.hold){assert.deepEqual(view.buttons,frame.buttons,scene.title);assert.notEqual(view.buttons,frame.buttons,'held inputs belong to the view');}
+  }
+  assert.equal(JSON.stringify(scene),snapshot,scene.title+' stays unchanged');
+ }
+});

@@ -19,3 +19,11 @@ Run tests:
 Other tools audit ROM rules, RNG, advisor behavior and generated lessons. Historical scripts and backups belong in .restore-points/.
 
 Stable card filenames are recorded in fixtures/card-export-names.json, so a clean checkout does not renumber existing downloads. Generated .work/ data and .restore-points/ backups are excluded from Git.
+
+## Roof-burn catalogue
+
+    node tools/generate-roof-burns.cjs
+    node tools/build-roof-burn-lessons.cjs
+    node tests/roof-burns.test.cjs
+
+Search scope, acceptance criteria and the 23 selected examples are documented in docs/ROOF-BURNS.md.

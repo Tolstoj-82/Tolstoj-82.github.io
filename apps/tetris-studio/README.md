@@ -64,3 +64,5 @@ Free play now has a Source selector. Choose GB Interceptor and Connect to read a
 ## Autoplay
 
 In Free play with Source: Play here, enable Autoplay before Start or use the in-game Autoplay switch. It follows verified advisor routes with native gravity and line-clear animation. Switch it off to take over immediately. See [autoplay behavior](docs/AUTOPLAY.md).
+
+Save Stacking > Roof burns (index.html?lesson=roof-burns) introduces spike and vertical S/Z roof burns, then other hole-opening clears for all seven pieces. See docs/ROOF-BURNS.md for the bounded search, verification and reproduction commands.
