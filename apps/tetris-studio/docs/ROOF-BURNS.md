@@ -126,3 +126,31 @@ A new covered cell is not automatically Bad. Empty-space flood connectivity firs
 Good placements have no buried cells left and are ranked densely as Good #1, Good #2, and so on. The ordering is lexicographic: accommodation coverage, total clean placements, fewer dependencies, lower jaggedness, then lower maximum height. Equal results share a rank. This makes accommodation dominant without adding an arbitrary weighted score. The ranks and raw accommodation counts appear in the animated explanation and option labels.
 
 The Try this piece modal uses the same accessible-overhang criterion for these lesson-generated examples, so a Meh recovery is not incorrectly rejected as a sealed hole. The random roof-practice mode retains its existing stricter default grading. Delayed attempts with no roof clear still fail.
+
+Only placements whose occupied columns span the complete roof-opening width are included. Touching part of a wider gap no longer qualifies. Delayed burns remain when their footprint spans that width. Both the animation and each option list run from Good to Meh to Bad, ordered within each rating by resulting-stack quality with accommodation first.
+
+The x-y scan includes a replayable protection example. The board has a two-wide recess in columns 4 and 5. O45 is its natural surface fit, but is rejected because it adds weight above the column-4 hole, then a native level-6 route places O89 to the right. Columns 1 and 2 stay free for J12. Its native route and resulting roof clear are checked after the O placement. The animation shares visibility pausing, clean initial state and reduced-motion behavior with the scan boards.
+
+The horizontal-eye lesson now replaces the roof-clear tour and separate protection card with a single placement scan on the same board as the vertical eye. Columns are red for holes within three rows of their local surface, orange for deeper holes, and green for none. The animation scans, rejects O45 above the shallow hole, and follows a native level-6 route to the best green O placement. Candidates must introduce no covered cells and preserve the J12 entry; resulting accommodation determines their rank. The demonstration includes a second, deeper hole in column 6.
+
+Correction to the eye assignment: column-depth colors, rejecting O45 and moving to the best green alternative belong to the vertical eye. Its downward ray scans column by column. The horizontal eye again has the six roof-opening examples, full-width native placements, line clears, ranked Good/Meh/Bad list and Try this piece modal. There is no third protection card.
+
+The protection stack shifts old columns 3–6 right and duplicates column 2 in column 3, giving a three-wide roof opening. O56 is the recess fit over the shallow column-5 hole; the safe O89 preserves a native T123 burn. Each hole first receives a strong outlined marker, then its column receives a light tint 300 ms later. Safe green column tints disappear when scanning ends. The rejected default blinks, then the selected alternative appears directly in place; there is no gravity segment.
+
+Column 2 is now one mino higher than column 3 in the protection example, so O23 no longer accommodates. The extra support also makes the preserved three-wide T entry a delayed roof setup rather than an immediate clear; the animation states this explicitly.
+
+The rejected O56 now has a Default label above it, struck through before the safe O appears. After the alternative, the native-verified recovery is I1 (single), J123 (single, opens the shallow hole), then Z67 (double, opens the deeper hole). Native clear timing is shown for each; I1 alone is not falsely described as opening both holes. The final board has no covered holes.
+
+The vertical-eye example now ends after one I1 rooftop burn. J123 and Z67 follow-ups are removed. Its final caption describes the removed roof row above the deeper hole, without claiming both holes are fully opened.
+
+Columns 2 and 3 are swapped in the current protection board. The sole recovery piece is now Jr12, natively reachable at level 6 after O89. It clears rows 14 and 16 and opens the shallow column-5 hole. The caption retains the remaining deeper-hole caveat. This replaces the prior I1 example.
+
+The latest board applies the requested column-1-up shift followed by a one-row downward shift of the whole 18-row matrix. Column 1 was empty before placement, so its shift is visually neutral. The previous bottom row falls outside the matrix, removing that deeper hole. O56 and the selected O89 both move one row down; Jr12 now clears rows 15 and 17 and opens the remaining column-5 hole.
+
+Correction: the requested first shift applies to the bottom row, not column 1. The bottom row is moved up into the row above, then the entire stack is lowered one row. Its column-7 hole therefore remains in the matrix. Jr12 clears row 15 and opens the shallow column-5 hole; the deeper column-7 hole remains. This supersedes the previous column-1 interpretation.
+
+The lower column-7 hole is orange (the explicit red cutoff is now two rows below the local surface). After Jr12, the demonstration adds native-reachable Z56, which clears a single, then I7. On this exact board I7 lands above the remaining roof and clears no line; it is held without a fabricated clear. The final caption states that the lower hole remains covered.
+
+Lu123 is inserted between Z56 and I7. Native level-6 verification finds Lu123 at y=15, clearing row 16 and opening the deeper hole. I7 can then descend to y=14 and clear row 17. The final sequence Jr12 → Z56 → Lu123 → I7 takes four singles and leaves no covered holes.
+
+The last placement is now Ll67 instead of I7. Its native level-6 route reaches x=5, y=15, orientation 1, clears row 17 and leaves no covered holes.
