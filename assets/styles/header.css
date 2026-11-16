@@ -198,3 +198,49 @@ header h1 {
     text-align: left;
   }
 }
+
+/* Homepage navigation stays with the sticky header. */
+header.workbench-header {
+  height: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 50px;
+  gap: 8px 12px;
+  padding: 14px 1rem 12px;
+}
+.workbench-header h1 {
+  position: static;
+  transform: none;
+  text-align: left;
+  min-width: 0;
+}
+.workbench-header .section-tabs {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 3px;
+  border: 0;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+.workbench-header .section-tab {
+  flex: 1 0 auto;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+}
+.workbench-header .section-tab:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+.workbench-header .section-tab[aria-selected="true"] {
+  background: white;
+  border-color: white;
+  color: #215e99;
+}
+.workbench-header .section-tab:focus-visible {
+  outline-color: #ffdc73;
+}
+@media (max-width: 600px) {
+  header.workbench-header { padding: 8px 10px; gap: 4px 8px; }
+  .workbench-header .section-tab { flex: 0 0 auto; padding: 9px 11px; }
+}

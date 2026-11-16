@@ -5,264 +5,461 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tolstoj's Workbench</title>
     <link rel="stylesheet" href="assets/styles/general.css?v=20260808-1" />
-    <link rel="stylesheet" href="assets/styles/grid.css?v=20260727-4" />
-    <link rel="stylesheet" href="assets/styles/header.css" />
+    <link rel="stylesheet" href="assets/styles/grid.css?v=20261116-2" />
+    <link rel="stylesheet" href="assets/styles/header.css?v=20261116-2" />
     <link rel="stylesheet" href="assets/styles/layouts.css" />
     <link rel="stylesheet" href="assets/styles/modal.css?v=20260727-1" />
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
     <script src="assets/scripts/register-manifest.js?v=20260727-1"></script>
+    <style id="homepage-tab-layout">
+      /* Keep homepage navigation inside the blue sticky site header. */
+      header.workbench-header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        width: 100%;
+        height: auto;
+        min-height: 80px;
+        background: #215e99;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 50px;
+        padding: 12px 16px;
+        gap: 8px 12px;
+      }
+      header.workbench-header h1 {
+        position: static;
+        transform: none;
+        margin: 0;
+        text-align: left;
+      }
+      header.workbench-header > .section-tabs {
+        display: flex;
+        grid-column: 1 / -1;
+        min-width: 0;
+        max-width: 100%;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        margin: 0;
+        padding: 3px;
+        border: 0;
+      }
+      header.workbench-header .section-tab {
+        flex: 1 0 auto;
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+      }
+      header.workbench-header .section-tab[aria-selected="true"] {
+        background: #fff;
+        border-color: #fff;
+        color: #215e99;
+      }
+      /* Set all four sides explicitly; the old accordion rules removed the top. */
+      #projects-panel {
+        border: 2px solid #007dcc;
+      }
+      #games-patches-panel {
+        border: 2px solid #ffb900;
+      }
+      #articles-panel {
+        border: 2px solid #b2054c;
+      }
+      #people-panel {
+        border: 2px solid #008a78;
+      }
+      #community-projects-panel {
+        border: 2px solid #6750a4;
+      }
+      #external-links-panel {
+        border: 2px solid #d95d0b;
+      }
+      main [role="tabpanel"] {
+        border-radius: 8px;
+      }
+      main #home-panel {
+        border: 0;
+        border-radius: 0;
+      }
+      @media (max-width: 600px) {
+        header.workbench-header {
+          padding: 8px 10px;
+        }
+        header.workbench-header .section-tab {
+          flex: 0 0 auto;
+        }
+      }
+      /* Text navigation: subtle hover underline, stronger active underline. */
+      header.workbench-header .section-tab {
+        position: relative;
+        flex: 0 0 auto;
+        padding: 10px 4px;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: #fff;
+        font-weight: 400;
+        white-space: nowrap;
+      }
+      header.workbench-header > .section-tabs {
+        gap: 24px;
+        justify-content: center;
+      }
+      header.workbench-header .section-tab:hover,
+      header.workbench-header .section-tab[aria-selected="true"] {
+        background: transparent;
+        border: 0;
+        color: #fff;
+      }
+      header.workbench-header .section-tab::after {
+        content: "";
+        position: absolute;
+        left: 4px;
+        right: 4px;
+        bottom: 3px;
+        height: 3px;
+        background: #fff;
+        transform: scaleX(0);
+        transition: transform 150ms ease;
+      }
+      header.workbench-header .section-tab:hover::after {
+        transform: scaleX(1);
+      }
+      header.workbench-header .section-tab[aria-selected="true"]::after {
+        height: 3px;
+        background: #fff;
+        transform: scaleX(1);
+      }
+      @media (max-width: 900px) {
+        header.workbench-header > .section-tabs {
+          justify-content: flex-start;
+          gap: 20px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        header.workbench-header .section-tab::after {
+          transition: none;
+        }
+      }
+
+    </style>
   </head>
   <body id="top">
     <div class="content">
-      <header>
+      <header class="workbench-header">
         <h1>Tolstoj's Workbench</h1>
         <button
           class="menu-btn"
           id="hamburger-icon"
           type="button"
-          aria-label="Open menu"
+          aria-label="Open highlights"
           aria-controls="site-menu"
           aria-expanded="false"
         >
           ☰
         </button>
+        <div
+          class="section-tabs"
+          role="tablist"
+          aria-label="Workbench sections"
+        >
+          <button
+            class="section-tab"
+            type="button"
+            role="tab"
+            id="home-section"
+            aria-selected="false"
+            tabindex="-1"
+            aria-controls="home-panel"
+          >
+            Home
+          </button>
+          <button
+            class="section-tab"
+            type="button"
+            role="tab"
+            id="tools-section"
+            aria-selected="false"
+            tabindex="-1"
+            aria-controls="projects-panel"
+          >
+            <span>My Tools</span>
+          </button>
+          <button
+            class="section-tab"
+            type="button"
+            role="tab"
+            id="games-section"
+            aria-selected="false"
+            tabindex="-1"
+            aria-controls="games-patches-panel"
+          >
+            <span>ROMs</span>
+          </button>
+          <button
+            class="section-tab"
+            type="button"
+            role="tab"
+            id="articles-section"
+            aria-selected="false"
+            tabindex="-1"
+            aria-controls="articles-panel"
+          >
+            <span>Articles</span>
+          </button>
+          <button
+            class="section-tab"
+            type="button"
+            role="tab"
+            id="people-section"
+            aria-selected="false"
+            tabindex="-1"
+            aria-controls="people-panel"
+          >
+            <span>People in GB Tetris</span>
+          </button>
+
+          <button
+            class="section-tab"
+            type="button"
+            role="tab"
+            id="external-links-title"
+            aria-selected="false"
+            tabindex="-1"
+            aria-controls="external-links-panel"
+          >
+            <span>Links</span>
+          </button>
+        </div>
       </header>
       <div class="menu-container" id="site-menu" aria-hidden="true">
-        <button
-          class="close-btn"
-          id="close-icon"
-          type="button"
-          aria-label="Close menu"
-        >
-          ✖
+        <button class="close-btn" id="close-icon" type="button" aria-label="Close highlights">✖</button>
+        <button class="accordion active" type="button" aria-expanded="true" aria-controls="highlights-menu">
+          Highlights <span class="arrow" aria-hidden="true">−</span>
         </button>
-        <button
-          class="accordion"
-          type="button"
-          aria-expanded="false"
-          aria-controls="projects-menu"
-        >
-          My Tools <span class="arrow" aria-hidden="true">+</span>
-        </button>
-        <ul class="menu" id="projects-menu">
+        <ul class="menu active" id="highlights-menu">
           <li><a href="apps/trep/index.html">TREP</a></li>
           <li><a href="apps/gb-ocr/index.html">GB OCR</a></li>
           <li><a href="apps/qual-timer/index.html">Qual timer</a></li>
-          <li>
-            <a href="apps/post-max-counter/index.html">Post Max Counter</a>
-          </li>
-          <li><a href="apps/live/refactored/index.html">OCR</a></li>
-          <li><a href="apps/firmware-labeller/index.html">Re-labbeler</a></li>
-          <li><a href="apps/luter/index.html">LUT Tool</a></li>
-          <li><a href="apps/music-editor/index.html">ASM Music Editor</a></li>
-          <li>
-            <a href="apps/genetic-engineering/index.html"
-              >Genetic Engineering</a
-            >
-          </li>
-          <li>
-            <a href="games/chris-and-triss/index.html">Chris &amp; Triss</a>
-          </li>
-        </ul>
-        <button
-          class="accordion"
-          type="button"
-          aria-expanded="false"
-          aria-controls="other-things-menu"
-        >
-          Other Things <span class="arrow" aria-hidden="true">+</span>
-        </button>
-        <ul class="menu" id="other-things-menu">
-          <li><a href="articles/about-me/index.html">About Me</a></li>
-          <li>
-            <a href="articles/two-player-reverse-engineering/index.html"
-              >2-Player</a
-            >
-          </li>
-          <li><a href="games/rom-hacks/index.html">ROM Patches</a></li>
-          <li>
-            <a href="articles/tetris-collection/index.html"
-              >My Tetris Collection</a
-            >
-          </li>
-          <li><a href="articles/rng/index.html">RNG in GB Tetris</a></li>
           <li><a href="articles/danish-championship-2025/index.html">DM i Tetris 2025 ROM</a></li>
+          <li><a href="articles/new-to-tetris/index.html">New to Game Boy Tetris?</a></li>
+          <li><a href="content/martin-jakob/index.html">Martin Jakob</a></li>
         </ul>
       </div>
 
       <div class="page-content">
         <main>
-          <section class="intro">
-            <div class="intro-portrait" id="intro-portrait">
-              <img
-                class="intro-portrait-photo"
-                src="assets/images/tolstoj.jpg"
-                alt="Tolstoj"
-              />
-              <img
-                class="intro-rotation-background"
-                src="assets/images/background.png"
-                alt=""
-                aria-hidden="true"
-              />
-              <img
-                class="intro-rotation-foreground"
-                src="assets/images/foreground.png"
-                alt=""
-                aria-hidden="true"
-              />
-              <div class="intro-letter-overlays" aria-hidden="true">
-                <img src="assets/images/intro-letters/T.png" alt="" />
-                <img src="assets/images/intro-letters/O.png" alt="" />
-                <img src="assets/images/intro-letters/L.png" alt="" />
-                <img src="assets/images/intro-letters/S.png" alt="" />
-                <img src="assets/images/intro-letters/T2.png" alt="" />
-                <img src="assets/images/intro-letters/O2.png" alt="" />
-                <img src="assets/images/intro-letters/J.png" alt="" />
+          <section
+            id="home-panel"
+            role="tabpanel"
+            aria-labelledby="home-section"
+            tabindex="0"
+          >
+            <section class="intro">
+              <div class="intro-portrait" id="intro-portrait">
+                <img
+                  class="intro-portrait-photo"
+                  src="assets/images/tolstoj.jpg"
+                  alt="Tolstoj"
+                />
+                <img
+                  class="intro-rotation-background"
+                  src="assets/images/background.png"
+                  alt=""
+                  aria-hidden="true"
+                />
+                <img
+                  class="intro-rotation-foreground"
+                  src="assets/images/foreground.png"
+                  alt=""
+                  aria-hidden="true"
+                />
+                <div class="intro-letter-overlays" aria-hidden="true">
+                  <img src="assets/images/intro-letters/T.png" alt="" />
+                  <img src="assets/images/intro-letters/O.png" alt="" />
+                  <img src="assets/images/intro-letters/L.png" alt="" />
+                  <img src="assets/images/intro-letters/S.png" alt="" />
+                  <img src="assets/images/intro-letters/T2.png" alt="" />
+                  <img src="assets/images/intro-letters/O2.png" alt="" />
+                  <img src="assets/images/intro-letters/J.png" alt="" />
+                </div>
+                <button
+                  class="intro-rotate-button"
+                  id="intro-rotate-button"
+                  type="button"
+                  aria-label="Rotate the Tolstoj logo"
+                  aria-pressed="false"
+                ></button>
+                <div
+                  class="intro-quartet"
+                  id="intro-quartet"
+                  aria-label="Frequency-responsive barbershop quartet"
+                  aria-hidden="true"
+                >
+                  <div
+                    class="intro-singer"
+                    data-band="0"
+                    role="img"
+                    aria-label="Bass"
+                  >
+                    <div class="intro-singer-motion">
+                      <span class="intro-hat"></span>
+                      <span class="intro-head"
+                        ><i class="intro-mouth"></i
+                      ></span>
+                      <span class="intro-bow-tie"></span>
+                      <span class="intro-singer-body"></span>
+                    </div>
+                  </div>
+                  <div
+                    class="intro-singer"
+                    data-band="1"
+                    role="img"
+                    aria-label="Baritone"
+                  >
+                    <div class="intro-singer-motion">
+                      <span class="intro-hat"></span>
+                      <span class="intro-head"
+                        ><i class="intro-mouth"></i
+                      ></span>
+                      <span class="intro-bow-tie"></span>
+                      <span class="intro-singer-body"></span>
+                    </div>
+                  </div>
+                  <div
+                    class="intro-singer"
+                    data-band="2"
+                    role="img"
+                    aria-label="Lead"
+                  >
+                    <div class="intro-singer-motion">
+                      <span class="intro-hat"></span>
+                      <span class="intro-head"
+                        ><i class="intro-mouth"></i
+                      ></span>
+                      <span class="intro-bow-tie"></span>
+                      <span class="intro-singer-body"></span>
+                    </div>
+                  </div>
+                  <div
+                    class="intro-singer"
+                    data-band="3"
+                    role="img"
+                    aria-label="Tenor"
+                  >
+                    <div class="intro-singer-motion">
+                      <span class="intro-hat"></span>
+                      <span class="intro-head"
+                        ><i class="intro-mouth"></i
+                      ></span>
+                      <span class="intro-bow-tie"></span>
+                      <span class="intro-singer-body"></span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  class="intro-audio-button"
+                  id="intro-audio-button"
+                  type="button"
+                  aria-label="Play Tolstoj's song"
+                  aria-pressed="false"
+                >
+                  <span aria-hidden="true">▶</span>
+                </button>
+                <audio
+                  id="intro-audio"
+                  src="assets/music/Tolstoj-Song.mp3"
+                  preload="metadata"
+                ></audio>
               </div>
-              <button
-                class="intro-rotate-button"
-                id="intro-rotate-button"
-                type="button"
-                aria-label="Rotate the Tolstoj logo"
-                aria-pressed="false"
-              ></button>
-              <div
-                class="intro-quartet"
-                id="intro-quartet"
-                aria-label="Frequency-responsive barbershop quartet"
-                aria-hidden="true"
-              >
-                <div
-                  class="intro-singer"
-                  data-band="0"
-                  role="img"
-                  aria-label="Bass"
-                >
-                  <div class="intro-singer-motion">
-                    <span class="intro-hat"></span>
-                    <span class="intro-head"><i class="intro-mouth"></i></span>
-                    <span class="intro-bow-tie"></span>
-                    <span class="intro-singer-body"></span>
-                  </div>
-                </div>
-                <div
-                  class="intro-singer"
-                  data-band="1"
-                  role="img"
-                  aria-label="Baritone"
-                >
-                  <div class="intro-singer-motion">
-                    <span class="intro-hat"></span>
-                    <span class="intro-head"><i class="intro-mouth"></i></span>
-                    <span class="intro-bow-tie"></span>
-                    <span class="intro-singer-body"></span>
-                  </div>
-                </div>
-                <div
-                  class="intro-singer"
-                  data-band="2"
-                  role="img"
-                  aria-label="Lead"
-                >
-                  <div class="intro-singer-motion">
-                    <span class="intro-hat"></span>
-                    <span class="intro-head"><i class="intro-mouth"></i></span>
-                    <span class="intro-bow-tie"></span>
-                    <span class="intro-singer-body"></span>
-                  </div>
-                </div>
-                <div
-                  class="intro-singer"
-                  data-band="3"
-                  role="img"
-                  aria-label="Tenor"
-                >
-                  <div class="intro-singer-motion">
-                    <span class="intro-hat"></span>
-                    <span class="intro-head"><i class="intro-mouth"></i></span>
-                    <span class="intro-bow-tie"></span>
-                    <span class="intro-singer-body"></span>
-                  </div>
-                </div>
+              <div class="text">
+                <p>
+                  Hello, friends! I'm
+                  <a href="articles/about-me/index.html">Tolstoj</a>. I've spent
+                  the last few years deep-diving into the inner workings of Game
+                  Boy Tetris and its competitive scene, and now I’m sharing my
+                  knowledge with you.
+                </p>
+                <p>
+                  On my journey, I met a lot of cool and talented people whom I
+                  will introduce in the future. At this point, there are four
+                  people I'd like to give a shout-out to: Toni, Pascal, -JJ and
+                  Sebastian Staacks.
+                </p>
+                <p>
+                  In the tabs above, you will find a growing collection of tools
+                  I developed, such as a firmware re-labeler and an OCR tool.
+                </p>
+                <p>
+                  Most of my work revolves around DiCon X's (Sebastian Staacks)
+                  <a
+                    href="https://github.com/Staacks/gbinterceptor"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="GB Interceptor—external link, opens in a new tab"
+                    >GB&nbsp;Interceptor <span aria-hidden="true">↗</span></a
+                  >, GB Tetris' biggest and most important asset:
+                  a&nbsp;Game&nbsp;Boy "capture card".
+                </p>
+                <p>
+                  And yes, I do use AI to help me with my projects, and no, I
+                  don't think that's bad at all. Embrace the future!
+                </p>
               </div>
-              <button
-                class="intro-audio-button"
-                id="intro-audio-button"
-                type="button"
-                aria-label="Play Tolstoj's song"
-                aria-pressed="false"
-              >
-                <span aria-hidden="true">▶</span>
-              </button>
-              <audio
-                id="intro-audio"
-                src="assets/music/Tolstoj-Song.mp3"
-                preload="metadata"
-              ></audio>
-            </div>
-            <div class="text">
-              <p>
-                Hello, friends! I'm
-                <a href="articles/about-me/index.html">Tolstoj</a>. I've spent
-                the last few years deep-diving into the inner workings of Game
-                Boy Tetris and its competitive scene, and now I’m sharing my
-                knowledge with you.
-              </p>
-              <p>
-                On my journey, I met a lot of cool and talented people whom I
-                will introduce in the future. At this point, there are four
-                people I'd like to give a shout-out to: Toni, Pascal, -JJ and
-                Sebastian Staacks.
-              </p>
-              <p>
-                Below, you will find a growing collection of tools I developed,
-                such as a firmware re-labeler and an OCR tool.
-              </p>
-              <p>
-                Most of my work revolves around DiCon X's (Sebastian Staacks)
-                <a
-                  href="https://github.com/Staacks/gbinterceptor"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="GB Interceptor—external link, opens in a new tab"
-                  >GB&nbsp;Interceptor <span aria-hidden="true">↗</span></a
-                >, GB Tetris' biggest and most important asset:
-                a&nbsp;Game&nbsp;Boy "capture card".
-              </p>
-              <p>
-                And yes, I do use AI to help me with my projects, and no, I
-                don't think that's bad at all. Embrace the future!
-              </p>
-            </div>
+            </section>
+            <p>
+              <span class="hadooken-event-photo-wrap">
+                <img
+                  src="assets/images/CTEC Team GB 2022.png"
+                  class="fullwidth hadooken-event-photo"
+                />
+              </span>
+              <b>CTEC Game Boy Team 2023</b> aka "The Lads": Kirjava, Toni, BV,
+              -JJ, Tolstoj, (Jacob)
+            </p>
+            <p>
+              <span class="hadooken-event-photo-wrap">
+                <img
+                  src="assets/images/PopCon.jpg"
+                  class="fullwidth hadooken-event-photo"
+                />
+              </span>
+              <b>PopCon 2024</b>: Pusteblume, Nitsrek85, Pascal, Tolstoj, Toni
+            </p>
           </section>
-          <h2 class="section-accordion-heading" id="tools-section">
-            <button
-              class="section-accordion"
-              type="button"
-              aria-expanded="true"
-              aria-controls="projects-panel"
-            >
-              <span>My Tools</span
-              ><span class="section-accordion-icon" aria-hidden="true">−</span>
-            </button>
-          </h2>
+
           <section
             class="grid section-apps accordion-panel"
             id="projects-panel"
+            role="tabpanel"
+            aria-labelledby="tools-section"
+            tabindex="0"
           >
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="apps/qual-timer/index.html" class="grid-item-clickable">
-                  <img src="apps/qual-timer/preview.svg" alt="Game Boy style qualification timer showing 1:30:00" />
+                <a
+                  href="apps/qual-timer/index.html"
+                  class="grid-item-clickable"
+                >
+                  <img
+                    src="apps/qual-timer/preview.svg"
+                    alt="Game Boy style qualification timer showing 1:30:00"
+                  />
                   <h3>Qual timer</h3>
-                  <div class="card-labels" aria-label="Status and optimized devices">
+                  <div
+                    class="card-labels"
+                    aria-label="Status and optimized devices"
+                  >
                     <span class="card-label status-working">Working</span>
-                    <span class="card-label device-label device-desktop">Desktop</span>
+                    <span class="card-label device-label device-desktop"
+                      >Desktop</span
+                    >
                   </div>
-                  <p>A customizable qualification timer with two or three scores and their average. Save timer names, adjust the appearance, and resize it to fit your stream.</p>
+                  <p>
+                    A customizable qualification timer with two or three scores
+                    and their average. Save timer names, adjust the appearance,
+                    and resize it to fit your stream.
+                  </p>
                 </a>
               </div>
             </div>
@@ -525,26 +722,19 @@
               </div>
             </div>
           </section>
-          <h2 class="section-accordion-heading" id="games-section">
-            <button
-              class="section-accordion"
-              type="button"
-              aria-expanded="true"
-              aria-controls="games-patches-panel"
-            >
-              <span>GB Games and Patches</span
-              ><span class="section-accordion-icon" aria-hidden="true">−</span>
-            </button>
-          </h2>
+
           <section
             class="people-grid game-directory-grid section-games-patches accordion-panel"
             id="games-patches-panel"
-            aria-label="GB Games and Patches"
+            role="tabpanel"
+            aria-labelledby="games-section"
+            tabindex="0"
+            aria-label="ROMs"
           ></section>
           <section
             class="people-grid game-directory-grid section-games-patches accordion-panel"
             id="games-patches-static-fallback"
-            aria-label="GB Games and Patches fallback"
+            aria-label="ROMs fallback"
             hidden
           >
             <button
@@ -572,27 +762,22 @@
               data-game-link="games/DM_i_Tetris/index.html"
               data-game-details-key="dm-i-tetris"
             ></button>
-            <button class="person-card game-directory-card" type="button"
+            <button
+              class="person-card game-directory-card"
+              type="button"
               data-game-name="GB Puzzle Mode"
               data-game-image="games/gb-puzzle-mode/images/title.png?v=20260909-26"
               data-game-description="Two-piece Game Boy Tetris puzzles with ideal solutions, half-credit alternatives, and score-dependent endings."
               data-game-link="games/gb-puzzle-mode/index.html"
             ></button>
           </section>
-          <h2 class="section-accordion-heading" id="articles-section">
-            <button
-              class="section-accordion"
-              type="button"
-              aria-expanded="true"
-              aria-controls="articles-panel"
-            >
-              <span>Articles</span
-              ><span class="section-accordion-icon" aria-hidden="true">−</span>
-            </button>
-          </h2>
+
           <section
             class="grid section-articles accordion-panel"
             id="articles-panel"
+            role="tabpanel"
+            aria-labelledby="articles-section"
+            tabindex="0"
           >
             <div class="grid-item">
               <div class="grid-item-wrapper">
@@ -606,7 +791,9 @@
                     alt="Game Boy Tetris pieces"
                   />
                   <h3>New to Game Boy Tetris?</h3>
-                  <time class="article-date" datetime="2026-07-28">07/2026</time>
+                  <time class="article-date" datetime="2026-07-28"
+                    >07/2026</time
+                  >
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">1 min read</span>
                   </div>
@@ -654,7 +841,9 @@
                     alt="Tetris collection"
                   />
                   <h3>My Tetris Collection</h3>
-                  <time class="article-date" datetime="2026-07-27">07/2026</time>
+                  <time class="article-date" datetime="2026-07-27"
+                    >07/2026</time
+                  >
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">5 min read</span>
                   </div>
@@ -667,7 +856,11 @@
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="articles/rng/index.html" class="grid-item-clickable" data-article-date="2024-01-01">
+                <a
+                  href="articles/rng/index.html"
+                  class="grid-item-clickable"
+                  data-article-date="2024-01-01"
+                >
                   <img
                     src="articles/rng/images/overview.png"
                     alt="Game Boy Tetris RNG flow overview"
@@ -687,18 +880,25 @@
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="articles/trep-disassembly-metadata/index.html" class="grid-item-clickable" data-article-date="2026-08-09">
+                <a
+                  href="articles/trep-disassembly-metadata/index.html"
+                  class="grid-item-clickable"
+                  data-article-date="2026-08-09"
+                >
                   <img
                     src="assets/images/ROM.png"
                     alt="Game Boy ROM patch illustration"
                   />
                   <h3>Preparing a Disassembly for TREP</h3>
-                  <time class="article-date" datetime="2026-08-09">08/2026</time>
+                  <time class="article-date" datetime="2026-08-09"
+                    >08/2026</time
+                  >
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">8 min read</span>
                   </div>
                   <p>
-                    Generate reliable background-map metadata from an RGBDS disassembly.
+                    Generate reliable background-map metadata from an RGBDS
+                    disassembly.
                   </p>
                 </a>
               </div>
@@ -706,18 +906,25 @@
 
             <div class="grid-item">
               <div class="grid-item-wrapper">
-                <a href="articles/danish-championship-2025/index.html" class="grid-item-clickable" data-article-date="2026-08-08">
+                <a
+                  href="articles/danish-championship-2025/index.html"
+                  class="grid-item-clickable"
+                  data-article-date="2026-08-08"
+                >
                   <img
                     src="articles/danish-championship-2025/images/game-state-overview.png"
                     alt="Game-state overview of the DM i Tetris 2025 qualification ROM"
                   />
                   <h3>DM i Tetris 2025 ROM</h3>
-                  <time class="article-date" datetime="2026-08-08">08/2026</time>
+                  <time class="article-date" datetime="2026-08-08"
+                    >08/2026</time
+                  >
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">25 min read</span>
                   </div>
                   <p>
-                    Building a timed Game Boy Tetris qualification ROM for DM i Tetris 2025.
+                    Building a timed Game Boy Tetris qualification ROM for DM i
+                    Tetris 2025.
                   </p>
                 </a>
               </div>
@@ -732,7 +939,9 @@
                 >
                   <img src="assets/images/tolstoj.jpg" alt="Tolstoj" />
                   <h3>About Me</h3>
-                  <time class="article-date" datetime="2026-07-27">07/2026</time>
+                  <time class="article-date" datetime="2026-07-27"
+                    >07/2026</time
+                  >
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">1 min read</span>
                   </div>
@@ -755,7 +964,9 @@
                     alt="Game Boy Tetris collection"
                   />
                   <h3>GB Tetris Collector's Guide</h3>
-                  <time class="article-date" datetime="2026-08-07">08/2026</time>
+                  <time class="article-date" datetime="2026-08-07"
+                    >08/2026</time
+                  >
                   <div class="card-labels" aria-label="Estimated reading time">
                     <span class="card-label reading-time">30 min read</span>
                   </div>
@@ -767,25 +978,13 @@
               </div>
             </div>
           </section>
-          <h2 class="section-accordion-heading" id="people-section">
-            <button
-              class="section-accordion"
-              type="button"
-              aria-expanded="true"
-              aria-controls="people-panel"
-            >
-              <span
-                >People in GB Tetris
-                <span
-                  id="people-count"
-                  aria-label="Number of people"
-                ></span></span
-              ><span class="section-accordion-icon" aria-hidden="true">−</span>
-            </button>
-          </h2>
+
           <section
             class="people-grid accordion-panel"
             id="people-panel"
+            role="tabpanel"
+            aria-labelledby="people-section"
+            tabindex="0"
             aria-label="People in GB Tetris"
           >
             <a
@@ -1224,64 +1423,39 @@
               </span>
             </button>
           </section>
-          <h2 class="section-accordion-heading" id="community-projects-section">
-            <button
-              class="section-accordion"
-              type="button"
-              aria-expanded="true"
-              aria-controls="community-projects-panel"
-            >
-              <span>Other Peoples' Projects</span
-              ><span class="section-accordion-icon" aria-hidden="true">−</span>
-            </button>
-          </h2>
-          <nav
-            class="external-links-grid community-project-links accordion-panel"
-            id="community-projects-panel"
-            aria-label="Other peoples' projects"
-          >
-            <a
-              href="http://online-gb.tetris.yt"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <strong>Toni's 2-Player Online Server</strong>
-              <span
-                >Play Game Boy Tetris online through a Link Cable adapter</span
-              >
-            </a>
-            <div class="external-link-static">
-              <strong>Past GB Events</strong>
-              <span>Pascal's archive of previous Game Boy events</span>
-            </div>
-            <a
-              href="https://gbdev.io/pandocs/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <strong>Game Boy Pan Docs</strong>
-              <span>Technical documentation for the Game Boy</span>
-            </a>
-          </nav>
 
           <nav class="external-links" aria-labelledby="external-links-title">
-            <h2 id="external-links-title" class="section-accordion-heading">
-              <button
-                class="section-accordion"
-                type="button"
-                aria-expanded="true"
-                aria-controls="external-links-panel"
-              >
-                <span>External Links</span
-                ><span class="section-accordion-icon" aria-hidden="true"
-                  >−</span
-                >
-              </button>
-            </h2>
             <div
               class="external-links-grid accordion-panel"
               id="external-links-panel"
+              role="tabpanel"
+              aria-labelledby="external-links-title"
+              tabindex="0"
             >
+              <a
+                href="http://online-gb.tetris.yt"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>Toni's 2-Player Online Server</strong>
+                <span
+                  >Play Game Boy Tetris online through a Link Cable
+                  adapter</span
+                >
+              </a>
+              <div class="external-link-static">
+                <strong>Past GB Events</strong>
+                <span>Pascal's archive of previous Game Boy events</span>
+              </div>
+              <a
+                href="https://gbdev.io/pandocs/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>Game Boy Pan Docs</strong>
+                <span>Technical documentation for the Game Boy</span>
+              </a>
+
               <a
                 href="https://tetris.yt/"
                 target="_blank"
@@ -1317,7 +1491,7 @@
                 <span>Records and rankings</span>
               </a>
               <a
-                href="https://classictetris.eu/"
+                href="https://classictetris.org/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -1325,7 +1499,7 @@
                 <span>Classic Tetris European Championships</span>
               </a>
               <a
-                href="https://lieblings.be/dates.html"
+                href="https://lieblings.be"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -1350,25 +1524,6 @@
               </a>
             </div>
           </nav>
-          <p>
-            <span class="hadooken-event-photo-wrap">
-              <img
-                src="assets/images/CTEC Team GB 2022.png"
-                class="fullwidth hadooken-event-photo"
-              />
-            </span>
-            <b>CTEC Game Boy Team 2023</b> aka "The Lads": Kirjava, Toni, BV,
-            -JJ, Tolstoj, (Jacob)
-          </p>
-          <p>
-            <span class="hadooken-event-photo-wrap">
-              <img
-                src="assets/images/PopCon.jpg"
-                class="fullwidth hadooken-event-photo"
-              />
-            </span>
-            <b>PopCon 2024</b>: Pusteblume, Nitsrek85, Pascal, Tolstoj, Toni
-          </p>
         </main>
       </div>
 
@@ -1407,7 +1562,9 @@
             >
             <a href="games/rom-hacks/index.html">ROM Patches</a>
             <a href="articles/rng/index.html">Tetris RNG</a>
-            <a href="articles/danish-championship-2025/index.html">DM i Tetris 2025 ROM</a>
+            <a href="articles/danish-championship-2025/index.html"
+              >DM i Tetris 2025 ROM</a
+            >
           </nav>
 
           <nav class="site-footer-column" aria-label="Footer community">
@@ -1446,7 +1603,7 @@
     </div>
     <script src="assets/data/players-fallback.js?v=20260727-5"></script>
     <script src="assets/data/player-images.js?v=20260727-2"></script>
-    <script src="script.js?v=20260808-3"></script>
+    <script src="script.js?v=20261116-4"></script>
     <div
       id="imageModal"
       class="modal"

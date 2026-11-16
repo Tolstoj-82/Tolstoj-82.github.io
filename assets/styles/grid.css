@@ -39,37 +39,31 @@
 
 .section-apps {
     border: 2px solid #007DCC;
-    border-top: 0;
     background-color: #eef8ff;
 }
 
 .section-games-patches {
     border: 2px solid #FFB900;
-    border-top: 0;
     background-color: #fff9e6;
 }
 
 .section-articles {
     border: 2px solid #B2054C;
-    border-top: 0;
     background-color: #fff0f6;
 }
 
 #people-panel {
     border: 2px solid #008A78;
-    border-top: 0;
     background-color: #eaf8f5;
 }
 
 #community-projects-panel {
     border: 2px solid #6750A4;
-    border-top: 0;
     background-color: #f4f0ff;
 }
 
 #external-links-panel {
     border: 2px solid #D95D0B;
-    border-top: 0;
     background-color: #fff4ea;
 }
 
@@ -406,4 +400,41 @@
     .section-games-patches {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
+
+/* Homepage section tabs */
+.section-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 28px 0 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #d8dfe6;
+}
+.section-tab {
+    flex: 1 1 auto;
+    padding: 12px 16px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: #e8edf2;
+    color: #24364b;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+.section-tab:hover { background: #dbe6ef; }
+.section-tab[aria-selected="true"] {
+    background: #007dcc;
+    border-color: #005f9c;
+    color: white;
+}
+.section-tab:focus-visible, [role="tabpanel"]:focus-visible {
+    outline: 3px solid #172b4d;
+    outline-offset: 3px;
+}
+[role="tabpanel"] { margin-top: 16px; border-top-width: 2px; border-top-style: solid; border-radius: 8px; }
+[role="tabpanel"][hidden] { display: none; }
+.external-links:has(#external-links-panel[hidden]) { display: none; }
+@media (max-width: 600px) {
+    .section-tab { flex: 1 1 calc(50% - 8px); padding: 10px 8px; }
 }

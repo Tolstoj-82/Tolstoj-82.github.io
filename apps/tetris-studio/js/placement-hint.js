@@ -3,7 +3,7 @@
 const C=typeof module!=='undefined'?require('./core.js'):root.TetrisCore;
 // Self-contained so the exact same search can run in a Blob worker on file://.
 function createEngine(model){
- const shapes=model.shapes,spawn=model.spawn,turns=model.turns;
+ const shapes=model.shapes,spawn=model.spawn,turns=model.turns,height=18;
  const spawnProfiles=Object.keys(shapes).map(type=>({type,cells:shapes[type][0].map(([dx,dy])=>[spawn[type].x+dx,spawn[type].y+dy])}));
  const spawnBand=Math.max(...spawnProfiles.flatMap(p=>p.cells.map(([,y])=>y)))+1;
  const same=(a,b)=>a.x===b.x&&a.y===b.y&&a.rotation===b.rotation;
@@ -77,7 +77,7 @@ function createEngine(model){
  }
  function accommodation(board){let count=0;for(const type of Object.keys(shapes)){let found=false;for(let r=0;r<shapes[type].length&&!found;r++)for(let x=-2;x<10&&!found;x++){let a={...spawn[type],rotation:r,x};if(!fits(board,a))continue;while(fits(board,move(a,'down')))a=move(a,'down');const cells=shapes[type][r];found=cells.every(([dx,dy])=>cells.some(([cx,cy])=>cx===dx&&cy===dy+1)||a.y+dy===17||(a.y+dy+1>=0&&board[a.y+dy+1]?.[a.x+dx]!=='.'));}if(found)count++;}return count;}
  function reward(n,ctx){return n===4?240:n*(ctx.mode==='survival'?32:ctx.mode==='dig'?12:-18);}
- function nextTiming(snapshot,cleared){const level=snapshot.level??0,lines=(snapshot.lines??0)+cleared,nextLevel=level<20&&lines<1000&&Math.floor(lines/10)>level?level+1:level;return {level:nextLevel,lines,gravityFrames:nextLevel===21?2:nextLevel===22?1:model.gravity[Math.min(20,nextLevel+(snapshot.heart?10:0))],heart:!!snapshot.heart};}
+ function nextTiming(snapshot,cleared){const level=snapshot.level??0,lines=(snapshot.lines??0)+cleared,nextLevel=level<20&&lines<1000&&Math.floor(lines/10)>level?level+1:level;return {level:nextLevel,lines,gravityFrames:nextLevel===21?2:nextLevel===22?1:model.gravity[Math.min(20,nextLevel+(snapshot.heart?10:0))],heart:!!snapshot.heart,tapFrames:snapshot.tapFrames??5};}
  function diverseShortlist(pairs,firstLimit=5,perFirst=2){
   const groups=new Map();for(const p of [...pairs].sort((a,b)=>b.value-a.value)){const k=key(p.placement);if(!groups.has(k))groups.set(k,[]);if(groups.get(k).length<perFirst)groups.get(k).push(p);}
   return [...groups.values()].sort((a,b)=>b[0].value-a[0].value).slice(0,firstLimit).flat();
@@ -108,8 +108,8 @@ function createEngine(model){
   return null;
  }
  function* search(snapshot){
-  const {board,active,nextPiece,hiddenRows}=snapshot;if(!active)return null;
-  const timing={gravityFrames:snapshot.gravityFrames,elapsedFrames:snapshot.elapsedFrames,hiddenRows},ctx=context(board,snapshot),first=explore(board,active,hiddenRows),pairs=[],firstPlans=new Map();
+  const {board,active,nextPiece,hiddenRows}=snapshot;if(!active)return null;if(board.length!==height||board.some(row=>row.length!==10))throw Error('Game Boy analysis requires a 10 by 18 board.');if(!shapes[active.type]||!shapes[nextPiece])return null;
+  const timing={gravityFrames:snapshot.gravityFrames,elapsedFrames:snapshot.elapsedFrames,hiddenRows,tapFrames:snapshot.tapFrames??5},ctx=context(board,snapshot),first=explore(board,active,hiddenRows),pairs=[],firstPlans=new Map();
   for(const placement of first){
    const route=plan(board,active,placement,timing);if(!route){yield;continue;}firstPlans.set(key(placement),route);
    const after=apply(board,placement);if(!after)continue;
@@ -121,11 +121,11 @@ function createEngine(model){
   // Preserve several distinct current moves, instead of filling the beam with
   // near-identical preview variations of one move.
   const grouped=new Map();for(const p of [...pairs].sort((a,b)=>b.value-a.value)){const k=key(p.placement);if(!grouped.has(k))grouped.set(k,[]);grouped.get(k).push(p);}const valid=[];
-  const currentTetris=pairs.some(p=>p.after.cleared===4);
+  const currentTetris=pairs.some(p=>p.after.cleared===4),review=snapshot.analysis==='review';
   for(const group of grouped.values()){
    let retained=0;
    for(const p of group){
-    if(currentTetris&&p.after.cleared!==4)continue;
+    if(currentTetris&&p.after.cleared!==4&&!(review&&snapshot.actual&&same(p.placement,snapshot.actual)))continue;
     if(p.next&&!plan(p.after.board,spawn[nextPiece],p.next,{...timing,gravityFrames:p.nextGravity,elapsedFrames:0,record:false})){yield;continue;}
     p.value+=accommodation(p.result.board)*9;valid.push(p);yield;if(++retained===2)break;
    }
@@ -134,8 +134,8 @@ function createEngine(model){
   // that there is no legal recommendation.
   if(!valid.length){for(const p of [...pairs].sort((a,b)=>b.value-a.value)){if(currentTetris&&p.after.cleared!==4)continue;if(!p.next||plan(p.after.board,spawn[nextPiece],p.next,{...timing,gravityFrames:p.nextGravity,elapsedFrames:0})){valid.push(p);break;}yield;}}
   if(!valid.length)return null;
-  const fast=snapshot.gravityFrames<4,review=snapshot.analysis==='review',candidates=diverseShortlist(valid,review?8:fast?4:5,review?3:2),depth=review?2:fast?1:2,scenarios=futureScenarios(active.type,nextPiece,depth);
-  let branches=0,cacheHits=0;const rolloutCache=new Map();
+  const fast=snapshot.gravityFrames<4,candidates=diverseShortlist(valid,review?8:fast?4:5,review?3:2),depth=review?2:fast?1:2,scenarios=futureScenarios(active.type,nextPiece,depth);
+  if(review&&snapshot.actual&&!candidates.some(p=>same(p.placement,snapshot.actual))){const actual=valid.filter(p=>same(p.placement,snapshot.actual)).sort((a,b)=>b.value-a.value)[0];if(actual)candidates.push(actual);}let branches=0,cacheHits=0;const rolloutCache=new Map();
   for(const p of candidates){
    if(!p.next){p.refined=p.value;continue;}
    let expected=0,worst=Infinity;
@@ -150,7 +150,7 @@ function createEngine(model){
    p.refined=reward(p.after.cleared,ctx)+reward(p.result.cleared,ctx)+expected*.7+p.value*.3+Math.max(-400,worst)*.08;
   }
   candidates.sort((a,b)=>b.refined-a.refined);
-  const p=candidates[0];return {placement:p.placement,next:p.next,value:p.refined,cleared:p.after.cleared,nextCleared:p.next?p.result.cleared:0,nextGravityFrames:p.nextGravity,readiness:tetrisReadiness(p.result.board),plan:firstPlans.get(key(p.placement)),considered:pairs.length,searchStats:{mode:ctx.mode,distinctCurrentMoves:new Set(candidates.map(p=>key(p.placement))).size,candidates:candidates.length,futureDepth:depth,scenarios:scenarios.length,branches,cacheHits,model:'GB OR rejection with independent uniform candidate reads'}};
+  const p=candidates.find(p=>!currentTetris||p.after.cleared===4)||candidates[0],distinct=new Map();for(const c of candidates)if(!distinct.has(key(c.placement)))distinct.set(key(c.placement),c);const alternatives=[...distinct.values()].sort((a,b)=>(currentTetris?Number(b.after.cleared===4)-Number(a.after.cleared===4):0)||b.refined-a.refined).map(c=>({placement:c.placement,next:c.next,value:c.refined,cleared:c.after.cleared,nextCleared:c.next?c.result.cleared:0})),actual=snapshot.actual?alternatives.find(c=>same(c.placement,snapshot.actual))||null:null;return {alternatives,actual,geometry:{width:10,height,spawnBand,spawn:spawn[active.type]},placement:p.placement,next:p.next,value:p.refined,cleared:p.after.cleared,nextCleared:p.next?p.result.cleared:0,nextGravityFrames:p.nextGravity,readiness:tetrisReadiness(p.result.board),plan:firstPlans.get(key(p.placement)),considered:pairs.length,searchStats:{mode:ctx.mode,distinctCurrentMoves:new Set(candidates.map(p=>key(p.placement))).size,candidates:candidates.length,futureDepth:depth,scenarios:scenarios.length,branches,cacheHits,model:'GB OR rejection with independent uniform candidate reads'}};
  }
  function compute(snapshot){const job=search(snapshot);let n;do{n=job.next();}while(!n.done);return n.value;}
  return {fits,move,explore,plan,apply,evaluate,features,context,tetrisReadiness,accommodation,diverseShortlist,futureProbabilities,futureScenarios,search,compute};

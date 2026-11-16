@@ -1,16 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  if (new URLSearchParams(location.search).get("section") === "articles") {
-    window.addEventListener("load", () => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          document.getElementById("articles-section")?.scrollIntoView({
-            block: "start",
-          });
-        });
-      });
-    });
-  }
-
   if (location.protocol === "file:") {
     document
       .querySelectorAll('a[href="#top"], a.site-footer-logo[href="index.html"]')
@@ -643,7 +631,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.toggle("menu-open", isOpen);
     menuContainer.setAttribute("aria-hidden", String(!isOpen));
     menuButton.setAttribute("aria-expanded", String(isOpen));
-    menuButton.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+    menuButton.setAttribute("aria-label", isOpen ? "Close highlights" : "Open highlights");
 
     if (isOpen) {
       closeButton.focus();
@@ -820,59 +808,9 @@ document.addEventListener("DOMContentLoaded", () => {
       panel.append(...items);
     }
 
-    if (items.length < 2) return;
-
-    const showMoreButton = document.createElement("button");
-    showMoreButton.className = "accordion-show-more";
-    showMoreButton.type = "button";
-    showMoreButton.textContent = "Show all";
-    showMoreButton.setAttribute("aria-expanded", "false");
-    panel.append(showMoreButton);
-
-    let collapseFrame;
-    const collapseToFirstRow = () => {
-      cancelAnimationFrame(collapseFrame);
-      collapseFrame = requestAnimationFrame(() => {
-        const firstRowSize = getStandardGridFirstRowSize();
-        const hasMore = firstRowSize < items.length;
-
-        items.forEach((item, index) => {
-          item.hidden = hasMore && index >= firstRowSize;
-        });
-
-        showMoreButton.hidden = !hasMore;
-        showMoreButton.textContent = "Show all";
-        showMoreButton.setAttribute("aria-expanded", "false");
-      });
-    };
-
-    showMoreButton.addEventListener("click", () => {
-      const hiddenItems = items.filter((item) => item.hidden);
-      hiddenItems.forEach((item, index) => {
-        item.hidden = false;
-        item.classList.remove("accordion-reveal-item");
-        item.style.animationDelay = `${Math.min(index * 45, 270)}ms`;
-        item.classList.add("accordion-reveal-item");
-        item.addEventListener(
-          "animationend",
-          () => {
-            item.classList.remove("accordion-reveal-item");
-            item.style.removeProperty("animation-delay");
-          },
-          { once: true },
-        );
-      });
-      showMoreButton.setAttribute("aria-expanded", "true");
-      showMoreButton.hidden = true;
-    });
-
-    collapseToFirstRow();
-    expandablePanels.push({
-      panel,
-      items,
-      button: showMoreButton,
-      collapseToFirstRow,
-    });
+    const showAllItems = () => items.forEach((item) => { item.hidden = false; });
+    showAllItems();
+    expandablePanels.push({ panel, items, showAllItems });
   });
 
   expandablePanels
@@ -881,7 +819,7 @@ document.addEventListener("DOMContentLoaded", () => {
         panel.id,
       ),
     )
-    .forEach(({ panel, items, button, collapseToFirstRow }) => {
+    .forEach(({ panel, items, showAllItems }) => {
       const controls = document.createElement("div");
       controls.className = "directory-controls";
 
@@ -892,7 +830,7 @@ document.addEventListener("DOMContentLoaded", () => {
       search.name = `${panel.id}-search`;
       search.placeholder = {
         "projects-panel": "Search tools…",
-        "games-patches-panel": "Search games and patches…",
+        "games-patches-panel": "Search ROMs…",
         "articles-panel": "Search articles…",
       }[panel.id];
       search.setAttribute("aria-label", search.placeholder);
@@ -919,7 +857,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const query = search.value.trim().toLocaleLowerCase();
         if (!query) {
           resultCount.textContent = "";
-          collapseToFirstRow();
+          showAllItems();
           return;
         }
 
@@ -929,35 +867,49 @@ document.addEventListener("DOMContentLoaded", () => {
           item.hidden = !isMatch;
           if (isMatch) matches += 1;
         });
-        button.hidden = true;
         resultCount.textContent = `${matches} result${matches === 1 ? "" : "s"}`;
       });
     });
 
-  let panelResizeTimer;
-  window.addEventListener("resize", () => {
-    window.clearTimeout(panelResizeTimer);
-    panelResizeTimer = window.setTimeout(() => {
-      expandablePanels.forEach(({ button, collapseToFirstRow }) => {
-        if (button.getAttribute("aria-expanded") === "false") {
-          collapseToFirstRow();
-        }
-      });
-    }, 120);
-  });
-
-  document.querySelectorAll(".section-accordion").forEach((button) => {
-    const panel = document.getElementById(button.getAttribute("aria-controls"));
-    if (!panel) return;
-
-    button.addEventListener("click", () => {
-      const isOpen = button.getAttribute("aria-expanded") === "true";
-      button.setAttribute("aria-expanded", String(!isOpen));
-      panel.hidden = isOpen;
-
-      const icon = button.querySelector(".section-accordion-icon");
-      if (icon) icon.textContent = isOpen ? "+" : "−";
+  const tabs = Array.from(document.querySelectorAll('.section-tab'));
+  const activateTab = (tab) => {
+    tabs.forEach((candidate) => {
+      const selected = candidate === tab;
+      candidate.setAttribute('aria-selected', String(selected));
+      candidate.tabIndex = selected ? 0 : -1;
+      document.getElementById(candidate.getAttribute('aria-controls')).hidden = !selected;
     });
+  };
+  const tabFromLocation = () => {
+    const section = new URLSearchParams(location.search).get('section');
+    if (['#community-projects-section', '#community-projects-panel'].includes(location.hash)) {
+      return tabs.find((tab) => tab.id === 'external-links-title');
+    }
+    return tabs.find((tab) => `#${tab.id}` === location.hash ||
+      `#${tab.getAttribute('aria-controls')}` === location.hash ||
+      (section && tab.id === `${section}-section`));
+  };
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => {
+      activateTab(tab);
+      history.replaceState(null, '', `#${tab.id}`);
+    });
+    tab.addEventListener('keydown', (event) => {
+      let next;
+      if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+      if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+      if (event.key === 'Home') next = 0;
+      if (event.key === 'End') next = tabs.length - 1;
+      if (next === undefined) return;
+      event.preventDefault();
+      tabs[next].click();
+      tabs[next].focus();
+    });
+  });
+  if (tabs.length) activateTab(tabFromLocation() || tabs[0]);
+  window.addEventListener('hashchange', () => {
+    const tab = tabFromLocation();
+    if (tab) activateTab(tab);
   });
 
   const gamesPanel = document.getElementById("games-patches-panel");
@@ -1040,7 +992,7 @@ document.addEventListener("DOMContentLoaded", () => {
     search.type = "search";
     search.id = "games-patches-search";
     search.name = "games-patches-search";
-    search.placeholder = "Search games and patches…";
+    search.placeholder = "Search ROMs…";
     search.setAttribute("aria-label", search.placeholder);
     const resultCount = document.createElement("span");
     resultCount.className = "directory-result-count";
@@ -1048,7 +1000,7 @@ document.addEventListener("DOMContentLoaded", () => {
     controls.append(search, resultCount, createDirectoryDivider());
     gamesPanel.append(controls);
 
-    const renderGames = (visibleEntries, showAll = false) => {
+    const renderGames = (visibleEntries, showAll = true) => {
       Array.from(gamesPanel.children).forEach((child) => {
         if (child !== controls) child.remove();
       });
@@ -1470,7 +1422,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const peoplePanel = document.getElementById("people-panel");
-  const peopleCount = document.getElementById("people-count");
   const peopleRankingsLink = document.getElementById("people-rankings-link");
 
   peoplePanel?.addEventListener("click", (event) => {
@@ -1830,7 +1781,7 @@ document.addEventListener("DOMContentLoaded", () => {
             sensitivity: "base",
           }),
       );
-      if (peopleCount) peopleCount.textContent = `(${players.length})`;
+
       const firstRowSize = getDirectoryFirstRowSize();
       const controls = document.createElement("div");
       controls.className = "directory-controls directory-controls--people";
@@ -1876,7 +1827,7 @@ document.addEventListener("DOMContentLoaded", () => {
         createDirectoryDivider(),
       );
 
-      const renderPlayers = (visiblePlayers, showAll = false) => {
+      const renderPlayers = (visiblePlayers, showAll = true) => {
         const playersToRender = showAll
           ? visiblePlayers
           : visiblePlayers.slice(0, firstRowSize);
@@ -1980,7 +1931,7 @@ document.addEventListener("DOMContentLoaded", () => {
             { sensitivity: "base" },
           ),
         );
-        if (peopleCount) peopleCount.textContent = `(${clonedCards.length})`;
+
         const controls = document.createElement("div");
         controls.className = "directory-controls directory-controls--people";
         const search = document.createElement("input");
@@ -2025,7 +1976,7 @@ document.addEventListener("DOMContentLoaded", () => {
           createDirectoryDivider(),
         );
 
-        const renderFallbackCards = (cards, showAll = false) => {
+        const renderFallbackCards = (cards, showAll = true) => {
           const visibleCards = showAll ? cards : cards.slice(0, firstRowSize);
           Array.from(peoplePanel.children).forEach((child) => {
             if (child !== controls && child !== peopleRankingsLink)

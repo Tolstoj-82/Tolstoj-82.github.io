@@ -24,13 +24,13 @@ class RewindPractice{
   const spawn=C.spawn(this.game.active.type);
   if(!this.game.fits(spawn)){this.phase='skipped';this.game.practiceFrozen=false;this.onChange('skipped');return;}
   this.game.active=spawn;this.game.elapsed=0;this.game.softCounter=0;this.checkpoint=capture(this.game);this.game.practiceFrozen=true;this.phase='searching';
-  const game=this.game;this.client.request({board:copy(game.board),hiddenRows:copy(game.hiddenRows),active:{...spawn},nextPiece:game.nextPiece,gravityFrames:Math.round(game.gravity*C.HZ/1000),elapsedFrames:0,level:game.level,heart:game.heart,lines:game.lines,trainingToken:this.token});
+  const game=this.game;this.client.request({board:copy(game.board),hiddenRows:copy(game.hiddenRows),active:{...spawn},nextPiece:game.nextPiece,gravityFrames:Math.round(game.gravity*C.HZ/1000),elapsedFrames:0,tapFrames:game.advisorTapFrames??5,level:game.level,heart:game.heart,lines:game.lines,trainingToken:this.token});
   this.onChange('searching');
  }
  receive(result,snapshot){
   if(this.disposed||this.phase!=='searching'||snapshot.trainingToken!==this.token)return;
   // Check the returned goal again before making it the immutable target for this piece.
-  const g=this.game,valid=result?.placement&&H.plan(g.board,g.active,result.placement,{gravityFrames:Math.round(g.gravity*C.HZ/1000),elapsedFrames:0,hiddenRows:g.hiddenRows,record:false});
+  const g=this.game,valid=result?.placement&&H.plan(g.board,g.active,result.placement,{gravityFrames:Math.round(g.gravity*C.HZ/1000),elapsedFrames:0,hiddenRows:g.hiddenRows,tapFrames:g.advisorTapFrames??5,record:false});
   this.target=valid?copy(result.placement):null;this.nextTarget=valid?copy(result.next||null):null;this.phase=valid?'playing':'skipped';g.practiceFrozen=false;this.record();this.onChange(valid?'ready':'skipped');
  }
  record(placement=this.game.active){if(this.phase!=='playing'||!placement)return;const last=this.history.at(-1);if(!last||last.x!==placement.x||last.y!==placement.y||last.rotation!==placement.rotation){this.history.push({...placement});if(this.history.length>2048)this.history.splice(1,1);}}
