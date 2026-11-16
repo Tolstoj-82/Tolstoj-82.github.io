@@ -142,6 +142,101 @@
         }
       }
 
+
+      header.workbench-header > .section-tabs { overflow: visible; }
+      #site-menu > .section-tabs {
+        display: flex; flex-direction: column; gap: 0; margin: 0 0 12px; padding: 0;
+        border: 0;
+      }
+      #site-menu .section-tab {
+        background: transparent; color: #333; border: 0; border-bottom: 1px solid #ddd;
+        border-radius: 0; padding: 15px; text-align: left; font: inherit;
+      }
+      #site-menu .section-tab:hover { background: #ddd; text-decoration: none; }
+      #site-menu .section-tab[aria-selected="true"] { color: #215e99; text-decoration: none; }
+      #site-menu .section-tab:focus-visible { outline: 2px solid #215e99; outline-offset: -3px; }
+
+      /* A quieter resource directory with clear, generous link targets. */
+      main #external-links-panel {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+        gap: 14px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+      }
+      #external-links-panel > a,
+      #external-links-panel > .external-link-static {
+        min-height: 130px;
+        box-sizing: border-box;
+        justify-content: center;
+        gap: 8px;
+        padding: 22px 58px 22px 22px;
+        border: 2px solid #b8c9da;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 2px 5px rgba(30, 54, 80, 0.035);
+        color: #24364b;
+        transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+      }
+      #external-links-panel > a strong,
+      #external-links-panel > .external-link-static strong {
+        color: #24364b;
+        font-size: 1.02rem;
+        line-height: 1.4;
+        font-weight: 600;
+      }
+      #external-links-panel > a strong + span,
+      #external-links-panel > .external-link-static strong + span {
+        color: #647387;
+        font-size: 0.9rem;
+        line-height: 1.55;
+      }
+      #external-links-panel > a::after {
+        display: grid;
+        place-items: center;
+        top: 20px;
+        right: 16px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #f0f5fa;
+        color: #547391;
+        font-size: 1.05rem;
+        font-weight: 400;
+        transition: transform 180ms ease, background-color 180ms ease, color 180ms ease;
+      }
+      #external-links-panel > a:hover {
+        border-color: #215e99;
+        background: #f0f6fc;
+        transform: translateY(-4px);
+        box-shadow: 0 10px 24px rgba(33, 94, 153, 0.17);
+        color: #215e99;
+      }
+      #external-links-panel > a:hover strong { color: #215e99; }
+      #external-links-panel > a:hover strong + span { color: #52667b; }
+      #external-links-panel > a:hover::after { background: #215e99; color: #fff; transform: translate(2px, -2px); }
+      #external-links-panel > a:focus-visible { outline: 3px solid #215e99; outline-offset: 3px; }
+      #external-links-panel > .external-link-static { background: #f5f7fa; box-shadow: none; }
+      @media (prefers-reduced-motion: reduce) {
+        #external-links-panel > a, #external-links-panel > a::after { transition: none; }
+        #external-links-panel > a:hover, #external-links-panel > a:hover::after { transform: none; }
+      }
+      #external-links-panel > a { padding-top: 22px; }
+      #external-links-panel .link-favicon { display: block; width: 32px; height: 32px; object-fit: contain; margin-bottom: 6px; border-radius: 5px; }
+
+      #external-links-panel > a::after { content: none; display: none; }
+      #external-links-panel > a, #external-links-panel > .external-link-static { padding: 22px; min-width: 0; }
+      #external-links-panel .link-card-heading { position: relative; display: flex; align-items: center; gap: 12px; min-width: 0; width: 100%; }
+      #external-links-panel .link-card-heading .link-favicon { flex: 0 0 28px; width: 28px; height: 28px; margin: 0; }
+      #external-links-panel .link-card-heading strong { display: block; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      #external-links-panel .link-card-heading + span { color: #647387; font-size: 0.9rem; line-height: 1.55; }
+
+      .achievement-tooltip.link-hover-tooltip {
+        position: fixed; top: 0; left: 0; right: auto; z-index: 10000;
+        max-width: min(320px, calc(100vw - 24px)); margin: 0;
+        opacity: 1; transform: none; pointer-events: none;
+      }
+      .achievement-tooltip.link-hover-tooltip[hidden] { display: none; }
     </style>
   </head>
   <body id="top">
@@ -152,7 +247,7 @@
           class="menu-btn"
           id="hamburger-icon"
           type="button"
-          aria-label="Open highlights"
+          aria-label="Open menu"
           aria-controls="site-menu"
           aria-expanded="false"
         >
@@ -233,7 +328,7 @@
         </div>
       </header>
       <div class="menu-container" id="site-menu" aria-hidden="true">
-        <button class="close-btn" id="close-icon" type="button" aria-label="Close highlights">✖</button>
+        <button class="close-btn" id="close-icon" type="button" aria-label="Close menu">✖</button>
         <button class="accordion active" type="button" aria-expanded="true" aria-controls="highlights-menu">
           Highlights <span class="arrow" aria-hidden="true">−</span>
         </button>
@@ -1437,14 +1532,15 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <strong>Toni's 2-Player Online Server</strong>
+                
+                <span class="link-card-heading"><img class="link-favicon" src="assets/images/link-favicons/01-online-gb.tetris.yt.ico" alt="" width="32" height="32" loading="lazy" /><strong>Toni's 2-Player Online Server</strong></span>
                 <span
                   >Play Game Boy Tetris online through a Link Cable
                   adapter</span
                 >
               </a>
               <div class="external-link-static">
-                <strong>Past GB Events</strong>
+                <span class="link-card-heading"><img class="link-favicon" src="assets/images/link-favicons/fallback.svg" alt="" width="32" height="32" loading="lazy" /><strong>Past GB Events</strong></span>
                 <span>Pascal's archive of previous Game Boy events</span>
               </div>
               <a
@@ -1452,7 +1548,8 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <strong>Game Boy Pan Docs</strong>
+                
+                <span class="link-card-heading"><img class="link-favicon" src="assets/images/link-favicons/02-gbdev.io.svg" alt="" width="32" height="32" loading="lazy" /><strong>Game Boy Pan Docs</strong></span>
                 <span>Technical documentation for the Game Boy</span>
               </a>
 
@@ -1461,7 +1558,8 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <strong>Tetris Link Collection</strong>
+                
+                <span class="link-card-heading"><img class="link-favicon" src="assets/images/link-favicons/03-tetris.yt.png" alt="" width="32" height="32" loading="lazy" /><strong>Tetris Link Collection</strong></span>
                 <span
                   >Tetris community links, records, events, and resources</span
                 >
@@ -1471,7 +1569,8 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <strong>There Oughta Be</strong>
+                
+                <span class="link-card-heading"><img class="link-favicon" src="assets/images/link-favicons/fallback.svg" alt="" width="32" height="32" loading="lazy" /><strong>There Oughta Be</strong></span>
                 <span>Sebastian Staacks' blog</span>
               </a>
               <a
@@ -1479,7 +1578,8 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <strong>Game Boy Tetris Discord</strong>
+                
+                <span class="link-card-heading"><img class="link-favicon" src="assets/images/link-favicons/05-tinyurl.com.ico" alt="" width="32" height="32" loading="lazy" /><strong>Game Boy Tetris Discord</strong></span>
                 <span>Join the community</span>
               </a>
               <a
@@ -1487,7 +1587,8 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <strong>Game Boy Tetris Leaderboards</strong>
+                
+                <span class="link-card-heading"><img class="link-favicon" src="assets/images/link-favicons/06-docs.google.com.ico" alt="" width="32" height="32" loading="lazy" /><strong>Game Boy Tetris Leaderboards</strong></span>
                 <span>Records and rankings</span>
               </a>
               <a
@@ -1495,7 +1596,8 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <strong>CTEC</strong>
+                
+                <span class="link-card-heading"><img class="link-favicon" src="assets/images/link-favicons/07-classictetris.org.png" alt="" width="32" height="32" loading="lazy" /><strong>CTEC</strong></span>
                 <span>Classic Tetris European Championships</span>
               </a>
               <a
@@ -1503,7 +1605,8 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <strong>Lieblings Bern</strong>
+                
+                <span class="link-card-heading"><img class="link-favicon" src="assets/images/link-favicons/08-lieblings.be.ico" alt="" width="32" height="32" loading="lazy" /><strong>Lieblings Bern</strong></span>
                 <span>Events and dates</span>
               </a>
               <a
@@ -1511,7 +1614,8 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <strong>CTG</strong>
+                
+                <span class="link-card-heading"><img class="link-favicon" src="assets/images/link-favicons/09-ctgev.de.ico" alt="" width="32" height="32" loading="lazy" /><strong>CTG</strong></span>
                 <span>Classic Tetromino-Games Germany e. V.</span>
               </a>
               <a
@@ -1519,7 +1623,8 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <strong>The OG GB Tetris Website</strong>
+                
+                <span class="link-card-heading"><img class="link-favicon" src="assets/images/link-favicons/fallback.svg" alt="" width="32" height="32" loading="lazy" /><strong>The OG GB Tetris Website</strong></span>
                 <span>Brian Kobashikawa, 1999</span>
               </a>
             </div>
@@ -1603,7 +1708,7 @@
     </div>
     <script src="assets/data/players-fallback.js?v=20260727-5"></script>
     <script src="assets/data/player-images.js?v=20260727-2"></script>
-    <script src="script.js?v=20261116-4"></script>
+    <script src="script.js?v=20261116-8"></script>
     <div
       id="imageModal"
       class="modal"

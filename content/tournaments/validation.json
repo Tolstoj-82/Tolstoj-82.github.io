@@ -1,0 +1,191 @@
+[
+  {
+    "endpoint": "ctwcgb-2026",
+    "players": 20,
+    "matches": 15,
+    "brackets": 1,
+    "rendered_matches": 15
+  },
+  {
+    "endpoint": "ctwc-france-2026",
+    "players": 25,
+    "matches": 32,
+    "brackets": 1,
+    "rendered_matches": 32
+  },
+  {
+    "endpoint": "gb-test",
+    "players": 8,
+    "matches": 13,
+    "brackets": 1,
+    "rendered_matches": 13
+  },
+  {
+    "endpoint": "gbtesh-202605-fri",
+    "players": 43,
+    "matches": 0,
+    "brackets": 0,
+    "rendered_matches": 0
+  },
+  {
+    "endpoint": "gbtesh-202605-sat",
+    "players": 37,
+    "matches": 15,
+    "brackets": 1,
+    "rendered_matches": 15
+  },
+  {
+    "endpoint": "gbl-7",
+    "players": 18,
+    "matches": 34,
+    "brackets": 1,
+    "rendered_matches": 34
+  },
+  {
+    "endpoint": "ctukgb-2026",
+    "players": 36,
+    "matches": 75,
+    "brackets": 5,
+    "rendered_matches": 75
+  },
+  {
+    "endpoint": "gbtesh-202608",
+    "players": 13,
+    "matches": 7,
+    "brackets": 1,
+    "rendered_matches": 7
+  },
+  {
+    "endpoint": "gbl-8",
+    "players": 14,
+    "matches": 29,
+    "brackets": 1,
+    "rendered_matches": 29
+  },
+  {
+    "endpoint": "ctecvb-2026",
+    "players": 16,
+    "matches": 7,
+    "brackets": 1,
+    "rendered_matches": 7
+  },
+  {
+    "endpoint": "gbtdc-202512",
+    "players": 14,
+    "matches": 15,
+    "brackets": 1,
+    "rendered_matches": 15
+  },
+  {
+    "endpoint": "gbtdc-202503",
+    "players": 16,
+    "matches": 15,
+    "brackets": 1,
+    "rendered_matches": 15
+  },
+  {
+    "endpoint": "gbtdc-2409",
+    "players": 18,
+    "matches": 15,
+    "brackets": 1,
+    "rendered_matches": 15
+  },
+  {
+    "endpoint": "gbtesh-202505",
+    "players": 17,
+    "matches": 15,
+    "brackets": 1,
+    "rendered_matches": 15
+  },
+  {
+    "endpoint": "gbl-season",
+    "players": 12,
+    "matches": 15,
+    "brackets": 1,
+    "rendered_matches": 15
+  },
+  {
+    "endpoint": "gbtdc-202603",
+    "players": 14,
+    "matches": 15,
+    "brackets": 1,
+    "rendered_matches": 15
+  },
+  {
+    "endpoint": "gbtesh-202410",
+    "players": 36,
+    "matches": 46,
+    "brackets": 2,
+    "rendered_matches": 46
+  },
+  {
+    "endpoint": "ctwcgb-2025",
+    "players": 25,
+    "matches": 15,
+    "brackets": 1,
+    "rendered_matches": 15
+  },
+  {
+    "endpoint": "ctec-2025",
+    "players": 32,
+    "matches": 46,
+    "brackets": 2,
+    "rendered_matches": 46
+  },
+  {
+    "endpoint": "ctec-2026",
+    "players": 38,
+    "matches": 23,
+    "brackets": 1,
+    "rendered_matches": 23
+  },
+  {
+    "endpoint": "gbtdc-1201",
+    "players": 16,
+    "matches": 15,
+    "brackets": 1,
+    "rendered_matches": 15
+  },
+  {
+    "endpoint": "ctec-2024",
+    "players": 24,
+    "matches": 214,
+    "brackets": 1,
+    "rendered_matches": 214
+  },
+  {
+    "endpoint": "ctgc-2024",
+    "players": 8,
+    "matches": 60,
+    "brackets": 4,
+    "rendered_matches": 60
+  },
+  {
+    "endpoint": "gbtesh-2024",
+    "players": 14,
+    "matches": 30,
+    "brackets": 2,
+    "rendered_matches": 30
+  },
+  {
+    "endpoint": "ctwc-france-2025",
+    "players": 16,
+    "matches": 24,
+    "brackets": 1,
+    "rendered_matches": 24
+  },
+  {
+    "endpoint": "gbl-6",
+    "players": 14,
+    "matches": 33,
+    "brackets": 0,
+    "rendered_matches": 33
+  },
+  {
+    "endpoint": "gbtdc-202611",
+    "players": 14,
+    "matches": 15,
+    "brackets": 1,
+    "rendered_matches": 15
+  }
+]

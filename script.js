@@ -1,4 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const linkTip = document.createElement('span');
+  linkTip.className = 'achievement-tooltip link-hover-tooltip';
+  linkTip.id = 'link-title-tooltip';linkTip.setAttribute('role','tooltip');linkTip.hidden = true;
+  document.body.append(linkTip);
+  let linkTipTimer;
+  const hideLinkTip = () => { clearTimeout(linkTipTimer);linkTip.hidden = true; };
+  document.querySelectorAll('#external-links-panel .link-card-heading strong').forEach(title => {
+    title.setAttribute('aria-describedby',linkTip.id);
+    title.addEventListener('pointerenter',event=>{
+      hideLinkTip();const x=event.clientX,y=event.clientY;
+      linkTipTimer=setTimeout(()=>{
+        linkTip.textContent=title.textContent.trim();linkTip.hidden=false;
+        const rect=linkTip.getBoundingClientRect();
+        linkTip.style.left=Math.max(12,Math.min(x+12,innerWidth-rect.width-12))+'px';
+        linkTip.style.top=(y+20+rect.height<innerHeight?y+20:Math.max(12,y-rect.height-10))+'px';
+      },500);
+    });
+    title.addEventListener('pointerleave',hideLinkTip);
+    title.addEventListener('pointerdown',hideLinkTip);
+  });
+  window.addEventListener('scroll',hideLinkTip,true);
+  document.addEventListener('keydown',event=>{if(event.key==='Escape')hideLinkTip();});
+
   if (location.protocol === "file:") {
     document
       .querySelectorAll('a[href="#top"], a.site-footer-logo[href="index.html"]')
@@ -631,7 +654,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.toggle("menu-open", isOpen);
     menuContainer.setAttribute("aria-hidden", String(!isOpen));
     menuButton.setAttribute("aria-expanded", String(isOpen));
-    menuButton.setAttribute("aria-label", isOpen ? "Close highlights" : "Open highlights");
+    menuButton.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
 
     if (isOpen) {
       closeButton.focus();
@@ -872,6 +895,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
   const tabs = Array.from(document.querySelectorAll('.section-tab'));
+  const tabList = document.querySelector('.section-tabs');
+  const siteHeader = document.querySelector('header.workbench-header');
+  if (tabList && siteHeader && menuContainer) {
+    const marker = document.createComment('Header tab location');
+    tabList.before(marker);
+    const updateTabLocation = () => {
+      // Measure an invisible copy in its desktop context even while tabs are in the menu.
+      const measure = tabList.cloneNode(true);
+      measure.removeAttribute('role');measure.setAttribute('aria-hidden','true');measure.inert=true;
+      measure.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));
+      measure.style.cssText='position:absolute;visibility:hidden;pointer-events:none;width:max-content;max-width:none;justify-content:flex-start;';
+      siteHeader.append(measure);
+      const required = measure.getBoundingClientRect().width;
+      measure.remove();
+      const style = getComputedStyle(siteHeader);
+      const available = siteHeader.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      const collapse = required > available;
+      const focused = tabList.contains(document.activeElement);
+      if (collapse && tabList.parentElement !== menuContainer) {
+        menuContainer.insertBefore(tabList, document.getElementById('highlights-menu')?.previousElementSibling || null);
+        tabList.setAttribute('aria-orientation','vertical');
+        if(focused)menuButton?.focus();
+      } else if (!collapse && tabList.parentElement !== siteHeader) {
+        marker.after(tabList);tabList.setAttribute('aria-orientation','horizontal');
+      }
+    };
+    new ResizeObserver(updateTabLocation).observe(siteHeader);
+    document.fonts?.ready.then(updateTabLocation);
+    updateTabLocation();
+  }
   const activateTab = (tab) => {
     tabs.forEach((candidate) => {
       const selected = candidate === tab;
@@ -893,11 +946,12 @@ document.addEventListener("DOMContentLoaded", () => {
     tab.addEventListener('click', () => {
       activateTab(tab);
       history.replaceState(null, '', `#${tab.id}`);
+      if (tabList?.parentElement === menuContainer) { setMenuOpen(false); document.getElementById(tab.getAttribute('aria-controls'))?.focus({preventScroll:true}); }
     });
     tab.addEventListener('keydown', (event) => {
       let next;
-      if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
-      if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+      if (event.key === 'ArrowRight' || (tabList?.getAttribute('aria-orientation') === 'vertical' && event.key === 'ArrowDown')) next = (index + 1) % tabs.length;
+      if (event.key === 'ArrowLeft' || (tabList?.getAttribute('aria-orientation') === 'vertical' && event.key === 'ArrowUp')) next = (index - 1 + tabs.length) % tabs.length;
       if (event.key === 'Home') next = 0;
       if (event.key === 'End') next = tabs.length - 1;
       if (next === undefined) return;

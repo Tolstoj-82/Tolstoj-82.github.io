@@ -1,0 +1,51 @@
+[
+  {
+    "url": "http://online-gb.tetris.yt",
+    "file": "01-online-gb.tetris.yt.ico",
+    "source": "https://online-gb.tetris.yt/favicon.ico"
+  },
+  {
+    "url": "https://gbdev.io/pandocs/",
+    "file": "02-gbdev.io.svg",
+    "source": "https://gbdev.io/pandocs/favicon-1b37cef7.svg"
+  },
+  {
+    "url": "https://tetris.yt/",
+    "file": "03-tetris.yt.png",
+    "source": "https://tetris.yt/tetris-favicon.png"
+  },
+  {
+    "url": "https://there.oughta.be/",
+    "error": "unavailable"
+  },
+  {
+    "url": "https://tinyurl.com/GB-Tetris",
+    "file": "05-tinyurl.com.ico",
+    "source": "https://discord.com/assets/favicon.ico"
+  },
+  {
+    "url": "https://docs.google.com/spreadsheets/d/1PJZ50b5Y6RqHNW1PH5BFn-wvc7IPxu3m0JastDksMtQ/edit?gid=0#gid=0",
+    "file": "06-docs.google.com.ico",
+    "source": "https://ssl.gstatic.com/docs/spreadsheets/spreadsheets-2026-v3.ico"
+  },
+  {
+    "url": "https://classictetris.org/",
+    "file": "07-classictetris.org.png",
+    "source": "https://classictetris.org/wp-content/uploads/2024/08/cropped-cropped-ctec-logo-2023-gradient-1-768x768-2024-32x32.png"
+  },
+  {
+    "url": "https://lieblings.be",
+    "file": "08-lieblings.be.ico",
+    "source": "https://lieblings.be/favicon.ico"
+  },
+  {
+    "url": "https://ctgev.de/",
+    "file": "09-ctgev.de.ico",
+    "source": "https://ctgev.de/assets/images/logos/ctg-logo-rund-128.ico"
+  },
+  {
+    "url": "http://www.kobash.com/tetris/tetris.html",
+    "file": "10-kobash.com.gif",
+    "source": "https://kobash.com/favicon.ico"
+  }
+]
