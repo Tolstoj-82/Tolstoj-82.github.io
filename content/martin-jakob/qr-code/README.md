@@ -39,8 +39,8 @@ Existing local-storage keys are retained, preserving saved user settings,
 logos, base URLs and templates.
 
 Cart templates include a QR appearance snapshot and its QR-template reference.
-Select Standard or a saved QR template below the Cart's QR preview. New QR
-designs must be saved before applying the Cart or saving its template. Single
+Select Standard or a saved QR template below the Cart's QR preview, or apply a
+custom appearance directly. Saving a reusable QR template is optional. Single
 and bulk Carts keep independent appearances, including their logos.
 PNG/JPEG logos up to 20 MB, 8192 pixels per side and 40 megapixels are accepted,
 cropped if needed, and downscaled to at most 256 × 256 pixels before storage.
@@ -78,7 +78,7 @@ templates using system fonts continue to work.
 Title/subtitle source selection and visibility live on their draggable rows.
 Click a source-key badge to change its field, or click the heading label to
 override its displayed text. Choosing another source clears that override.
-Bulk filenames still use the required mapped title field.
+Bulk filenames default to the mapped title field. A custom filename pattern overrides that requirement.
 
 The CSV ↔ JSON converter supports column selection, key renaming and a preview.
 CSV values remain strings, preserving leading zeros. Blank or duplicate output
@@ -142,3 +142,78 @@ the current decoding step and retains completed results for reopening.
 CSV exports use semicolons and UTF-8 with BOM; clipboard output is tab-separated
 with quoted multiline cells for spreadsheets. Formula-like spreadsheet values
 receive a leading apostrophe. JSON preserves the original decoded text exactly.
+
+## Bulk filename patterns and compact SVG exports
+
+The main bulk export panel has a Define filenames button. Its modal offers Title
+(default) and a custom card editor, separate from QR content and Cart headings.
+The underlying definition combines literals and quoted field placeholders, for
+example `{{"Line"}}-{{"Direction"}};{{"Project"}};{{"Stop"}}`.
+Use field cards to insert exact imported keys, including spaces and accents.
+Select Title (default) to retain title-based naming. The extension is added
+from the chosen export format. A preview displays the first three filenames;
+missing fields, empty names and names longer than 180 characters block export.
+Windows-invalid characters are replaced with underscores. Duplicate filenames
+receive _2, _3, etc., with a warning in the preview.
+
+The PDF identifier preset combines these columns in order:
+Betriebszweig-Liniennummer-Linienergaenzung-Linienversionsnummer-Richtung;
+Projekt-Kuerzel;Haltestellennummer. It recognizes the original CSV column names
+with their example suffixes. It uses the imported version as supplied; it does
+not infer or correct PDF/CSV version differences. No station name is required.
+For example: `2-10-A-2-H;j27;158.svg`.
+
+QR content expressions and their free-text cards are session data. They are no
+longer automatically saved or restored with appearance preferences. Clearing the
+import clears active QR content. Named Cart templates and explicitly saved text
+snippets still keep content when the user deliberately saves them. Bulk export
+retains the current session so another export is possible without re-entry.
+
+For codes intended for PDF insertion, choose SVG and check QR code only (without
+Cart). This exports the QR, its quiet zone and chosen logo, without Cart labels,
+headings or ribbons. No fonts are embedded when there is no SVG text. Text-bearing
+SVGs embed fonts subset to batch characters rather than full multilingual font
+files. Adjacent square modules are combined into paths, path coordinates use
+three decimal places, and ZIP archives use DEFLATE compression. Export dimensions
+remain unchanged; SVG is scalable. Logos can still dominate file size.
+
+External QR/font dependencies still require internet access, as before. There is
+no new server or build requirement.
+
+## Filename modal
+
+Bulk filenames use the mapped Title field by default. Define filenames opens a
+modal with Title (default) and Custom definition. Custom mode reuses the QR
+content editor: add free-text or imported-field cards, edit them, and drag to
+reorder them. The PDF identifier preset is available inside this modal.
+Apply validates all imported rows and commits the definition. Cancel, close,
+and Escape discard draft changes. Switching back to Title clears the custom
+filename definition. Filename edits do not change the QR payload or Cart text.
+The filename definition is session-only and starts with Title on reload.
+
+## Regression checks
+
+With Node.js 20.19 or newer, run `npm install` and `npm test`. These are test-only
+dependencies; the website still runs directly without a build step.
+
+The integration checks load all application scripts into a DOM test environment,
+render real QR images, and decode PNG and SVG exports. They cover bulk import,
+preview updates, invalid-content recovery, filename Apply/Cancel, and single and
+ZIP downloads. Separate checks simulate rendering failures in each preview.
+The DOM checks do not replace visual browser testing.
+
+The filename editor reuses the existing Cart dialog, select, text-card, preview
+and action-button rules. Bulk QR-only export uses the existing preview switch.
+
+## Bulk export workflow
+
+Apply Cart changes first, then apply QR appearance and define filenames. Applying
+a Cart does not require a filename/title yet; applying appearance does not require
+saving a QR template. Start export validates the QR content and filenames and
+reports errors on the bulk page without automatically opening editors.
+
+For SVG without Cart labels, enable QR code only and select SVG. The preview
+switch independently controls previews during generation. Each enabled preview
+gets a paint opportunity, and the last preview stays open after a successful ZIP
+download. Closing it does not turn previews off for future exports; closing it
+during generation hides previews for that batch only.

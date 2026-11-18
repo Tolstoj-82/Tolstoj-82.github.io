@@ -341,5 +341,18 @@
     "Das Bild konnte nicht geladen werden.": "The image could not be loaded."
   };
 
+  Object.assign(english, {
+  "Nur QR-Code exportieren (ohne Cart)": "Export QR code only (without Cart)",
+  "Dateinamen-Muster (optional)": "Filename pattern (optional)",
+  "Leer lassen: Titelfeld verwenden": "Leave blank to use the title field",
+  "Text und {{Feldname}} kombinieren. Die Dateiendung wird automatisch angeh\u00e4ngt.": "Combine text and {{field names}}. The file extension is added automatically.",
+  "PDF-Kennung verwenden": "Use PDF identifier",
+  "Felder f\u00fcr Dateinamen": "Filename fields",
+  "Der Dateiname darf nicht leer sein.": "The filename must not be empty.",
+  "Der Dateiname ist zu lang (maximal 180 Zeichen).": "The filename is too long (maximum 180 characters).",
+  " doppelte Dateinamen erhalten einen nummerierten Zusatz.": " duplicate filenames receive a numbered suffix."
+});
+
+  Object.assign(english, {"Dateinamen definieren": "Define filenames", "Dateinamen: Titel (Standard)": "Filenames: Title (default)", "Dateinamen: Eigene Definition": "Filenames: Custom definition", "Titel (Standard)": "Title (default)", "Eigene Definition": "Custom definition", "Dateinamen": "Filenames", "Dateinamen aus Textkarten und Feldern zusammensetzen. Die Dateiendung wird automatisch angeh\u00e4ngt.": "Combine free-text cards and fields to define filenames. The file extension is added automatically."});
   window.QRGenerator["translations"] = { english };
 })();

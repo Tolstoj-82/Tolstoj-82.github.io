@@ -196,6 +196,25 @@
     });
     return proxy;
   }
+  function compactSVG(content) {
+    // Combine adjacent rectangles of the same opaque color, preserving paint order.
+    // QR modules remain vectors; no rasterization or lossy image compression.
+    const rect = /<rect x="([\d.e+-]+)" y="([\d.e+-]+)" width="([\d.e+-]+)" height="([\d.e+-]+)" fill="(#[\da-f]{3,8}|black|white)"\/>/gi;
+    let output = "", end = 0, color = "", path = "";
+    const n = (value) => Math.round(Number(value) * 1000) / 1000;
+    const flush = () => { if (path) output += '<path fill="' + color + '" d="' + path + '"/>'; path = ""; };
+    for (const match of content.matchAll(rect)) {
+      if (match.index !== end || match[5] !== color) {
+        flush(); output += content.slice(end, match.index); color = match[5];
+      }
+      const [, x, y, w, h] = match;
+      path += "M" + n(x) + " " + n(y) + "h" + n(w) + "v" + n(h) + "h" + n(-w) + "Z";
+      end = match.index + match[0].length;
+    }
+    flush();
+    return (output + content.slice(end)).replace(/(<path\b[^>]*\bd=")([^"]*)(")/g,
+      (_, before, data, after) => before + data.replace(/-?\d*\.?\d+(?:e[+-]?\d+)?/gi, n) + after);
+  }
   function toSVG(source) {
     return (
       '<svg xmlns="http://www.w3.org/2000/svg" width="' +
@@ -207,7 +226,7 @@
       " " +
       source.height +
       '">' +
-      source.svgContent +
+      compactSVG(source.svgContent) +
       "</svg>"
     );
   }

@@ -13,13 +13,15 @@
     ]);
     if(window.QRGenerator['cart-fields'].fonts.includes(font)&&loaded.some(faces=>!faces.length))throw Error(window.QRGenerator.i18n.t('Schriftart konnte nicht geladen werden.')+' '+font);
   }
-  async function svgStyle(font = "Roboto") {
+  async function svgStyle(font = "Roboto", text = "") {
     if (!window.QRGenerator["cart-fields"].fonts.includes(font)) return "";
-    if (!embedded.has(font))
+    const glyphs = [...new Set(Array.from(text))].sort().join("");
+    const cacheKey = font + "\n" + glyphs;
+    if (!embedded.has(cacheKey))
       embedded.set(
-        font,
+        cacheKey,
         (async () => {
-          const response = await fetch(cssURL(font));
+          const response = await fetch(cssURL(font) + (glyphs ? "&text=" + encodeURIComponent(glyphs) : ""));
           if (!response.ok) throw Error("Font: " + font);
           let css = await response.text();
           const urls = [
@@ -46,11 +48,11 @@
           }
           return "<defs><style><![CDATA[" + css + "]]></style></defs>";
         })().catch((error) => {
-          embedded.delete(font);
+          embedded.delete(cacheKey);
           throw error;
         }),
       );
-    return embedded.get(font);
+    return embedded.get(cacheKey);
   }
   window.QRGenerator["cart-fonts"] = { ready, svgStyle };
 })();

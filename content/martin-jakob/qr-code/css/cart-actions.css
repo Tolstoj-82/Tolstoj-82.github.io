@@ -1,17 +1,17 @@
-#qrContentHeading {
+:is(#qrContentHeading, #filename-qrContentHeading) {
   margin: 0 0 10px;
   font-size: var(--font-ui-label);
   font-weight: var(--font-weight-label);
   line-height: var(--line-height-ui);
 }
 
-#qrContentEditor {
+:is(#qrContentEditor, #filename-qrContentEditor) {
   padding: 12px;
   border: 1px solid var(--color-border);
   border-radius: 6px;
 }
 
-#qrContentEditor .content-editor-body {
+:is(#qrContentEditor, #filename-qrContentEditor) .content-editor-body {
   padding: 0;
 }
 

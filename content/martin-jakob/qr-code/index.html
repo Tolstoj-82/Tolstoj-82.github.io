@@ -28,23 +28,23 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;family=Nunito+Sans:wght@400;700&amp;family=Noto+Sans:wght@400;700&amp;family=PT+Sans:wght@400;700&amp;family=Libre+Baskerville:wght@400;700&amp;family=Roboto+Slab:wght@400;700&amp;family=Lato:wght@400;700&amp;family=Merriweather:wght@400;700&amp;family=Montserrat:wght@400;700&amp;family=Open+Sans:wght@400;700&amp;family=Roboto:wght@400;700&amp;family=Source+Sans+3:wght@400;700&amp;display=swap"
     />
-    <link rel="stylesheet" href="styles.css?v=20261020-simple-sharing" />
+    <link rel="stylesheet" href="styles.css?v=20261117-restored-controls" />
     <script defer src="script.js?v=20261016-tools"></script>
-    <script defer src="js/translations.js?v=20261017-appearance-wording"></script>
+    <script defer src="js/translations.js?v=20261117-preview-validation"></script>
     <script defer src="js/notifications.js?v=20261016-tools"></script>
     <script defer src="js/i18n.js?v=20261016-tools"></script>
     <script defer src="js/logo-crop.js?v=20261016-tools"></script>
-    <script defer src="js/qr-renderer.js?v=20261016-tools"></script>
+    <script defer src="js/qr-renderer.js?v=20261117-bulk-filenames"></script>
     <script defer src="js/logos.js?v=20261016-tools"></script>
     <script defer src="js/template-combo.js?v=20261017-template-workflow"></script>
     <script defer src="js/template-export.js?v=20261016-tools"></script>
-    <script defer src="js/cart-fonts.js?v=20261016-tools"></script>
+    <script defer src="js/cart-fonts.js?v=20261117-bulk-filenames"></script>
     <script defer src="js/cart-fields.js?v=20261016-tools"></script>
     <script defer src="js/search-fields.js?v=20261016-tools"></script>
     <script defer src="js/templates.js?v=20261017-template-workflow"></script>
     <script defer src="js/qr-presets.js?v=20261017-template-workflow"></script>
-    <script defer src="js/qr-content.js?v=20261016-tools"></script>
-    <script defer src="js/cart-appearance.js?v=20261017-appearance-wording"></script>
+    <script defer src="js/qr-content.js?v=20261117-preview-validation"></script>
+    <script defer src="js/cart-appearance.js?v=20261117-bulk-workflow"></script>
     <script
       defer
       src="js/csv-converter.js?v=20261016-tools"
@@ -53,7 +53,8 @@
     <script defer src="js/simple-mode.js?v=20261020-simple-sharing"></script>
     <script defer src="js/qr-reader.js?v=20261016-image-filenames"></script>
     <script defer src="js/tools-menu.js?v=20261016-focus-fix"></script>
-    <script defer src="js/app.js?v=20261020-simple-sharing"></script>
+    <script defer src="js/bulk-filenames.js?v=20261117-restored-controls"></script>
+    <script defer src="js/app.js?v=20261117-bulk-workflow"></script>
   </head>
   <body>
     <main class="generator">
@@ -343,6 +344,7 @@
           >
             <canvas id="bulkPageCanvas"></canvas>
           </button>
+          <p id="bulkPreviewError" role="alert"></p>
           <div class="preview-ribbon-actions">
             <button
               id="bulkRibbonBtn"
@@ -366,6 +368,15 @@
           </button>
 
           <div class="bulk-export-controls">
+            <div class="template-library">
+              <div class="export-actions">
+                <span id="bulkFilenameSummary" class="csv-file-info">Dateinamen: Titel (Standard)</span>
+                <button id="editFilenames" class="action-button secondary" type="button">Dateinamen definieren</button>
+              </div>
+              <input id="bulkFilenamePattern" type="hidden" value="" />
+              <pre id="bulkFilenamePreview" role="status" aria-live="polite"></pre>
+            </div>
+            <p class="preview-option"><label class="preview-switch"><input id="bulkQrOnly" type="checkbox" role="switch" /> Nur QR-Code exportieren (ohne Cart)</label></p>
             <p class="preview-option">
               <label class="preview-switch"
                 ><input

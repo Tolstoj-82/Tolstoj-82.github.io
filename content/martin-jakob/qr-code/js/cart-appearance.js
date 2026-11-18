@@ -162,30 +162,10 @@
         layout.qrTemplateId = match.id;
         return true;
       }
-      details.open = true;
-      document.getElementById("layoutDialog").dispatchEvent(new Event("show-qr-settings"));
-      window.QRGenerator.notifications.toast(
-        t(
-          "Bitte dieses Aussehen zuerst als QR-Code-Template speichern oder ein vorhandenes Template auswählen.",
-        ),
-        "warning",
-      );
-      const save = document.getElementById("qrPresetSaveControls");
-      save.classList.remove("needs-save");
-      void save.offsetWidth;
-      save.classList.add("needs-save");
-      requestAnimationFrame(() => {
-        save.scrollIntoView({
-          block: "center",
-          behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-            ? "instant"
-            : "smooth",
-        });
-        document
-          .querySelector("#qrPresetSaveControls .action-button")
-          .focus({ preventScroll: true });
-      });
-      return false;
+      // The Cart owns a complete appearance snapshot. Saving a reusable QR
+      // template is optional; an unmatched design can still be applied/exported.
+      layout.qrTemplateId = "";
+      return true;
     }
     select.addEventListener("change", async () => {
       const value =

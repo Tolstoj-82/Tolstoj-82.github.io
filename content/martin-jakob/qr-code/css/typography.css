@@ -23,7 +23,7 @@
 .qr-template-search-group > label,
 .single-download > label,
 .export-format > label,
-#qrContentEditor > summary {
+:is(#qrContentEditor, #filename-qrContentEditor) > summary {
   font-size: var(--font-ui-label);
   font-weight: var(--font-weight-label);
   line-height: var(--line-height-ui);

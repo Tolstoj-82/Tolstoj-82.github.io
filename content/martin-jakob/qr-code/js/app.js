@@ -1160,6 +1160,7 @@
     generateQRCode();
     renderVariableChips();
     checkImportedCarts();
+    filenameEditor.refresh();
   }
 
   function selectedMapping() {
@@ -1474,9 +1475,11 @@
   function saveLayout() {
     renderVariableChips();
     renderBulkPreview();
+    filenameEditor.refresh();
     if (editorSnapshot) return;
     try {
-      localStorage.setItem(layoutStorageKey, JSON.stringify(bulkLayout));
+      const { contentExpression, contentCards, ...layoutPreferences } = bulkLayout;
+      localStorage.setItem(layoutStorageKey, JSON.stringify(layoutPreferences));
       localStorage.setItem(
         "qr-generator.single-layout.v1",
         JSON.stringify(singleLayout),
@@ -1498,19 +1501,6 @@
           !Array.isArray(saved.below)
         )
           continue;
-        if (
-          layout === bulkLayout &&
-          typeof saved.contentExpression === "string"
-        ) {
-          layout.contentExpression = saved.contentExpression;
-          if (Array.isArray(saved.contentCards))
-            layout.contentCards = saved.contentCards.filter(
-              (card) =>
-                card &&
-                ["free", "url", "field"].includes(card.kind) &&
-                typeof card.value === "string",
-            );
-        }
         Object.assign(layout, window.QRGenerator["cart-fields"].clean(saved));
         layout.dateFormat = saved.dateFormat === "us" ? "us" : "eu";
         layout.qrAppearance = saved.qrAppearance;
@@ -2194,6 +2184,9 @@
     renderMetricEditor();
     if (!layoutDialog.open) layoutDialog.showModal();
     saveLayout();
+    // Content validation and the active Cart are now settled. Refresh every
+    // preview with that content, including the QR settings opened by attach().
+    generateQRCode();
   }
   function moveMetric(key, destination, position) {
     const source = ["above", "below"].find((area) =>
@@ -2836,14 +2829,6 @@
     .getElementById("applyLayoutBtn")
     .addEventListener("click", () => closeLayoutEditor(true));
   async function closeLayoutEditor(apply) {
-    if (
-      apply &&
-      !editingCartGallery &&
-      editorMode === "bulk" &&
-      loadedData &&
-      !validateBulkTitle()
-    )
-      return false;
     if (apply && !cartAppearance.validate(metricLayout)) return false;
     if (
       apply &&
@@ -3073,10 +3058,18 @@
   const bulkPreview = document.getElementById("bulkPreview");
   const bulkCanvas = document.getElementById("bulkCanvas");
   const previewStatus = document.getElementById("previewStatus");
+  let exportPreviewVisible = false;
   function dismissPreview() {
-    showBulkPreview.checked = false;
-    saveSettings();
+    // Dismiss this batch only. The switch remains the user's preference for
+    // the next export, including when this dialog is closed after completion.
+    exportPreviewVisible = false;
     bulkPreview.close();
+  }
+  function waitForPreviewPaint() {
+    return new Promise((resolve) => {
+      if (document.visibilityState === "hidden") setTimeout(resolve, 0);
+      else requestAnimationFrame(() => setTimeout(resolve, 0));
+    });
   }
   document
     .getElementById("closePreviewBtn")
@@ -3104,6 +3097,9 @@
         return;
       ++fileLoadVersion;
       loadedData = null;
+      bulkLayout.contentExpression = "";
+      bulkLayout.contentCards = [];
+      filenameEditor.refresh();
       layoutSample = null;
       fileInput.value = "";
       document.getElementById("clearBulkData").hidden = true;
@@ -3123,35 +3119,25 @@
     if (cancelExportRequested) throw exportCancelled;
   }
 
-  function validateBulkTitle() {
-    if (window.QRGenerator["cart-fields"].titleValid(bulkLayout, loadedData))
-      return true;
-    toast(
-      t(
-        "Bitte ein Titelfeld mit einem Wert für jeden Eintrag auswählen. Es bestimmt die Dateinamen.",
-      ),
-      "warning",
-    );
-    const field = document.getElementById("cartTitleSource");
-    field?.scrollIntoView({ block: "center" });
-    field?.focus();
-    return false;
-  }
   async function generateZip() {
     if (!loadedData || isGenerating) return;
-    if (!validateBulkTitle()) {
-      await openLayoutEditor("bulk");
-      document.getElementById("cartTitleSource").focus();
+    // Report preflight failures here; starting an export must not navigate to
+    // an unrelated editor or discard the user's place in the workflow.
+    if (!contentEditor.validate()) {
+      setMessage(statusDiv, () => document.getElementById("qrContentError").textContent);
       return;
     }
-    if (!contentEditor.validate()) {
-      openLayoutEditor("bulk");
-      document.getElementById("addContentCard").focus();
+    const qrOnly = document.getElementById("bulkQrOnly").checked;
+    let plannedNames;
+    try { plannedNames = filenameEditor.plan(); }
+    catch (error) {
+      filenameEditor.refresh();
+      setMessage(statusDiv, () => error.message);
       return;
     }
     try {
       await cartAppearance.ready(bulkLayout);
-      await window.QRGenerator["cart-fonts"].ready(bulkLayout.font);
+      if (!qrOnly) await window.QRGenerator["cart-fonts"].ready(bulkLayout.font);
     } catch (error) {
       toast(t("Export fehlgeschlagen: ") + error.message, "warning");
       return;
@@ -3159,6 +3145,7 @@
     if (isGenerating) return;
     isGenerating = true;
     cancelExportRequested = false;
+    exportPreviewVisible = showBulkPreview.checked;
     cancelExportBtn.hidden = false;
     cancelExportBtn.disabled = false;
     generateBtn.disabled = true;
@@ -3178,13 +3165,11 @@
     // Keep one language throughout this ZIP even if the interface language changes.
     for (const key of [...exportLayout.above, ...exportLayout.below])
       exportLayout.labels[key] = metricLabel(key, bulkLayout);
+    let exportSucceeded = false;
     try {
-      const fontStyle =
-        format === "svg"
-          ? await window.QRGenerator["cart-fonts"].svgStyle(bulkLayout.font)
-          : "";
+      let fontStyle;
+      const batchText = JSON.stringify([entries, exportLayout]);
       let adjustedCount = 0;
-      const filenames = new Set();
       const zip = new JSZip();
       const qrCanvas = document.createElement("canvas");
       for (let i = 0; i < entries.length; i++) {
@@ -3201,7 +3186,7 @@
         );
         const adjustment = renderQRCode(qrCanvas, entry.URL, settings);
         if (adjustment) adjustedCount++;
-        const output = createLabeledCanvas(
+        const output = qrOnly ? qrCanvas : createLabeledCanvas(
           qrCanvas,
           entry.Titel,
           entry.Untertitel,
@@ -3210,52 +3195,42 @@
           entry,
           exportLayout,
         );
-        if (showBulkPreview.checked) {
+        if (exportPreviewVisible && showBulkPreview.checked) {
           bulkCanvas.width = output.width;
           bulkCanvas.height = output.height;
           bulkCanvas.getContext("2d").drawImage(output, 0, 0);
           setMessage(previewStatus, () => statusDiv.textContent);
           if (!bulkPreview.open) bulkPreview.showModal();
-          // Yield for painting/cancellation without adding a delay per image.
-          await new Promise((resolve) => setTimeout(resolve, 0));
+          // Give each requested preview an actual paint opportunity before
+          // rendering the next SVG or completing a short batch.
+          await waitForPreviewPaint();
         } else {
           // Allow cancellation and other UI events between images.
           await new Promise((resolve) => setTimeout(resolve, 0));
         }
         checkExportCancelled();
-        if(format === "svg")output.svgContent=fontStyle+output.svgContent;
+        if (format === "svg" && /<text\b/.test(output.svgContent)) {
+          fontStyle ??= await window.QRGenerator["cart-fonts"].svgStyle(bulkLayout.font, batchText);
+          output.svgContent = fontStyle + output.svgContent;
+        }
         const image = format === "svg" ? toSVG(output) : await toPNG(output);
         checkExportCancelled();
-        const baseName = sanitizeFilename(
-          metricValue(
-            entry.Raw[
-              window.QRGenerator["cart-fields"].source(
-                exportLayout,
-                "heading:title",
-              )
-            ],
-          ),
-        );
-        let fileName = baseName + "." + format;
-        let suffix = 2;
-        while (filenames.has(fileName.toLowerCase()))
-          fileName = baseName + "_" + suffix++ + "." + format;
-        filenames.add(fileName.toLowerCase());
+        const fileName = plannedNames[i].name;
         zip.file(fileName, image);
       }
       setMessage(statusDiv, () => t("ZIP-Datei wird erstellt …"));
       setMessage(previewStatus, () => statusDiv.textContent);
       checkExportCancelled();
       const zipBlob = await zip.generateAsync(
-        { type: "blob" },
+        { type: "blob", compression: "DEFLATE", compressionOptions: { level: 6 } },
         checkExportCancelled,
       );
       checkExportCancelled();
       saveAs(zipBlob, "QR-Codes.zip");
+      exportSucceeded = true;
       document.getElementById("clearBulkData").hidden = false;
       renderBulkPreview();
-      bulkPreview.close();
-      bulkCanvas.width = bulkCanvas.height = 0;
+      setMessage(previewStatus, () => entries.length + t(" QR-Codes exportiert."));
       setMessage(statusDiv, () => "");
       toast(
         entries.length +
@@ -3277,8 +3252,10 @@
         );
       }
     } finally {
-      bulkPreview.close();
-      bulkCanvas.width = bulkCanvas.height = 0;
+      if (!exportSucceeded || !bulkPreview.open) {
+        bulkPreview.close();
+        bulkCanvas.width = bulkCanvas.height = 0;
+      }
       cancelExportBtn.hidden = true;
       isGenerating = false;
       fileInput.disabled = false;
@@ -3343,6 +3320,8 @@
     };
     const target = document.getElementById("bulkPageCanvas");
     target.classList.toggle("is-example", !loadedData);
+    const errorNode = document.getElementById("bulkPreviewError");
+    setMessage(errorNode, () => "");
     if (typeof qrcode !== "function") return;
     try {
       if (!record.URL) {
@@ -3368,7 +3347,7 @@
       target.height = image.height;
       target.getContext("2d").drawImage(image, 0, 0);
     } catch (error) {
-      setMessage(qrError, () => error.message);
+      setMessage(errorNode, () => error.message);
     }
   }
   function renderVariableChips() {
@@ -3439,6 +3418,58 @@
     }
   }
 
+  function updateQRPreview(target, text, settings) {
+    const next = document.createElement("canvas");
+    if (text) renderQRCode(next, text, settings);
+    else next.width = next.height = EXPORT_SIZE;
+    target.width = next.width;
+    target.height = next.height;
+    target.getContext("2d").drawImage(next, 0, 0);
+  }
+
+  function renderSecondaryPreviews(inputText) {
+    try {
+      const settingsCanvas = document.getElementById("settingsQR");
+      const bulkSettings = document
+        .getElementById("bulkEditorSlot")
+        .contains(settingsCanvas);
+      const settingsText =
+        cartAppearance.content() ??
+        (activeMode === "templates"
+          ? templateTestContent || DEMO_QR_CONTENT
+          : bulkSettings
+            ? loadedData?.[0]?.URL || (!loadedData ? DEMO_QR_CONTENT : "")
+            : inputText);
+      if (settingsText)
+        updateQRPreview(settingsCanvas, settingsText, readSettings());
+      else {
+        settingsCanvas.width = settingsCanvas.height = EXPORT_SIZE;
+        settingsCanvas
+          .getContext("2d")
+          .clearRect(0, 0, EXPORT_SIZE, EXPORT_SIZE);
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage(document.getElementById("renderNotice"), () => error.message);
+    }
+    try {
+      if (layoutDialog.open && layoutSample && !layoutSample.URL) {
+        const target = document.getElementById("layoutQR");
+        target.getContext("2d").clearRect(0, 0, target.width, target.height);
+      }
+      if (layoutDialog.open && layoutSample?.URL)
+        updateQRPreview(
+          document.getElementById("layoutQR"),
+          layoutSample.URL,
+          cartAppearance.settings(metricLayout),
+        );
+    } catch (error) {
+      console.error(error);
+      setMessage(document.getElementById("layoutError"), () => error.message);
+    }
+    renderVariableChips();
+  }
+
   function generateQRCode() {
     cartAppearance.refresh();
     document.querySelectorAll('.copy-qr-link').forEach(button => {
@@ -3450,6 +3481,7 @@
     updateUnusedParameters();
     setMessage(qrError, () => "");
     setMessage(document.getElementById("renderNotice"), () => "");
+    renderBulkPreview();
     const isExample = !qrInput.value.trim();
     canvas.classList.toggle("is-example", isExample);
     canvas.setAttribute(
@@ -3488,25 +3520,6 @@
         inputText,
         cartAppearance.settings(currentSingleLayout()),
       );
-      const settingsCanvas = document.getElementById("settingsQR");
-      const bulkSettings = document
-        .getElementById("bulkEditorSlot")
-        .contains(settingsCanvas);
-      const settingsText =
-        cartAppearance.content() ||
-        (activeMode === "templates"
-          ? templateTestContent || DEMO_QR_CONTENT
-          : bulkSettings
-            ? loadedData?.[0]?.URL || (!loadedData ? DEMO_QR_CONTENT : "")
-            : inputText);
-      if (settingsText)
-        renderQRCode(settingsCanvas, settingsText, readSettings());
-      else {
-        settingsCanvas.width = settingsCanvas.height = EXPORT_SIZE;
-        settingsCanvas
-          .getContext("2d")
-          .clearRect(0, 0, EXPORT_SIZE, EXPORT_SIZE);
-      }
       setMessage(document.getElementById("renderNotice"), () => adjustment);
       const record = singleRecord();
       const output = simpleEditor?.enabled ? nextCanvas : createLabeledCanvas(
@@ -3518,24 +3531,12 @@
         record,
         currentSingleLayout(),
       );
-      renderBulkPreview();
-      renderVariableChips();
       canvas.qrHitBox = output.qrHitBox || {y:0,height:output.height};
       canvas.width = output.width;
       canvas.height = output.height;
       ctx.drawImage(output, 0, 0);
       const enlarged = document.querySelector('#largeQRPreview[open] canvas');
       if (enlarged) { enlarged.width = canvas.width; enlarged.height = canvas.height; enlarged.getContext('2d').drawImage(canvas, 0, 0); }
-      if (layoutDialog.open && layoutSample && !layoutSample.URL) {
-        const target = document.getElementById("layoutQR");
-        target.getContext("2d").clearRect(0, 0, target.width, target.height);
-      }
-      if (layoutDialog.open && layoutSample?.URL)
-        renderQRCode(
-          document.getElementById("layoutQR"),
-          layoutSample.URL,
-          cartAppearance.settings(metricLayout),
-        );
       downloadBtn.hidden = false;
       downloadBtn.disabled = isExample;
     } catch (error) {
@@ -3552,6 +3553,7 @@
       );
       console.error(error);
     }
+    renderSecondaryPreviews(inputText);
   }
 
   function requestDownloadName() {
@@ -3609,7 +3611,10 @@
         record,
         singleLayout,
       );
-      if(format === "svg" && !simpleEditor?.enabled)output.svgContent=(await window.QRGenerator['cart-fonts'].svgStyle(singleLayout.font))+output.svgContent;
+      if (format === "svg" && !simpleEditor?.enabled && /<text\b/.test(output.svgContent)) {
+        const text = new DOMParser().parseFromString(toSVG(output), "image/svg+xml").documentElement.textContent;
+        output.svgContent = (await window.QRGenerator["cart-fonts"].svgStyle(singleLayout.font, text)) + output.svgContent;
+      }
       const blob =
         format === "svg"
           ? new Blob([toSVG(output)], { type: "image/svg+xml;charset=utf-8" })
@@ -3905,6 +3910,11 @@
     renderTemplates,
   } = templateLibrary;
 
+  const filenameEditor = window.QRGenerator["bulk-filenames"].initialize({
+    confirmDeletion,
+    getRecords: () => loadedData,
+    getTitleField: () => window.QRGenerator["cart-fields"].source(bulkLayout, "heading:title"),
+  });
   const contentEditor = window.QRGenerator["qr-content"].createContentEditor({
     confirmDeletion,
     getRecords: () => loadedData,
@@ -3991,7 +4001,7 @@
     size: EXPORT_SIZE,
     content: (layout) =>
       layout === bulkLayout
-        ? loadedData?.[0]?.URL || DEMO_QR_CONTENT
+        ? (loadedData?.length ? loadedData[0].URL || "" : DEMO_QR_CONTENT)
         : qrInput.value.trim() || DEMO_QR_CONTENT,
     read: () => {
       const { logo, ...appearance } = readSettings();
@@ -4028,6 +4038,7 @@
     button.addEventListener("click", () => {
       if (window.QRGenerator.i18n.language === button.dataset.language) return;
       setLanguage(button.dataset.language);
+      filenameEditor.refresh();
       // Updating in place preserves imported records, user input and all open dialogs.
       translateInterface();
       simpleEditor?.render();

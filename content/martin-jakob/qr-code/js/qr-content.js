@@ -195,12 +195,16 @@
     getCards,
     changed,
     confirmDeletion,
+    idPrefix = "",
+    writeResolved = true,
+    formatError = (error) => error.message,
   }) {
-    const host = document.getElementById("qrContentEditor"),
-      input = document.getElementById("qrContentExpression"),
-      fields = document.getElementById("qrContentFields"),
-      preview = document.getElementById("qrContentPreview"),
-      error = document.getElementById("qrContentError");
+    const element = (id) => document.getElementById(idPrefix + id);
+    const host = element("qrContentEditor"),
+      input = element("qrContentExpression"),
+      fields = element("qrContentFields"),
+      preview = element("qrContentPreview"),
+      error = element("qrContentError");
     const storageKey = "qr-generator.content-snippets.v1";
     let snippets = [];
     try {
@@ -243,11 +247,11 @@
       editing = -1,
       dragIndex = null,
       cardExpression = null;
-    const cardHost = document.getElementById("contentCards"),
-      drop = document.getElementById("contentCardDrop"),
-      dialog = document.getElementById("contentCardDialog"),
-      type = document.getElementById("contentCardType"),
-      value = document.getElementById("contentCardValue");
+    const cardHost = element("contentCards"),
+      drop = element("contentCardDrop"),
+      dialog = element("contentCardDialog"),
+      type = element("contentCardType"),
+      value = element("contentCardValue");
     function parseCards(expression) {
       const result = [];
       let last = 0;
@@ -307,18 +311,17 @@
       type.value = card.kind === "field" ? "field:" + card.value : card.kind;
       value.value = card.kind === "field" ? "" : card.value;
       updateCardType();
-      document.getElementById("removeContentCard").hidden = index < 0;
+      element("removeContentCard").hidden = index < 0;
       dialog.showModal();
       type.focus();
     }
     function updateCardType() {
       value.hidden = type.value.startsWith("field:");
-      document.getElementById("contentCardValueLabel").hidden = value.hidden;
+      element("contentCardValueLabel").hidden = value.hidden;
       value.placeholder = type.value === "url" ? "https://…" : t("Freier Text");
     }
     type.addEventListener("change", updateCardType);
-    document
-      .getElementById("applyContentCard")
+    element("applyContentCard")
       .addEventListener("click", () => {
         const card = type.value.startsWith("field:")
           ? { kind: "field", value: type.value.slice(6) }
@@ -328,19 +331,16 @@
         dialog.close();
         commitCards();
       });
-    document
-      .getElementById("removeContentCard")
+    element("removeContentCard")
       .addEventListener("click", async () => {
         if (!(await confirmDeletion())) return;
         cards.splice(editing, 1);
         dialog.close();
         commitCards();
       });
-    document
-      .getElementById("closeContentCard")
+    element("closeContentCard")
       .addEventListener("click", () => dialog.close());
-    document
-      .getElementById("addContentCard")
+    element("addContentCard")
       .addEventListener("click", (event) => {
         event.stopPropagation();
         showPicker(event.currentTarget, -1);
@@ -644,15 +644,15 @@
             resolveContent(getExpression(), records[index].Raw, getCards?.()),
           );
         } catch (e) {
-          failure = t("Eintrag ") + (index + 1) + ": " + e.message;
-          break;
+          if (!failure) failure = t("Eintrag ") + (index + 1) + ": " + formatError(e);
+          results.push("");
         }
       }
       error.textContent = failure;
       input.setAttribute("aria-invalid", String(Boolean(failure)));
-      preview.textContent = failure ? "" : results[0];
-      records.forEach((record, index) => {
-        record.URL = failure ? "" : results[index];
+      preview.textContent = results[0] || "";
+      if (writeResolved) records.forEach((record, index) => {
+        record.URL = results[index] || "";
       });
       return !failure;
     }

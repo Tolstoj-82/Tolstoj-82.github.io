@@ -174,7 +174,7 @@ button.variable-chip:hover {
   margin: 8px 0 14px;
 }
 
-#qrContentEditor {
+:is(#qrContentEditor, #filename-qrContentEditor) {
   margin: 16px 0;
   padding: 16px;
   border-radius: 6px;
@@ -182,7 +182,7 @@ button.variable-chip:hover {
   text-align: left;
 }
 
-#qrContentExpression {
+:is(#qrContentExpression, #filename-qrContentExpression) {
   width: 100%;
   resize: vertical;
   min-height: 80px;
@@ -193,7 +193,7 @@ button.variable-chip:hover {
   border-radius: 5px;
 }
 
-#qrContentEditor .content-help {
+:is(#qrContentEditor, #filename-qrContentEditor) .content-help {
   margin: 6px 0;
   font-size: 13px;
   font-weight: normal;
@@ -206,16 +206,16 @@ button.variable-chip:hover {
   gap: 6px;
 }
 
-#qrContentError {
+:is(#qrContentError, #filename-qrContentError) {
   color: var(--color-danger);
   font-size: 13px;
 }
 
-#qrContentError:empty {
+:is(#qrContentError, #filename-qrContentError):empty {
   display: none;
 }
 
-#qrContentPreview {
+:is(#qrContentPreview, #filename-qrContentPreview, #bulkFilenamePreview, #filenameNamesPreview) {
   display: block;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -400,11 +400,11 @@ select:focus {
   background: var(--color-surface);
 }
 
-#qrContentEditor {
+:is(#qrContentEditor, #filename-qrContentEditor) {
   padding: 0;
 }
 
-#qrContentEditor > summary {
+:is(#qrContentEditor, #filename-qrContentEditor) > summary {
   padding: 12px 16px;
   cursor: pointer;
   font-weight: 600;
@@ -414,7 +414,7 @@ select:focus {
   padding: 0 16px 16px;
 }
 
-#contentCardDrop {
+:is(#contentCardDrop, #filename-contentCardDrop) {
   padding: 12px;
   margin: 10px 0;
   border: 1px dashed var(--color-muted);
@@ -422,11 +422,11 @@ select:focus {
   background: var(--color-surface);
 }
 
-#contentCardDrop.dragover {
+:is(#contentCardDrop, #filename-contentCardDrop).dragover {
   background: var(--color-page);
 }
 
-#contentCards {
+:is(#contentCards, #filename-contentCards) {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -457,7 +457,7 @@ select:focus {
   opacity: 0.35;
 }
 
-#contentCardValue {
+:is(#contentCardValue, #filename-contentCardValue) {
   width: 100%;
   padding: 10px;
   box-sizing: border-box;
@@ -466,12 +466,12 @@ select:focus {
   border-radius: 5px;
 }
 
-#contentCardType {
+:is(#contentCardType, #filename-contentCardType) {
   width: 100%;
   margin: 8px 0 14px;
 }
 
-#contentCardDialog textarea[hidden] {
+:is(#contentCardDialog, #filename-contentCardDialog) textarea[hidden] {
   display: none;
 }
 
@@ -1027,21 +1027,21 @@ button.cart-template-choice:hover {
   margin-bottom: 16px;
 }
 
-#qrContentEditor .content-help,
-#qrContentFields,
-#qrContentEditor label[for="qrContentExpression"] {
+:is(#qrContentEditor, #filename-qrContentEditor) .content-help,
+:is(#qrContentFields, #filename-qrContentFields),
+:is(#qrContentEditor, #filename-qrContentEditor) label[for$="qrContentExpression"] {
   display: none;
 }
 
-#qrContentEditor > summary {
+:is(#qrContentEditor, #filename-qrContentEditor) > summary {
   padding: 8px 10px;
 }
 
-#qrContentEditor .content-editor-body {
+:is(#qrContentEditor, #filename-qrContentEditor) .content-editor-body {
   padding: 0 10px 10px;
 }
 
-#contentCardDrop {
+:is(#contentCardDrop, #filename-contentCardDrop) {
   position: relative;
   display: flex;
   align-items: center;
@@ -1051,14 +1051,14 @@ button.cart-template-choice:hover {
   border: 1px solid var(--color-border);
 }
 
-#contentCards {
+:is(#contentCards, #filename-contentCards) {
   margin: 0;
   min-height: 0;
   gap: 12px;
   align-items: center;
 }
 
-#addContentCard {
+:is(#addContentCard, #filename-addContentCard) {
   flex-shrink: 0;
 }
 
@@ -1136,7 +1136,7 @@ button.cart-template-choice:hover {
   background: var(--color-page);
 }
 
-#qrContentPreview {
+:is(#qrContentPreview, #filename-qrContentPreview, #bulkFilenamePreview, #filenameNamesPreview) {
   padding: 6px;
   font-size: 12px;
   min-height: 0;
@@ -1272,7 +1272,7 @@ button.cart-template-choice:hover {
   font-size: 12px;
 }
 
-.content-preview-row #qrContentPreview {
+.content-preview-row :is(#qrContentPreview, #filename-qrContentPreview, #bulkFilenamePreview, #filenameNamesPreview) {
   flex: 1;
   min-width: 100px;
   margin: 0;
