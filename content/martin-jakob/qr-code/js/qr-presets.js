@@ -133,6 +133,8 @@
               )
             )
               throw Error();
+          if (appearance.backgroundColor !== undefined && !/^#[0-9a-f]{6}$/i.test(appearance.backgroundColor)) throw Error();
+          if (appearance.transparentBackground !== undefined && typeof appearance.transparentBackground !== "boolean") throw Error();
           for (const field of ["color", "finderColor"])
             if (!/^#[0-9a-f]{6}$/i.test(appearance[field])) throw Error();
           let image = null;
@@ -290,6 +292,8 @@
               )
             )
               throw Error();
+          if (appearance.backgroundColor !== undefined && !/^#[0-9a-f]{6}$/i.test(appearance.backgroundColor)) throw Error();
+          if (appearance.transparentBackground !== undefined && typeof appearance.transparentBackground !== "boolean") throw Error();
           for (const field of ["color", "finderColor"])
             if (!/^#[0-9a-f]{6}$/i.test(appearance[field])) throw Error();
           const logoData = item.payload.logoData || "";
@@ -330,9 +334,9 @@
             name: item.name.trim(),
             payload: {
               appearance: Object.fromEntries(
-                ["shape", "finderShape", "color", "finderColor"].map((key) => [
+                ["shape", "finderShape", "color", "finderColor", "backgroundColor", "transparentBackground"].map((key) => [
                   key,
-                  appearance[key],
+                  appearance[key] ?? (key === "backgroundColor" ? "#ffffff" : false),
                 ]),
               ),
               logoData,
@@ -395,6 +399,8 @@
             p.appearance.finderShape,
             p.appearance.color,
             p.appearance.finderColor,
+            p.appearance.backgroundColor || "#ffffff",
+            p.appearance.transparentBackground === true,
             p.logoData || "",
           ]);
         const item = entries.find(

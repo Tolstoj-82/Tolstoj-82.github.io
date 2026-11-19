@@ -7,6 +7,8 @@
       finderShape: "square",
       color: "#000000",
       finderColor: "#000000",
+      backgroundColor: "#ffffff",
+      transparentBackground: false,
     },
     logoData: "",
   };
@@ -15,6 +17,8 @@
       ...["shape", "finderShape", "color", "finderColor"].map(
         (key) => payload.appearance[key],
       ),
+      payload.appearance.backgroundColor || "#ffffff",
+      payload.appearance.transparentBackground === true,
       payload.logoData || "",
     ]);
   function createCartAppearance(context) {
@@ -70,6 +74,7 @@
           .catch(() => cache.set(value.logoData, null));
       }
       return {
+        ...standard.appearance,
         ...value.appearance,
         logo: cache.get(value.logoData) || null,
         size: context.size,

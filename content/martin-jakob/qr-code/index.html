@@ -30,31 +30,31 @@
     />
     <link rel="stylesheet" href="styles.css?v=20261117-restored-controls" />
     <script defer src="script.js?v=20261016-tools"></script>
-    <script defer src="js/translations.js?v=20261117-preview-validation"></script>
+    <script defer src="js/translations.js?v=20261118-backgrounds"></script>
     <script defer src="js/notifications.js?v=20261016-tools"></script>
     <script defer src="js/i18n.js?v=20261016-tools"></script>
     <script defer src="js/logo-crop.js?v=20261016-tools"></script>
-    <script defer src="js/qr-renderer.js?v=20261117-bulk-filenames"></script>
+    <script defer src="js/qr-renderer.js?v=20261118-backgrounds"></script>
     <script defer src="js/logos.js?v=20261016-tools"></script>
     <script defer src="js/template-combo.js?v=20261017-template-workflow"></script>
     <script defer src="js/template-export.js?v=20261016-tools"></script>
     <script defer src="js/cart-fonts.js?v=20261117-bulk-filenames"></script>
     <script defer src="js/cart-fields.js?v=20261016-tools"></script>
     <script defer src="js/search-fields.js?v=20261016-tools"></script>
-    <script defer src="js/templates.js?v=20261017-template-workflow"></script>
-    <script defer src="js/qr-presets.js?v=20261017-template-workflow"></script>
+    <script defer src="js/templates.js?v=20261118-backgrounds"></script>
+    <script defer src="js/qr-presets.js?v=20261118-backgrounds"></script>
     <script defer src="js/qr-content.js?v=20261117-preview-validation"></script>
-    <script defer src="js/cart-appearance.js?v=20261117-bulk-workflow"></script>
+    <script defer src="js/cart-appearance.js?v=20261118-backgrounds"></script>
     <script
       defer
       src="js/csv-converter.js?v=20261016-tools"
     ></script>
     <script defer src="js/cart-dock.js?v=20261017-appearance-wording"></script>
-    <script defer src="js/simple-mode.js?v=20261020-simple-sharing"></script>
+    <script defer src="js/simple-mode.js?v=20261118-backgrounds"></script>
     <script defer src="js/qr-reader.js?v=20261016-image-filenames"></script>
     <script defer src="js/tools-menu.js?v=20261016-focus-fix"></script>
     <script defer src="js/bulk-filenames.js?v=20261117-restored-controls"></script>
-    <script defer src="js/app.js?v=20261117-bulk-workflow"></script>
+    <script defer src="js/app.js?v=20261118-backgrounds"></script>
   </head>
   <body>
     <main class="generator">
@@ -201,6 +201,14 @@
                   aria-label="Farbe der Positionsmarkierungen"
                 />
               </div>
+            </div>
+            <div class="appearance-field">
+              <label for="backgroundColorPicker">Hintergrundfarbe</label>
+              <div class="shape-color"><input type="color" id="backgroundColorPicker" value="#ffffff" aria-label="Hintergrundfarbe" /></div>
+            </div>
+            <div class="appearance-field">
+              <label class="preview-switch"><input id="transparentBackground" type="checkbox" role="switch" /> Transparenter Hintergrund</label>
+              <button id="invertQRColors" class="action-button secondary" type="button">Farben umkehren</button>
             </div>
           </div>
         </section>

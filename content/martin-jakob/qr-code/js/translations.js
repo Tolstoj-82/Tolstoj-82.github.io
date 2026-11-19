@@ -1,6 +1,9 @@
 (() => {
   "use strict";
   const english = {
+    "Hintergrundfarbe": "Background color",
+    "Transparenter Hintergrund": "Transparent background",
+    "Farben umkehren": "Invert colors",
     "Template auswählen …": "Choose a template…",
     "Keine passenden Templates.": "No matching templates.",
     "Template speichern unter …": "Save template as…",

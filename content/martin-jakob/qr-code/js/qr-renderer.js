@@ -16,7 +16,10 @@
     );
   }
   // Record the same paths used by Canvas, so SVG exports retain every chosen shape.
+  let vectorSequence = 0;
   function vectorContext(native) {
+    const maskPrefix = "qr-cutout-" + (++vectorSequence);
+    let maskCount = 0;
     const elements = [];
     let path = "",
       transform = "";
@@ -25,6 +28,19 @@
       transform
         ? '<g transform="' + transform + '">' + content + "</g>"
         : content;
+    const paint = (shape) => {
+      if (native.globalCompositeOperation !== "destination-out") {
+        elements.push(shape);
+        return;
+      }
+      // Retain true cutouts in SVG instead of painting white into finder gaps
+      // and the logo margin. IDs are unique across nested Cart SVGs.
+      const id = maskPrefix + "-" + (++maskCount);
+      const mask = shape.replace(/fill="[^"]*"/g, 'fill="black"');
+      const previous = elements.join("");
+      elements.length = 0;
+      elements.push('<defs><mask id="' + id + '" maskUnits="userSpaceOnUse" x="0" y="0" width="' + native.canvas.width + '" height="' + native.canvas.height + '"><rect width="100%" height="100%" fill="white"/>' + mask + '</mask></defs><g mask="url(#' + id + ')">' + previous + '</g>');
+    };
     const proxy = new Proxy(native, {
       get(target, key) {
         if (key === "svgContent") return elements.join("");
@@ -78,13 +94,13 @@
                 " ";
           }
           if (key === "fill")
-            elements.push(
+            paint(
               wrap(
                 '<path d="' + path + '" fill="' + xml(target.fillStyle) + '"/>',
               ),
             );
           if (key === "fillRect")
-            elements.push(
+            paint(
               wrap(
                 '<rect x="' +
                   x +
@@ -260,11 +276,23 @@
     const color = settings.color;
     const finderColor = settings.finderColor;
     const size = settings.size;
+    const background = /^#[0-9a-f]{6}$/i.test(settings.backgroundColor || "") ? settings.backgroundColor : "#ffffff";
+    const transparent = settings.transparentBackground === true;
+    canvas.style.backgroundColor = background;
+    canvas.backgroundColor = background;
+    canvas.transparentBackground = transparent;
 
     canvas.width = size;
     canvas.height = size;
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (!transparent) {
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    const startGap = () => {
+      ctx.fillStyle = background;
+      if (transparent) ctx.globalCompositeOperation = "destination-out";
+    };
+    const endGap = () => { ctx.globalCompositeOperation = "source-over"; };
 
     const moduleSize =
       Math.floor((size * 0.8) / modules) || size / (modules + 8);
@@ -288,7 +316,7 @@
           moduleSize * 1.25,
         );
         ctx.fill();
-        ctx.fillStyle = "white";
+        startGap();
         roundedRectPath(
           ctx,
           x + moduleSize,
@@ -298,6 +326,7 @@
           moduleSize * 0.8,
         );
         ctx.fill();
+        endGap();
         ctx.fillStyle = finderColor;
         roundedRectPath(
           ctx,
@@ -311,21 +340,23 @@
       } else if (style === "diamond") {
         diamondPath(ctx, centerX, centerY, moduleSize * 3.5);
         ctx.fill();
-        ctx.fillStyle = "white";
+        startGap();
         diamondPath(ctx, centerX, centerY, moduleSize * 2.5);
         ctx.fill();
+        endGap();
         ctx.fillStyle = finderColor;
         diamondPath(ctx, centerX, centerY, moduleSize * 1.5);
         ctx.fill();
       } else if (style === "square-circle") {
         ctx.fillRect(x, y, moduleSize * 7, moduleSize * 7);
-        ctx.fillStyle = "white";
+        startGap();
         ctx.fillRect(
           x + moduleSize,
           y + moduleSize,
           moduleSize * 5,
           moduleSize * 5,
         );
+        endGap();
         ctx.fillStyle = finderColor;
         ctx.beginPath();
         ctx.arc(centerX, centerY, moduleSize * 1.5, 0, Math.PI * 2);
@@ -334,13 +365,14 @@
         ctx.beginPath();
         ctx.arc(centerX, centerY, moduleSize * 3.5, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "white";
+        startGap();
         ctx.fillRect(
           x + moduleSize,
           y + moduleSize,
           moduleSize * 5,
           moduleSize * 5,
         );
+        endGap();
         ctx.fillStyle = finderColor;
         ctx.fillRect(
           x + moduleSize * 2,
@@ -352,10 +384,11 @@
         ctx.beginPath();
         ctx.arc(centerX, centerY, moduleSize * 3.5, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "white";
+        startGap();
         ctx.beginPath();
         ctx.arc(centerX, centerY, moduleSize * 2.5, 0, Math.PI * 2);
         ctx.fill();
+        endGap();
         ctx.fillStyle = finderColor;
 
         if (style === "ring") {
@@ -417,13 +450,16 @@
           modules,
           moduleSize,
           padding,
+          background,
+          transparent,
         )
       : false;
     if (settings.vector) {
       if (canvas.logoPlacement) {
         const { x, edge } = canvas.logoPlacement;
-        ctx.fillStyle = "white";
+        startGap();
         ctx.fillRect(x, x, edge, edge);
+        endGap();
         ctx.drawImage(
           settings.logo,
           x + moduleSize,
@@ -450,6 +486,8 @@
     modules,
     moduleSize,
     padding,
+    background,
+    transparent,
   ) {
     if (typeof jsQR !== "function")
       throw new LocalizedError(() =>
@@ -491,8 +529,10 @@
         backupEdge,
         backupEdge,
       );
-    const restore = () =>
+    const restore = () => {
+      context.clearRect(backupStart, backupStart, backupEdge, backupEdge);
       context.drawImage(logoBackupCanvas, backupStart, backupStart);
+    };
     // Four pixels per module keeps decoding work proportional to QR complexity,
     // rather than scanning the full 1000 px export for every attempt.
     const testModule = Math.min(moduleSize, 4);
@@ -505,8 +545,11 @@
       restore();
       const x = padding + ((modules - covered) / 2) * moduleSize;
       const edge = covered * moduleSize;
-      context.fillStyle = "white";
-      context.fillRect(x, x, edge, edge);
+      if (transparent) context.clearRect(x, x, edge, edge);
+      else {
+        context.fillStyle = background;
+        context.fillRect(x, x, edge, edge);
+      }
       context.drawImage(
         logo,
         x + moduleSize,
@@ -514,7 +557,7 @@
         edge - 2 * moduleSize,
         edge - 2 * moduleSize,
       );
-      testContext.fillStyle = "white";
+      testContext.fillStyle = background;
       testContext.fillRect(
         0,
         0,
@@ -540,7 +583,7 @@
         verificationCanvas.height,
       );
       const decoded = jsQR(pixels.data, pixels.width, pixels.height, {
-        inversionAttempts: "dontInvert",
+        inversionAttempts: "attemptBoth",
       });
       if (decoded && decoded.data === inputText) {
         canvas.logoPlacement = { x, edge };

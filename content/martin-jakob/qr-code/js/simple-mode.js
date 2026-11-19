@@ -6,7 +6,7 @@
     let saved={};try{saved=JSON.parse(localStorage.getItem(key)||'{}')||{};}catch{}
     if (context.initialAppearance) saved={...saved,...context.initialAppearance};
     let enabled=new URLSearchParams(location.search).get('simple')==='1'||saved.enabled===true;
-    const appearance={shape:'square',finderShape:'square',color:'#000000',finderColor:'#000000'};
+    const appearance={shape:'square',finderShape:'square',color:'#000000',finderColor:'#000000',backgroundColor:'#ffffff',transparentBackground:false};
     const controls=new Map();
     const layout={above:[],below:[],headingsMovable:true,styles:{},labels:{},custom:{},ribbon:{enabled:false,rules:[]},qrAppearance:{appearance,logoData:''}};
     if(typeof saved.logoData==='string'&&saved.logoData.length<500000&&/^data:image\/png;base64,/.test(saved.logoData))layout.qrAppearance.logoData=saved.logoData;
@@ -21,14 +21,23 @@
     const groupedNodes=[section.querySelector('.address-field'),section.querySelector('.cart-panel'),section.querySelector('.single-download'),document.getElementById('renderNotice'),document.getElementById('qrError')];
     const originalPositions=groupedNodes.map(node=>{const marker=document.createComment('single-code position');node.before(marker);return marker;});
     const fields=document.createElement('div');fields.className='appearance-fields';panel.append(fields);
-    for(const [setting,sourceId,label] of [['shape','shapeSelect','QR-Code'],['color','colorPicker','Farbe des QR-Codes'],['finderShape','finderShapeSelect','Positionsmarkierungen'],['finderColor','finderColorPicker','Farbe der Positionsmarkierungen']]){
+    for(const [setting,sourceId,label] of [['shape','shapeSelect','QR-Code'],['color','colorPicker','Farbe des QR-Codes'],['finderShape','finderShapeSelect','Positionsmarkierungen'],['finderColor','finderColorPicker','Farbe der Positionsmarkierungen'],['backgroundColor','backgroundColorPicker','Hintergrundfarbe'],['transparentBackground','transparentBackground','Transparenter Hintergrund']]){
       const source=document.getElementById(sourceId),control=source.cloneNode(true);control.id='simple-'+setting;control.removeAttribute('aria-label');
       const wrapper=document.createElement('label');wrapper.dataset.label=label;wrapper.append(document.createTextNode(t(label)),control);fields.append(wrapper);
-      if(control.tagName==='SELECT'){if([...control.options].some(option=>option.value===saved.appearance?.[setting]))appearance[setting]=saved.appearance[setting];}
+      if(control.type==='checkbox'){appearance[setting]=saved.appearance?.[setting]===true;control.checked=appearance[setting];wrapper.classList.add('preview-switch');}
+      else if(control.tagName==='SELECT'){if([...control.options].some(option=>option.value===saved.appearance?.[setting]))appearance[setting]=saved.appearance[setting];}
       else if(/^#[0-9a-f]{6}$/i.test(saved.appearance?.[setting]||''))appearance[setting]=saved.appearance[setting];
       control.value=appearance[setting];controls.set(setting,{control,source});
-      control.addEventListener('input',()=>{appearance[setting]=control.value;persist();context.refresh();});
+      control.addEventListener('input',()=>{appearance[setting]=control.type==='checkbox'?control.checked:control.value;persist();context.refresh();});
     }
+    const invert=document.createElement('button');invert.id='simple-invertQRColors';invert.type='button';invert.className='action-button secondary';
+    invert.addEventListener('click',()=>{
+      for(const key of ['color','finderColor','backgroundColor']){
+        appearance[key]='#'+(0xffffff^parseInt(appearance[key].slice(1),16)).toString(16).padStart(6,'0');
+        controls.get(key).control.value=appearance[key];
+      }
+      persist();context.refresh();
+    });fields.append(invert);
     const logos=document.createElement('div');logos.className='simple-logo-list';panel.append(logos);
     const reordering=window.QRGenerator.logos.createLogoReordering(logos,context.logos,context.saveLogoOrder,renderLogos);
     function persist(){try{localStorage.setItem(key,JSON.stringify({enabled,...layout.qrAppearance}));}catch{}}
@@ -54,6 +63,7 @@
     }
     function render(){
       section.classList.toggle('simple-mode',enabled);panel.hidden=!enabled;
+      invert.textContent=t('Farben umkehren');
       toggleText.textContent=t('Einfach');toggle.checked=enabled;
       document.body.classList.toggle('simple-mode-active',enabled);
       document.getElementById('editSingleTemplateBtn').disabled=enabled;

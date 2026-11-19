@@ -33,6 +33,8 @@
   const qrTitle = document.getElementById("qrTitle");
   const qrSubtitle = document.getElementById("qrSubtitle");
   const ctx = canvas.getContext("2d");
+  const backgroundColorPicker = document.getElementById("backgroundColorPicker");
+  const transparentBackground = document.getElementById("transparentBackground");
 
   let editorSnapshot = null;
   let simpleEditor = null;
@@ -1389,11 +1391,13 @@
     for (const [key, control] of [
       ["color", colorPicker],
       ["finderColor", finderColorPicker],
+      ["backgroundColor", backgroundColorPicker],
     ]) {
       if (typeof saved[key] === "string" && /^#[0-9a-f]{6}$/i.test(saved[key]))
         control.value = saved[key];
     }
 
+    transparentBackground.checked = saved.transparentBackground === true;
     if (["png", "svg"].includes(saved.format))
       document.getElementById("exportFormat").value = saved.format;
     if (["png", "svg"].includes(saved.singleFormat))
@@ -1437,6 +1441,8 @@
       finderShape: finderShapeSelect.value,
       color: colorPicker.value,
       finderColor: finderColorPicker.value,
+      backgroundColor: backgroundColorPicker.value,
+      transparentBackground: transparentBackground.checked,
       logo: logoState.image,
       size: EXPORT_SIZE,
     };
@@ -1991,7 +1997,7 @@
     delete metrics.title;
     delete metrics.subtitle;
     delete metrics.tab;
-    for (const key of ["qrShape", "qrFinderShape", "qrColor", "qrFinderColor", "qrTemplate", "preview", "simple"]) delete metrics[key];
+    for (const key of ["qrShape", "qrFinderShape", "qrColor", "qrFinderColor", "qrBackgroundColor", "qrTransparent", "qrTemplate", "preview", "simple"]) delete metrics[key];
     if (Object.hasOwn(metrics, "url")) metrics.url = qrInput.value.trim();
     return {
       URL: qrInput.value.trim() || DEMO_QR_CONTENT,
@@ -2002,7 +2008,7 @@
   }
   function updateUnusedParameters() {
     const used = new Set([
-      "tab", "qrShape", "qrFinderShape", "qrColor", "qrFinderColor", "qrTemplate", "preview",
+      "tab", "qrShape", "qrFinderShape", "qrColor", "qrFinderColor", "qrBackgroundColor", "qrTransparent", "qrTemplate", "preview",
       "url",
       "title",
       "subtitle",
@@ -3004,14 +3010,19 @@
       throw new LocalizedError(() =>
         t("Die Beschriftung ist zu lang. Bitte kürzen Sie den Text."),
       );
-    context.fillStyle = "white";
-    context.fillRect(0, 0, output.width, output.height);
+    const background = qrCanvas.backgroundColor || "#ffffff";
+    const channels = background.slice(1).match(/../g).map(value => parseInt(value, 16));
+    const darkBackground = channels[0] * 0.299 + channels[1] * 0.587 + channels[2] * 0.114 < 128;
+    if (!qrCanvas.transparentBackground) {
+      context.fillStyle = background;
+      context.fillRect(0, 0, output.width, output.height);
+    }
     context.textAlign = "center";
     context.textBaseline = "middle";
     let y = margin + ribbonHeight;
     for (const block of blocks) {
       context.font = block.font;
-      context.fillStyle = block.color;
+      context.fillStyle = darkBackground ? "#ffffff" : block.color;
       for (const line of block.lines) {
         context.fillText(
           line,
@@ -3029,7 +3040,7 @@
     y = headerHeight + qrCanvas.height + margin;
     for (const block of footerBlocks) {
       context.font = block.font;
-      context.fillStyle = block.color;
+      context.fillStyle = darkBackground ? "#ffffff" : block.color;
       for (const line of block.lines) {
         context.fillText(
           line,
@@ -3196,6 +3207,7 @@
           exportLayout,
         );
         if (exportPreviewVisible && showBulkPreview.checked) {
+          bulkCanvas.style.backgroundColor = qrCanvas.backgroundColor || "#ffffff";
           bulkCanvas.width = output.width;
           bulkCanvas.height = output.height;
           bulkCanvas.getContext("2d").drawImage(output, 0, 0);
@@ -3298,9 +3310,10 @@
     for (const [param,key,control] of [['qrShape','shape',shapeSelect],['qrFinderShape','finderShape',finderShapeSelect]]) {
       const value=params.get(param);if(value && Array.from(control.options).some(option=>option.value===value)){appearance.appearance[key]=value;changed=true;}
     }
-    for (const [param,key] of [['qrColor','color'],['qrFinderColor','finderColor']]) {
+    for (const [param,key] of [['qrColor','color'],['qrFinderColor','finderColor'],['qrBackgroundColor','backgroundColor']]) {
       const value=(params.get(param)||'').replace(/^#/, '');if(/^[0-9a-f]{6}$/i.test(value)){appearance.appearance[key]='#'+value;changed=true;}
     }
+    if(params.has('qrTransparent')){appearance.appearance.transparentBackground=params.get('qrTransparent')==='1';changed=true;}
     if(changed){singleLayout.qrAppearance=appearance;singleLayout.qrTemplateId='';}
     qrTitle.textContent = title || "";
     qrSubtitle.textContent = subtitle || "";
@@ -3342,6 +3355,7 @@
         record,
         bulkLayout,
       );
+      target.style.backgroundColor = qr.backgroundColor || "#ffffff";
       target.qrHitBox = image.qrHitBox;
       target.width = image.width;
       target.height = image.height;
@@ -3422,6 +3436,7 @@
     const next = document.createElement("canvas");
     if (text) renderQRCode(next, text, settings);
     else next.width = next.height = EXPORT_SIZE;
+    target.style.backgroundColor = settings.backgroundColor || "#ffffff";
     target.width = next.width;
     target.height = next.height;
     target.getContext("2d").drawImage(next, 0, 0);
@@ -3531,12 +3546,13 @@
         record,
         currentSingleLayout(),
       );
+      canvas.style.backgroundColor = nextCanvas.backgroundColor || "#ffffff";
       canvas.qrHitBox = output.qrHitBox || {y:0,height:output.height};
       canvas.width = output.width;
       canvas.height = output.height;
       ctx.drawImage(output, 0, 0);
       const enlarged = document.querySelector('#largeQRPreview[open] canvas');
-      if (enlarged) { enlarged.width = canvas.width; enlarged.height = canvas.height; enlarged.getContext('2d').drawImage(canvas, 0, 0); }
+      if (enlarged) { enlarged.style.backgroundColor = canvas.style.backgroundColor; enlarged.width = canvas.width; enlarged.height = canvas.height; enlarged.getContext('2d').drawImage(canvas, 0, 0); }
       downloadBtn.hidden = false;
       downloadBtn.disabled = isExample;
     } catch (error) {
@@ -3634,12 +3650,21 @@
     colorPicker,
     finderShapeSelect,
     finderColorPicker,
+    backgroundColorPicker,
+    transparentBackground,
   ].forEach((control) =>
     control.addEventListener("input", () => {
       generateQRCode();
       if (control !== qrInput) saveSettings();
     }),
   );
+
+  document.getElementById("invertQRColors").addEventListener("click", () => {
+    for (const control of [colorPicker, finderColorPicker, backgroundColorPicker])
+      control.value = "#" + (0xffffff ^ parseInt(control.value.slice(1), 16)).toString(16).padStart(6, "0");
+    generateQRCode();
+    saveSettings();
+  });
 
   downloadBtn.addEventListener("click", downloadQRCode);
 
@@ -3800,7 +3825,7 @@
     for (const key of [...layout.above, ...layout.below]) {
       if (key.startsWith('heading:') || key.startsWith('custom:') || key === 'date:current' || layout.hiddenFields?.includes(key)) continue;
       const source = layout.sources?.[key] || key;
-      if (['url','title','subtitle','tab','preview','qrShape','qrFinderShape','qrColor','qrFinderColor','qrTemplate','simple'].includes(source)) continue;
+      if (['url','title','subtitle','tab','preview','qrShape','qrFinderShape','qrColor','qrFinderColor','qrBackgroundColor','qrTransparent','qrTemplate','simple'].includes(source)) continue;
       url.searchParams.set(source, metricValueFor(record, key, layout));
     }
     url.searchParams.set('url', content);
@@ -3811,8 +3836,9 @@
       }
     }
     const settings = cartAppearance.settings(layout);
-    for (const [param,key] of [['qrShape','shape'],['qrFinderShape','finderShape'],['qrColor','color'],['qrFinderColor','finderColor']])
+    for (const [param,key] of [['qrShape','shape'],['qrFinderShape','finderShape'],['qrColor','color'],['qrFinderColor','finderColor'],['qrBackgroundColor','backgroundColor']])
       url.searchParams.set(param, settings[key].replace(/^#/, ''));
+    url.searchParams.set('qrTransparent', settings.transparentBackground ? '1' : '0');
     const preset = qrPresets.getEntries().find(entry => entry.id === layout.qrTemplateId);
     if (mode === 'single' && simpleEditor?.enabled) {
       url.searchParams.set('simple','1');
@@ -3842,7 +3868,7 @@
     let dialog=document.getElementById('largeQRPreview');
     if(!dialog){dialog=document.createElement('dialog');dialog.id='largeQRPreview';dialog.className='large-qr-preview modal-frame';dialog.innerHTML='<div class="preview-header"><h2></h2><button type="button" class="modal-close">×</button></div><div class="modal-scroll-body"><canvas></canvas></div>';dialog.setAttribute('aria-label',t('QR-Code-Vorschau'));document.body.append(dialog);dialog.querySelector('button').addEventListener('click',()=>dialog.close());}
     dialog.querySelector('h2').textContent=t('QR-Code-Vorschau');dialog.querySelector('button').setAttribute('aria-label',t('Schliessen'));
-    generateQRCode();const target=dialog.querySelector('canvas');target.width=canvas.width;target.height=canvas.height;target.getContext('2d').drawImage(canvas,0,0);
+    generateQRCode();const target=dialog.querySelector('canvas');target.style.backgroundColor=canvas.style.backgroundColor;target.width=canvas.width;target.height=canvas.height;target.getContext('2d').drawImage(canvas,0,0);
     if(!dialog.open)dialog.showModal();
   }
   function openQRSettings(mode = activeMode) {
@@ -3961,6 +3987,8 @@
         ["finderColor", "finderColorPicker"],
       ])
         document.getElementById(id).value = payload.appearance[key];
+      backgroundColorPicker.value = payload.appearance.backgroundColor || "#ffffff";
+      transparentBackground.checked = payload.appearance.transparentBackground === true;
       ++logoState.version;
       logoState.image = image;
       logoState.data = payload.logoData || "";
@@ -4019,6 +4047,8 @@
         ["finderColor", "finderColorPicker"],
       ])
         document.getElementById(id).value = payload.appearance[key];
+      backgroundColorPicker.value = payload.appearance.backgroundColor || "#ffffff";
+      transparentBackground.checked = payload.appearance.transparentBackground === true;
       ++logoState.version;
       logoState.image = image;
       logoState.data = payload.logoData || "";
@@ -4086,7 +4116,7 @@
   renderSavedLogos();
   loadQueryParameters();
   cartDock = window.QRGenerator["cart-dock"].initialize();
-  simpleEditor = window.QRGenerator["simple-mode"].create({activate:()=>setImportVisible(false),refresh:generateQRCode,logos:readSavedLogos,saveLogoOrder,removeLogo:removeSavedLogo,upload:uploadLogos,logoData:()=>logoState.data,initialAppearance:["qrShape","qrFinderShape","qrColor","qrFinderColor","qrTemplate","simple"].some(key=>new URLSearchParams(location.search).has(key))?singleLayout.qrAppearance:null});
+  simpleEditor = window.QRGenerator["simple-mode"].create({activate:()=>setImportVisible(false),refresh:generateQRCode,logos:readSavedLogos,saveLogoOrder,removeLogo:removeSavedLogo,upload:uploadLogos,logoData:()=>logoState.data,initialAppearance:["qrShape","qrFinderShape","qrColor","qrFinderColor","qrBackgroundColor","qrTransparent","qrTemplate","simple"].some(key=>new URLSearchParams(location.search).has(key))?singleLayout.qrAppearance:null});
   document.fonts?.ready.then(() => generateQRCode());
 
   const initialTab = new URLSearchParams(location.search).get("tab");

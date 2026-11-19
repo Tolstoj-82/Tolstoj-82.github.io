@@ -5,8 +5,9 @@ const require=createRequire(import.meta.url);
 const { Window } = await import(pathToFileURL(require.resolve('happy-dom')).href);
 const {createCanvas}=require('@napi-rs/canvas');
 const work=fileURLToPath(new URL('../../', import.meta.url));
-export async function createApp() {
-const win=new Window({url:'http://localhost:8765',settings:{disableCSSFileLoading:true,disableJavaScriptFileLoading:true}});
+export async function createApp({url="http://localhost:8765",storage={}} = {}) {
+const win=new Window({url,settings:{disableCSSFileLoading:true,disableJavaScriptFileLoading:true}});
+for(const [key,value] of Object.entries(storage))win.localStorage.setItem(key,value);
 win.structuredClone=structuredClone;
 win.confirm=()=>true;
 win.Option=function(text,value){const node=win.document.createElement('option');node.textContent=text;node.value=value;return node;};
@@ -16,6 +17,15 @@ win.fetch=fetch;
 win.console=console;
 win.document.fonts={ready:Promise.resolve(),load:async()=>[{}]};
 const canvases=new WeakMap();
+// Browsers clear a canvas even when its dimensions are assigned the same value.
+// This matters when replacing an opaque preview with a transparent one.
+for (const dimension of ['width','height']) {
+ const descriptor=Object.getOwnPropertyDescriptor(win.HTMLCanvasElement.prototype,dimension);
+ Object.defineProperty(win.HTMLCanvasElement.prototype,dimension,{
+  ...descriptor,
+  set(value){descriptor.set.call(this,value);const entry=canvases.get(this);if(entry)entry.native[dimension]=this[dimension];},
+ });
+}
 win.HTMLCanvasElement.prototype.getContext=function(){
  let entry=canvases.get(this);
  if(!entry){const native=createCanvas(this.width,this.height);const context=native.getContext('2d');entry={native,context};canvases.set(this,entry);}

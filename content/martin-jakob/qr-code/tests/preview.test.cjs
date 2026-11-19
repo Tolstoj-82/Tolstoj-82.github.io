@@ -10,7 +10,7 @@ function extract(name) {
 }
 function setup() {
   function canvas() {
-    return { width: 300, height: 150, pixels: 'previous',
+    return { width: 300, height: 150, pixels: 'previous', style: {},
       classList: { toggle() {} }, setAttribute() {},
       getContext() { return {
         drawImage: image => { this.pixels = image.pixels; },

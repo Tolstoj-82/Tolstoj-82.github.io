@@ -237,6 +237,51 @@
         opacity: 1; transform: none; pointer-events: none;
       }
       .achievement-tooltip.link-hover-tooltip[hidden] { display: none; }
+
+      /* One animation path for both scroll directions. */
+      header.workbench-header {
+        --header-title-size: 1.8rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 50px;
+        grid-template-rows: 50px 50px;
+        align-content: start;
+        column-gap: 12px;
+        row-gap: 0;
+        padding: 12px 16px;
+        min-height: 0;
+        height: 124px;
+        transition: height 320ms cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-anchor: none;
+      }
+      header.workbench-header.is-compact { height: 74px; --header-title-size: 1.26rem; }
+      header.workbench-header.tabs-in-menu { height: 74px; }
+      header.workbench-header h1 {
+        grid-column: 1; grid-row: 1;
+        justify-self: start;
+        width: max-content;
+        font-size: var(--header-title-size);
+        white-space: nowrap;
+        transform: none;
+        animation: none;
+        transition: font-size 320ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      header.workbench-header #hamburger-icon {
+        grid-column: 2; grid-row: 1;
+        width: 50px; height: 50px;
+        transition: background-color 180ms ease;
+      }
+      header.workbench-header > .section-tabs {
+        grid-column: 1 / -1; grid-row: 2;
+        justify-content: center;
+        transform: translateY(0);
+        transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      header.workbench-header.is-compact > .section-tabs { transform: translateY(-50px); }
+      header.workbench-header > .section-tabs .section-tab { padding: 10px 4px; }
+      @media (max-width: 600px) {
+        header.workbench-header { --header-title-size: 1.25rem; }
+        header.workbench-header.is-compact { --header-title-size: 0.875rem; }
+      }
     </style>
   </head>
   <body id="top">
@@ -1708,7 +1753,7 @@
     </div>
     <script src="assets/data/players-fallback.js?v=20260727-5"></script>
     <script src="assets/data/player-images.js?v=20260727-2"></script>
-    <script src="script.js?v=20261116-8"></script>
+    <script src="script.js?v=20261119-8"></script>
     <div
       id="imageModal"
       class="modal"

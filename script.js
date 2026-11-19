@@ -1,4 +1,32 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const shrinkingHeader = document.querySelector('header.workbench-header');
+  if (shrinkingHeader) {
+    let scrollFrame = 0;
+    let headerAnimationUntil = 0;
+    let headerAnimationTimer;
+    const updateHeaderSize = () => {
+      scrollFrame = 0;
+      // Separate thresholds avoid flickering as the header changes height.
+      const compact = shrinkingHeader.classList.contains('is-compact');
+      const nextCompact = compact ? window.scrollY > 40 : window.scrollY > 140;
+      if (nextCompact === compact) return;
+      // Let either direction finish before layout-driven scroll events can reverse it.
+      const remaining = headerAnimationUntil - performance.now();
+      if (remaining > 0) {
+        clearTimeout(headerAnimationTimer);
+        headerAnimationTimer = setTimeout(updateHeaderSize, remaining + 16);
+        return;
+      }
+      headerAnimationUntil = performance.now() + 320;
+      shrinkingHeader.classList.toggle('is-compact', nextCompact);
+    };
+    window.addEventListener('scroll', () => {
+      if (!scrollFrame) scrollFrame = requestAnimationFrame(updateHeaderSize);
+    }, { passive: true });
+    window.addEventListener('pageshow', updateHeaderSize);
+    updateHeaderSize();
+  }
+
   const linkTip = document.createElement('span');
   linkTip.className = 'achievement-tooltip link-hover-tooltip';
   linkTip.id = 'link-title-tooltip';linkTip.setAttribute('role','tooltip');linkTip.hidden = true;
@@ -911,7 +939,16 @@ document.addEventListener("DOMContentLoaded", () => {
       measure.remove();
       const style = getComputedStyle(siteHeader);
       const available = siteHeader.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-      const collapse = required > available;
+      let collapse = required > available;
+      if (siteHeader.classList.contains('is-compact')) {
+        // Centered tabs retain their expanded x coordinates; check both neighbours.
+        const firstTabX = parseFloat(style.paddingLeft) + (available - required) / 2;
+        const titleRight = parseFloat(style.paddingLeft) + siteHeader.querySelector('h1').offsetWidth;
+        const lastTabX = firstTabX + required;
+        const menuLeft = siteHeader.clientWidth - parseFloat(style.paddingRight) - 50;
+        collapse ||= firstTabX < titleRight + 16 || lastTabX > menuLeft - 16;
+      }
+      siteHeader.classList.toggle('tabs-in-menu', collapse);
       const focused = tabList.contains(document.activeElement);
       if (collapse && tabList.parentElement !== menuContainer) {
         menuContainer.insertBefore(tabList, document.getElementById('highlights-menu')?.previousElementSibling || null);
@@ -921,7 +958,14 @@ document.addEventListener("DOMContentLoaded", () => {
         marker.after(tabList);tabList.setAttribute('aria-orientation','horizontal');
       }
     };
-    new ResizeObserver(updateTabLocation).observe(siteHeader);
+    const tabLayoutObserver = new ResizeObserver(updateTabLocation);
+    tabLayoutObserver.observe(siteHeader);
+    tabLayoutObserver.observe(siteHeader.querySelector('h1'));
+    let wasCompact = siteHeader.classList.contains('is-compact');
+    new MutationObserver(() => {
+      const compact = siteHeader.classList.contains('is-compact');
+      if (compact !== wasCompact) { wasCompact = compact; updateTabLocation(); }
+    }).observe(siteHeader, {attributes:true,attributeFilter:['class']});
     document.fonts?.ready.then(updateTabLocation);
     updateTabLocation();
   }

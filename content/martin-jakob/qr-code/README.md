@@ -217,3 +217,20 @@ switch independently controls previews during generation. Each enabled preview
 gets a paint opportunity, and the last preview stays open after a successful ZIP
 download. Closing it does not turn previews off for future exports; closing it
 during generation hides previews for that batch only.
+
+## Dark and transparent QR backgrounds
+
+QR appearance and Simple mode include Background color, Invert colors and
+Transparent background. Invert colors changes the QR modules, finder markers
+and background together, making the default code white on black. Background
+preferences are retained in QR/Cart templates, appearance settings and shared
+links (`qrBackgroundColor` and `qrTransparent=1`). Older templates remain opaque
+with a white background.
+
+Transparency is preserved in single and bulk PNG/SVG downloads, including finder
+marker gaps and the margin around a logo. A logo's own image pixels are retained.
+The selected background color is used as the viewing surface for transparent
+previews and for logo readability checks; it is not baked into transparent
+exports. Place a transparent QR on a contrasting background and retain its quiet
+zone. Cart composition also preserves transparency; on dark backgrounds, Cart
+text renders in white. QR-only exports still omit the Cart entirely.

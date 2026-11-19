@@ -507,6 +507,8 @@
                 )
               )
                 throw Error();
+            if (appearance.backgroundColor !== undefined && !/^#[0-9a-f]{6}$/i.test(appearance.backgroundColor)) throw Error();
+            if (appearance.transparentBackground !== undefined && typeof appearance.transparentBackground !== "boolean") throw Error();
             for (const key of ["color", "finderColor"])
               if (!/^#[0-9a-f]{6}$/i.test(appearance[key])) throw Error();
             if (logoData) {
