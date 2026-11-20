@@ -978,18 +978,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
   const tabFromLocation = () => {
+    const hash = location.hash;
+    const aliases = {
+      '#community-projects-section': 'external-links-title',
+      '#community-projects-panel': 'external-links-title',
+    };
+    const hashTab = tabs.find(tab => hash === `#${tab.id}` ||
+      hash === `#${tab.getAttribute('aria-controls')}` || aliases[hash] === tab.id);
+    if (hashTab) return hashTab;
+    // Accept old bookmarks, then immediately normalize them to the hash route.
     const section = new URLSearchParams(location.search).get('section');
-    if (['#community-projects-section', '#community-projects-panel'].includes(location.hash)) {
-      return tabs.find((tab) => tab.id === 'external-links-title');
-    }
-    return tabs.find((tab) => `#${tab.id}` === location.hash ||
-      `#${tab.getAttribute('aria-controls')}` === location.hash ||
-      (section && tab.id === `${section}-section`));
+    const legacyId = { links: 'external-links-title', 'external-links': 'external-links-title',
+      'community-projects': 'external-links-title', roms: 'games-section' }[section] || `${section}-section`;
+    return section ? tabs.find(tab => tab.id === legacyId) : undefined;
+  };
+  const setTabRoute = tab => {
+    const url = new URL(location.href);
+    url.searchParams.delete('section');
+    url.hash = tab.id;
+    if (url.href !== location.href) history.replaceState(null, '', url.href);
   };
   tabs.forEach((tab, index) => {
     tab.addEventListener('click', () => {
       activateTab(tab);
-      history.replaceState(null, '', `#${tab.id}`);
+      setTabRoute(tab);
       if (tabList?.parentElement === menuContainer) { setMenuOpen(false); document.getElementById(tab.getAttribute('aria-controls'))?.focus({preventScroll:true}); }
     });
     tab.addEventListener('keydown', (event) => {
@@ -1004,10 +1016,14 @@ document.addEventListener("DOMContentLoaded", () => {
       tabs[next].focus();
     });
   });
-  if (tabs.length) activateTab(tabFromLocation() || tabs[0]);
+  if (tabs.length) {
+    const tab = tabFromLocation() || tabs[0];
+    activateTab(tab);
+    setTabRoute(tab);
+  }
   window.addEventListener('hashchange', () => {
     const tab = tabFromLocation();
-    if (tab) activateTab(tab);
+    if (tab) { activateTab(tab); setTabRoute(tab); }
   });
 
   const gamesPanel = document.getElementById("games-patches-panel");

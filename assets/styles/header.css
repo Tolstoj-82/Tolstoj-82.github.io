@@ -238,7 +238,7 @@ header.workbench-header {
   color: #215e99;
 }
 .workbench-header .section-tab:focus-visible {
-  outline-color: #ffdc73;
+  outline: none;
 }
 @media (max-width: 600px) {
   header.workbench-header { padding: 8px 10px; gap: 4px 8px; }
